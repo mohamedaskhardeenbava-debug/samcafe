@@ -1,38 +1,81 @@
-.App {
+:root {
+  /* Light theme (default) */
+  --bg-main: #ffffff;
+  --bg-surface: #fafafa;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-light: rgba(0, 0, 0, 0.08);
+  --shadow-primary: rgba(17, 17, 26, 0.1) 0px 2px 8px, rgba(17, 17, 26, 0.05) 0px 4px 16px;
+  --shadow-image: 0 18px 40px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-list: 0 3px 10px rgba(0, 0, 0, 0.08);
+  --shadow-left: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --color-green: rgb(0, 174, 29);
+  --color-red: rgb(243, 55, 22);
+  --color-red-secondary: rgb(255, 80, 50);
+}
+
+[data-theme="dark"] {
+  --bg-main: #2e2e2e;
+  --bg-surface: #020617;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5f5;
+  --border-light: rgba(255, 255, 255, 0.12);
+  --shadow-primary: rgba(208, 208, 208, 0.1) 0px 2px 8px, rgba(255, 255, 255, 0.05) 0px 4px 16px;
+  --shadow-image: 0 18px 40px rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --shadow-list: 0 3px 10px rgba(255, 255, 255, 0.08);
+  --shadow-left: 0 6px 20px rgba(255, 255, 255, 0.08);
+  --color-green: rgb(22, 243, 59);
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+
+  padding: 10px 16px;
+  border-radius: 999px;
+
+  background: var(--bg-surface);
+  color: var(--text-primary);
+
+  border: 1px solid var(--border-light);
+  font-weight: 600;
+  cursor: pointer;
+
+  z-index: 999;
+}
+
+
+/* Apply globally */
+body {
+  background: var(--bg-main);
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+
+.back-button {
+  width: 50px;
+  height: 50px;
+  border-radius: 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: absolute;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* Arrow head */
+.back-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid black;
+  border-bottom: 3px solid black;
+  transform: translateY(-50%) rotate(45deg);
 }

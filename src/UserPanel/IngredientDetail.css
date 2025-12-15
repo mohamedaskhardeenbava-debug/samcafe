@@ -1,0 +1,168 @@
+.ingredient-detail {
+  font-family: "Geom", system-ui, sans-serif;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-primary);
+}
+
+.left {
+  width: 50%;
+  padding: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.right {
+  width: 50%;
+  padding: 32px;
+  background: var(--bg-primary);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.08);
+  overflow-y: auto;
+}
+
+.ingredient-detail-image {
+  width: min(80%, 60vh);
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: var(--shadow-image);
+}
+
+.ingredient-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ingredient-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ingredient-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+}
+
+.ingredient-name {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.ingredient-cost {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-green);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.description-section,
+.description-section p {
+  margin: 0;
+}
+
+.benefits-section,
+.history-section {
+  margin: 0;
+  padding-top: 26px;
+  border-top: 1px solid rgba(130, 130, 130, 0.08);
+}
+
+.benefits-section h3,
+.history-section h3 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.description-section p,
+.history-section p {
+  font-size: 15.5px;
+  line-height: 1.8;
+  color: var(--text-secondary);
+}
+
+.health-benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.health-benefits-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  margin-bottom: 14px;
+  border-radius: 18px;
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-list);
+}
+
+.benefit-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.benefit-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-green);
+}
+
+@media (max-width: 992px) {
+  .ingredient-detail {
+    flex-direction: column;
+  }
+
+  .left,
+  .right {
+    width: 100%;
+  }
+
+  .left {
+    height: 45vh;
+  }
+
+  .right {
+    height: 55vh;
+  }
+
+  .ingredient-detail-image {
+    width: min(70%, 40vh);
+  }
+
+  .ingredient-name {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .left,
+  .right {
+    padding: 16px;
+  }
+
+  .ingredient-detail-image {
+    width: min(80%, 32vh);
+    border-radius: 16px;
+  }
+
+  .health-benefits-list li {
+    margin-bottom: 8px;
+  }
+}
