@@ -1,5 +1,37 @@
 import './IngredientDetail.css'
 import { useParams } from 'react-router-dom'
+import calorieIcon from "../assets/icons/calorie.png";
+import proteinIcon from "../assets/icons/protein.png";
+import fatIcon from "../assets/icons/fat.png";
+import fibreIcon from "../assets/icons/fiber.png";
+
+const NUTRITION_CONFIG = [
+  {
+    key: "kcal",
+    label: "Calories",
+    unit: "kcal",
+    icon: calorieIcon
+  },
+  {
+    key: "protein",
+    label: "Protein",
+    unit: "g",
+    icon: proteinIcon
+  },
+  {
+    key: "fat",
+    label: "Fat",
+    unit: "g",
+    icon: fatIcon
+  },
+  {
+    key: "fibre",
+    label: "Fibre",
+    unit: "g",
+    icon: fibreIcon
+  }
+];
+
 
 const IngredientDetail = ({ handleBack, foodData }) => {
   const { id } = useParams()
@@ -16,67 +48,65 @@ const IngredientDetail = ({ handleBack, foodData }) => {
 
   return (
     <div className="ingredient-detail">
-      <button
-        className="back-button"
-        style={{top:"40px"  ,left:"40px"}}
-        aria-label="Go back"
-        onClick={handleBack}
-      ></button>
+
       <div className="left">
-        
+        <button
+          className="ingredient-back-button"
+          aria-label="Go back"
+          onClick={handleBack}
+        ></button>
         <div className="ingredient-detail-image">
-        <img src="" alt='' />
-      </div>
-
-        
-      </div>
-      
-
-      <div className="right">
-        <div className="ingredient-header">
-        <h2 className="ingredient-name">
-          {ingredient.name}
-        </h2>
-
-        <div className="ingredient-cost">
-          ₹{ingredient.pricePer100g} / 100g
+          <img src={ingredient.image} alt='' />
         </div>
       </div>
 
-      <div className="description-section">
-        <p>{ingredient.description}</p>
-      </div>
+      <div className="right">
+        <div className="ingredient-header">
+          <h2 className="ingredient-name">
+            {ingredient.name}
+          </h2>
 
-      <div className="benefits-section">
-        <h3>Health Benefits (per 100g)</h3>
-        <ul className="health-benefits-list">
-          <li>
-            <span className="benefit-name">Calories</span>
-            <span className="benefit-value">{kcal} kcal</span>
-          </li>
-          <li>
-            <span className="benefit-name">Protein</span>
-            <span className="benefit-value">{protein} g</span>
-          </li>
-          <li>
-            <span className="benefit-name">Fat</span>
-            <span className="benefit-value">{fat} g</span>
-          </li>
-          <li>
-            <span className="benefit-name">Fibre</span>
-            <span className="benefit-value">{fibre} g</span>
-          </li>
-        </ul>
-      </div>
+          <div className="ingredient-cost">
+            ₹{ingredient.pricePer100g} / 100g
+          </div>
+        </div>
 
-      
+        <div className="description-section">
+          <p>{ingredient.description}</p>
+        </div>
 
-      
+        <div className="benefits-section">
+          <h3>Health Benefits (per 100g)</h3>
 
-      <div className="history-section">
-        <h3>History</h3>
-        <p>{ingredient.history}</p>
-      </div>
+          <div className="ingredient-nutrition">
+            {NUTRITION_CONFIG.map(({ key, label, unit, icon }) => {
+              const value = ingredient.nutritionPer100g?.[key];
+
+              if (value == null) return null;
+
+              return (
+                <div className="ingredient-nutrition-item" key={key}>
+                  <div className="ingredient-nutrition-image">
+                    <img src={icon} alt={label} />
+                  </div>
+
+                  <div className="ingredient-nutrition-value">
+                    {value} {unit}
+                  </div>
+
+                  <div className="ingredient-nutrition-name">
+                    {label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="history-section">
+          <h3>History</h3>
+          <p>{ingredient.history}</p>
+        </div>
       </div>
     </div>
   )

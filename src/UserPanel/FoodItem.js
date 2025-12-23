@@ -1,88 +1,229 @@
-import './FoodItem.css'
-import { Link, useParams, useLocation } from 'react-router-dom'
+import "./FoodItem.css";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import trash from "../assets/icons/trash.png";
+
+
+const STEP = 10;
+
 
 const FoodItem = ({ handleBack, foodData }) => {
-  const { id: varietyId } = useParams()
-  const location = useLocation()
-  const { categoryId } = location.state || {}
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [quantity, setQuantity] = useState(1);
+
+  const [selectedSize, setSelectedSize] = useState("medium");
+
+const SIZE_MULTIPLIERS = {
+  small: 0.8,   // 20% cheaper
+  medium: 1,    // base price
+  large: 1.3    // 30% more expensive
+};
+
+
+  const { categoryId, dishId } = location.state || {};
+  const [selectedOrder, setSelectedOrder] = useState([]);
+
+  const [ingredientQuantities, setIngredientQuantities] = useState({});
 
   const category = foodData.categories.find(
     (cat) => cat.id === categoryId
-  )
+  );
 
-  if (!category) {
-    return <p>Category not found</p>
-  }
+  const dish =
+    dishId && category
+      ? category.dishes.find((d) => d.id === dishId)
+      : null;
 
-  const variety = category.varieties.find(
-    (v) => v.id === varietyId
-  )
+  useEffect(() => {
+    if (!category) return;
 
-  if (!variety) {
-    return <p>Food variety not found</p>
-  }
+    const initial = {};
 
-  const ingredients = foodData.ingredients.filter((ingredient) =>
-    ingredient.usedInCategories.includes(categoryId)
-  )
+    foodData.ingredients.forEach((ing) => {
+      if (ing.usedInCategories.includes(categoryId)) {
+        initial[ing.name] = 0;
+      }
+    });
+
+    if (dish && dish.ingredients) {
+      dish.ingredients.forEach((ing) => {
+        initial[ing.name] = ing.quantity ?? 0;
+      });
+    }
+    const initialSelected =
+      dish?.ingredients?.map((ing) => ing.name) || [];
+
+    setSelectedOrder([...new Set(initialSelected)]);
+
+
+    setIngredientQuantities(initial);
+  }, [categoryId, dish, foodData.ingredients, category]);
+
+  if (!category) return <p>Category not found</p>;
+
+  const categoryIngredients = foodData.ingredients.filter(
+    (ing) => ing.usedInCategories.includes(categoryId)
+  );
+
+  const increaseQty = () => {
+    setQuantity((q) => q + 1);
+  };
+
+  const decreaseQty = () => {
+    setQuantity((q) => (q > 1 ? q - 1 : 1));
+  };
+
+  const handleIngredientClick = (ingredientId) => {
+    navigate(`/ingredient/${ingredientId}`, {
+      state: { ingredientId }
+    });
+  };
+
+  const removeIngredient = (name) => {
+    setIngredientQuantities((prev) => ({
+      ...prev,
+      [name]: 0
+    }));
+
+    setSelectedOrder((prev) => prev.filter((item) => item !== name));
+  };
+
+
+  const ingredientTotal = Object.entries(ingredientQuantities).reduce(
+    (sum, [name, qty]) => {
+      if (qty <= 0) return sum;
+
+      const ing = foodData.ingredients.find(
+        (i) => i.name === name
+      );
+      if (!ing) return sum;
+
+      return sum + (ing.pricePer100g * qty) / 100;
+    },
+    0
+  );
+
+  const dishBasePrice = dish ? dish.basePrice : 0;
+
+  const singleItemPrice =
+  (dishBasePrice * SIZE_MULTIPLIERS[selectedSize]) +
+  ingredientTotal;
+
+const totalPrice = singleItemPrice * quantity;
+
 
   return (
     <div className="food-item">
+      {/* LEFT PANEL */}
       <div className="left-panel">
-
-        <div className="header">
-          <button
-            className="back-button"
-            aria-label="Go back"
-            onClick={handleBack}
-          ></button>
-          <div className="food-item-name-section">
+        <div className="fooditem-header">
+          <button className="back-button" onClick={handleBack} />
           <div className="food-item-name">
-            {category.name} - {variety.name}
+            {dish
+              ? `${dish.name}`
+              : `Make Your Own ${category.name}`}
           </div>
-          <div className="food-item-price">
-            ₹{variety.basePrice}
-          </div>
-        </div>
         </div>
 
-        <div className="food-item-image">
-          <img src="" alt=""/>
+        {/* IMAGE */}
+
+        <div
+          className="food-item-image"
+        >
+
+          <img
+
+            src={dish?.image || "/assets/placeholder-food.jpg"}
+            alt={dish?.name || "Make Your Own"}
+
+            draggable={false}
+          />
+
         </div>
 
-        
-
+        <div className="size-selector">
+  {["small", "medium", "large"].map((size) => (
+    <button
+      key={size}
+      className={`size-button ${selectedSize === size ? "active" : ""}`}
+      onClick={() => setSelectedSize(size)}
+    >
+      {size.charAt(0).toUpperCase() + size.slice(1)}
+    </button>
+  ))}
+</div>
         <div className="ingredient-section">
-          <div className="ingredients">Ingredients</div>
+          <div className="ingredients">All Ingredients</div>
 
           <div className="ingredient-list">
-            {ingredients.map((ingredient) => (
-              <div className="ingredient-item" key={ingredient.id}>
-                <Link
-                  className="ingredient-item-image"
-                  to={`/ingredient/${ingredient.id}`}
-                >
-                  <img src="" alt="" />
-                </Link>
+            {categoryIngredients.map((ing) => {
+              const quantity = ingredientQuantities[ing.name] || 0;
 
-                <Link
-                  className="ingredient-item-name"
-                  to={`/ingredient/${ingredient.id}`}
-                >
-                  {ingredient.name}
-                </Link>
+              return (
+                <div className="ingredient-item" key={ing.id}>
+                  <div
+                    className="ingredient-item-image"
+                    onClick={() => handleIngredientClick(ing.id)}
+                  >
+                    <img src={ing.image} alt="" />
+                  </div>
 
-                <div className="ingredient-item-price">
-                  ₹{ingredient.pricePer100g}/100g
+                  <div
+                    className="ingredient-item-name"
+                    onClick={() => handleIngredientClick(ing.id)}
+                  >
+                    {ing.name}
+                  </div>
+
+                  <div className="ingredient-item-price">
+                    ₹{ing.pricePer100g}/100g
+                  </div>
+
+                  <div className="ingredient-modification">
+                    <button
+                      className="ingredient-minus"
+                      onClick={() =>
+                        setIngredientQuantities((prev) => ({
+                          ...prev,
+                          [ing.name]: Math.max(0, quantity - STEP)
+                        }))
+                      }
+                    >
+                      -
+                    </button>
+
+                    <div className="ingredient-quantity">
+                      10g
+                    </div>
+
+                    <button
+                      className="ingredient-plus"
+                      onClick={() =>
+                        setIngredientQuantities((prev) => {
+                          const newQty = quantity + STEP;
+
+                          if (quantity === 0) {
+                            setSelectedOrder((order) =>
+                              order.includes(ing.name) ? order : [...order, ing.name]
+                            );
+                          }
+
+
+                          return {
+                            ...prev,
+                            [ing.name]: newQty
+                          };
+                        })
+                      }
+
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-
-                <div className="ingredient-modification">
-                  <div className="ingredient-minus">-</div>
-                  <div className="ingredient-item-quantity">50g</div>
-                  <div className="ingredient-plus">+</div>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -90,62 +231,113 @@ const FoodItem = ({ handleBack, foodData }) => {
       <div className="right-panel">
         <div className="top">
           <div className="ingredients-calculation">
-            Ingredients calculation
+            Selected Ingredients
           </div>
 
-          <div className="ingredient-list-calculation">
-            <div className="ingredient-item-calculation">
-              <div className='ingredient-item-image-calculation'>
-                <img src="" alt="" />
-              </div>
-              <div className='ingredient-item-name-calculation'>Name</div>
-              <div className="ingredient-item-quantity-calculation">50g</div>
-              <div className="ingredient-item-price-calculation">₹200</div>
-            </div>
+          {selectedOrder
+            .filter((name) => ingredientQuantities[name] > 0)
+            .map((name) => {
 
-            <div className="ingredient-item-calculation">
-              <div className='ingredient-item-image-calculation'>
-                <img src="" alt="" />
-              </div>
-              <div className='ingredient-item-name-calculation'>Name</div>
-              <div className="ingredient-item-quantity-calculation">50g</div>
-              <div className="ingredient-item-price-calculation">₹200</div>
-            </div>
+              const qty = ingredientQuantities[name];
+              if (qty <= 0) return null;
 
-            <div className="ingredient-item-calculation">
-              <div className='ingredient-item-image-calculation'>
-                <img src="" alt="" />
-              </div>
-              <div className='ingredient-item-name-calculation'>Name</div>
-              <div className="ingredient-item-quantity-calculation">50g</div>
-              <div className="ingredient-item-price-calculation">₹200</div>
-            </div>
-          </div>
+              const ing = foodData.ingredients.find(
+                (i) => i.name === name
+              );
+              if (!ing) return null;
+
+              const price = (ing.pricePer100g * qty) / 100;
+
+              return (
+                <div className="ingredient-item-calculation" key={name}>
+                  <div className="ingredient-item-image-calculation">
+                    <img src={ing.image} alt={name} />
+                  </div>
+
+                  <div className="ingredient-item-name-calculation">
+                    {name}
+                  </div>
+
+                  <div className="ingredient-item-quantity-calculation">
+                    {qty}g
+                  </div>
+
+                  <div className="ingredient-item-price-calculation">
+                    ₹{price.toFixed(0)}
+                  </div>
+
+                  <div
+                    className="ingredient-delete"
+                    onClick={() => removeIngredient(name)}
+                  >
+                    <img src={trash} alt="Trash icon" />
+                  </div>
+                </div>
+              );
+            })}
 
         </div>
+        {/* <div className="ingredient-item-calculation" key={name}>
+                <div className="ingredient-item-image-calculation">
+                  <img src="" alt="" />
+                </div>
 
+                <div className="ingredient-item-name-calculation">
+                  {name}
+                </div>
+
+                <div className="ingredient-item-quantity-calculation">
+                  {qty}g
+                </div>
+
+                <div className="ingredient-item-price-calculation">
+                  ₹{price.toFixed(0)}
+                </div>
+
+                <div
+                  className="ingredient-delete"
+                  onClick={() => removeIngredient(name)}
+                >
+                  <img src={trash} alt="Trash icon" />
+                </div>
+              </div> */}
         <div className="bottom">
           <div className="price-section">
-            <div className="total-price">Total Price</div>
+            <div className="price-label">Total Price</div>
             <div className="food-item-total-amount">
-              ₹500
+              ₹{totalPrice.toFixed(0)}
             </div>
           </div>
 
-          <div className="quatity-section">
-            <div className="total-quantity">Total Quantity</div>
-            <div className="food-item-total-quantity">
-              300 grams
+          {/* Quantity Section */}
+          <div className="quantity-section">
+            <div className="quantity-label">Quantity</div>
+
+            <div className="quantity-controls">
+              <button
+                className="qty-btn"
+                onClick={decreaseQty}
+                disabled={quantity === 1}
+              >
+                -
+              </button>
+
+              <div className="qty-value">{quantity}x</div>
+
+              <button className="qty-btn" onClick={increaseQty}>
+                +
+              </button>
             </div>
           </div>
 
-          <div className="Add-to-cart-button" role="button">
-            Add to Cart
-          </div>
+          <Link className="food-place-order-button" to="/thank-you">
+            Place Order
+          </Link>
         </div>
+
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default FoodItem
+export default FoodItem;

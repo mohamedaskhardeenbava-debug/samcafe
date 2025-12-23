@@ -51,7 +51,6 @@
 
 .welcome-container {
   text-align: center;
-  padding: 40px 32px;
   animation: containerFadeIn 1.2s ease forwards;
 }
 
@@ -64,6 +63,12 @@
   opacity: 0;
   animation: slideUp 0.8s ease forwards;
   animation-delay: 0.3s;
+}
+
+.welcome-title {
+  padding: 10px;
+  border-radius: 10px;
+  background-color: white;
 }
 
 .welcome-title img {
@@ -151,7 +156,7 @@
   text-decoration: none;
   padding: 14px 34px;
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 500;
   color: #eee;
   background: #f64848;
   border: none;
@@ -162,18 +167,4 @@
   opacity: 0;
   animation: slideUp 0.8s ease forwards;
   animation-delay: 0.9s;
-}
-
-@media (max-width: 768px) {
-  .welcome-title img {
-    width: 140px;
-  }
-
-  .welcome-text {
-    font-size: 18px;
-  }
-
-  .welcome-slogan {
-    font-size: 16px;
-  }
 }

@@ -28,13 +28,12 @@
 .food-category-items:hover {
   transform: translateY(-6px);
   background-color: #FECA40;
+  color: black;
 }
 
 .food-category-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: #f5f5f5;
+  width: 120px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +43,7 @@
 .food-category-image img {
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: contain;
 }
 
 .food-category-name {
