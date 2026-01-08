@@ -1,81 +1,246 @@
 .thankyou-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-primary);
-    font-family: "Geom", sans-serif;
-    font-optical-sizing: auto;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  font-family: "Geom", sans-serif;
+  font-optical-sizing: auto;
 }
 
 .thankyou-card {
-    max-width: 520px;
-    height: 60vh;
-    padding: 48px 40px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 16px;
-    background: var(--bg-primary);
-    box-shadow: var(--thankyou-shadow);
+  width: 800px;
+  height: fit-content;
+  padding: 48px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 16px;
+  background: var(--bg-primary);
+  box-shadow: var(--thankyou-shadow);
 }
 
 .thankyou-title {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 36px;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 36px;
 }
 
 .thankyou-message {
-    font-size: 16px;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-    line-height: 1.6;
-    margin-top: 0;
-    width: 80%;
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+  line-height: 1.6;
+  margin-top: 0;
+  width: 80%;
 }
 
 .table-number {
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--color-green);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-green);
 }
 
 .time {
-    font-weight: 700;
-    font-size: 18px;
-    color: var(--color-green);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--color-green);
 }
 
 .order-again-btn {
-    padding: 14px 28px;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 10px;
-    margin-top: 36px;
-    border: none;
-    cursor: pointer;
-    background: var(--color-red);
-    color: white;
-    box-shadow: rgb(246, 72, 72, 0.2) 0px 10px 20px, rgba(246, 72, 72, 0.3) 0px 6px 6px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  margin-top: 36px;
+  border: none;
+  cursor: pointer;
+  background: var(--color-red);
+  color: white;
+  box-shadow: rgb(246, 72, 72, 0.2) 0px 10px 20px, rgba(246, 72, 72, 0.3) 0px 6px 6px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-again-btn.thanks-btn {
+  background-color: var(--color-green);
+  box-shadow: none;
 }
 
 .done-btn {
-    padding: 14px 28px;
-    font-size: 15px;
-    font-weight: 600;
-    border-radius: 10px;
-    margin-top: 36px;
-    border: none;
-    cursor: pointer;
-    background: var(--color-green);
-    color: white;
+  padding: 14px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 10px;
+  margin-top: 36px;
+  border: none;
+  cursor: pointer;
+  background: var(--color-green);
+  color: white;
 }
 
 .order-again-btn:hover {
-    transform: translateY(-2px);
+  transform: translateY(-2px);
+}
+
+.order-table {
+  width: 90%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.order-table thead {
+  background-color: var(--bg-primary);
+}
+
+.order-table th {
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+  border-bottom: 1px solid var(--text-tertiary);
+}
+
+.order-table td {
+  padding: 14px 12px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--text-tertiary);
+  text-align: left;
+}
+
+.order-table th:first-child,
+.order-table td:first-child {
+  border: none;
+  width: 50px;
+}
+
+.order-table th:nth-child(3),
+.order-table td:nth-child(3) {
+  width: 70px;
+}
+
+.order-table th:nth-child(4),
+.order-table td:nth-child(4),
+.order-table th:nth-child(5),
+.order-table td:nth-child(5),
+.order-table th:nth-child(6),
+.order-table td:nth-child(6) {
+  width: 50px;
+}
+
+/*  Image  */
+
+.order-img {
+  width: 54px;
+  height: 54px;
+  border-radius: 10px;
+  object-fit: contain;
+}
+
+/*  Buttons  */
+
+.order-table button {
+  padding: 10px 16px;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.order-table button:hover {
+  transform: scale(1.1);
+}
+
+/* Delete */
+.order-table button:last-child {
+  background-color: var(--bg-primary);
+  box-shadow: var(--shadow-primary);
+  color: var(--color-red);
+}
+
+/*  Total  */
+
+.order-total {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.confirm-box {
+  background: #fff;
+  padding: 20px 22px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.confirm-box h3 {
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.confirm-box p {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 18px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirm-cancel {
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.confirm-yes {
+  background: var(--color-green);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.confirm-remove {
+  background-color: var(--color-red);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media screen and (max-width: 992px) {
+  .order-table {
+    width: 100%;
+  }
 }

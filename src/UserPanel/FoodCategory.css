@@ -31,6 +31,20 @@
   color: black;
 }
 
+.food-category-items.favourites {
+  background-color: #ffd563;
+}
+
+.food-category-items.favourites:hover {
+  background-color: #FECA40;
+}
+
+.food-category-items.favourites .food-category-name::after {
+  content: "★";
+  margin-left: 6px;
+  color: #ff4d4f;
+}
+
 .food-category-image {
   width: 120px;
   height: 120px;
@@ -56,7 +70,110 @@
 
 }
 
-@media screen  and (max-width: 992px) {
+/*  COMBOS SECTION  */
+
+.combo-section {
+  margin-bottom: 40px;
+  padding: 24px;
+  border-radius: 18px;
+  background: linear-gradient(135deg,
+      rgba(255, 179, 71, 0.18),
+      rgba(255, 99, 71, 0.12));
+}
+
+.combo-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.combo-description {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.combo-sub-description {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+.combo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+/*  COMBO CARD  */
+
+.combo-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.combo-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
+}
+
+.combo-image {
+  position: relative;
+  height: 140px;
+}
+
+.combo-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.combo-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/*  CONTENT  */
+
+.combo-content {
+  padding: 14px;
+}
+
+.combo-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.combo-content p {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.combo-cta {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ff6b35;
+  text-decoration: none;
+}
+
+.combo-cta:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 992px) {
   .food-category {
     padding: 30px;
   }
@@ -66,8 +183,12 @@
   }
 }
 
-@media screen  and (max-width: 768px) {
+@media screen and (max-width: 768px) {
   .food-category {
     padding: 20px;
+  }
+
+  .combo-header h2 {
+    font-size: 20px;
   }
 }

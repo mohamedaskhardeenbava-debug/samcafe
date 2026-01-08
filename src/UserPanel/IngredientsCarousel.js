@@ -15,60 +15,56 @@ export default function IngredientsCarousel({
   allIngredients = []
 }) {
   const navigate = useNavigate();
-
-  // ✅ ALWAYS define hooks first (no conditions)
   const safeIngredients = Array.isArray(ingredients) ? ingredients : [];
   const total = safeIngredients.length;
-
   const x = useMotionValue(0);
   const isDragging = useRef(false);
   const startX = useRef(0);
 
-const initialIndex = total > ITEMS_VISIBLE ? STEP : 0;
+  const initialIndex = total > ITEMS_VISIBLE ? STEP : 0;
   const [index, setIndex] = useState(initialIndex);
 
-const clones = useMemo(() => {
-  if (total <= ITEMS_VISIBLE) return safeIngredients;
+  const clones = useMemo(() => {
+    if (total <= ITEMS_VISIBLE) return safeIngredients;
 
-  return [
-    ...safeIngredients.slice(-STEP),
-    ...safeIngredients,
-    ...safeIngredients.slice(0, STEP)
-  ];
-}, [safeIngredients, total]);
+    return [
+      ...safeIngredients.slice(-STEP),
+      ...safeIngredients,
+      ...safeIngredients.slice(0, STEP)
+    ];
+  }, [safeIngredients, total]);
 
 
   const slideTo = (i, animated = true) => {
-  const target = -i * (ITEM_WIDTH + GAP);
+    const target = -i * (ITEM_WIDTH + GAP);
 
 
-  if (!animated) {
-    x.set(target);
-    return;
-  }
-
-  animate(x, target, {
-    type: "spring",
-    stiffness: 260,
-    damping: 32,
-    onComplete: () => {
-      // 🔁 Loop reset ONLY after animation finishes
-      if (total <= ITEMS_VISIBLE) return;
-
-      if (i >= total + ITEMS_VISIBLE) {
-        const reset = ITEMS_VISIBLE;
-        setIndex(reset);
-        x.set(-reset * ITEM_WIDTH);
-      }
-
-      if (i <= STEP - 1) {
-        const reset = total + ITEMS_VISIBLE - 1;
-        setIndex(reset);
-        x.set(-reset * ITEM_WIDTH);
-      }
+    if (!animated) {
+      x.set(target);
+      return;
     }
-  });
-};
+
+    animate(x, target, {
+      type: "spring",
+      stiffness: 260,
+      damping: 32,
+      onComplete: () => {
+        if (total <= ITEMS_VISIBLE) return;
+
+        if (i >= total + ITEMS_VISIBLE) {
+          const reset = ITEMS_VISIBLE;
+          setIndex(reset);
+          x.set(-reset * ITEM_WIDTH);
+        }
+
+        if (i <= STEP - 1) {
+          const reset = total + ITEMS_VISIBLE - 1;
+          setIndex(reset);
+          x.set(-reset * ITEM_WIDTH);
+        }
+      }
+    });
+  };
 
 
   useEffect(() => {
@@ -85,25 +81,25 @@ const clones = useMemo(() => {
     return () => clearInterval(id);
   }, [index, total]);
 
-const slideNext = () => {
-  if (total <= ITEMS_VISIBLE) return;
+  const slideNext = () => {
+    if (total <= ITEMS_VISIBLE) return;
 
-  setIndex((i) => {
-    const next = i + STEP;
-    slideTo(next);
-    return next;
-  });
-};
+    setIndex((i) => {
+      const next = i + STEP;
+      slideTo(next);
+      return next;
+    });
+  };
 
-const slidePrev = () => {
-  if (total <= ITEMS_VISIBLE) return;
+  const slidePrev = () => {
+    if (total <= ITEMS_VISIBLE) return;
 
-  setIndex((i) => {
-    const prev = i - STEP;
-    slideTo(prev);
-    return prev;
-  });
-};
+    setIndex((i) => {
+      const prev = i - STEP;
+      slideTo(prev);
+      return prev;
+    });
+  };
 
 
   const handleLoopReset = () => {
@@ -122,7 +118,6 @@ const slidePrev = () => {
     }
   };
 
-  // ✅ CONDITIONAL RENDER (NOT conditional hooks)
   if (total === 0) return null;
 
   return (

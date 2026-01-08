@@ -9,12 +9,9 @@ import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
 import IngredientsCarousel from "./IngredientsCarousel";
 
-
-
 const SWIPE_THRESHOLD = 80;
 const ITEMS_PER_SLIDE = 5;
 const AUTO_SLIDE_INTERVAL = 5000;
-
 
 const imageVariants = {
   enter: (direction) => ({
@@ -94,9 +91,7 @@ const ingredientSlideVariants = {
   }),
 };
 
-
-
-const FoodList = ({ handleBack, foodData }) => {
+const FoodList = ({ handleBack, foodData, addToBag }) => {
   const { categoryId } = useParams();
 
   const category = foodData.categories.find(
@@ -115,43 +110,45 @@ const FoodList = ({ handleBack, foodData }) => {
   const addonStartX = useRef(0);
   const addonIsDown = useRef(false);
 
-  const slides = [
-    ...category.dishes,
-    { id: "__custom__", name: "Make Your Own" }
-  ];
+const slides = [
+  { id: "__custom__", name: "Make Your Own" },
+  ...(category?.dishes || [])
+];
 
   const current = slides[index];
-  const isCustomCard = current.id === "__custom__";
-
-
-
-
-
-
-
+  const isCustomCard = current && current.id === "__custom__";
 
   useEffect(() => {
-    if (!current.ingredients || current.ingredients.length <= ITEMS_PER_SLIDE)
+    if (!current || !current.ingredients || current.ingredients.length <= ITEMS_PER_SLIDE)
       return;
 
     const interval = setInterval(() => {
-      // Always slide left on auto-scroll
       setIngredientDirection(1);
-      setAddonIndex((prev) =>
-        (prev + ITEMS_PER_SLIDE) % current.ingredients.length
+      setAddonIndex(
+        (prev) =>
+          (prev + ITEMS_PER_SLIDE) % current.ingredients.length
       );
     }, AUTO_SLIDE_INTERVAL);
 
     return () => clearInterval(interval);
-  }, [current.ingredients]);
-
+  }, [current]);
 
   const onPointerDown = (e) => {
     isPointerDown.current = true;
     startX.current = e.clientX;
     startY.current = e.clientY;
   };
-  if (!category) return <p>Category not found</p>;
+  // FoodList should only render REAL menu categories
+if (!category) {
+  return (
+    <div className="food-list">
+      <div className="food-header">
+        <button className="back-button" onClick={handleBack} />
+        <div className="food-list-title">Category not found</div>
+      </div>
+    </div>
+  );
+}
 
   const onPointerUp = (e) => {
     if (!isPointerDown.current) return;
@@ -188,8 +185,6 @@ const FoodList = ({ handleBack, foodData }) => {
     );
   };
 
-
-
   const onAddonPointerDown = (e) => {
     addonIsDown.current = true;
     addonStartX.current = e.clientX;
@@ -210,17 +205,43 @@ const FoodList = ({ handleBack, foodData }) => {
     addonIsDown.current = false;
   };
 
-
-
   const ingredients = Array.isArray(current?.ingredients)
     ? current.ingredients
     : [];
 
-
   const visibleAddons = ingredients
-    .concat(current.ingredients)
+    .concat(ingredients)
     .slice(addonIndex, addonIndex + ITEMS_PER_SLIDE);
 
+  if (category.id === "favourites" && slides.length === 0) {
+    return (
+      <div className="food-list">
+        <div className="food-header">
+          <button className="back-button" onClick={handleBack} />
+          <div className="food-list-title">Favourites</div>
+        </div>
+
+        <div className="empty-favourites">
+          <h3>No favourites yet</h3>
+          <p>
+            You haven’t added any dishes to favourites.
+            Tap the ♥ icon on a dish to save it here.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!category) {
+  return (
+    <div className="food-list">
+      <div className="food-header">
+        <button className="back-button" onClick={handleBack} />
+        <div className="food-list-title">Category not found</div>
+      </div>
+    </div>
+  );
+}
 
   return (
     <div className="food-list">
@@ -295,12 +316,8 @@ const FoodList = ({ handleBack, foodData }) => {
           </div>
         </div>
 
-
-
         {!isCustomCard && (
           <>
-
-
             <div
               className="dish-info"
             >
@@ -312,7 +329,6 @@ const FoodList = ({ handleBack, foodData }) => {
 
               </div>
             </div>
-
 
             <AnimatePresence mode="wait">
               <motion.div
@@ -370,9 +386,6 @@ const FoodList = ({ handleBack, foodData }) => {
               </div>
             )}
 
-
-
-
             <AnimatePresence mode="wait">
               <motion.div
                 key={current.id + "-actions"}
@@ -385,14 +398,48 @@ const FoodList = ({ handleBack, foodData }) => {
                 <Link
                   className="customize-button"
                   to="/food/customize"
-                  state={{ categoryId, dishId: current.id }}
+                  state={{
+                    categoryId:
+                      category.id === "favourites"
+                        ? current.categoryId
+                        : category.id,
+                    dishId: current.id
+                  }}
+
                 >
                   Customize
                 </Link>
 
-                <Link className="place-order-button" to="/thank-you">
-                  Place Order
+                <Link
+                  to="/thank-you"
+                  className="place-order-button"
+                  onClick={() => {
+                    const bagItem = {
+                      id: current.id,
+                      name: current.name,
+                      image: current.image,
+                      categoryId: category.id,
+
+                      unitBasePrice: current.basePrice,
+                      ingredientPrice: 0,
+
+                      quantity: 1,
+                      totalPrice: current.basePrice,
+
+                      selectedSize: null,
+                      spiciness: null,
+                      ingredients: current.ingredients || [],
+
+                      isCustomized: false
+                    };
+
+
+                    addToBag(bagItem);
+                  }}
+                >
+                  Add to Bag
                 </Link>
+
               </motion.div>
             </AnimatePresence>
           </>

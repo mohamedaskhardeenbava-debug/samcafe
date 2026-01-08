@@ -12,7 +12,6 @@
   width: calc((84px * 5) + (14px * 4));
 }
 
-
 .carousel-track {
   display: flex;
   gap: 14px;
@@ -104,12 +103,6 @@
   border-right: 3px solid var(--foodlist-arrow);
   transform: translateY(-50%) rotate(45deg);
 }
-
-
-
-
-
-
 
 .dish-ingredient-item {
  width: 84px;

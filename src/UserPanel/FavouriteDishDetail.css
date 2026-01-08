@@ -1,0 +1,72 @@
+.fav-detail-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  padding: 16px;
+}
+
+.fav-left,
+.fav-right {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.fav-image {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+
+.fav-title {
+  margin: 8px 0;
+}
+
+.fav-price {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.fav-description {
+  color: #555;
+}
+
+.fav-ingredients,
+.fav-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 16px;
+}
+
+.fav-ingredients li,
+.fav-benefits li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.fav-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.fav-add-btn {
+  flex: 1;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.fav-customize-btn {
+  flex: 1;
+  background: #fff;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+}
