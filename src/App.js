@@ -103,7 +103,7 @@ const [orders, setOrders] = useState([]);
         sizes: [
     {
       name: "small",
-      description: "7 inch  Serves 1",
+      description: "7 inch    Serves 1",
       priceMultiplier: 1
     },
     {
