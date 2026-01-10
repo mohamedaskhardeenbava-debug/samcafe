@@ -1,7 +1,6 @@
 .food-list {
   padding: 36px;
   font-family: "Geom", system-ui, sans-serif;
-  min-height: 100vh;
 }
 
 .food-header {
@@ -225,7 +224,7 @@
   font-size: 24px;
   font-weight: 600;
   color: var(--text-primary);
-  margin-top: 35.920px;
+  margin-top: 0;
 }
 
 .customize-button {

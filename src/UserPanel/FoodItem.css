@@ -710,26 +710,6 @@
   }
 }
 
-/* ===== Mobile Optimisation ===== */
-@media (max-width: 480px) {
-  .fav-confirm-box {
-    margin: 0 14px;
-    padding: 20px 18px;
-  }
-
-  .fav-confirm-actions {
-    flex-direction: column;
-  }
-
-  .fav-confirm-yes,
-  .fav-confirm-cancel {
-    width: 100%;
-    text-align: center;
-  }
-}
-
-
-
 @media (max-width: 992px) {
   .food-item {
     grid-template-columns: 1fr;

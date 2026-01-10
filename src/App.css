@@ -24,6 +24,9 @@
   --hot-selector-shadow : rgba(99, 99, 99, 0.3) 0px 0px 8px 0px;
   --light-border : 1px solid rgba(17, 17, 17, 0.1);
   --text-tertiary : rgba(17, 17, 17, 0.2);
+  --fav-ingredient-color: #FFF9F2;
+  --fav-nutrition-color: #EEF6FF;
+  --nutrition-icon-filter: brightness(0) saturate(100%);
 }
 
 [data-theme="dark"] {
@@ -47,6 +50,10 @@
   --foodlist-arrow: rgb(255, 255, 255, 0.2);
   --hot-selector-shadow : rgba(255, 255, 255, 0.3) 0px 0px 12px 0px;
   --light-border : 1px solid rgba(255, 255, 255, 0.2);
+  --fav-ingredient-color: #1E1A16;
+  --fav-nutrition-color: #16202B;
+  --nutrition-icon-filter: brightness(0) invert(1);
+ --text-tertiary : rgba(131, 131, 131, 0.3);
 }
 
 .theme-toggle {

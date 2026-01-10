@@ -1663,59 +1663,611 @@
         dishes: []
       }
     ],
-    favourites: [
+    
+favourites: [
       {
-        id: "favourites",
-        name: "Favourites",
-        image: "/assets/category-assets/pizza.png",
-        varieties: [],
-        dishes: [
+        id: "paneer_pizza",
+        customerName: "Vijay",
+        name: "Paneer Pizza with Beef",
+        description: "The Paneer Pizza with beef is a surprisingly bold combination that actually works really well. The paneer is soft and mildly spiced, balancing the rich, savory flavor of the beef perfectly. The crust is crisp on the outside while staying soft inside, and the cheese melts beautifully, tying everything together. Every bite feels filling without being overwhelming. It’s a great choice if you want something different from the usual pizzas but still comforting and flavorful. Definitely worth trying for combo lovers who enjoy strong, layered tastes.",
+        categoryId: "pizza",
+        image: "/image-assets/pizza/pizza2.png",
+        ingredients: [
           {
-            id: "chicken_pizza",
-            name: "Chicken Pizza",
-            image: "/image-assets/pizza/pizza1.png",
-            basePrice: 349,
-            description: "Chicken Pizza is prepared with tender chicken pieces layered over a tangy tomato baseeee.",
-            benefits: {
-              calories: 520,
-              protein: 32,
-              fibre: 4,
-              fat: 22
-            },
-            ingredients: [
+            name: "Tomato Sauce",
+            quantity: 20,
+            pricePer100g: 20,
+            totalPrice: 4
+          },
+          {
+            name: "Onion",
+            quantity: 40,
+            pricePer100g: 12,
+            totalPrice: 5
+          },
+          {
+            name: "Capsicum",
+            quantity: 35,
+            pricePer100g: 40,
+            totalPrice: 14
+          },
+          {
+            name: "Paneer",
+            quantity: 60,
+            pricePer100g: 70,
+            totalPrice: 42
+          },
+          {
+            name: "Beef",
+            quantity: 20,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Mozzarella Cheese",
+            quantity: 30,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Olive Oil",
+            quantity: 5,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Garlic",
+            quantity: 5,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Oregano",
+            quantity: 2,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Butter",
+            quantity: 5,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Black Pepper",
+            quantity: 1,
+            pricePer100g: 0,
+            totalPrice: 0
+          }
+        ],
+        unitPrice: 394,
+        ingredientPrice: 65,
+        totalPrice: 394,
+        selectedSize: "small",
+        spiciness: "mild",
+        isCustom: true,
+        nutrition: {
+          calories: 500,
+          protein: 26.2,
+          fat: 24.2,
+          fiber: 4.2
+        }
+      },
+      {
+        id: "chicken_pizza",
+        customerName: "Murali",
+        name: "Chicken Pizza with Mutton",
+        description: "The Chicken Pizza with mutton is rich, hearty, and full of bold flavors. The chicken is tender and well-seasoned, while the mutton adds a deep, meaty richness that makes every bite satisfying. The spices are balanced nicely, so nothing overpowers the cheese or the crust. It’s a heavy, filling pizza that feels indulgent and perfect for meat lovers. If you enjoy strong flavors and a loaded pizza experience, this one definitely delivers.",
+        categoryId: "pizza",
+        image: "/image-assets/pizza/pizza1.png",
+        ingredients: [
+          {
+            name: "Mozarella Cheese",
+            quantity: 10,
+            pricePer100g: 59,
+            totalPrice: 6
+          },
+          {
+            name: "Tomato Sauce",
+            quantity: 60,
+            pricePer100g: 20,
+            totalPrice: 12
+          },
+          {
+            name: "Onion",
+            quantity: 30,
+            pricePer100g: 12,
+            totalPrice: 4
+          },
+          {
+            name: "Capsicum",
+            quantity: 10,
+            pricePer100g: 40,
+            totalPrice: 4
+          },
+          {
+            name: "Mutton",
+            quantity: 20,
+            pricePer100g: 100,
+            totalPrice: 20
+          },
+          {
+            name: "Chicken",
+            quantity: 20,
+            pricePer100g: 80,
+            totalPrice: 16
+          },
+          {
+            name: "Mozzarella Cheese",
+            quantity: 10,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Olive Oil",
+            quantity: "500",
+            pricePer100g: 0,
+            totalPrice: 0
+          }
+        ],
+        unitPrice: 411,
+        ingredientPrice: 62,
+        totalPrice: 411,
+        selectedSize: "small",
+        spiciness: "mild",
+        isCustom: true,
+        nutrition: {
+          calories: 574,
+          protein: 45,
+          fat: 25.7,
+          fiber: 6.4
+        }
+      },
+      {
+        id: "cheese_pizza",
+        customerName: "Ajith",
+        name: "Cheese Pizza with Beef",
+        description: "The Cheese Pizza with beef is simple yet deeply satisfying. The creamy, melted cheese creates a rich base, while the beef adds a bold, savory flavor that elevates the whole pizza. The beef is juicy and well-seasoned, complementing the softness of the cheese without overpowering it. The crust is perfectly baked, making every bite comforting and filling. It’s a great choice if you enjoy classic cheesy pizzas with a strong, meaty twist.",
+        categoryId: "pizza",
+        image: "/image-assets/pizza/pizza3.png",
+        ingredients: [
+          {
+            name: "Tomato Sauce",
+            quantity: 25,
+            pricePer100g: 20,
+            totalPrice: 5
+          },
+          {
+            name: "Onion",
+            quantity: 20,
+            pricePer100g: 12,
+            totalPrice: 2
+          },
+          {
+            name: "Capsicum",
+            quantity: 20,
+            pricePer100g: 40,
+            totalPrice: 8
+          },
+          {
+            name: "Paneer",
+            quantity: 20,
+            pricePer100g: 70,
+            totalPrice: 14
+          },
+          {
+            name: "Beef",
+            quantity: 20,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Mozzarella Cheese",
+            quantity: 40,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Oregano",
+            quantity: 30,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Garlic",
+            quantity: 10,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Butter",
+            quantity: 10,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Olive Oil",
+            quantity: 5,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Black Pepper",
+            quantity: 1,
+            pricePer100g: 0,
+            totalPrice: 0
+          },
+          {
+            name: "Salt",
+            quantity: 2,
+            pricePer100g: 0,
+            totalPrice: 0
+          }
+        ],
+        unitPrice: 328,
+        ingredientPrice: 29,
+        totalPrice: 328,
+        selectedSize: "small",
+        spiciness: "mild",
+        isCustom: true,
+        nutrition: {
+          calories: 533,
+          protein: 27.8,
+          fat: 27.2,
+          fiber: 3.2
+        }
+      }
+    ],
+    combo: [
+      {
+        id: "combo_starters",
+        image: "/image-assets/pizza/pizza1.png",
+        type: "starters",
+        title: "Starters",
+        items: [
+          {
+            id: "st_1",
+            name: "Garlic Bread",
+            price: 99,
+            image: "/combo/starters/garlic-bread.png"
+          },
+          {
+            id: "st_2",
+            name: "Cheese Balls",
+            price: 129,
+            image: "/combo/starters/cheese-balls.png"
+          },
+          {
+            id: "st_3",
+            name: "Chicken Wings",
+            price: 149,
+            image: "/combo/starters/chicken-wings.png"
+          },
+          {
+            id: "st_4",
+            name: "French Fries",
+            price: 89,
+            image: "/combo/starters/fries.png"
+          },
+          {
+            id: "st_5",
+            name: "Spring Rolls",
+            price: 119,
+            image: "/combo/starters/spring-rolls.png"
+          },
+          {
+            id: "st_6",
+            name: "Paneer Tikka",
+            price: 159,
+            image: "/combo/starters/paneer-tikka.png"
+          },
+          {
+            id: "st_7",
+            name: "Chicken Popcorn",
+            price: 139,
+            image: "/combo/starters/popcorn.png"
+          },
+          {
+            id: "st_8",
+            name: "Veg Nuggets",
+            price: 109,
+            image: "/combo/starters/nuggets.png"
+          },
+          {
+            id: "st_9",
+            name: "Onion Rings",
+            price: 99,
+            image: "/combo/starters/onion-rings.png"
+          },
+          {
+            id: "st_10",
+            name: "Mozzarella Sticks",
+            price: 149,
+            image: "/combo/starters/mozzarella.png"
+          }
+        ]
+      },
+      {
+        id: "combo_main",
+        type: "mainCourse",
+        title: "Main Course",
+        groups: [
+          {
+            id: "pizza",
+            title: "Pizza",
+            items: [
               {
-                name: "Chicken",
-                calories: 23,
-                quantity: 20
+                id: "pz_1",
+                name: "Margherita",
+                price: 299,
+                image: "/combo/pizza/margherita.png"
               },
               {
-                name: "Mozzarella Cheese",
-                calories: 280,
-                quantity: 10
+                id: "pz_2",
+                name: "Farmhouse",
+                price: 349,
+                image: "/combo/pizza/farmhouse.png"
               },
               {
-                name: "Tomato Sauce",
-                calories: 29,
-                quantity: 40
+                id: "pz_3",
+                name: "Pepperoni",
+                price: 399,
+                image: "/combo/pizza/pepperoni.png"
               },
               {
-                name: "Onion",
-                calories: 40,
-                quantity: 30
+                id: "pz_4",
+                name: "BBQ Chicken",
+                price: 429,
+                image: "/combo/pizza/bbq.png"
               },
               {
-                name: "Capsicum",
-                calories: 31,
-                quantity: 10
+                id: "pz_5",
+                name: "Veg Supreme",
+                price: 379,
+                image: "/combo/pizza/supreme.png"
               },
               {
-                name: "Olive Oil",
-                calories: 119,
-                quantity: "500"
+                id: "pz_6",
+                name: "Paneer Overload",
+                price: 389,
+                image: "/combo/pizza/paneer.png"
+              },
+              {
+                id: "pz_7",
+                name: "Mexican Green Wave",
+                price: 359,
+                image: "/combo/pizza/mexican.png"
+              },
+              {
+                id: "pz_8",
+                name: "Cheese Burst",
+                price: 419,
+                image: "/combo/pizza/cheese-burst.png"
+              },
+              {
+                id: "pz_9",
+                name: "Chicken Tikka",
+                price: 449,
+                image: "/combo/pizza/tikka.png"
+              },
+              {
+                id: "pz_10",
+                name: "Hawaiian",
+                price: 399,
+                image: "/combo/pizza/hawaiian.png"
               }
-            ],
-            selectedSize: null,
-            spiciness: "mild"
+            ]
+          },
+          {
+            id: "burger",
+            title: "Burger",
+            items: [
+              {
+                id: "bg_1",
+                name: "Veg Burger",
+                price: 149,
+                image: "/combo/burger/veg.png"
+              },
+              {
+                id: "bg_2",
+                name: "Cheese Burger",
+                price: 179,
+                image: "/combo/burger/cheese.png"
+              },
+              {
+                id: "bg_3",
+                name: "Chicken Burger",
+                price: 199,
+                image: "/combo/burger/chicken.png"
+              },
+              {
+                id: "bg_4",
+                name: "Peri Peri Burger",
+                price: 209,
+                image: "/combo/burger/peri.png"
+              },
+              {
+                id: "bg_5",
+                name: "Paneer Burger",
+                price: 189,
+                image: "/combo/burger/paneer.png"
+              },
+              {
+                id: "bg_6",
+                name: "Double Patty Burger",
+                price: 239,
+                image: "/combo/burger/double.png"
+              },
+              {
+                id: "bg_7",
+                name: "BBQ Chicken Burger",
+                price: 219,
+                image: "/combo/burger/bbq.png"
+              },
+              {
+                id: "bg_8",
+                name: "Crispy Chicken Burger",
+                price: 229,
+                image: "/combo/burger/crispy.png"
+              },
+              {
+                id: "bg_9",
+                name: "Veg Loaded Burger",
+                price: 169,
+                image: "/combo/burger/loaded.png"
+              },
+              {
+                id: "bg_10",
+                name: "Classic Burger",
+                price: 159,
+                image: "/combo/burger/classic.png"
+              }
+            ]
+          },
+          {
+            id: "sandwich",
+            title: "Sandwich",
+            items: [
+              {
+                id: "sw_1",
+                name: "Grilled Sandwich",
+                price: 179,
+                image: "/combo/sandwich/grilled.png"
+              },
+              {
+                id: "sw_2",
+                name: "Club Sandwich",
+                price: 219,
+                image: "/combo/sandwich/club.png"
+              },
+              {
+                id: "sw_3",
+                name: "Veg Sandwich",
+                price: 149,
+                image: "/combo/sandwich/veg.png"
+              },
+              {
+                id: "sw_4",
+                name: "Chicken Sandwich",
+                price: 199,
+                image: "/combo/sandwich/chicken.png"
+              },
+              {
+                id: "sw_5",
+                name: "Paneer Sandwich",
+                price: 189,
+                image: "/combo/sandwich/paneer.png"
+              },
+              {
+                id: "sw_6",
+                name: "Cheese Sandwich",
+                price: 169,
+                image: "/combo/sandwich/cheese.png"
+              },
+              {
+                id: "sw_7",
+                name: "Corn Sandwich",
+                price: 159,
+                image: "/combo/sandwich/corn.png"
+              },
+              {
+                id: "sw_8",
+                name: "Egg Sandwich",
+                price: 189,
+                image: "/combo/sandwich/egg.png"
+              },
+              {
+                id: "sw_9",
+                name: "Tandoori Sandwich",
+                price: 209,
+                image: "/combo/sandwich/tandoori.png"
+              },
+              {
+                id: "sw_10",
+                name: "Mexican Sandwich",
+                price: 199,
+                image: "/combo/sandwich/mexican.png"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: "combo_drinks",
+        type: "drinks",
+        title: "Drinks",
+        groups: [
+          {
+            id: "hot",
+            title: "Hot Drinks",
+            items: [
+              {
+                id: "dr_h1",
+                name: "Coffee",
+                price: 79,
+                image: "/combo/drinks/coffee.png"
+              },
+              {
+                id: "dr_h2",
+                name: "Tea",
+                price: 59,
+                image: "/combo/drinks/tea.png"
+              },
+              {
+                id: "dr_h3",
+                name: "Hot Chocolate",
+                price: 99,
+                image: "/combo/drinks/hot-chocolate.png"
+              }
+            ]
+          },
+          {
+            id: "milkshake",
+            title: "Milkshakes",
+            items: [
+              {
+                id: "dr_m1",
+                name: "Chocolate Shake",
+                price: 149,
+                image: "/combo/drinks/chocolate.png"
+              },
+              {
+                id: "dr_m2",
+                name: "Strawberry Shake",
+                price: 139,
+                image: "/combo/drinks/strawberry.png"
+              },
+              {
+                id: "dr_m3",
+                name: "Vanilla Shake",
+                price: 129,
+                image: "/combo/drinks/vanilla.png"
+              }
+            ]
+          },
+          {
+            id: "cold",
+            title: "Cold Drinks",
+            items: [
+              {
+                id: "dr_c1",
+                name: "Coke",
+                price: 59,
+                image: "/combo/drinks/coke.png"
+              },
+              {
+                id: "dr_c2",
+                name: "Pepsi",
+                price: 59,
+                image: "/combo/drinks/pepsi.png"
+              },
+              {
+                id: "dr_c3",
+                name: "Sprite",
+                price: 59,
+                image: "/combo/drinks/sprite.png"
+              }
+            ]
           }
         ]
       }
@@ -67981,3 +68533,41 @@
     ]
   }
 }
+
+
+
+sizes: [
+          {
+            name: "small",
+            description: "7 inch · Serves 1",
+            priceMultiplier: 1
+          },
+          {
+            name: "medium",
+            description: "10 inch · Serves 2",
+            priceMultiplier: 1.25
+          },
+          {
+          name: "large",
+            description: "12 inch · Serves 3",
+            priceMultiplier: 1.5
+          }
+        ],
+
+        sizes: [
+          {
+            name: "single",
+            description": "Single patty · Regular bun",
+            priceMultiplier: 1
+          },
+          {
+            name: "double",
+            description: "Double patty · Extra filling",
+            priceMultiplier": 1.35
+          },
+          {
+            name: "jumbo",
+            description: "Triple patty · Large bun",
+            priceMultiplier: 1.6
+          }
+        ]

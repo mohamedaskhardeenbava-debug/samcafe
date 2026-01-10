@@ -1,0 +1,399 @@
+/* =====================================================
+   ROOT
+===================================================== */
+.combo-page {
+  display: flex;
+  height: 100vh;
+  background: var(--bg-primary);
+  font-family: "Geom", system-ui, sans-serif;
+  color: var(--text-primary);
+}
+
+/* =====================================================
+   LOADING
+===================================================== */
+.combo-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* =====================================================
+   LAYOUT
+===================================================== */
+.combo-left {
+  width: 80%;
+  padding: 32px 36px;
+  overflow-y: auto;
+}
+
+.combo-right {
+  width: 20%;
+  background: var(--bg-main);
+  border-left: 1px solid var(--text-tertiary);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+.combo-header {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+  align-items: center;
+}
+
+.combo-header div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.combo-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.combo-header p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.combo-back-btn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+  margin-bottom: 6px;
+}
+
+/* =====================================================
+   CATEGORY ROW
+===================================================== */
+.combo-category-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.combo-category-card {
+  flex: 1;
+  padding: 14px 0;
+  text-align: center;
+  border-radius: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--bg-main);
+  border: 1px solid var(--text-tertiary);
+  transition: all 0.25s ease;
+}
+
+.combo-category-card:hover {
+  background: var(--color-green);
+  color: #fff;
+  border-color: var(--color-green);
+}
+
+.combo-category-card.disabled {
+  background: var(--text-tertiary);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   ITEMS GRID
+===================================================== */
+.combo-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* =====================================================
+   GROUP CARD
+===================================================== */
+.combo-group-card {
+  background: var(--bg-main);
+  border: 1px solid var(--text-tertiary);
+  border-radius: 16px;
+  padding: 28px 16px;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.combo-group-card:hover {
+  border-color: var(--color-green);
+  transform: translateY(-4px);
+}
+
+/* =====================================================
+   ITEM CARD
+===================================================== */
+.combo-item-card {
+  background: var(--bg-main);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--text-tertiary);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+
+.combo-item-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--thankyou-shadow);
+}
+
+.combo-item-image {
+  width: 50%;
+  aspect-ratio: 1 / 1;
+  background-color: var(--text-tertiary);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.combo-item-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.combo-item-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.combo-item-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-green);
+  margin-bottom: 10px;
+}
+
+.combo-item-card button {
+  width: 100%;
+  padding: 10px 0;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-green);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.combo-item-card button:hover {
+  transform: translateY(-2px);
+}
+
+/* =====================================================
+   RIGHT PANEL
+===================================================== */
+.combo-right h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.combo-selected-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+
+.combo-selected-image {
+  width: 48px;
+  height: 48px;
+  background-color: var(--text-tertiary);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.combo-selected-item img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+.combo-selected-info {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.combo-selected-info div:last-child {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.combo-selected-item button {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--color-red);
+}
+
+/* =====================================================
+   SUMMARY
+===================================================== */
+.combo-summary {
+  margin-top: auto;
+  border-top: 1px solid var(--text-tertiary);
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.combo-offer-label {
+  color: var(--color-green);
+}
+
+.combo-discounted-price,
+.combo-original-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.combo-original-price div:last-child {
+  color: var(--color-red) !important;
+}
+
+.combo-discounted-price div:last-child{
+  color: var(--color-green) !important;
+}
+
+.combo-add-btn {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 12px;
+  border: none;
+  background: var(--color-red);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.combo-add-btn:disabled {
+  background: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+/* ===============================
+   CENTER OFFER HINT MODAL
+================================ */
+
+/* Backdrop with blur */
+.offer-hint-backdrop {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* White modal */
+.offer-hint-modal {
+  padding: 24px 28px;
+  border-radius: 18px;
+  width: 360px;
+  text-align: center;
+  box-shadow: 0 30px 60px var(--text-tertiary);
+}
+
+/* Message */
+.offer-hint-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 18px;
+}
+
+/* Actions */
+.offer-hint-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.offer-hint-add {
+  flex: 1;
+  background: var(--color-green);
+  color: white;
+  border: none;
+  padding: 10px 0;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.offer-hint-skip {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #555;
+  padding: 10px 0;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+@media (max-width: 1024px) {
+  .combo-page {
+    flex-direction: column;
+  }
+
+  .combo-left,
+  .combo-right {
+    width: 100%;
+  }
+
+  .combo-right {
+    border-left: none;
+    border-top: 1px solid var(--text-tertiary);
+  }
+
+  .combo-add-btn {
+    width: 200px;
+  }
+}
+
+@media (max-width: 640px) {
+  .combo-category-row {
+    flex-direction: column;
+  }
+
+  .combo-items-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

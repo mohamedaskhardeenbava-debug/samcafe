@@ -16,14 +16,75 @@ const SPICINESS_OPTIONS = [
   { id: "extreme", name: "Extreme", icon: extreme }
 ];
 
+const normalizeName = (name) =>
+  name.trim().toLowerCase();
+
+const toNumber = (val) => {
+  const n = Number(val);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const calculateFinalNutrition = ({
+  baseDish,
+  ingredientQuantities,
+  masterIngredients
+}) => {
+  /* 1️⃣ START WITH BASE DISH BENEFITS */
+  const total = {
+    calories: baseDish?.benefits?.calories ?? 0,
+    protein: baseDish?.benefits?.protein ?? 0,
+    fat: baseDish?.benefits?.fat ?? 0,
+    fiber: baseDish?.benefits?.fibre ?? 0
+  };
+
+  /* 2️⃣ ADD NUTRITION OF ALL CURRENT INGREDIENTS */
+  Object.entries(ingredientQuantities).forEach(([name, qty]) => {
+    const ingredient = masterIngredients.find(
+      i => normalizeName(i.name) === normalizeName(name)
+    );
+
+    if (!ingredient?.nutritionPer100g) return;
+
+    const factor = toNumber(qty) / 100;
+    const n = ingredient.nutritionPer100g;
+
+    total.calories += (n.kcal || 0) * factor;
+    total.protein += (n.protein || 0) * factor;
+    total.fat += (n.fat || 0) * factor;
+    total.fiber += (n.fibre || 0) * factor;
+  });
+
+  /* 3️⃣ SUBTRACT BASE INGREDIENT NUTRITION (AVOID DOUBLE COUNTING) */
+  baseDish?.ingredients?.forEach((ing) => {
+    const ingredient = masterIngredients.find(
+      i => normalizeName(i.name) === normalizeName(ing.name)
+    );
+
+    if (!ingredient?.nutritionPer100g) return;
+
+    const factor = toNumber(ing.quantity) / 100;
+    const n = ingredient.nutritionPer100g;
+
+    total.calories -= (n.kcal || 0) * factor;
+    total.protein -= (n.protein || 0) * factor;
+    total.fat -= (n.fat || 0) * factor;
+    total.fiber -= (n.fibre || 0) * factor;
+  });
+
+  /* 4️⃣ SAFETY & ROUNDING */
+  return {
+    calories: Math.round(Math.max(0, total.calories)),
+    protein: Number(Math.max(0, total.protein).toFixed(1)),
+    fat: Number(Math.max(0, total.fat).toFixed(1)),
+    fiber: Number(Math.max(0, total.fiber).toFixed(1))
+  };
+};
 
 const FoodItem = ({ handleBack, foodData, updateBagItem, onToggleFavourite, addToBag }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [spiciness, setSpiciness] = useState("mild");
-  const { fromBag, bagIndex, bagItem } = location.state || {};
-const isEditMode = fromBag === true && typeof bagIndex === "number";
   const [selectedSize, setSelectedSize] = useState(null);
   const { categoryId, dishId } = location.state || {};
   const [selectedOrder, setSelectedOrder] = useState([]);
@@ -33,7 +94,16 @@ const isEditMode = fromBag === true && typeof bagIndex === "number";
   const [favName, setFavName] = useState("");
   const [favDescription, setFavDescription] = useState("");
   const [favCustomerName, setFavCustomerName] = useState("");
-const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+  const {
+    fromBag,
+    bagIndex,
+    bagItem,
+    fromFavouriteCustomize,
+    originalFavouriteId
+  } = location.state || {};
+  const isEditMode = fromBag === true && typeof bagIndex === "number";
+
 
   const category =
     foodData.categories.find(cat => cat.id === categoryId) ||
@@ -43,17 +113,21 @@ const [isWishlisted, setIsWishlisted] = useState(false);
         cat.dishes.some(d => d.id === dishId)
     );
 
-  const dish = isEditMode
-    ? bagItem
-    : category && dishId
-      ? category.dishes.find(d => d.id === dishId)
-      : null;
+  const favouriteDish = fromFavouriteCustomize
+  ? foodData.favourites.find(f => f.id === originalFavouriteId)
+  : null;
+
+const dish = favouriteDish
+  ? favouriteDish
+  : category && dishId
+    ? category.dishes.find(d => d.id === dishId)
+    : null;
 
   /* EFFECTIVE DISH */
   const effectiveDish = isEditMode
     ? {
-      ...bagItem,
-      basePrice: bagItem.unitPrice, // single item price
+      ...dish,                 // 👈 menu dish
+      ingredients: bagItem.ingredients,
     }
     : dish || {
       id: "__custom__",
@@ -63,7 +137,7 @@ const [isWishlisted, setIsWishlisted] = useState(false);
       ingredients: []
     };
 
-    const isCustomDish = effectiveDish?.id === "__custom__";
+  const isCustomDish = effectiveDish?.id === "__custom__";
 
   /*  ORIGINAL CATEGORY*/
   const originalCategory =
@@ -80,32 +154,22 @@ const [isWishlisted, setIsWishlisted] = useState(false);
     ) || originalCategory?.sizes?.[0];
 
   const sizeMultiplier = Number(selectedSizeObj?.priceMultiplier ?? 1);
-  const normalizedBasePrice =
-    Number(effectiveDish.basePrice || 0) * sizeMultiplier;
+  const basePrice = Number(dish?.basePrice ?? effectiveDish?.basePrice ?? 0);
+const normalizedBasePrice = basePrice * sizeMultiplier;
 
   /* BUILD CUSTOMIZED DISH */
   const buildCustomizedDish = () => {
     const base = effectiveDish;
 
     const customId =
-      base.id === "__custom__"
-        ? `custom_${originalCategory.id}_${Date.now()}`
-        : base.id;
+  base.id === "__custom__" || fromFavouriteCustomize
+    ? `custom_${originalCategory.id}_${Date.now()}`
+    : base.id;
 
     /* ---- quantities chosen by user ---- */
-    const modifiedIngredients = (base.ingredients || [])
-      .map(ing => {
-        const qty =
-          ingredientQuantities?.[ing.name] ??
-          ing.quantity ??
-          0;
-
-        return {
-          name: ing.name,
-          quantity: qty
-        };
-      })
-      .filter(ing => ing.quantity > 0);
+    const modifiedIngredients = Object.entries(ingredientQuantities)
+      .filter(([_, qty]) => qty > 0)
+      .map(([name, quantity]) => ({ name, quantity }));
 
     /* ---- RIGHT PANEL SNAPSHOT (PRICE FROM MASTER LIST) ---- */
     const finalIngredients = modifiedIngredients.map(ing => {
@@ -131,7 +195,9 @@ const [isWishlisted, setIsWishlisted] = useState(false);
       0
     );
 
-    const totalPrice = normalizedBasePrice + ingredientPrice;
+    const unitPrice = normalizedBasePrice + ingredientPrice;
+
+    const totalPrice = unitPrice * Number(quantity || 1);
 
     return {
       id: customId,
@@ -142,7 +208,7 @@ const [isWishlisted, setIsWishlisted] = useState(false);
       image: base.image,
 
       ingredients: finalIngredients,
-      basePrice: normalizedBasePrice,
+      unitPrice,
       ingredientPrice,
       totalPrice,
 
@@ -230,22 +296,22 @@ const [isWishlisted, setIsWishlisted] = useState(false);
   );
 
   useEffect(() => {
-  if (!effectiveDish) return;
+    if (!effectiveDish) return;
 
-  // 🔥 DO NOT override local state for Make Your Own
-  if (isCustomDish && isWishlisted) return;
+    // 🔥 DO NOT override local state for Make Your Own
+    if (isCustomDish && isWishlisted) return;
 
-  const exists = foodData.favourites.some(
-    f => f.id === effectiveDish.id
-  );
+    const exists = foodData.favourites.some(
+      f => f.id === effectiveDish.id
+    );
 
-  setIsWishlisted(exists);
-}, [
-  effectiveDish?.id,
-  foodData.favourites,
-  isCustomDish,
-  isWishlisted
-]);
+    setIsWishlisted(exists);
+  }, [
+    effectiveDish?.id,
+    foodData.favourites,
+    isCustomDish,
+    isWishlisted
+  ]);
 
   useEffect(() => {
     if (!originalCategory?.sizes?.length) return;
@@ -253,10 +319,12 @@ const [isWishlisted, setIsWishlisted] = useState(false);
   }, [originalCategory]);
 
   useEffect(() => {
-    if (isEditMode) {
-      setShowFavForm(false);
+    if (isEditMode && bagItem) {
+      setQuantity(Number(bagItem.quantity) || 1);
+      setSelectedSize(bagItem.selectedSize);
+      setSpiciness(bagItem.spiciness);
     }
-  }, [isEditMode]);
+  }, [isEditMode, bagItem]);
 
   if (!category) return <p>Category not found</p>;
 
@@ -291,36 +359,7 @@ const [isWishlisted, setIsWishlisted] = useState(false);
     );
   };
 
-  const ingredientTotal = Object.entries(ingredientQuantities).reduce(
-    (sum, [name, qty]) => {
-      const defaultQty =
-        defaultIngredientQtyRef.current[effectiveDish.id]?.[name] || 0;
-
-      const deltaQty = qty - defaultQty;
-
-      if (deltaQty <= 0) return sum;
-
-      const ing = foodData.ingredients.find(
-        (i) => i.name === name
-      );
-
-      if (!ing?.pricePer100g) return sum;
-
-      return sum + (ing.pricePer100g * deltaQty) / 100;
-    },
-    0
-  );
-
   const safeQuantity = Number(quantity || 1);
-
-  const singleItemPrice =
-    normalizedBasePrice + Number(ingredientTotal || 0);
-
-  const totalPrice = singleItemPrice * safeQuantity;
-
-  const unitPrice = isEditMode
-    ? Number(bagItem.unitPrice)
-    : Number(normalizedBasePrice + ingredientTotal);
 
   const isCustomized =
     effectiveDish.id === "__custom__" ||
@@ -344,50 +383,101 @@ const [isWishlisted, setIsWishlisted] = useState(false);
   const customizedDish = buildCustomizedDish();
 
   const buildBagItem = () => {
-  const ingredients = Object.entries(ingredientQuantities)
-    .filter(([_, qty]) => qty > 0)
-    .map(([name, qty]) => {
-      const master = foodData.ingredients.find(i => i.name === name);
-      const pricePer100g = Number(master?.pricePer100g || 0);
-      const totalPrice = Math.round((pricePer100g * qty) / 100);
+    /* -----------------------------
+       1️⃣ BUILD INGREDIENT SNAPSHOT
+    ------------------------------ */
+    const ingredients = Object.entries(ingredientQuantities)
+      .filter(([_, qty]) => Number(qty) > 0)
+      .map(([name, qty]) => {
+        const master = foodData.ingredients.find(
+          i => i.name === name
+        );
 
-      return {
-        name,
-        quantity: qty,
-        pricePer100g,
-        totalPrice
-      };
-    });
+        const pricePer100g = Number(master?.pricePer100g || 0);
+        const quantityNum = Number(qty) || 0;
 
-  const ingredientPrice = ingredients.reduce(
-    (s, i) => s + i.totalPrice,
-    0
+        const totalPrice = Math.round(
+          (pricePer100g * quantityNum) / 100
+        );
+
+        return {
+          name,
+          quantity: quantityNum,
+          pricePer100g,
+          totalPrice
+        };
+      });
+
+    /* -----------------------------
+       2️⃣ INGREDIENT PRICE (ONCE)
+    ------------------------------ */
+    const ingredientPrice = ingredients.reduce((sum, ing) => {
+  if (fromFavouriteCustomize) {
+    // favourite price already includes ingredients
+    return sum;
+  }
+
+  const baseQty =
+    dish?.ingredients?.find(i => i.name === ing.name)?.quantity ?? 0;
+
+  const deltaQty = ing.quantity - baseQty;
+  if (deltaQty <= 0) return sum;
+
+  return sum + Math.round(
+    (ing.pricePer100g * deltaQty) / 100
   );
+}, 0);
 
-  const unitPrice = Math.round(
-    normalizedBasePrice + ingredientPrice
-  );
+    /* -----------------------------
+       3️⃣ UNIT PRICE (MENU BASE ONLY)
+       ❌ NEVER use bagItem prices
+    ------------------------------ */
+    const unitPrice = Math.round(
+      Number(normalizedBasePrice) + ingredientPrice
+    );
 
-  return {
-    id: effectiveDish.id,
-    name: favName || effectiveDish.name,
-    image: effectiveDish.image,
-    categoryId: originalCategory.id,
+    const qty = Number(quantity || 1);
 
-    quantity: Number(quantity || 1),
-    unitPrice,
-    totalPrice: unitPrice * Number(quantity || 1),
+    /* -----------------------------
+       4️⃣ FINAL SNAPSHOT (PURE)
+    ------------------------------ */
+    return {
+      id: effectiveDish.id,
+      name: favName || effectiveDish.name,
+      image: effectiveDish.image,
+      categoryId: originalCategory.id,
 
-    selectedSize,
-    spiciness,
-    ingredients
+      quantity: qty,
+      unitPrice,                 // price for ONE item
+      totalPrice: unitPrice * qty, // ✅ single source of truth
+
+      selectedSize,
+      spiciness,
+      ingredients
+    };
   };
-};
 
+  const previewItem = buildBagItem();
+
+const totalPrice = fromFavouriteCustomize
+  ? Number(dish?.totalPrice ?? previewItem.totalPrice)
+  : previewItem.totalPrice;
+
+  const hasIngredientChange = Object.entries(ingredientQuantities).some(
+    ([name, qty]) => {
+      const baseQty =
+        dish?.ingredients?.find(i => i.name === name)?.quantity ?? 0;
+      return qty !== baseQty;
+    }
+  );
 
   const shouldShowWishlist =
-    effectiveDish.id === "__custom__" ||
-    Object.values(ingredientQuantities).some((qty) => qty > 0);
+    // Normal flow
+    (!fromFavouriteCustomize &&
+      (effectiveDish.id === "__custom__" || hasIngredientChange)) ||
+
+    // Favourite → Customize flow
+    (fromFavouriteCustomize && hasIngredientChange);
 
   return (
     <div className="food-item">
@@ -402,22 +492,32 @@ const [isWishlisted, setIsWishlisted] = useState(false);
           </div>
           {shouldShowWishlist && (
             <div
-  className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
-  onClick={() => {
-    if (isWishlisted) {
-      onToggleFavourite(effectiveDish);
-      setIsWishlisted(false);
-      return;
-    }
+              className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
+              onClick={() => {
+                // 🚫 Do not allow toggling existing favourite
+                if (fromFavouriteCustomize) {
+                  setFavCustomerName("");
+                  setFavName(`Customized ${displayName}`);
+                  setFavDescription("");
+                  setShowFavForm(true);
+                  return;
+                }
 
-    setFavCustomerName("");
-    setFavName(displayName);
-    setFavDescription("");
-    setShowFavForm(true);
-  }}
->
-  ♥
-</div>
+                // Normal wishlist toggle
+                if (isWishlisted) {
+                  onToggleFavourite(effectiveDish);
+                  setIsWishlisted(false);
+                  return;
+                }
+
+                setFavCustomerName("");
+                setFavName(displayName);
+                setFavDescription("");
+                setShowFavForm(true);
+              }}
+            >
+              ♥
+            </div>
 
           )}
 
@@ -691,14 +791,20 @@ const [isWishlisted, setIsWishlisted] = useState(false);
                   <button
                     className="fav-confirm-yes"
                     onClick={() => {
+                      const customizedDish = buildCustomizedDish();
+                      const nutrition = calculateFinalNutrition({
+                        baseDish: dish, // 👈 ORIGINAL menu dish (Chicken Pizza)
+                        ingredientQuantities,
+                        masterIngredients: foodData.ingredients
+                      });
+
                       const favDish = {
                         ...buildCustomizedDish(),
-                        customerName: favCustomerName,
-                        name: favName,
-                        description: favDescription
+                        nutrition
                       };
 
                       onToggleFavourite(favDish);
+
                       setIsWishlisted(true);
                       setShowFavForm(false);
                     }}
@@ -711,21 +817,21 @@ const [isWishlisted, setIsWishlisted] = useState(false);
           )}
 
           <button
-  className="food-place-order-button"
-  onClick={() => {
-    const item = buildBagItem();
+            className="food-place-order-button"
+            onClick={() => {
+              const item = buildBagItem();
 
-    if (isEditMode) {
-      updateBagItem(bagIndex, item); // ✅ replace
-    } else {
-      addToBag(item); // ✅ add
-    }
+              if (isEditMode) {
+                updateBagItem(bagIndex, item); // ✅ replace
+              } else {
+                addToBag(item); // ✅ add
+              }
 
-    navigate("/thank-you");
-  }}
->
-  {isEditMode ? "Update Bag" : "Add to Bag"}
-</button>
+              navigate("/thank-you");
+            }}
+          >
+            {isEditMode ? "Update Bag" : "Add to Bag"}
+          </button>
         </div>
       </div>
     </div>

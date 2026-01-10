@@ -34,7 +34,7 @@ const FavouriteDishList = ({ foodData, handleBack }) => {
               <div className="food-category-image">
                 <img src={dish.image} alt={dish.name} />
               </div>
-              <div className="food-category-name">
+              <div className="food-category-name" style={{color: "black"}}>
                 {dish.name}
               </div>
             </Link>

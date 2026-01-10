@@ -4,7 +4,7 @@ import confetti from "canvas-confetti";
 import "./ThankYou.css";
 import api from "../api";
 
-const ThankYou = ({ bag, setBag, onOrderPlaced, placeOrder }) => {
+const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
   const navigate = useNavigate();
 
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
@@ -36,74 +36,27 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, placeOrder }) => {
   /* =========================
      PLACE ORDER (CORE LOGIC)
   ========================= */
-  //   const confirmPlaceOrder = async () => {
-  //     try {
-  //       const res = await api.get("/menu");
-  //       const existingOrders = res.data.orders || [];
+  const confirmPlaceOrder = () => {
+  setOrderPlaced(true);
+  setShowOrderConfirm(false);
 
-  //       // Generate next order id safely
-  //       const lastOrderNumber = existingOrders.length
-  //         ? Math.max(
-  //           ...existingOrders.map((o) =>
-  //             Number(String(o.id).replace("order_", "")) || 0
-  //           )
-  //         )
-  //         : 1000;
+  confetti({
+    particleCount: 150,
+    spread: 55,
+    startVelocity: 45,
+    angle: 60,
+    origin: { x: 0.05, y: 0.85 }
+  });
 
-  //       const nextOrderId = `order_${lastOrderNumber + 1}`;
+  confetti({
+    particleCount: 150,
+    spread: 55,
+    startVelocity: 45,
+    angle: 120,
+    origin: { x: 0.95, y: 0.85 }
+  });
+};
 
-  //       const newOrder = {
-  //         id: nextOrderId,
-  //         date: new Date().toISOString().split("T")[0],
-  //         status: "placed",
-  //         tableNumber: 7,
-  //         paymentMode: "cash",
-  //         totalAmount: Math.round(totalAmount),
-
-  //         items: bag.map((item) => ({
-  //           dishId: item.id,
-  //           dishName: item.name, // ✅ custom or original
-  //           categoryId: item.categoryId,
-  //           quantity: Number(item.quantity) || 1,
-  //           totalPrice: Math.round(item.totalPrice)
-  //         }))
-  //       };
-
-  //       const updatedMenu = {
-  //         ...res.data,
-  //         orders: [...existingOrders, newOrder]
-  //       };
-
-  //       await api.put("/menu", updatedMenu);
-
-  //       onOrderPlaced?.(newOrder);
-  //       setOrderPlaced(true);
-  //       setShowOrderConfirm(false);
-
-  //       // Bottom-left cannon (shoots diagonally up-right)
-  // confetti({
-  //   particleCount: 150,
-  //   spread: 70,
-  //   startVelocity: 45,
-  //   angle: 60,                 // ↗ direction
-  //   origin: { x: 0.05, y: 0.85 }
-  // });
-
-  // // Bottom-right cannon (shoots diagonally up-left)
-  // confetti({
-  //   particleCount: 150,
-  //   spread: 70,
-  //   startVelocity: 45,
-  //   angle: 120,                // ↖ direction
-  //   origin: { x: 0.95, y: 0.85 }
-  // });
-
-
-  //     } catch (err) {
-  //       console.error("Failed to place order", err);
-  //       alert("Failed to place order. Please try again.");
-  //     }
-  //   };
 
   /* =========================
      THANKS ACTION
@@ -120,14 +73,13 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, placeOrder }) => {
           {orderPlaced ? "Thank You for Your Order!" : "Your Bag"}
         </h1>
 
-         {orderPlaced && (
+        {orderPlaced && (
           <h5 className="thankyou-message">
             Your order has been successfully placed and will be delivered to{" "}
             <span className="table-number">TABLE #07</span> within{" "}
             <span className="time">15–20 minutes</span>.
           </h5>
-        )} 
-
+        )}
 
         {isBagEmpty && !orderPlaced && (
           <p className="empty-bag-msg">
@@ -160,17 +112,27 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, placeOrder }) => {
                   {!orderPlaced && (
                     <td>
                       <button
-                        onClick={() =>
-                          navigate(`/food/${item.id}`, {
-                            state: {
-                              fromBag: true,
-                              bagIndex: index,
-                              bagItem: item,
-                              categoryId: item.categoryId,
-                              dishId: item.id
-                            }
-                          })
-                        }
+                        onClick={() => {
+                          if (item.isCombo) {
+                            navigate("/combo", {
+                              state: {
+                                fromBag: true,
+                                bagIndex: index,
+                                comboItems: item.comboItems
+                              }
+                            });
+                          } else {
+                            navigate(`/food/${item.id}`, {
+                              state: {
+                                fromBag: true,
+                                bagIndex: index,
+                                bagItem: item,
+                                categoryId: item.categoryId,
+                                dishId: item.id
+                              }
+                            });
+                          }
+                        }}
                       >
                         Edit
                       </button>
@@ -253,38 +215,9 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, placeOrder }) => {
               >
                 Cancel
               </button>
-              {/* <button className="confirm-yes" onClick={confirmPlaceOrder}>
+              <button className="confirm-yes" onClick={confirmPlaceOrder}>
                 Yes, Place Order
-              </button> */}
-
-{/* temp */}
-              <button
-  className="confirm-yes"
-  onClick={() => {
-    if (!bag || bag.length === 0) return;
-
-    setOrderPlaced(true);
-    setShowOrderConfirm(false)
-
-    // 🎉 optional confetti
-    confetti({
-      particleCount: 120,
-      spread: 60,
-      angle: 60,
-      origin: { x: 0.05, y: 0.85 }
-    });
-
-    confetti({
-      particleCount: 120,
-      spread: 60,
-      angle: 120,
-      origin: { x: 0.95, y: 0.85 }
-    });
-  }}
->
-  Place Order
-</button>
-
+              </button>
             </div>
           </div>
         </div>
