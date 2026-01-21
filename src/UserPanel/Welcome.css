@@ -172,7 +172,94 @@
   color: #fff;
 }
 
-.modal .link-btn {
+.link-btn {
   background: transparent;
   color: #666;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 8px;
+  background-color: var(--bg-surface);
+  box-shadow: var(--shadow-primary);
+  border: none;
+width: 100px;
+}
+
+.profile-modal {
+  background: #fff;
+  padding: 28px;
+  border-radius: 18px;
+  width: 360px;
+  text-align: center;
+  animation: scaleIn 0.25s ease;
+}
+
+.profile-cards {
+  display: flex;
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.profile-card {
+  flex: 1;
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--color-red);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.profile-card h4 {
+  margin-bottom: 6px;
+  color: var(--color-red);
+}
+
+.profile-card p {
+  font-size: 13px;
+  color: #666;
+}
+
+.profile-card:hover {
+  background: #FECA40;
+  color: #fff;
+}
+
+.profile-card.secondary {
+  border-color: #ddd;
+}
+
+.profile-card.secondary h4 {
+  color: #333;
+}
+
+.modal input {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 15px;
+  outline: none;
+}
+
+.btn-container {
+
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.modal input:focus {
+  border-color: #f64848;
+  box-shadow: 0 0 0 2px rgba(246, 72, 72, 0.15);
+}
+
+.modal .primary {
+  background-color: var(--color-red-secondary);
+  box-shadow: rgb(246, 72, 72, 0.2) 0px 10px 20px, rgba(246, 72, 72, 0.3) 0px 6px 6px;
+  color: #fff;
+  font-weight: 500;
+  transition: transform 0.2s ease;
+  width: 100px;
+}
+
+.modal .primary:hover {
+  transform: translateY(-1px);
 }

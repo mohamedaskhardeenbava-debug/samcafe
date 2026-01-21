@@ -65,33 +65,41 @@ const Welcome = ({ users, setUsers }) => {
 
       {/* PROFILE CHOICE OVERLAY */}
       {showProfileChoice && (
-        <div className="overlay">
-          <div className="modal">
-            <h3>Continue as</h3>
+  <div className="overlay">
+    <div className="profile-modal">
+      <h3>Choose Profile</h3>
 
-            <button
-              className="primary"
-              onClick={() => {
-                setShowProfileChoice(false);
-                setShowSignupForm(true);
-              }}
-            >
-              Sign Up
-            </button>
-
-            <button onClick={handleGuest}>
-              Continue as Guest
-            </button>
-
-            <button
-              className="link-btn"
-              onClick={() => setShowProfileChoice(false)}
-            >
-              Cancel
-            </button>
-          </div>
+      <div className="profile-cards">
+        <div
+          className="profile-card"
+          onClick={() => {
+            setShowProfileChoice(false);
+            setShowSignupForm(true);
+          }}
+        >
+          <h4>Sign Up</h4>
+          <p>Create your profile for a better experience</p>
         </div>
-      )}
+
+        <div
+          className="profile-card secondary"
+          onClick={handleGuest}
+        >
+          <h4>Guest</h4>
+          <p>Continue without creating an account</p>
+        </div>
+      </div>
+
+      <button
+        className="link-btn"
+        onClick={() => setShowProfileChoice(false)}
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* SIGNUP FORM OVERLAY */}
       {showSignupForm && (
@@ -113,7 +121,8 @@ const Welcome = ({ users, setUsers }) => {
               onChange={(e) => setMobile(e.target.value)}
             />
 
-            <button
+            <div className="btn-container">
+              <button
               className="primary"
               onClick={handleSignup}
               disabled={loading}
@@ -127,6 +136,7 @@ const Welcome = ({ users, setUsers }) => {
             >
               Back
             </button>
+            </div>
           </div>
         </div>
       )}

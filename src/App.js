@@ -3640,11 +3640,6 @@ function App() {
     );
   };
 
-  const handleOrderPlaced = (newOrder) => {
-    setOrders((prev) => [...prev, newOrder]);
-    setBag([]);
-  };
-
   // if (loading) return <div className="app-loading">Loading menu...</div>;
   // if (error) return <div className="app-error">Failed to load menu</div>;
 
@@ -3730,7 +3725,6 @@ function App() {
                   setBag={setBag}
                   orders={orders}
                   setOrders={setOrders}
-                  onOrderPlaced={handleOrderPlaced}
                 />
               </motion.div>
 
