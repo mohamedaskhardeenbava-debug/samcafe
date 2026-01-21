@@ -1,6 +1,3 @@
-/* Reuse FoodCategory styles */
-
-
 /* Optional: spacing consistency with FoodList */
 .food-list .food-category {
   margin-top: 24px;
@@ -21,4 +18,13 @@
 
 .empty-favourites p {
   font-size: 14px;
+}
+
+/* REMOVE star & bg in favourite category LIST */
+.fav-category-list .food-category-items.favourites {
+  background: var(--bg-primary);
+}
+
+.fav-category-list .food-category-items.favourites .food-category-name::after {
+  content: none;
 }

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import "./IngredientsCarousel.css";
 
 const ITEMS_VISIBLE = 5;
-const STEP = 5; // 🔑 move 5 items per action
+const STEP = 5; // move 5 items per action
 const AUTO_SLIDE_MS = 4500;
 const ITEM_WIDTH = 84; // must match .dish-ingredient-item width
 const GAP = 14;        // must match CSS gap

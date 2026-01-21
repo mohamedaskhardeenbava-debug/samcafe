@@ -22,3 +22,27 @@
 .empty-favourites p {
   font-size: 14px;
 }
+
+.fav-delete-btn {
+  margin-top: 8px;
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* REMOVE star & bg in favourite DISH page */
+.fav-dish-page .food-category-items.favourites {
+  background: var(--bg-primary);
+}
+
+.fav-dish-page .food-category-items.favourites:hover {
+  background-color: #FECA40;
+}
+
+.fav-dish-page .food-category-items.favourites .food-category-name::after {
+  content: none;
+}

@@ -23,15 +23,12 @@ const FoodCategory = ({ foodData }) => {
     <div className="food-category">
       <div className="food-category-container">
         {categoriesToRender.map((category) => {
-          const isSpecialCategory =
-  category.id === "favourites" || category.id === "combo";
-
+          const isFavouriteCategory = category.id === "favourites";
 
           return (
             <Link
               key={category.id}
-              className={`food-category-items ${isSpecialCategory ? "favourites" : ""}`}
-              to={
+              className={`food-category-items ${isFavouriteCategory ? "favourites" : ""}`} to={
                 category.id === "favourites"
                   ? "/favourites"
                   : category.id === "combo"
@@ -42,7 +39,7 @@ const FoodCategory = ({ foodData }) => {
               <div className="food-category-image">
                 <img src={category.image} alt={category.name} />
               </div>
-              <div className="food-category-name" style={{ color: isSpecialCategory ? "black" : "" }}>{category.name}</div>
+              <div className="food-category-name" >{category.name}</div>
             </Link>
           );
         })}

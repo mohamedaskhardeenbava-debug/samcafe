@@ -8,6 +8,7 @@ import proteinIcon from "../assets/icons/protein.png";
 import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
 import IngredientsCarousel from "./IngredientsCarousel";
+import homeIcon from "../assets/icons/home.png";
 
 const SWIPE_THRESHOLD = 80;
 const ITEMS_PER_SLIDE = 5;
@@ -71,29 +72,9 @@ const contentVariants = {
   }
 };
 
-const ingredientSlideVariants = {
-  enter: (direction) => ({
-    x: direction > 0 ? 620 : -620,
-  }),
-  center: {
-    x: 0,
-    transition: {
-      x: { type: "spring", stiffness: 180, damping: 24 },
-      opacity: { duration: 0.25, ease: [0.25, 1, 0.5, 1] },
-    },
-  },
-  exit: (direction) => ({
-    x: direction > 0 ? -20 : 20,
-    transition: {
-      x: { type: "spring", stiffness: 200, damping: 26 },
-      opacity: { duration: 0.2 },
-    },
-  }),
-};
-
-const FoodList = ({ handleBack, foodData, addToBag }) => {
+const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   const { categoryId } = useParams();
-
+  const navigate = useNavigate();
   const category = foodData.categories.find(
     (cat) => cat.id === categoryId
   );
@@ -102,53 +83,34 @@ const FoodList = ({ handleBack, foodData, addToBag }) => {
   const startX = useRef(0);
   const startY = useRef(0);
   const isPointerDown = useRef(false);
-  const navigate = useNavigate();
-
-  const [addonIndex, setAddonIndex] = useState(0);
-  const [ingredientDirection, setIngredientDirection] = useState(0);
-
-  const addonStartX = useRef(0);
-  const addonIsDown = useRef(false);
-
-const slides = [
-  { id: "__custom__", name: "Make Your Own" },
-  ...(category?.dishes || [])
-];
+  const slides = [
+    { id: "__custom__", name: "Make Your Own" },
+    ...(category?.dishes || [])
+  ];
 
   const current = slides[index];
   const isCustomCard = current && current.id === "__custom__";
-
-  useEffect(() => {
-    if (!current || !current.ingredients || current.ingredients.length <= ITEMS_PER_SLIDE)
-      return;
-
-    const interval = setInterval(() => {
-      setIngredientDirection(1);
-      setAddonIndex(
-        (prev) =>
-          (prev + ITEMS_PER_SLIDE) % current.ingredients.length
-      );
-    }, AUTO_SLIDE_INTERVAL);
-
-    return () => clearInterval(interval);
-  }, [current]);
 
   const onPointerDown = (e) => {
     isPointerDown.current = true;
     startX.current = e.clientX;
     startY.current = e.clientY;
   };
+
   // FoodList should only render REAL menu categories
-if (!category) {
-  return (
-    <div className="food-list">
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">Category not found</div>
+  if (!category) {
+    return (
+      <div className="food-list">
+        <div className="food-header">
+          <button className="back-button" onClick={handleBack} />
+          <div className="food-list-title">Category not found</div>
+          <div className="home-btn" onClick={handleHome}>
+            <img src={homeIcon} alt="" />
+          </div>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   const onPointerUp = (e) => {
     if (!isPointerDown.current) return;
@@ -170,55 +132,15 @@ if (!category) {
     isPointerDown.current = false;
   };
 
-  const slideNext = () => {
-    setIngredientDirection(1);
-    setAddonIndex((prev) =>
-      (prev + ITEMS_PER_SLIDE) % current.ingredients.length
-    );
-  };
-
-  const slidePrev = () => {
-    setIngredientDirection(-1);
-    setAddonIndex((prev) =>
-      (prev - ITEMS_PER_SLIDE + current.ingredients.length) %
-      current.ingredients.length
-    );
-  };
-
-  const onAddonPointerDown = (e) => {
-    addonIsDown.current = true;
-    addonStartX.current = e.clientX;
-  };
-
-  const onAddonPointerUp = (e) => {
-    if (!addonIsDown.current) return;
-    const diff = addonStartX.current - e.clientX;
-
-    if (diff > 50) {
-      setIngredientDirection(1);
-      slideNext();
-    } else if (diff < -50) {
-      setIngredientDirection(-1);
-      slidePrev();
-    }
-
-    addonIsDown.current = false;
-  };
-
-  const ingredients = Array.isArray(current?.ingredients)
-    ? current.ingredients
-    : [];
-
-  const visibleAddons = ingredients
-    .concat(ingredients)
-    .slice(addonIndex, addonIndex + ITEMS_PER_SLIDE);
-
   if (category.id === "favourites" && slides.length === 0) {
     return (
       <div className="food-list">
         <div className="food-header">
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">Favourites</div>
+          <div className="home-btn" onClick={handleHome}>
+          <img src={homeIcon} alt="" />
+        </div>
         </div>
 
         <div className="empty-favourites">
@@ -233,15 +155,18 @@ if (!category) {
   }
 
   if (!category) {
-  return (
-    <div className="food-list">
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">Category not found</div>
+    return (
+      <div className="food-list">
+        <div className="food-header">
+          <button className="back-button" onClick={handleBack} />
+          <div className="food-list-title">Category not found</div>
+          <div className="home-btn" onClick={handleHome}>
+          <img src={homeIcon} alt="" />
+        </div>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   return (
     <div className="food-list">
@@ -256,6 +181,9 @@ if (!category) {
         >
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">{category.name}</div>
+          <div className="home-btn" onClick={handleHome}>
+          <img src={homeIcon} alt="" />
+        </div>
         </motion.div>
       </AnimatePresence>
 
@@ -419,21 +347,15 @@ if (!category) {
                       name: current.name,
                       image: current.image,
                       categoryId: category.id,
-
                       unitBasePrice: current.basePrice,
                       ingredientPrice: 0,
-
                       quantity: 1,
                       totalPrice: current.basePrice,
-
                       selectedSize: null,
                       spiciness: null,
                       ingredients: current.ingredients || [],
-
                       isCustomized: false
                     };
-
-
                     addToBag(bagItem);
                   }}
                 >
@@ -471,7 +393,6 @@ if (!category) {
             </motion.div>
           </AnimatePresence>
         )}
-
       </div>
     </div>
   );

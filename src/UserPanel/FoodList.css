@@ -6,9 +6,9 @@
 .food-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   width: fit-content;
+  width: 100%;
 }
 
 .back-button {

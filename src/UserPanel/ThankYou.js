@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import confetti from "canvas-confetti";
 import "./ThankYou.css";
-import api from "../api";
 
 const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
   const navigate = useNavigate();
@@ -19,9 +18,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
     0
   );
 
-  /* =========================
-     DELETE ITEM FROM BAG
-  ========================= */
+  /*DELETE ITEM FROM BAG */
   const handleDeleteClick = (index) => {
     setDeleteIndex(index);
     setShowDeleteConfirm(true);
@@ -33,10 +30,24 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
     setDeleteIndex(null);
   };
 
-  /* =========================
-     PLACE ORDER (CORE LOGIC)
-  ========================= */
+  /* PLACE ORDER (CORE LOGIC)*/
   const confirmPlaceOrder = () => {
+  const newOrder = {
+    id: `order_${Date.now()}`,
+    date: new Date().toISOString().split("T")[0],
+    status: "placed",
+    totalAmount: Math.round(totalAmount),
+    items: bag.map((item) => ({
+      dishId: item.id,
+      dishName: item.name,
+      quantity: Number(item.quantity) || 1,
+      totalPrice: Math.round(item.totalPrice)
+    }))
+  };
+
+  // ✅ STATE UPDATE (like App.js)
+  onOrderPlaced?.(newOrder);
+
   setOrderPlaced(true);
   setShowOrderConfirm(false);
 
@@ -57,13 +68,17 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
   });
 };
 
-
-  /* =========================
-     THANKS ACTION
-  ========================= */
+  /*THANKS ACTION*/
   const handleThanks = () => {
     setBag([]);
     navigate("/");
+  };
+
+  const getDisplayName = (item) => {
+    if (item.isCustomized && !item.isFromFavourite) {
+      return `Customized ${item.name}`;
+    }
+    return item.name;
   };
 
   return (
@@ -105,7 +120,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
                   <td>
                     <img src={item.image} alt="" className="order-img" />
                   </td>
-                  <td>{item.name}</td>
+                  <td>{getDisplayName(item)}</td>
                   <td>₹{Math.round(item.totalPrice)}</td>
                   <td>{item.quantity}</td>
 

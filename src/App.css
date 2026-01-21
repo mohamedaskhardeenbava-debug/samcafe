@@ -12,6 +12,7 @@
   --shadow-left: 0 6px 20px rgba(0, 0, 0, 0.08);
   --color-green: rgb(0, 174, 29);
   --color-red: rgb(243, 55, 22);
+  --color-pale-red: #fff2f1;
   --color-pale-yellow: #ffffc3;
   --color-pale-green:rgb(208, 255, 205);
   --color-red-secondary: rgb(255, 80, 50);
@@ -87,6 +88,22 @@ body {
   background: var(--bg-main);
   color: var(--text-primary);
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+.home-btn {
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  margin-right: 20px;
+}
+
+.home-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0) saturate(100%)
+    invert(24%) sepia(97%) saturate(7462%)
+    hue-rotate(6deg) brightness(98%) contrast(107%);
 }
 
 

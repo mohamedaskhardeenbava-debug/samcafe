@@ -4,9 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { COMBO_OFFER_RULES } from "./comboNotifications";
 import "./ComboPage.css";
 
-/* =====================================================
-   ANIMATIONS
-===================================================== */
+/*ANIMATIONS*/
 const pageVariant = {
   hidden: { opacity: 0, y: 30, scale: 0.98 },
   show: {
@@ -61,19 +59,14 @@ const getOfferHint = (selectedItems) => {
 };
 
 
-/* =====================================================
-   COMPONENT
-===================================================== */
-const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
-  const navigate = useNavigate();
+/*COMPONENT*/
+const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack }) => {
   const location = useLocation();
 
   const isEditMode = location.state?.fromBag;
   const editIndex = location.state?.bagIndex;
 
-  /* --------------------------------
-     DATA
-  --------------------------------- */
+  /*DATA*/
   const combo = useMemo(
     () => (Array.isArray(foodData?.combo) ? foodData.combo : []),
     [foodData]
@@ -88,13 +81,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
   const drinksSection =
     combo.find(c => c.type === "drinks") || { groups: [] };
 
-  /* --------------------------------
-     STATE
-  --------------------------------- */
+  /*STATE*/
   const [activeSection, setActiveSection] = useState(null);
   const [activeGroup, setActiveGroup] = useState(null);
   const [offerHint, setOfferHint] = useState(null);
-
+  const navigate = useNavigate();
 
   const [selectedItems, setSelectedItems] = useState(() => {
     if (isEditMode && location.state?.comboItems) {
@@ -105,9 +96,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
 
   const [appliedOffer, setAppliedOffer] = useState(null);
 
-  /* --------------------------------
-     PRICE CALCULATION
-  --------------------------------- */
+  /*PRICE CALCULATION*/
   const originalTotal = useMemo(() => {
     return Object.values(selectedItems)
       .filter(Boolean)
@@ -198,12 +187,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
   };
 
   const handleHintSkip = () => {
-    setOfferHint(null); // ✅ manual close
+    setOfferHint(null); // manual close
   };
 
-  /* --------------------------------
-     ACTIONS
-  --------------------------------- */
+  /*ACTIONS*/
   const handleAddItem = (type, item) => {
     setSelectedItems(prev => ({ ...prev, [type]: item }));
     setActiveSection(null);
@@ -238,9 +225,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
     navigate("/thank-you");
   };
 
-  /* --------------------------------
-     RENDER HELPERS
-  --------------------------------- */
+  /*RENDER HELPERS*/
   const renderStarters = () =>
     (startersSection?.items || []).map(item => (
       <ComboItemCard
@@ -311,9 +296,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
     return <div className="combo-page combo-loading">Loading combos...</div>;
   }
 
-  /* --------------------------------
-     JSX
-  --------------------------------- */
+  /*JSX*/
   return (
     <motion.div
       className="combo-page"
@@ -367,9 +350,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
         <div className="combo-header">
           <button
             className="back-button"
-            onClick={() =>
-              navigate(isEditMode ? "/thank-you" : "/categories")
-            }
+            onClick={handleBack}
           >
           </button>
 
@@ -466,9 +447,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem }) => {
   );
 };
 
-/* =====================================================
-   SUB COMPONENTS
-===================================================== */
+/*SUB COMPONENTS*/
 const CategoryCard = ({ title, disabled, onClick }) => (
   <div
     className={`combo-category-card ${disabled ? "disabled" : ""}`}

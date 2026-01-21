@@ -5,8 +5,9 @@ import caloriesIcon from "../assets/icons/calorie.png";
 import proteinIcon from "../assets/icons/protein.png";
 import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
+import homeIcon from "../assets/icons/home.png";
 
-const FavouriteDishDetail = ({ foodData, addToBag }) => {
+const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome }) => {
   const { dishId } = useParams();
   const navigate = useNavigate();
 
@@ -20,10 +21,13 @@ const FavouriteDishDetail = ({ foodData, addToBag }) => {
         <div className="food-header">
           <button
             className="back-button"
-            onClick={() => navigate(-1)}
+            onClick={handleBack}
           />
           <div className="food-list-title">
             Dish not found
+          </div>
+          <div className="home-btn" onClick={handleHome}>
+            <img src={homeIcon} alt="" />
           </div>
         </div>
       </div>
@@ -36,10 +40,13 @@ const FavouriteDishDetail = ({ foodData, addToBag }) => {
       <div className="food-header">
         <button
           className="back-button"
-          onClick={() => navigate(-1)}
+          onClick={handleBack}
         />
         <div className="food-list-title">
           {dish.name}
+        </div>
+        <div className="home-btn" onClick={handleHome}>
+          <img src={homeIcon} alt="" />
         </div>
       </div>
 
@@ -73,40 +80,40 @@ const FavouriteDishDetail = ({ foodData, addToBag }) => {
         <div className="fav-right">
           <div className="fav-ingredient-container">
             <h4>Add-ons</h4>
-          <ul className="fav-ingredients-grid">
-            {dish.ingredients.map((ing) => (
-              <li key={ing.name} className="fav-ingredient-item">
-                <div className="fav-ingredient-img">
-                  <img
-                    src=""
-                    alt=""
-                  />
-                </div>
+            <ul className="fav-ingredients-grid">
+              {dish.ingredients.map((ing) => (
+                <li key={ing.name} className="fav-ingredient-item">
+                  <div className="fav-ingredient-img">
+                    <img
+                      src=""
+                      alt=""
+                    />
+                  </div>
 
-                <div className="fav-ingredient-info">
-                  <div className="fav-ingredient-name">
-                    {ing.name}
+                  <div className="fav-ingredient-info">
+                    <div className="fav-ingredient-name">
+                      {ing.name}
+                    </div>
+                    <div className="fav-ingredient-qty">
+                      {ing.quantity} g
+                    </div>
                   </div>
-                  <div className="fav-ingredient-qty">
-                    {ing.quantity} g
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
           </div>
 
 
-          {dish.nutrition && (
+          {dish.benefits && (
             <div className="fav-nutrition-container">
               <h4>Nutritional Benefits</h4>
               <div className="fav-nutrition">
 
                 {[
-                  [caloriesIcon, "Calories", dish.nutrition?.calories, "kcal"],
-                  [proteinIcon, "Protein", dish.nutrition?.protein, "g"],
-                  [fibreIcon, "Fibre", dish.nutrition?.fiber, "g"],
-                  [fatIcon, "Fat", dish.nutrition?.fat, "g"]
+                  [caloriesIcon, "Calories", dish.benefits?.calories, "kcal"],
+                  [proteinIcon, "Protein", dish.benefits?.protein, "g"],
+                  [fibreIcon, "Fibre", dish.benefits?.fibre, "g"],
+                  [fatIcon, "Fat", dish.benefits?.fat, "g"]
                 ]
                   .filter(([_, __, value]) => value !== undefined)
                   .map(([icon, label, value, unit]) => (
@@ -135,10 +142,14 @@ const FavouriteDishDetail = ({ foodData, addToBag }) => {
               className="fav-add-btn"
               onClick={() => {
                 addToBag({
-                  ...dish,
+                  ...dish,                 // favourite snapshot
                   quantity: 1,
-                  unitPrice: dish.totalPrice, // 🔥 normalize
-                  totalPrice: dish.totalPrice
+                  unitPrice: dish.totalPrice,
+                  totalPrice: dish.totalPrice,
+
+                  // IMPORTANT FLAGS
+                  isCustomized: false,     // favourites are already finalized
+                  isFromFavourite: true    // critical to prevent "Customized" prefix
                 });
                 navigate("/thank-you");
               }}
@@ -151,13 +162,12 @@ const FavouriteDishDetail = ({ foodData, addToBag }) => {
               onClick={() =>
                 navigate(`/food/${dish.id}`, {
                   state: {
-                    fromFavouriteCustomize: true, // 👈 IMPORTANT
-                    originalFavouriteId: dish.id, // 👈 reference only
+                    fromFavouriteCustomize: true,
+                    favouriteSnapshot: dish, // ✅ PASS FULL DATA
                     categoryId: dish.categoryId,
                     dishId: dish.id
                   }
                 })
-
               }
             >
               Customize
