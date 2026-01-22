@@ -7,6 +7,7 @@ import hot from "../assets/icons/hot.png";
 import extreme from "../assets/icons/extreme.png";
 import notesIcon from "../assets/icons/notes.png";
 import homeIcon from "../assets/icons/home.png";
+import { AnimatePresence, motion } from "framer-motion";
 
 const STEP = 10;
 
@@ -82,6 +83,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       image: "/assets/placeholder-food.jpg",
       basePrice: originalCategory?.basePrice ?? 200
     };
+
+  const favouriteId = `${wishlistDish.id}_${selectedSize}_${Date.now()}`;
 
   // sizes
   const selectedSizeObj =
@@ -311,6 +314,16 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   const round = (num, decimals = 1) =>
     Math.round((num + Number.EPSILON) * 10 ** decimals) / 10 ** decimals;
 
+  const baseDishBenefits =
+    dish?.benefits ||
+    effectiveDish?.benefits ||
+    {
+      calories: 200,
+      protein: 20,
+      fat: 10,
+      fibre: 6
+    };
+
   const calculateFinalBenefits = ({
     baseDishBenefits,
     baseIngredients,
@@ -374,6 +387,18 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     return [...base, ...rest];
   })();
 
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 }
+  };
+
+  const modalVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.95, y: 20 }
+  };
+
   return (
     <div className="food-item">
       <div className="left-panel">
@@ -403,8 +428,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 const bagItem = buildBagItem();
 
                 const benefits = calculateFinalBenefits({
-                  baseDishBenefits: dish.benefits,
-                  baseIngredients: dish.ingredients,
+                  baseDishBenefits,
+                  baseIngredients: dish?.ingredients || [],
                   selectedIngredients: bagItem.ingredients
                 });
 
@@ -413,12 +438,12 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 // 🔹 CASE 1: NO ingredient change → auto save
                 if (!ingredientsChanged) {
                   const benefits = calculateFinalBenefits({
-                    baseDishBenefits: dish.benefits,
-                    baseIngredients: dish.ingredients,
-                    selectedIngredients: dish.ingredients
+                    baseDishBenefits,
+                    baseIngredients: dish?.ingredients || [],
+                    selectedIngredients: bagItem.ingredients
                   });
                   onToggleFavourite({
-                    id: `${wishlistDish.id}_${Date.now()}`,
+                    id: `${wishlistDish.id}_${selectedSize}_${Date.now()}`,
                     originalDishId: wishlistDish.id,
                     name: wishlistDish.name,
                     image: wishlistDish.image,
@@ -444,70 +469,84 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           )}
         </div>
 
-        {showFavouriteForm && (
-          <div className="overlay">
-            <form className="modal">
-              <h3>Save to Wishlist</h3>
+        <AnimatePresence>
+          {showFavouriteForm && (
+            <motion.div
+              className="overlay"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.25 }}
+            >
+              <motion.form
+                className="modal"
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <h3>Save to Wishlist</h3>
 
-              <label>Name</label>
-              <input
-                autoFocus
-                required
-                value={favName}
-                onChange={(e) => setFavName(toCamelCase(e.target.value))}
-                placeholder="Favourite name"
-              />
+                <label>Name</label>
+                <input
+                  autoFocus
+                  required
+                  value={favName}
+                  onChange={(e) => setFavName(toCamelCase(e.target.value))}
+                />
 
-              <label>Description</label>
-              <textarea
-                required
-                value={favDescription}
-                onChange={(e) => setFavDescription(e.target.value)}
-                placeholder="Why do you like this?"
-              />
+                <label>Description</label>
+                <textarea
+                  required
+                  value={favDescription}
+                  onChange={(e) => setFavDescription(e.target.value)}
+                />
 
-              <div className="modal-actions">
-                <button
-                  onClick={() => setShowFavouriteForm(false)}
-                >
-                  Cancel
-                </button>
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    onClick={() => setShowFavouriteForm(false)}
+                  >
+                    Cancel
+                  </button>
 
-                <button
-                  className="primary"
-                  onClick={() => {
-                    const bagItem = buildBagItem();
-                    const benefits = calculateFinalBenefits({
-                      baseDishBenefits: dish.benefits,
-                      baseIngredients: dish.ingredients,
-                      selectedIngredients: bagItem.ingredients
-                    });
+                  <button
+                    type="button"
+                    className="primary"
+                    onClick={() => {
+                      const bagItem = buildBagItem();
+                      const benefits = calculateFinalBenefits({
+                        baseDishBenefits,
+                        baseIngredients: dish?.ingredients || [],
+                        selectedIngredients: bagItem.ingredients
+                      });
 
-                    const favouriteSnapshot = {
-                      id: wishlistDish.id,
-                      name: favName,
-                      description: favDescription,
-                      image: wishlistDish.image,
-                      categoryId: category.id,
+                      onToggleFavourite({
+                        id: `${wishlistDish.id}_${selectedSize}_${Date.now()}`,
+                        name: favName,
+                        description: favDescription,
+                        image: wishlistDish.image,
+                        categoryId: category.id,
+                        selectedSize,
+                        basePrice: wishlistDish.basePrice,
+                        totalPrice: bagItem.totalPrice,
+                        ingredients: bagItem.ingredients,
+                        benefits
+                      });
 
-                      selectedSize,
-                      basePrice: wishlistDish.basePrice,
-                      totalPrice: bagItem.totalPrice,
-
-                      ingredients: bagItem.ingredients,
-                      benefits
-                    };
-                    onToggleFavourite(favouriteSnapshot);
-                    setIsWishlisted(true);
-                    setShowFavouriteForm(false);
-                  }}
-                >
-                  Save
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
+                      setIsWishlisted(true);
+                      setShowFavouriteForm(false);
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </motion.form>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="image-header">
           <div className="image-header-left">

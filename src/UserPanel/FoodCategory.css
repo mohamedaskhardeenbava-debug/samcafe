@@ -25,6 +25,12 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+.my-favourites,
+.crowd-picks,
+.combo-category {
+  background-color: #ffd563;
+}
+
 .food-category-items:hover {
   transform: translateY(-6px);
   background-color: #FECA40;

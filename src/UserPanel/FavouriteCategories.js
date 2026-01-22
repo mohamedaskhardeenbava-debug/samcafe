@@ -1,11 +1,29 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import "./FoodCategory.css"; //reuse SAME css
+import { Link, useParams } from "react-router-dom";
+import "./FoodCategory.css";
 import "./FavouriteCategories.css";
 import homeIcon from "../assets/icons/home.png";
 
-const FavouriteCategories = ({ foodData, handleBack, handleHome }) => {
-  const grouped = foodData.favourites.reduce((acc, dish) => {
+const FavouriteCategories = ({
+  foodData,
+  currentUser,
+  handleBack,
+  handleHome
+}) => {
+  const { source } = useParams(); // "my" | "others"
+
+  const guestFavourites =
+    JSON.parse(localStorage.getItem("guestFavourites")) || [];
+
+  const favourites =
+    source === "my"
+      ? currentUser
+        ? currentUser.favourites || []
+        : guestFavourites
+      : foodData.favourites || [];
+
+  const grouped = favourites.reduce((acc, dish) => {
+    if (!dish.categoryId) return acc;
     acc[dish.categoryId] = acc[dish.categoryId] || [];
     acc[dish.categoryId].push(dish);
     return acc;
@@ -17,7 +35,6 @@ const FavouriteCategories = ({ foodData, handleBack, handleHome }) => {
 
   return (
     <div className="food-list fav-category-list">
-      {/* SAME HEADER AS FoodList */}
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">Favourites</div>
@@ -28,10 +45,16 @@ const FavouriteCategories = ({ foodData, handleBack, handleHome }) => {
 
       <div className="food-category">
         <div className="food-category-container">
+          {categories.length === 0 && (
+            <p style={{ padding: "16px" }}>
+              No favourite categories found.
+            </p>
+          )}
+
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/favourites/${category.id}`}
+              to={`/favourites/${source}/${category.id}`}
               className="food-category-items favourites"
             >
               <div className="food-category-image">

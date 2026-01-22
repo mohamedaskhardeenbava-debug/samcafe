@@ -137,39 +137,58 @@
   z-index: 1000;
 }
 
-.modal {
+.signup-modal {
   background: var(--card-bg, #fff);
   padding: 24px;
   border-radius: 16px;
-  width: 320px;
+  width: 500px;
+  height: 280px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  justify-content: space-evenly;
   animation: scaleIn 0.25s ease;
 }
 
-.modal h3 {
+.signup-modal h3 {
   text-align: center;
-  margin-bottom: 8px;
+  margin: 0 !important;
 }
 
-.modal input {
+.signup-modal .section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.signup-modal input {
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #ccc;
   font-size: 14px;
 }
 
-.modal button {
+.signup-modal button {
   padding: 12px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
 }
 
-.modal .primary {
+.signup-modal .primary {
   background: #f64848;
   color: #fff;
+}
+
+/* Remove number input arrows (Chrome, Edge, Safari) */
+.signup-modal input[type="number"]::-webkit-inner-spin-button,
+.signup-modal input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove number input arrows (Firefox) */
+.signup-modal input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .link-btn {
@@ -181,14 +200,67 @@
   background-color: var(--bg-surface);
   box-shadow: var(--shadow-primary);
   border: none;
-width: 100px;
+  width: 100px;
+}
+
+/* ===============================
+   ALERT OVERLAY (VALIDATION)
+================================ */
+
+.alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.alert-modal {
+  background: #fff;
+  width: 320px;
+  padding: 24px 22px;
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.alert-icon {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.alert-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.alert-message {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 18px;
+  line-height: 1.4;
+}
+
+.alert-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--color-green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
 }
 
 .profile-modal {
   background: #fff;
   padding: 28px;
   border-radius: 18px;
-  width: 360px;
+  width: 500px;
+  height: 280px;
   text-align: center;
   animation: scaleIn 0.25s ease;
 }
@@ -231,7 +303,7 @@ width: 100px;
   color: #333;
 }
 
-.modal input {
+.signup-modal input {
   padding: 14px;
   border-radius: 12px;
   border: 1px solid #ddd;
@@ -240,18 +312,17 @@ width: 100px;
 }
 
 .btn-container {
-
   display: flex;
   justify-content: center;
   gap: 16px;
 }
 
-.modal input:focus {
+.signup-modal input:focus {
   border-color: #f64848;
   box-shadow: 0 0 0 2px rgba(246, 72, 72, 0.15);
 }
 
-.modal .primary {
+.signup-modal .primary {
   background-color: var(--color-red-secondary);
   box-shadow: rgb(246, 72, 72, 0.2) 0px 10px 20px, rgba(246, 72, 72, 0.3) 0px 6px 6px;
   color: #fff;
@@ -260,6 +331,6 @@ width: 100px;
   width: 100px;
 }
 
-.modal .primary:hover {
+.signup-modal .primary:hover {
   transform: translateY(-1px);
 }

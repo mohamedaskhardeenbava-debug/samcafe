@@ -283,7 +283,7 @@
   color: var(--color-red) !important;
 }
 
-.combo-discounted-price div:last-child{
+.combo-discounted-price div:last-child {
   color: var(--color-green) !important;
 }
 
@@ -362,6 +362,206 @@
   border-radius: 12px;
   font-weight: 600;
   cursor: pointer;
+}
+
+.combo-add-fav-btn,
+.combo-my-fav-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.combo-add-fav-btn {
+  background: var(--color-green);
+  color: #fff;
+}
+
+.combo-add-fav-btn:disabled {
+  background: var(--text-tertiary);
+  cursor: not-allowed;
+}
+
+.combo-my-fav-btn {
+  background: var(--bg-main);
+  border: 1px solid var(--color-green);
+  color: var(--color-green);
+}
+
+
+.combo-add-fav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.combo-add-fav-modal {
+  background: #fff;
+  padding: 26px;
+  border-radius: 16px;
+  width: 360px;
+  text-align: center;
+}
+
+.combo-add-fav-title {
+  font-weight: 700;
+  margin: 10px 0 18px;
+}
+
+.combo-add-fav-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.combo-add-fav-cancel {
+  flex: 1;
+  background: transparent;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.combo-add-fav-confirm {
+  flex: 1;
+  background: var(--color-green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.combo-my-fav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(1px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+/* ===============================
+   MY FAV OVERLAY – HEADER
+================================ */
+.combo-my-fav-modal {
+  background: #fff;
+  border-radius: 18px;
+  width: 600px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* important */
+}
+
+/* Fixed header */
+.combo-my-fav-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--text-tertiary);
+}
+
+.combo-my-fav-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.combo-my-fav-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+/* ===============================
+   SCROLLABLE LIST (NO SCROLLBAR)
+================================ */
+.combo-my-fav-list {
+  padding: 16px 18px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Hide scrollbar (Chrome, Edge, Safari) */
+.combo-my-fav-list::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* Hide scrollbar (Firefox) */
+.combo-my-fav-list {
+  scrollbar-width: none;
+}
+
+.combo-my-fav-empty {
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.fav-combo-card {
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.fav-combo-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.fav-combo-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fav-combo-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.fav-combo-add-btn {
+  background: var(--color-green);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.fav-combo-delete-btn {
+  background: var(--color-red);
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.combo-my-fav-close {
+  margin-top: 12px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
 }
 
 

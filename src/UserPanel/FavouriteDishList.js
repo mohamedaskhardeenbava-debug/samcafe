@@ -1,44 +1,88 @@
 import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import "./FoodCategory.css"; // reuse SAME css
+import { useNavigate, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import api from "../api";
+import "./FoodCategory.css";
 import "./FavouriteDishList.css";
 import homeIcon from "../assets/icons/home.png";
 
-const FavouriteDishList = ({ foodData, handleBack, handleHome }) => {
-  const { categoryId } = useParams();
+const FavouriteDishList = ({
+  foodData,
+  currentUser,
+  handleBack,
+  handleHome
+}) => {
   const navigate = useNavigate();
+  const { source, categoryId } = useParams();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deleteDishId, setDeleteDishId] = useState(null);
+  const [dishToDelete, setDishToDelete] = useState(null);
+
+  const isMyFavourites = source === "my";
+
+  const guestFavourites =
+    JSON.parse(localStorage.getItem("guestFavourites")) || [];
+
+  const favourites =
+    source === "my"
+      ? currentUser
+        ? currentUser.favourites || []
+        : guestFavourites
+      : foodData.favourites || [];
+
+  const dishes = favourites.filter(
+    (dish) => dish.categoryId === categoryId
+  );
 
   const category = foodData.categories.find(
     (c) => c.id === categoryId
   );
 
-  const dishes = foodData.favourites.filter(
-    (d) => d.categoryId === categoryId
-  );
+  /* ---------------- DELETE LOGIC ---------------- */
 
-  /* DELETE HANDLERS */
-  const handleDeleteClick = (dishId) => {
-    setDeleteDishId(dishId);
-    setShowDeleteConfirm(true);
+  const confirmDeleteFavourite = async () => {
+    if (!dishToDelete) return;
+
+    try {
+      // LOGGED-IN USER
+      if (currentUser) {
+        const updatedFavourites =
+          (currentUser.favourites || []).filter(
+            (f) => f.id !== dishToDelete.id
+          );
+
+        const updatedUser = {
+          ...currentUser,
+          favourites: updatedFavourites
+        };
+
+        await api.put(`/users/${currentUser.id}`, updatedUser);
+      }
+      // GUEST USER
+      else {
+        const updatedGuestFavs =
+          guestFavourites.filter(
+            (f) => f.id !== dishToDelete.id
+          );
+
+        localStorage.setItem(
+          "guestFavourites",
+          JSON.stringify(updatedGuestFavs)
+        );
+      }
+
+      setShowDeleteConfirm(false);
+      setDishToDelete(null);
+
+      // Simple & safe refresh to sync state everywhere
+      window.location.reload();
+    } catch (err) {
+      console.error("Failed to delete favourite", err);
+      alert("Failed to remove favourite dish.");
+    }
   };
 
-  const confirmDelete = () => {
-  const updatedFavourites = foodData.favourites.filter(
-    (f) => f.id !== deleteDishId
-  );
-
-  foodData.setFoodData((prev) => ({
-    ...prev,
-    favourites: updatedFavourites
-  }));
-
-  setShowDeleteConfirm(false);
-  setDeleteDishId(null);
-};
-
+  /* ---------------- RENDER ---------------- */
 
   return (
     <div className="food-list fav-dish-page">
@@ -53,6 +97,7 @@ const FavouriteDishList = ({ foodData, handleBack, handleHome }) => {
         </div>
       </div>
 
+      {/* LIST */}
       <div className="food-category">
         <div className="food-category-container">
           {dishes.length === 0 && (
@@ -65,66 +110,88 @@ const FavouriteDishList = ({ foodData, handleBack, handleHome }) => {
             <div
               key={dish.id}
               className="food-category-items favourites"
-              role="button"
-              tabIndex={0}
-              onClick={() => navigate(`/favourite/${dish.id}`)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  navigate(`/favourite/${dish.id}`);
-                }
-              }}
             >
-              <div className="food-category-image">
-                <img src={dish.image} alt={dish.name} />
-              </div>
-
               <div
-                className="food-category-name"
-                style={{ color: "black" }}
-              >
-                {dish.name}
-              </div>
-
-              {/* DELETE BUTTON */}
-              <button
-                className="fav-delete-btn"
-                onClick={(e) => {
-                  e.stopPropagation(); // 🔥 critical
-                  handleDeleteClick(dish.id);
+                role="button"
+                tabIndex={0}
+                onClick={() =>
+                  navigate(`/favourite/${dish.id}`)
+                }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/favourite/${dish.id}`);
+                  }
                 }}
               >
-                Delete
-              </button>
+                <div className="food-category-image">
+                  <img src={dish.image} alt={dish.name} />
+                </div>
+                <div
+                  className="food-category-name"
+                  style={{ color: "black" }}
+                >
+                  {dish.name}
+                </div>
+              </div>
+
+              {isMyFavourites && (
+                <button
+                  className="fav-delete-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setDishToDelete(dish);
+                    setShowDeleteConfirm(true);
+                  }}
+                >
+                  Delete
+                </button>
+              )}
             </div>
           ))}
         </div>
       </div>
 
       {/* DELETE CONFIRM OVERLAY */}
-      {showDeleteConfirm && (
-        <div className="confirm-overlay">
-          <div className="confirm-box">
-            <h3>Remove Favourite</h3>
-            <p>
-              Are you sure you want to remove this favourite dish?
-            </p>
-            <div className="confirm-actions">
-              <button
-                className="confirm-cancel"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="confirm-remove"
-                onClick={confirmDelete}
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            className="confirm-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="confirm-box"
+              initial={{ scale: 0.95, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <h3>Remove Favourite</h3>
+              <p>
+                Are you sure you want to remove
+                <strong> {dishToDelete?.name}</strong>?
+              </p>
+
+              <div className="confirm-actions">
+                <button
+                  className="confirm-cancel"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="confirm-remove"
+                  onClick={confirmDeleteFavourite}
+                >
+                  Remove
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

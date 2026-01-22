@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import confetti from "canvas-confetti";
 import "./ThankYou.css";
+import api from "../api";
+import { AnimatePresence, motion } from "framer-motion";
 
 const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
   const navigate = useNavigate();
@@ -30,55 +32,143 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
     setDeleteIndex(null);
   };
 
-  /* PLACE ORDER (CORE LOGIC)*/
-  const confirmPlaceOrder = () => {
-  const newOrder = {
-    id: `order_${Date.now()}`,
-    date: new Date().toISOString().split("T")[0],
-    status: "placed",
-    totalAmount: Math.round(totalAmount),
-    items: bag.map((item) => ({
-      dishId: item.id,
-      dishName: item.name,
-      quantity: Number(item.quantity) || 1,
-      totalPrice: Math.round(item.totalPrice)
-    }))
+  const generateNextOrderId = async () => {
+    const res = await api.get("/orders");
+    const orders = Array.isArray(res.data) ? res.data : [];
+
+    if (orders.length === 0) {
+      return "order_00001";
+    }
+
+    let maxNumber = 0;
+    let maxWidth = 0;
+
+    orders.forEach(order => {
+      if (typeof order.id !== "string") return;
+
+      const match = order.id.match(/order_(\d+)$/);
+      if (!match) return;
+
+      const numericPart = match[1];
+      const number = parseInt(numericPart, 10);
+
+      if (!isNaN(number)) {
+        maxNumber = Math.max(maxNumber, number);
+        maxWidth = Math.max(maxWidth, numericPart.length);
+      }
+    });
+
+    const nextNumber = maxNumber + 1;
+
+    return `order_${String(nextNumber).padStart(maxWidth, "0")}`;
   };
 
-  // ✅ STATE UPDATE (like App.js)
-  onOrderPlaced?.(newOrder);
+  /* PLACE ORDER (CORE LOGIC)*/
+  const confirmPlaceOrder = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      const orderId = await generateNextOrderId();
 
-  setOrderPlaced(true);
-  setShowOrderConfirm(false);
+      const newOrder = {
+        id: orderId,
+        date: new Date().toISOString().split("T")[0],
+        status: "placed",
+        totalAmount: Math.round(totalAmount),
+        items: bag.map(item => ({
+          dishId: item.id,
+          dishName: item.name,
+          categoryId: item.categoryId,
+          quantity: Number(item.quantity) || 1,
+          totalPrice: Math.round(item.totalPrice)
+        }))
+      };
 
-  confetti({
-    particleCount: 150,
-    spread: 55,
-    startVelocity: 45,
-    angle: 60,
-    origin: { x: 0.05, y: 0.85 }
-  });
+      /* 1️⃣ SAVE TO GLOBAL ORDERS */
+      await api.post("/orders", newOrder);
 
-  confetti({
-    particleCount: 150,
-    spread: 55,
-    startVelocity: 45,
-    angle: 120,
-    origin: { x: 0.95, y: 0.85 }
-  });
-};
+      /* 2️⃣ SAVE TO USER ORDERS (IF LOGGED IN) */
+      if (userId) {
+        const userRes = await api.get(`/users/${userId}`);
+        const user = userRes.data;
+
+        const userOrders = Array.isArray(user.orders)
+          ? user.orders
+          : [];
+
+        const updatedUser = {
+          ...user,
+          orders: [...userOrders, newOrder]
+        };
+
+        await api.put(`/users/${userId}`, updatedUser);
+      }
+      /* 2️⃣b CLEAR GUEST FAVOURITES (IF GUEST) */
+      else {
+        localStorage.removeItem("guestFavourites");
+      }
+
+      /* 3️⃣ UPDATE APP STATE */
+      onOrderPlaced?.(newOrder);
+
+      setOrderPlaced(true);
+      setShowOrderConfirm(false);
+
+      /* CONFETTI */
+      confetti({
+        particleCount: 150,
+        spread: 55,
+        startVelocity: 45,
+        angle: 60,
+        origin: { x: 0.05, y: 0.85 }
+      });
+
+      confetti({
+        particleCount: 150,
+        spread: 55,
+        startVelocity: 45,
+        angle: 120,
+        origin: { x: 0.95, y: 0.85 }
+      });
+
+    } catch (err) {
+      console.error("Failed to place order", err);
+      alert("Failed to place order. Please try again.");
+    }
+  };
 
   /*THANKS ACTION*/
   const handleThanks = () => {
+    // clear bag
     setBag([]);
+
+    // logout ONLY if logged in
+    const userId = localStorage.getItem("userId");
+    if (userId) {
+      localStorage.removeItem("userId");
+    }
+
+    // redirect to welcome
     navigate("/");
   };
+
 
   const getDisplayName = (item) => {
     if (item.isCustomized && !item.isFromFavourite) {
       return `Customized ${item.name}`;
     }
     return item.name;
+  };
+
+  const overlayVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 }
+  };
+
+  const modalVariants = {
+    hidden: { opacity: 0, scale: 0.95, y: 20 },
+    visible: { opacity: 1, scale: 1, y: 0 },
+    exit: { opacity: 0, scale: 0.95, y: 20 }
   };
 
   return (
@@ -197,46 +287,86 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
       </div>
 
       {/* DELETE CONFIRM */}
-      {showDeleteConfirm && (
-        <div className="confirm-overlay">
-          <div className="confirm-box">
-            <h3>Remove Item</h3>
-            <p>Are you sure you want to remove this item?</p>
-            <div className="confirm-actions">
-              <button
-                className="confirm-cancel"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                Cancel
-              </button>
-              <button className="confirm-remove" onClick={confirmDelete}>
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showDeleteConfirm && (
+          <motion.div
+            className="confirm-overlay"
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="confirm-box"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.25 }}
+            >
+              <h3>Remove Item</h3>
+              <p>Are you sure you want to remove this item?</p>
+
+              <div className="confirm-actions">
+                <button
+                  className="confirm-cancel"
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="confirm-remove"
+                  onClick={confirmDelete}
+                >
+                  Remove
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* PLACE ORDER CONFIRM */}
-      {showOrderConfirm && (
-        <div className="confirm-overlay">
-          <div className="confirm-box">
-            <h3>Confirm Order</h3>
-            <p>Are you sure you want to place this order?</p>
-            <div className="confirm-actions">
-              <button
-                className="confirm-cancel"
-                onClick={() => setShowOrderConfirm(false)}
-              >
-                Cancel
-              </button>
-              <button className="confirm-yes" onClick={confirmPlaceOrder}>
-                Yes, Place Order
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {showOrderConfirm && (
+          <motion.div
+            className="confirm-overlay"
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div
+              className="confirm-box"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.25 }}
+            >
+              <h3>Confirm Order</h3>
+              <p>Are you sure you want to place this order?</p>
+
+              <div className="confirm-actions">
+                <button
+                  className="confirm-cancel"
+                  onClick={() => setShowOrderConfirm(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="confirm-yes"
+                  onClick={confirmPlaceOrder}
+                >
+                  Yes, Place Order
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

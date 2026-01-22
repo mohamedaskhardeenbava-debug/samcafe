@@ -34,6 +34,12 @@
   font-size: 13px;
 }
 
+.food-category-items.favourites div{
+  display: flex;
+  flex-direction: column;
+  align-items: center !important;
+}
+
 /* REMOVE star & bg in favourite DISH page */
 .fav-dish-page .food-category-items.favourites {
   background: var(--bg-primary);
