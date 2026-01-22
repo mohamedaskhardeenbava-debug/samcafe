@@ -192,7 +192,7 @@
   border-radius: 10px;
   border: none;
   background: var(--color-green);
-  color: white;
+  color: #111;
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -345,7 +345,7 @@
 .offer-hint-add {
   flex: 1;
   background: var(--color-green);
-  color: white;
+  color: #111;
   border: none;
   padding: 10px 0;
   border-radius: 12px;
@@ -357,7 +357,7 @@
   flex: 1;
   background: transparent;
   border: 1px solid #ddd;
-  color: #555;
+  color: var(--text-secondary);
   padding: 10px 0;
   border-radius: 12px;
   font-weight: 600;
@@ -375,7 +375,7 @@
 
 .combo-add-fav-btn {
   background: var(--color-green);
-  color: #fff;
+  color: #111;
 }
 
 .combo-add-fav-btn:disabled {
@@ -403,7 +403,6 @@
 }
 
 .combo-add-fav-modal {
-  background: #fff;
   padding: 26px;
   border-radius: 16px;
   width: 360px;
@@ -426,12 +425,13 @@
   border: 1px solid #ccc;
   border-radius: 10px;
   padding: 10px;
+  color: var(--text-primary);
 }
 
 .combo-add-fav-confirm {
   flex: 1;
   background: var(--color-green);
-  color: #fff;
+  color: #111;
   border: none;
   border-radius: 10px;
   padding: 10px;
@@ -453,7 +453,7 @@
    MY FAV OVERLAY – HEADER
 ================================ */
 .combo-my-fav-modal {
-  background: #fff;
+  background: var(--bg-main);
   border-radius: 18px;
   width: 600px;
   max-height: 80vh;
@@ -467,7 +467,7 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  background: #fff;
+  background: var(--bg-main);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -488,6 +488,7 @@
   font-weight: 700;
   cursor: pointer;
   line-height: 1;
+  color: var(--color-red);
 }
 
 /* ===============================
@@ -517,7 +518,7 @@
 }
 
 .fav-combo-card {
-  border: 1px solid #ddd;
+  border: 1px solid var(--text-tertiary);
   border-radius: 12px;
   padding: 14px;
   margin-bottom: 12px;
@@ -541,7 +542,7 @@
 
 .fav-combo-add-btn {
   background: var(--color-green);
-  color: #fff;
+  color: #111;
   border: none;
   padding: 6px 10px;
   border-radius: 8px;
@@ -549,7 +550,7 @@
 
 .fav-combo-delete-btn {
   background: var(--color-red);
-  color: #fff;
+  color: var(--text-primary);
   border: none;
   padding: 6px 10px;
   border-radius: 8px;

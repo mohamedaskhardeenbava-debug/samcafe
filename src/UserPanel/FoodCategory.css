@@ -29,12 +29,13 @@
 .crowd-picks,
 .combo-category {
   background-color: #ffd563;
+  color: #111 !important;
 }
 
 .food-category-items:hover {
   transform: translateY(-6px);
   background-color: #FECA40;
-  color: black;
+  color: #111 !important;
 }
 
 .food-category-items.favourites {
@@ -73,7 +74,7 @@
   font-optical-sizing: auto;
   font-weight: 600;
   font-style: normal;
-
+  color: var(--text-primary);
 }
 
 /*  COMBOS SECTION  */

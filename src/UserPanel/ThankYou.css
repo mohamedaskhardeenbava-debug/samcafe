@@ -78,7 +78,7 @@
   border: none;
   cursor: pointer;
   background: var(--color-green);
-  color: white;
+  color: #111;
 }
 
 .order-again-btn:hover {
@@ -187,12 +187,13 @@
 }
 
 .confirm-box {
-  background: #fff;
+  background: var(--bg-main);
   padding: 20px 22px;
   border-radius: 12px;
   width: 320px;
   text-align: center;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  z-index: 1001;
 }
 
 .confirm-box h3 {
@@ -203,7 +204,7 @@
 
 .confirm-box p {
   font-size: 14px;
-  color: #555;
+  color: var(--text-secondary);
   margin-bottom: 18px;
 }
 
@@ -219,11 +220,12 @@
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;
+  color: var(--text-primary);
 }
 
 .confirm-yes {
   background: var(--color-green);
-  color: #fff;
+  color: #111;
   border: none;
   padding: 6px 14px;
   border-radius: 6px;

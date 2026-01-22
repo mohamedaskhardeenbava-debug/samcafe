@@ -41,6 +41,8 @@
   --shadow-list: 0 3px 10px rgba(255, 255, 255, 0.08);
   --shadow-left: 0 6px 20px rgba(255, 255, 255, 0.08);
   --color-green: rgb(22, 243, 59);
+  --color-red: rgb(232, 54, 23);
+  --color-pale-red: #2e2e2e;
   --color-pale-yellow: #00000000;
   --color-pale-green:rgba(208, 255, 205, 0.8);
   --shadow: rgba(255, 255, 195, 0.2) 2px 2px 6px;
@@ -95,6 +97,10 @@ body {
   height: 24px;
   margin-left: auto;
   margin-right: 20px;
+}
+
+button {
+  font-family: "Geom", system-ui, sans-serif;
 }
 
 .home-btn img {

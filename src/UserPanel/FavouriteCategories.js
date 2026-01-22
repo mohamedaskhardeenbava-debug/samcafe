@@ -60,7 +60,7 @@ const FavouriteCategories = ({
               <div className="food-category-image">
                 <img src={category.image} alt={category.name} />
               </div>
-              <div className="food-category-name" style={{ color: "black" }}>
+              <div className="food-category-name">
                 {category.name}
               </div>
             </Link>

@@ -24,14 +24,14 @@
 }
 
 .fav-delete-btn {
-  margin-top: 8px;
-  background: #ff4d4f;
+  background: var(--color-red);
   color: #fff;
   border: none;
-  padding: 6px 12px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
+  font-family: inherit;
 }
 
 .food-category-items.favourites div{

@@ -128,7 +128,6 @@ const FavouriteDishList = ({
                 </div>
                 <div
                   className="food-category-name"
-                  style={{ color: "black" }}
                 >
                   {dish.name}
                 </div>
