@@ -191,9 +191,9 @@
 }
 
 /* Remove number input arrows (Firefox) */
-.signup-modal input[type="number"] {
+/* .signup-modal input[type="number"] {
   -moz-appearance: textfield;
-}
+} */
 
 .link-btn {
   font-family: "Geom", system-ui, sans-serif;
