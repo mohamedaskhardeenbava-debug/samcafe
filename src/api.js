@@ -12,7 +12,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://sam-cafe-backend.onrender.com"
+  baseURL: "https://samcafedata.onrender.com"
 });
 
 export default api;
