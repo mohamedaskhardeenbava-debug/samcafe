@@ -41,7 +41,7 @@
   transform: translate(-50%, -50%) rotate(45deg);
 }
 
-s .ingredient-detail-image {
+.ingredient-detail-image {
   width: 100%;
   max-width: 420px;
   aspect-ratio: 1 / 1;

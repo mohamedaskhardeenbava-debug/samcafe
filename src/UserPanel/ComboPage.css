@@ -1,6 +1,3 @@
-/* =====================================================
-   ROOT
-===================================================== */
 .combo-page {
   display: flex;
   height: 100vh;
@@ -9,9 +6,7 @@
   color: var(--text-primary);
 }
 
-/* =====================================================
-   LOADING
-===================================================== */
+/* LOADING */
 .combo-loading {
   display: flex;
   align-items: center;
@@ -21,9 +16,7 @@
   color: var(--text-secondary);
 }
 
-/* =====================================================
-   LAYOUT
-===================================================== */
+/* LAYOUT */
 .combo-left {
   width: 80%;
   padding: 32px 36px;
@@ -39,9 +32,7 @@
   flex-direction: column;
 }
 
-/* =====================================================
-   HEADER
-===================================================== */
+/* HEADER */
 .combo-header {
   display: flex;
   gap: 6px;
@@ -77,9 +68,7 @@
   margin-bottom: 6px;
 }
 
-/* =====================================================
-   CATEGORY ROW
-===================================================== */
+/* CATEGORY ROW */
 .combo-category-row {
   display: flex;
   gap: 16px;
@@ -100,19 +89,17 @@
 
 .combo-category-card:hover {
   background: var(--color-green);
-  color: #fff;
+  color: var(--bg-main);
   border-color: var(--color-green);
 }
 
 .combo-category-card.disabled {
-  background: var(--text-tertiary);
+  background-color: var(--text-tertiary);
   color: var(--text-secondary);
   cursor: not-allowed;
 }
 
-/* =====================================================
-   ITEMS GRID
-===================================================== */
+/* ITEMS GRID */
 .combo-items-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -192,7 +179,7 @@
   border-radius: 10px;
   border: none;
   background: var(--color-green);
-  color: #111;
+  color: var(--bg-main);
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -285,6 +272,41 @@
 
 .combo-discounted-price div:last-child {
   color: var(--color-green) !important;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.diagonal-strike {
+  position: relative;
+  display: inline-block;
+  color: var(--text-secondary);
+}
+
+/* diagonal line */
+.diagonal-strike::after {
+  content: "";
+  position: absolute;
+  left: -6%;
+  top: 50%;
+  width: 112%;
+  height: 1.5px;
+  background: var(--color-red);
+  transform: rotate(-12deg);
+  transform-origin: center;
+  pointer-events: none;
+  animation: strike-in 0.25s ease-out;
+}
+
+@keyframes strike-in {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+
+  to {
+    width: 112%;
+    opacity: 0.75;
+  }
 }
 
 .combo-add-btn {
@@ -300,6 +322,7 @@
 
 .combo-add-btn:disabled {
   background: var(--text-tertiary);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
@@ -326,6 +349,7 @@
   width: 360px;
   text-align: center;
   box-shadow: 0 30px 60px var(--text-tertiary);
+  background-color: var(--bg-main);
 }
 
 /* Message */
@@ -345,7 +369,7 @@
 .offer-hint-add {
   flex: 1;
   background: var(--color-green);
-  color: #111;
+  color: var(--bg-main);
   border: none;
   padding: 10px 0;
   border-radius: 12px;
@@ -375,11 +399,12 @@
 
 .combo-add-fav-btn {
   background: var(--color-green);
-  color: #111;
+  color: var(--bg-main);
 }
 
 .combo-add-fav-btn:disabled {
   background: var(--text-tertiary);
+  color: var(--text-secondary);
   cursor: not-allowed;
 }
 
@@ -407,6 +432,7 @@
   border-radius: 16px;
   width: 360px;
   text-align: center;
+  background-color: var(--bg-main);
 }
 
 .combo-add-fav-title {
@@ -426,15 +452,17 @@
   border-radius: 10px;
   padding: 10px;
   color: var(--text-primary);
+  cursor: pointer;
 }
 
 .combo-add-fav-confirm {
   flex: 1;
   background: var(--color-green);
-  color: #111;
+  color: var(--bg-main);
   border: none;
   border-radius: 10px;
   padding: 10px;
+  cursor: pointer;
 }
 
 .combo-my-fav-overlay {
@@ -459,7 +487,8 @@
   max-height: 80vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden; /* important */
+  overflow: hidden;
+  /* important */
 }
 
 /* Fixed header */
@@ -542,7 +571,7 @@
 
 .fav-combo-add-btn {
   background: var(--color-green);
-  color: #111;
+  color: #fff;
   border: none;
   padding: 6px 10px;
   border-radius: 8px;
@@ -550,7 +579,7 @@
 
 .fav-combo-delete-btn {
   background: var(--color-red);
-  color: var(--text-primary);
+  color: #fff;
   border: none;
   padding: 6px 10px;
   border-radius: 8px;

@@ -22,7 +22,7 @@
 
 /* REMOVE star & bg in favourite category LIST */
 .fav-category-list .food-category-items.favourites {
-  background: var(--bg-primary);
+  background: var(--bg-main);
 }
 
 .fav-category-list .food-category-items.favourites .food-category-name::after {

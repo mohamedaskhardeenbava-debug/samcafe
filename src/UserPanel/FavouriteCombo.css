@@ -1,0 +1,174 @@
+:root {
+  --bg-light: #f6f7fb;
+  --card-bg: #ffffff;
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #ef4444;
+  --danger-hover: #dc2626;
+  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 18px 45px rgba(0, 0, 0, 0.08);
+  --radius: 18px;
+}
+
+/* PAGE */
+.fav-combo-page {
+  min-height: 100vh;
+  background: transparent;
+  padding: 20px 16px 32px;
+  color: var(--text-main);
+}
+
+/* HEADER */
+.fav-combo-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.fav-combo-header-text h1 {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.fav-combo-header-text p {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin: 2px 0 0;
+}
+
+/* CONTENT */
+.fav-combo-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* EMPTY STATE */
+.fav-combo-empty {
+  background: var(--bg-main);
+  border-radius: var(--radius);
+  padding: 40px 20px;
+  text-align: center;
+  box-shadow: var(--shadow-primary);
+}
+
+.fav-combo-empty .empty-icon {
+  font-size: 42px;
+  margin-bottom: 10px;
+}
+
+.fav-combo-empty h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-primary);
+}
+
+.fav-combo-empty p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* CARD */
+.fav-combo-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: var(--bg-main);
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-primary);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.fav-combo-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* INFO */
+.fav-combo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fav-combo-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+}
+
+.fav-combo-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fav-combo-price {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--color-green);
+}
+
+.fav-combo-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+/* ACTIONS */
+.fav-combo-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--color-green);
+  color: var(--bg-main);
+  border: none;
+  border-radius: 12px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover,
+.btn-ghost:hover {
+  scale: 1.05;
+}
+
+.btn-ghost {
+  background: var(--color-red);
+  border: none;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+/* RESPONSIVE */
+@media (max-width: 520px) {
+  .fav-combo-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .fav-combo-actions {
+    justify-content: space-between;
+  }
+}

@@ -139,8 +139,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">Favourites</div>
           <div className="home-btn" onClick={handleHome}>
-          <img src={homeIcon} alt="" />
-        </div>
+            <img src={homeIcon} alt="" />
+          </div>
         </div>
 
         <div className="empty-favourites">
@@ -161,8 +161,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">Category not found</div>
           <div className="home-btn" onClick={handleHome}>
-          <img src={homeIcon} alt="" />
-        </div>
+            <img src={homeIcon} alt="" />
+          </div>
         </div>
       </div>
     );
@@ -182,8 +182,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">{category.name}</div>
           <div className="home-btn" onClick={handleHome}>
-          <img src={homeIcon} alt="" />
-        </div>
+            <img src={homeIcon} alt="" />
+          </div>
         </motion.div>
       </AnimatePresence>
 
@@ -351,9 +351,11 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                       ingredientPrice: 0,
                       quantity: 1,
                       totalPrice: current.basePrice,
-                      selectedSize: null,
+                      selectedSize:
+                        category?.sizes?.[0]?.name?.toLowerCase() || null,
                       spiciness: null,
                       ingredients: current.ingredients || [],
+                      notes: "",
                       isCustomized: false
                     };
                     addToBag(bagItem);

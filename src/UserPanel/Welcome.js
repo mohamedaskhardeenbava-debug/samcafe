@@ -1,16 +1,18 @@
 import "./Welcome.css";
 import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
 import api from "../api";
 
-const Welcome = ({ toCamelCase }) => {
+const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
-
-  const [showProfileChoice, setShowProfileChoice] = useState(false);
+  const mobileInputRef = useRef(null);
+  const [users, setUsers] = useState([]);
   const [showSignupForm, setShowSignupForm] = useState(false);
+  const [showLoginForm, setShowLoginForm] = useState(false);
+  const [enableAutocomplete, setEnableAutocomplete] = useState(true);
   const [alertConfig, setAlertConfig] = useState({
     open: false,
     title: "",
@@ -20,51 +22,89 @@ const Welcome = ({ toCamelCase }) => {
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
+  const filteredMobiles = users
+    .map(u => u.mobile)
+    .filter(m => m.startsWith(mobile))
+    .sort();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await api.get("/users");
+        setUsers(Array.isArray(res.data) ? res.data : []);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const goToCategories = () => {
     navigate("/categories", { state: { direction: "forward" } });
   };
 
   const handleGuest = () => {
+    // 🔒 clear any previous login
+    localStorage.removeItem("userId");
+
+    setCurrentUser({
+      id: "guest",
+      role: "guest"
+    });
+
     goToCategories();
   };
 
-  const handleSignup = async () => {
-    resetSignupForm();
-    if (!name.trim() || !mobile.trim()) {
-      setAlertConfig({
-        open: true,
-        title: "Missing Information",
-        message: "Please enter both name and mobile number."
-      });
-      return;
-    }
-
+  const handleLogin = async () => {
     if (mobile.length !== 10) {
       setAlertConfig({
         open: true,
         title: "Invalid Mobile Number",
-        message: "Please enter a valid 10-digit mobile number."
+        message: "Enter a valid 10-digit mobile number."
       });
       return;
     }
 
-    const words = name.trim().split(/\s+/);
+    const matches = users.filter(u => u.mobile === mobile);
 
-    if (words.length > 5) {
+    if (matches.length === 0) {
       setAlertConfig({
         open: true,
-        title: "Name Too Long",
-        message: "Name should not contain more than 5 words."
+        title: "User Not Found",
+        message: "No account exists with this mobile number."
       });
       return;
     }
 
-    if (name.length > 100) {
+    if (matches.length > 1) {
       setAlertConfig({
         open: true,
-        title: "Name Too Long",
-        message: "Name should not exceed 100 characters."
+        title: "Duplicate Accounts Found",
+        message: "Multiple accounts exist with this number. Contact support."
+      });
+      return;
+    }
+
+    const user = matches[0];
+    localStorage.setItem("userId", user.id);
+
+    // 🔁 SYNC USER INTO STATE
+    setCurrentUser(user);
+
+    // 🔁 REFRESH MENU + FAVOURITES
+    fetchMenu();
+    setShowLoginForm(false);
+    setMobile("");
+    navigate("/categories");
+  };
+
+  const handleSignup = async () => {
+    if (!name.trim() || mobile.length !== 10) {
+      setAlertConfig({
+        open: true,
+        title: "Invalid Input",
+        message: "Enter name and valid mobile number."
       });
       return;
     }
@@ -72,40 +112,42 @@ const Welcome = ({ toCamelCase }) => {
     try {
       setLoading(true);
 
-      // 1️⃣ Fetch all users
       const res = await api.get("/users");
-      const users = Array.isArray(res.data) ? res.data : [];
+      const users = res.data || [];
 
-      // 2️⃣ Check if user already exists (by mobile)
-      const existingUser = users.find(
-        (u) => u.mobile === mobile.trim()
-      );
+      const matches = users.filter(u => u.mobile === mobile);
 
-      if (existingUser) {
-        localStorage.setItem("userId", existingUser.id);
-        resetSignupForm();
-        goToCategories();
+      if (matches.length > 0) {
+        setAlertConfig({
+          open: true,
+          title: "Duplicate Account",
+          message: "An account already exists with this mobile number."
+        });
         return;
       }
 
-      // 3️⃣ CREATE NEW USER (SIGN UP)
       const newUser = {
         id: `user_${mobile}`,
         name: name.trim(),
-        mobile: mobile.trim(),
+        mobile,
         favourites: [],
         combo: [],
         orders: []
       };
 
       await api.post("/users", newUser);
-      localStorage.setItem("userId", newUser.id);
-      resetSignupForm();
-      goToCategories();
 
-    } catch (err) {
-      console.error("Signup/Login failed", err);
-      alert("Failed to continue. Please try again.");
+      // ✅ login ONLY first time
+      localStorage.setItem("userId", newUser.id);
+
+      setShowSignupForm(false);
+      setName("");
+      setMobile("");
+      setCurrentUser(newUser);
+      // 🔁 REFRESH MENU
+      fetchMenu();
+      navigate("/categories");
+
     } finally {
       setLoading(false);
     }
@@ -131,6 +173,11 @@ const Welcome = ({ toCamelCase }) => {
   return (
     <div className="welcome-page">
       <ThemeToggle />
+      <datalist id="user-mobiles">
+        {filteredMobiles.map((m) => (
+          <option key={m} value={m} />
+        ))}
+      </datalist>
 
       <div className="welcome-container">
         <div className="welcome-text">Welcome to</div>
@@ -143,71 +190,32 @@ const Welcome = ({ toCamelCase }) => {
           Where every bite feels right
         </div>
 
-        <div className="welcome-cta">
-          <button
-            className="cta-button"
-            onClick={() => setShowProfileChoice(true)}
+        <div className="profile-cards">
+          <div
+            className="profile-card"
+            onClick={() => setShowLoginForm(true)}
           >
-            Get Started
-          </button>
+            <h4>Login</h4>
+            <p>Login using your mobile number</p>
+          </div>
+
+          <div
+            className="profile-card secondary"
+            onClick={() => setShowSignupForm(true)}
+          >
+            <h4>Sign Up</h4>
+            <p>Create a new profile</p>
+          </div>
+
+          <div
+            className="profile-card secondary"
+            onClick={handleGuest}
+          >
+            <h4>Guest</h4>
+            <p>Continue without an account</p>
+          </div>
         </div>
       </div>
-
-      {/* PROFILE CHOICE OVERLAY */}
-      <AnimatePresence>
-        {showProfileChoice && (
-          <motion.div
-            className="overlay"
-            variants={overlayVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            <motion.div
-              className="profile-modal"
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <h3>Choose Profile</h3>
-
-              <div className="profile-cards">
-                <div
-                  className="profile-card"
-                  onClick={() => {
-                    setShowProfileChoice(false);
-                    setShowSignupForm(true);
-                  }}
-                >
-                  <h4>Sign Up</h4>
-                  <p>Create your profile for a better experience</p>
-                </div>
-
-                <div
-                  className="profile-card secondary"
-                  onClick={handleGuest}
-                >
-                  <h4>Guest</h4>
-                  <p>Continue without creating an account</p>
-                </div>
-              </div>
-
-              <button
-                className="link-btn"
-                onClick={() => {
-                  resetSignupForm();
-                  setShowProfileChoice(false);
-                }}
-              >
-                Cancel
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* SIGNUP FORM OVERLAY */}
       <AnimatePresence>
@@ -283,6 +291,78 @@ const Welcome = ({ toCamelCase }) => {
                   onClick={() => {
                     resetSignupForm();
                     setShowSignupForm(false);
+                  }}
+                >
+                  Back
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLoginForm && (
+          <motion.div
+            className="overlay"
+            variants={overlayVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <motion.div
+              className="signup-modal"
+              variants={modalVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <h3>Login</h3>
+
+              <div className="section">
+                <label>Mobile Number</label>
+                <input
+                  ref={mobileInputRef}
+                  autoFocus
+                  type="tel"
+                  list={enableAutocomplete ? "user-mobiles" : undefined}
+                  maxLength={10}
+                  value={mobile}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                    setMobile(value);
+
+                    if (value.length === 10) {
+                      setEnableAutocomplete(false);
+
+                      setTimeout(() => {
+                        mobileInputRef.current?.blur();
+                      }, 0);
+                    } else {
+                      // re-enable while typing
+                      setEnableAutocomplete(true);
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="btn-container">
+                <button
+                  className="primary"
+                  onClick={handleLogin}
+                  disabled={loading}
+                >
+                  {loading ? "Logging In..." : "Login"}
+                </button>
+
+                <button
+                  className="link-btn"
+                  onClick={() => {
+                    setShowLoginForm(false);
+                    setMobile("");
+                    setEnableAutocomplete(true);
                   }}
                 >
                   Back

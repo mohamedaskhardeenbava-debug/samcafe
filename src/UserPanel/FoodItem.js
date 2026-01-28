@@ -11,13 +11,18 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const STEP = 10;
 
+const MIN_GRAMS = STEP;
+
+const isOutOfStock = (ingredient) =>
+  Number(ingredient.stockRemaining || 0) * 1000 < MIN_GRAMS;
+
 const SPICINESS_OPTIONS = [
   { id: "mild", name: "Mild", icon: mild },
   { id: "hot", name: "Hot", icon: hot },
   { id: "extreme", name: "Extreme", icon: extreme }
 ];
 
-const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addToBag, handleBack, toCamelCase }) => {
+const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addToBag, handleBack, toCamelCase, currentUser }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const {
@@ -41,6 +46,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   const [favDescription, setFavDescription] = useState("");
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState("");
+  const [blinkIngredient, setBlinkIngredient] = useState(null);
+  const [pricePulse, setPricePulse] = useState(false);
   const { favouriteSnapshot } = location.state || {};
 
   const isEditMode = fromBag === true && typeof bagIndex === "number";
@@ -92,6 +99,21 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const sizeMultiplier = Number(selectedSizeObj?.priceMultiplier ?? 1);
 
+  const hasIngredientChanges = () => {
+    const base = dish?.ingredients || [];
+
+    // map base ingredients for quick lookup
+    const baseMap = {};
+    base.forEach((ing) => {
+      baseMap[ing.name] = Number(ing.quantity || 0);
+    });
+
+    // compare with current quantities
+    return Object.entries(ingredientQuantities).some(
+      ([name, qty]) => Number(qty) !== Number(baseMap[name] || 0)
+    );
+  };
+
   useEffect(() => {
     // initialize size
     if (originalCategory?.sizes?.length) setSelectedSize(originalCategory.sizes[0].name.toLowerCase());
@@ -99,8 +121,25 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     // initialize ingredient quantities
     const initial = {};
     // start with used-in-category ingredients (default 0)
-    foodData.ingredients.forEach((ing) => {
-      if (ing.usedInCategories.includes(originalCategory?.id)) initial[ing.name] = 0;
+    // 1️⃣ Ingredients explicitly used by the dish
+    const dishIngredientNames = new Set(
+      (dish?.ingredients || []).map(i => i.name)
+    );
+
+    // 2️⃣ Ingredients allowed by category
+    const categoryIngredients = foodData.ingredients.filter(ing =>
+      ing.usedInCategories?.includes(originalCategory?.id)
+    );
+
+    // 3️⃣ Fallback: if dish has no ingredients, allow category ingredients
+    const allowedIngredients =
+      dishIngredientNames.size > 0
+        ? foodData.ingredients.filter(ing => dishIngredientNames.has(ing.name))
+        : categoryIngredients;
+
+    // 4️⃣ Initialize quantities
+    allowedIngredients.forEach(ing => {
+      initial[ing.name] = 0;
     });
 
     // overlay dish or bag quantities
@@ -119,6 +158,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       setQuantity(Number(bagItem.quantity) || 1);
       setSelectedSize(bagItem.selectedSize || selectedSizeObj?.name?.toLowerCase());
       setSpiciness(bagItem.spiciness || "mild");
+      setNotes(bagItem.notes || "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [foodData.ingredients.length, effectiveDish.id, bagItem?.id, fromFavouriteCustomize]);
@@ -170,6 +210,14 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       const next = Math.max(0, curr + delta);
       return { ...prev, [name]: next };
     });
+
+    // trigger blink on right panel
+    setBlinkIngredient(name);
+
+    // auto-clear after animation
+    setTimeout(() => {
+      setBlinkIngredient(null);
+    }, 600);
   };
 
   // keep selectedOrder in sync when quantities change
@@ -245,14 +293,26 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     const qty = Number(quantity || 1);
     const totalPrice = unitPrice * qty;
 
+    const ingredientModified = hasIngredientChanges();
+
     return {
       id: dish?.id || effectiveDish.id,
-      name:
-        fromBag && bagItem?.name
-          ? bagItem.name
-          : fromFavouriteCustomize && favouriteDish
-            ? favouriteDish.name
-            : effectiveDish.name,
+      name: (() => {
+        // editing existing bag item → keep original name
+        if (fromBag && bagItem?.name) return bagItem.name;
+
+        // favourite customization → keep favourite name
+        if (fromFavouriteCustomize && favouriteDish?.name)
+          return favouriteDish.name;
+
+        // ingredient modified → prefix Customized
+        if (ingredientModified) {
+          return `Customized ${effectiveDish.name}`;
+        }
+
+        // default → normal dish name
+        return effectiveDish.name;
+      })(),
 
       image: dish?.image || effectiveDish.image,
       categoryId: originalCategory?.id,
@@ -262,6 +322,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       ingredients,
       unitPrice,
       totalPrice,
+      notes: notes?.trim() || "",
       isCustomized: fromFavouriteCustomize ? false : isCustomized,
       isFromFavourite: fromFavouriteCustomize === true
     };
@@ -271,20 +332,17 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const totalPrice = previewItem.totalPrice || 0;
 
-  const hasIngredientChanges = () => {
-    const base = dish?.ingredients || [];
+  useEffect(() => {
+    if (totalPrice === 0) return;
 
-    // map base ingredients for quick lookup
-    const baseMap = {};
-    base.forEach((ing) => {
-      baseMap[ing.name] = Number(ing.quantity || 0);
-    });
+    setPricePulse(true);
 
-    // compare with current quantities
-    return Object.entries(ingredientQuantities).some(
-      ([name, qty]) => Number(qty) !== Number(baseMap[name] || 0)
-    );
-  };
+    const t = setTimeout(() => {
+      setPricePulse(false);
+    }, 500);
+
+    return () => clearTimeout(t);
+  }, [totalPrice]);
 
   const baseIngredientSet = new Set(
     (dish?.ingredients || []).map((ing) => ing.name)
@@ -371,20 +429,15 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   })();
 
   const orderedIngredients = (() => {
-    const base = [];
-    const rest = [];
+    const available = [];
+    const unavailable = [];
 
     categoryIngredients.forEach((ing) => {
-      if (baseIngredientSet.has(ing.name)) {
-        base.push(ing);        // 1️⃣ base dish ingredients
-      } else {
-        rest.push(ing);        // 2️⃣ everything else
-      }
+      if (isOutOfStock(ing)) unavailable.push(ing);
+      else available.push(ing);
     });
 
-    // Order = base dish ingredients first, then others
-    // Selection does NOT affect position
-    return [...base, ...rest];
+    return [...available, ...unavailable];
   })();
 
   const overlayVariants = {
@@ -419,7 +472,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           <div className="home-btn" onClick={handleHome}>
             <img src={homeIcon} alt="" />
           </div>
-          {!fromBag && !fromFavouriteCustomize && (
+          {!fromBag && !fromFavouriteCustomize && currentUser && currentUser.id !== "guest" && (
             <div
               className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
               onClick={() => {
@@ -551,7 +604,13 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
         <div className="image-header">
           <div className="image-header-left">
             <div className="food-item-image">
-              <img src={dish?.image || "/assets/placeholder-food.jpg"} alt={dish?.name || "Make Your Own"} draggable={false} />
+              <img
+                src={dish?.image || "/assets/placeholder-food.jpg"}
+                alt={dish?.name || "Make Your Own"}
+                loading="eager"        // hero image
+                decoding="async"
+                draggable={false}
+              />
             </div>
           </div>
 
@@ -595,20 +654,54 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           <div className="ingredient-list">
             {orderedIngredients.map((ing) => {
               const qty = ingredientQuantities[ing.name] || 0;
+              const disabled = isOutOfStock(ing); // ✅ CORRECT SCOPE
+
               return (
                 <div
-                  className={`ingredient-item ${qty > 0 ? "selected" : ""}`}
                   key={ing.id}
+                  className={`ingredient-item 
+    ${qty > 0 ? "selected" : ""} 
+    ${disabled ? "disabled" : ""}
+  `}
+                  onClick={() => {
+                    navigate(`/ingredient/${ing.id}`);
+                  }}
+                  role="button"
                 >
-                  <div className="ingredient-item-image">
-                    <img src={ing.image} alt="" />
+                  <div className="ingredient-item-image" >
+                    <img src={ing.image} alt="" loading="lazy" decoding="async" />
                   </div>
-                  <div className="ingredient-item-name">{ing.name}</div>
-                  <div className="ingredient-item-price">₹{ing.pricePer100g}/100g</div>
+
+                  <div className="ingredient-item-name" >{ing.name}</div>
+
+                  <div className="ingredient-item-price">
+                    ₹{ing.pricePer100g}/100g
+                  </div>
+
                   <div className="ingredient-modification">
-                    <button className="ingredient-minus" onClick={() => handleIngredientAdjust(ing.name, -STEP)}>-</button>
+                    <button
+                      className="ingredient-minus"
+                      disabled={disabled}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        !disabled && handleIngredientAdjust(ing.name, -STEP);
+                      }}
+                    >
+                      -
+                    </button>
+
                     <div className="ingredient-quantity">{qty}g</div>
-                    <button className="ingredient-plus" onClick={() => handleIngredientAdjust(ing.name, STEP)}>+</button>
+
+                    <button
+                      className="ingredient-plus"
+                      disabled={disabled}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        !disabled && handleIngredientAdjust(ing.name, STEP);
+                      }}
+                    >
+                      +
+                    </button>
                   </div>
                 </div>
               );
@@ -636,21 +729,65 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
             />
           </div>
 
-          {previewItem.ingredients.map((ing) => (
-            <div className="ingredient-item-calculation" key={ing.name}>
-              <div className="ingredient-item-image-calculation"><img src={(foodData.ingredients.find(i => i.name === ing.name) || {}).image} alt="" /></div>
-              <div className="ingredient-item-name-calculation">{ing.name}</div>
-              <div className="ingredient-item-quantity-calculation">{ing.quantity}g</div>
-              <div className="ingredient-item-price-calculation">₹{ing.totalPrice.toFixed(0)}</div>
-              <div className="ingredient-delete" onClick={() => handleIngredientAdjust(ing.name, -ing.quantity)}><img src={trash} alt="Trash" /></div>
-            </div>
-          ))}
+          {previewItem.ingredients.map((ing) => {
+            const master = foodData.ingredients.find(i => i.name === ing.name);
+            const out =
+              !master ||
+              Number(master.stockRemaining || 0) * 1000 < STEP; // kg → g check
+
+            return (
+              <div
+                className={`ingredient-item-calculation 
+    ${out ? "out-of-stock" : ""}
+    ${blinkIngredient === ing.name ? "blink" : ""}
+  `}
+                key={ing.name}
+                onClick={() => {
+                  const master = foodData.ingredients.find(i => i.name === ing.name);
+                  if (master) navigate(`/ingredient/${master.id}`);
+                }}
+                role="button"
+              >
+                <div className="ingredient-item-image-calculation">
+                  <img src={master?.image} alt="" />
+                </div>
+
+                <div className="ingredient-item-name-calculation">
+                  {out ? <s>{ing.name}</s> : ing.name}
+                </div>
+
+                <div className="ingredient-item-quantity-calculation">
+                  {ing.quantity}g
+                </div>
+
+                <div className="ingredient-item-price-calculation">
+                  ₹{ing.totalPrice.toFixed(0)}
+                </div>
+
+                <div
+                  className="ingredient-delete"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    !out && handleIngredientAdjust(ing.name, -ing.quantity);
+                  }}
+                >
+                  <img src={trash} alt="Trash" />
+                </div>
+              </div>
+            );
+          })}
+
         </div>
 
         <div className="bottom">
           <div className="price-section">
             <div className="price-label">Total Price</div>
-            <div className="food-item-total-amount">₹{totalPrice.toFixed(0)}</div>
+            <div
+              className={`food-item-total-amount ${pricePulse ? "price-pulse" : ""
+                }`}
+            >
+              ₹{totalPrice.toFixed(0)}
+            </div>
           </div>
 
           <div className="quantity-section">
@@ -665,9 +802,10 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           <button
             className="food-place-order-button"
             onClick={() => {
+              const builtItem = buildBagItem();
               const item = {
-                ...buildBagItem(),
-                isCustomized: fromFavouriteCustomize ? false : buildBagItem().isCustomized,
+                ...builtItem,
+                isCustomized: builtItem.isCustomized === true,
                 isFromFavourite: fromFavouriteCustomize === true
               };
               if (isEditMode) updateBagItem(bagIndex, item); else addToBag(item);

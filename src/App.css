@@ -2,6 +2,7 @@
   /* Light theme (default) */
   --bg-main: #ffffff;
   --bg-surface: #fafafa;
+  --bg-image: url("../src/assets/bg-image1.png");
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --border-light: rgba(0, 0, 0, 0.08);
@@ -24,15 +25,26 @@
   --foodlist-arrow: rgba(0, 0, 0, 0.1);
   --hot-selector-shadow : rgba(99, 99, 99, 0.3) 0px 0px 8px 0px;
   --light-border : 1px solid rgba(17, 17, 17, 0.1);
-  --text-tertiary : rgba(17, 17, 17, 0.2);
+  --text-tertiary : rgb(207, 207, 207);
   --fav-ingredient-color: #FFF9F2;
   --fav-nutrition-color: #EEF6FF;
   --nutrition-icon-filter: brightness(0) saturate(100%);
+  --shadow-card-normal: 0 10px 25px rgba(0, 0, 0, 0.08);
+  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.12);
+  --shadow-card-red:
+    0 12px 28px rgba(220, 38, 38, 0.28),   /* main depth */
+    0 6px 14px rgba(239, 68, 68, 0.22),    /* warm glow */
+    inset 0 0 0 rgba(0, 0, 0, 0);
+    --shadow-card-red-hover:
+    0 18px 45px rgba(220, 38, 38, 0.38),
+    0 10px 22px rgba(239, 68, 68, 0.28);
+    --filter: none;
 }
 
 [data-theme="dark"] {
   --bg-main: #121212;
   --bg-surface: #020617;
+  --bg-image: none;
   --text-primary: #f8fafc;
   --text-secondary: #cbd5f5;
   --border-light: rgba(255, 255, 255, 0.12);
@@ -41,7 +53,7 @@
   --shadow-list: 0 3px 10px rgba(255, 255, 255, 0.08);
   --shadow-left: 0 6px 20px rgba(255, 255, 255, 0.08);
   --color-green: rgb(22, 243, 59);
-  --color-red: rgb(232, 54, 23);
+  --color-red: rgb(243, 51, 18);
   --color-pale-red: #2e2e2e;
   --color-pale-yellow: #00000000;
   --color-pale-green:rgba(208, 255, 205, 0.8);
@@ -56,24 +68,29 @@
   --fav-ingredient-color: #1E1A16;
   --fav-nutrition-color: #16202B;
   --nutrition-icon-filter: brightness(0) invert(1);
- --text-tertiary : rgba(131, 131, 131, 0.3);
+ --text-tertiary : rgba(131, 131, 131);
+ --shadow-card-normal: 0 12px 30px rgba(0, 0, 0, 0.55);
+  --shadow-card-hover: 0 18px 45px rgba(0, 0, 0, 0.7);
+  --shadow-card-red:
+    0 14px 34px rgba(239, 68, 68, 0.35),
+    0 8px 18px rgba(248, 113, 113, 0.28);
+  --shadow-card-red-hover:
+    0 20px 50px rgba(239, 68, 68, 0.45),
+    0 12px 26px rgba(248, 113, 113, 0.35);
+    --filter: brightness(0) invert(1);
 }
 
 .theme-toggle {
   position: fixed;
   top: 20px;
   right: 20px;
-
   padding: 10px 16px;
   border-radius: 999px;
-
   background: var(--bg-surface);
   color: var(--text-primary);
-
   border: 1px solid var(--border-light);
   font-weight: 600;
   cursor: pointer;
-
   z-index: 999;
 }
 
@@ -88,7 +105,11 @@
 
 body {
   background: var(--bg-main);
+  background-image: var(--bg-image);
+  object-fit: fill;
   color: var(--text-primary);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   transition: background 0.3s ease, color 0.3s ease;
 }
 

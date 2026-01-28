@@ -56,7 +56,7 @@ const IngredientDetail = ({ handleBack, foodData }) => {
           onClick={handleBack}
         ></button>
         <div className="ingredient-detail-image">
-          <img src={ingredient.image} alt='' />
+          <img src={ingredient.image} alt='' loading="lazy" decoding="async" />
         </div>
       </div>
 

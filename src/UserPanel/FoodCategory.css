@@ -9,7 +9,7 @@
 }
 
 .food-category-items {
-  background: var(--bg-primary);
+  background: var(--bg-main);
   color: var(--text-primary);
   border-radius: 20px;
   padding: 30px 20px 40px 20px;

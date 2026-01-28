@@ -20,14 +20,14 @@ const FavouriteDishList = ({
 
   const isMyFavourites = source === "my";
 
-  const guestFavourites =
-    JSON.parse(localStorage.getItem("guestFavourites")) || [];
+  // 🔒 BLOCK GUEST ACCESS
+  if (source === "my" && !currentUser) {
+    return null;
+  }
 
   const favourites =
     source === "my"
-      ? currentUser
-        ? currentUser.favourites || []
-        : guestFavourites
+      ? currentUser?.favourites || []
       : foodData.favourites || [];
 
   const dishes = favourites.filter(
@@ -44,7 +44,6 @@ const FavouriteDishList = ({
     if (!dishToDelete) return;
 
     try {
-      // LOGGED-IN USER
       if (currentUser) {
         const updatedFavourites =
           (currentUser.favourites || []).filter(
@@ -57,25 +56,14 @@ const FavouriteDishList = ({
         };
 
         await api.put(`/users/${currentUser.id}`, updatedUser);
+
+        // ✅ UPDATE STATE — NO RELOAD
+        setDishToDelete(null);
+        setShowDeleteConfirm(false);
+
+        // force UI refresh safely
+        currentUser.favourites = updatedFavourites;
       }
-      // GUEST USER
-      else {
-        const updatedGuestFavs =
-          guestFavourites.filter(
-            (f) => f.id !== dishToDelete.id
-          );
-
-        localStorage.setItem(
-          "guestFavourites",
-          JSON.stringify(updatedGuestFavs)
-        );
-      }
-
-      setShowDeleteConfirm(false);
-      setDishToDelete(null);
-
-      // Simple & safe refresh to sync state everywhere
-      window.location.reload();
     } catch (err) {
       console.error("Failed to delete favourite", err);
       alert("Failed to remove favourite dish.");
@@ -109,28 +97,27 @@ const FavouriteDishList = ({
           {dishes.map((dish) => (
             <div
               key={dish.id}
-              className="food-category-items favourites"
-            >
-              <div
-                role="button"
-                tabIndex={0}
-                onClick={() =>
-                  navigate(`/favourite/${dish.id}`)
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    navigate(`/favourite/${dish.id}`);
+              className="food-category-items favourites-list"
+              role="button"
+              onClick={() =>
+                navigate(`/favourites/${source}/dish/${dish.id}`, {
+                  state: {
+                    favouriteSnapshot: dish,
+                    categoryId: dish.categoryId
                   }
-                }}
-              >
-                <div className="food-category-image">
-                  <img src={dish.image} alt={dish.name} />
-                </div>
-                <div
-                  className="food-category-name"
-                >
-                  {dish.name}
-                </div>
+                })
+              }
+            >
+              <div className="food-category-image">
+                <img src={dish.image} alt={dish.name} loading="lazy" decoding="async"/>
+              </div>
+              <div className="food-category-name">
+                {dish.name}
+                {dish.customerName && (
+                  <div className="fav-customer-name">
+                    By {dish.customerName}
+                  </div>
+                )}
               </div>
 
               {isMyFavourites && (

@@ -7,13 +7,18 @@ import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
 import homeIcon from "../assets/icons/home.png";
 
-const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome }) => {
-  const { dishId } = useParams();
+const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, currentUser }) => {
+  const { dishId, source } = useParams();
   const navigate = useNavigate();
 
-  const dish = foodData.favourites?.find(
-    (d) => d.id === dishId
-  );
+  if (!currentUser) {
+    return null;
+  }
+
+  const dish =
+  source === "my"
+    ? currentUser?.favourites?.find((d) => d.id === dishId)
+    : foodData.favourites?.find((d) => d.id === dishId);
 
   if (!dish) {
     return (
@@ -42,9 +47,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome }) => 
           className="back-button"
           onClick={handleBack}
         />
-        <div className="food-list-title">
-          {dish.name}
-        </div>
+        <h2 className="fav-title">{dish.name}</h2>
         <div className="home-btn" onClick={handleHome}>
           <img src={homeIcon} alt="" />
         </div>
@@ -68,6 +71,12 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome }) => 
               ₹{Math.round(dish.totalPrice)}
             </div>
           </div>
+
+          {dish.customerName && (
+            <div className="fav-customer-name">
+              Saved by {dish.customerName}
+            </div>
+          )}
 
           {dish.description && (
             <p className="fav-description">

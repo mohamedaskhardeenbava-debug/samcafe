@@ -109,24 +109,6 @@
   justify-content: center;
 }
 
-.cta-button {
-  position: relative;
-  text-decoration: none;
-  padding: 14px 34px;
-  font-size: 16px;
-  font-weight: 500;
-  color: #eee;
-  background: #f64848;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  overflow: hidden;
-  box-shadow: rgb(246, 72, 72, 0.2) 0px 10px 20px, rgba(246, 72, 72, 0.3) 0px 6px 6px;
-  opacity: 0;
-  animation: slideUp 0.8s ease forwards;
-  animation-delay: 0.9s;
-}
-
 .overlay {
   position: fixed;
   inset: 0;
@@ -260,37 +242,48 @@
   cursor: pointer;
 }
 
-.profile-modal {
-  background: var(--bg-main);
-  padding: 28px;
-  border-radius: 18px;
-  width: 500px;
-  height: 280px;
-  text-align: center;
-  animation: scaleIn 0.25s ease;
-}
-
 .profile-cards {
   display: flex;
   gap: 16px;
-  margin: 20px 0;
+  margin-top: 50px;
 }
 
 .profile-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
   flex: 1;
   padding: 18px;
   border-radius: 14px;
-  border: 1px solid var(--color-red);
+  background: var(--bg-main);
+  border: 1px solid transparent;
+  box-shadow: var(--shadow-card-red);
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.profile-card:not(.secondary):hover {
+  box-shadow: var(--shadow-card-red-hover);
+}
+
+.profile-card.secondary {
+  box-shadow: var(--shadow-card-normal);
+}
+
+.profile-card.secondary:hover {
+  box-shadow: var(--shadow-card-hover);
 }
 
 .profile-card h4 {
-  margin-bottom: 6px;
+  margin: 0;
   color: var(--color-red);
 }
 
 .profile-card p {
+  margin: 0;
   font-size: 13px;
   color: var(--text-secondary);
 }

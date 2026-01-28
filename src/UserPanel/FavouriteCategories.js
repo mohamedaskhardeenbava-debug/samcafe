@@ -12,18 +12,22 @@ const FavouriteCategories = ({
 }) => {
   const { source } = useParams(); // "my" | "others"
 
-  const guestFavourites =
-    JSON.parse(localStorage.getItem("guestFavourites")) || [];
+  // 🔒 HARD BLOCK MY FAVOURITES FOR GUESTS
+  if (source === "my" && !currentUser) {
+    return null; // route is already protected, this is safety
+  }
 
   const favourites =
     source === "my"
-      ? currentUser
-        ? currentUser.favourites || []
-        : guestFavourites
+      ? currentUser?.favourites || []
       : foodData.favourites || [];
 
-  const grouped = favourites.reduce((acc, dish) => {
-    if (!dish.categoryId) return acc;
+  // 🔧 FIX: filter invalid data
+  const validFavourites = favourites.filter(
+    (dish) => dish.categoryId
+  );
+
+  const grouped = validFavourites.reduce((acc, dish) => {
     acc[dish.categoryId] = acc[dish.categoryId] || [];
     acc[dish.categoryId].push(dish);
     return acc;
@@ -54,11 +58,11 @@ const FavouriteCategories = ({
           {categories.map((category) => (
             <Link
               key={category.id}
-              to={`/favourites/${source}/${category.id}`}
+              to={`/favourites/${source}/category/${category.id}`}
               className="food-category-items favourites"
             >
               <div className="food-category-image">
-                <img src={category.image} alt={category.name} />
+                <img src={category.image} alt={category.name} loading="lazy" decoding="async" />
               </div>
               <div className="food-category-name">
                 {category.name}

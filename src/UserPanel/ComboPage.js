@@ -73,6 +73,9 @@ const ComboPage = ({
 
   const isEditMode = location.state?.fromBag;
   const editIndex = location.state?.bagIndex;
+  const isLoggedIn = Boolean(localStorage.getItem("userId"));
+  const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
+  const [isSavingFav, setIsSavingFav] = useState(false);
 
   /*DATA*/
   const combo = useMemo(
@@ -90,13 +93,11 @@ const ComboPage = ({
     combo.find(c => c.type === "drinks") || { groups: [] };
 
   /*STATE*/
-  const [activeSection, setActiveSection] = useState(null);
-  const [activeGroup, setActiveGroup] = useState(null);
+  const [activeSection, setActiveSection] = useState("starters");
+  const [activeMainGroup, setActiveMainGroup] = useState(null);
+  const [activeDrinkGroup, setActiveDrinkGroup] = useState(null);
   const [offerHint, setOfferHint] = useState(null);
   const [showAddFavConfirm, setShowAddFavConfirm] = useState(false);
-  const [showFavCombos, setShowFavCombos] = useState(false);
-
-  const navigate = useNavigate();
 
   const [selectedItems, setSelectedItems] = useState(() => {
     if (isEditMode && location.state?.comboItems) {
@@ -106,7 +107,7 @@ const ComboPage = ({
   });
 
   const [appliedOffer, setAppliedOffer] = useState(null);
-
+  const navigate = useNavigate();
 
   /*PRICE CALCULATION*/
   const originalTotal = useMemo(() => {
@@ -169,6 +170,27 @@ const ComboPage = ({
   };
 
   useEffect(() => {
+    if (!isEditMode) return;
+
+    if (selectedItems.starter && !selectedItems.main) {
+      setActiveSection("mainCourse");
+    } else if (
+      selectedItems.starter &&
+      selectedItems.main &&
+      !selectedItems.drink
+    ) {
+      setActiveSection("drinks");
+    } else if (selectedItems.starter && selectedItems.main && selectedItems.drink) {
+      setActiveSection(null);
+    }
+  }, [
+    isEditMode,
+    selectedItems.starter,
+    selectedItems.main,
+    selectedItems.drink
+  ]);
+
+  useEffect(() => {
     const starterName = selectedItems.starter?.name;
     const mainName = selectedItems.main?.name;
 
@@ -219,19 +241,50 @@ const ComboPage = ({
 
   /*ACTIONS*/
   const handleAddItem = (type, item) => {
-    setSelectedItems(prev => ({ ...prev, [type]: item }));
-    setActiveSection(null);
-    setActiveGroup(null);
+    setSelectedItems(prev => {
+      const updated = { ...prev, [type]: item };
+
+      // 🔁 AUTO-ADVANCE FLOW
+      if (type === "starter") {
+        setActiveSection("mainCourse");
+      } else if (type === "main") {
+        setActiveSection("drinks");
+      } else {
+        setActiveSection(null);
+      }
+
+      setActiveMainGroup(null);
+      setActiveDrinkGroup(null);
+      return updated;
+    });
   };
 
   const handleDelete = (type) => {
-    setSelectedItems(prev => ({ ...prev, [type]: null }));
+    setSelectedItems(prev => {
+      const updated = { ...prev, [type]: null };
+
+      if (type === "starter") {
+        updated.main = null;
+        updated.drink = null;
+        setActiveSection("starters");
+        setActiveMainGroup(null);
+        setActiveDrinkGroup(null);
+      } else if (type === "main") {
+        updated.drink = null;
+        setActiveSection("mainCourse");
+        setActiveMainGroup(null);
+      } else if (type === "drink") {
+        setActiveSection("drinks");
+        setActiveDrinkGroup(null);
+      }
+      return updated;
+    });
   };
 
   const handleAddToBag = () => {
     const comboItem = {
       id: `combo_${Date.now()}`,
-      name: "Custom Combo",
+      name: comboTitle,                 // ✅ FIX
       categoryId: "combo",
       quantity: 1,
 
@@ -265,17 +318,17 @@ const ComboPage = ({
   const renderMain = () => {
     if (!Array.isArray(mainSection.groups)) return null;
 
-    if (!activeGroup) {
+    if (!activeMainGroup) {
       return mainSection.groups.map(group => (
         <GroupCard
           key={group.id}
           title={group.title}
-          onClick={() => setActiveGroup(group.id)}
+          onClick={() => setActiveMainGroup(group.id)}
         />
       ));
     }
 
-    const group = mainSection.groups.find(g => g.id === activeGroup);
+    const group = mainSection.groups.find(g => g.id === activeMainGroup);
     if (!group || !Array.isArray(group.items)) return null;
 
     return group.items.map(item => (
@@ -290,17 +343,17 @@ const ComboPage = ({
   const renderDrinks = () => {
     if (!Array.isArray(drinksSection.groups)) return null;
 
-    if (!activeGroup) {
+    if (!activeDrinkGroup) {
       return drinksSection.groups.map(group => (
         <GroupCard
           key={group.id}
           title={group.title}
-          onClick={() => setActiveGroup(group.id)}
+          onClick={() => setActiveDrinkGroup(group.id)}
         />
       ));
     }
 
-    const group = drinksSection.groups.find(g => g.id === activeGroup);
+    const group = drinksSection.groups.find(g => g.id === activeDrinkGroup);
     if (!group || !Array.isArray(group.items)) return null;
 
     return group.items.map(item => (
@@ -325,6 +378,7 @@ const ComboPage = ({
 
   const handleConfirmAddFav = async () => {
     if (!currentUser || !isComboComplete) return;
+    setIsSavingFav(true);
 
     const newCombo = {
       id: `favcombo_${Date.now()}`,
@@ -350,8 +404,8 @@ const ComboPage = ({
     );
 
     if (isDuplicate) {
-      alert("This combo is already in your favourites.");
       setShowAddFavConfirm(false);
+      setShowDuplicateOverlay(true);
       return;
     }
 
@@ -367,6 +421,8 @@ const ComboPage = ({
     } catch (err) {
       console.error("Failed to save favourite combo", err);
       alert("Failed to add combo to favourites.");
+    } finally {
+      setIsSavingFav(false);
     }
   };
 
@@ -450,7 +506,7 @@ const ComboPage = ({
             <p>Select one starter, one main & one drink</p>
           </div>
 
-          {currentUser && (
+          {currentUser && currentUser.id !== "guest" && (
             <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
               <button
                 className="combo-add-fav-btn"
@@ -462,11 +518,10 @@ const ComboPage = ({
 
               <button
                 className="combo-my-fav-btn"
-                onClick={() => setShowFavCombos(true)}
+                onClick={() => navigate("/favourite-combos")}
               >
                 My Favourites
               </button>
-
             </div>
           )}
         </div>
@@ -482,10 +537,13 @@ const ComboPage = ({
             >
               <motion.div
                 className="combo-add-fav-modal"
-                initial={{ scale: 0.96, y: 10, opacity: 0 }}
+                initial={{ scale: 0.94, y: 30, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.96, y: 10, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
+                exit={{ scale: 0.96, y: 20, opacity: 0 }}
+                transition={{
+                  duration: 0.4,
+                  ease: [0.16, 1, 0.3, 1]
+                }}
               >
                 <h3>Add Combo to Favourites?</h3>
 
@@ -503,9 +561,10 @@ const ComboPage = ({
 
                   <button
                     className="combo-add-fav-confirm"
+                    disabled={!isComboComplete || isSavingFav}
                     onClick={handleConfirmAddFav}
                   >
-                    Confirm
+                    {isSavingFav ? "Saving..." : "Confirm"}
                   </button>
                 </div>
 
@@ -515,100 +574,66 @@ const ComboPage = ({
         </AnimatePresence>
 
         <AnimatePresence>
-          {showFavCombos && (
+          {showDuplicateOverlay && (
             <motion.div
-              className="combo-my-fav-overlay"
+              className="combo-add-fav-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
             >
               <motion.div
-                className="combo-my-fav-modal"
-                initial={{ scale: 0.95, y: 20, opacity: 0 }}
+                className="combo-add-fav-modal"
+                initial={{ scale: 0.92, y: 20, opacity: 0 }}
                 animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.95, y: 20, opacity: 0 }}
-                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                exit={{ scale: 0.92, y: 20, opacity: 0 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
               >
+                <h3>Already Added</h3>
 
-                {/* FIXED HEADER */}
-                <div className="combo-my-fav-header">
-                  <h3 className="combo-my-fav-title">My Favourite Combos</h3>
+                <p className="combo-add-fav-title">
+                  This combo already exists in your favourites.
+                </p>
+
+                <div className="combo-add-fav-actions">
                   <button
-                    className="combo-my-fav-close-btn"
-                    onClick={() => setShowFavCombos(false)}
-                    aria-label="Close"
+                    className="combo-add-fav-confirm"
+                    onClick={() => setShowDuplicateOverlay(false)}
                   >
-                    ✕
+                    Okay
                   </button>
                 </div>
-
-                {/* SCROLLABLE LIST */}
-                <div className="combo-my-fav-list">
-                  {(currentUser.combo || []).length === 0 && (
-                    <p className="combo-my-fav-empty">
-                      No favourite combos yet.
-                    </p>
-                  )}
-
-                  {(currentUser.combo || []).map((combo) => (
-                    <div key={combo.id} className="fav-combo-card">
-                      <div className="fav-combo-title">{combo.title}</div>
-
-                      <div className="fav-combo-footer">
-                        <div className="fav-combo-price">
-                          ₹{combo.totalPrice}
-                        </div>
-
-                        <div className="fav-combo-actions">
-                          <button
-                            className="fav-combo-add-btn"
-                            onClick={() => {
-                              addToBag({
-                                ...combo,
-                                isCombo: true,
-                                quantity: 1
-                              });
-                              setShowFavCombos(false);
-                              navigate("/thank-you");
-                            }}
-                          >
-                            Add to Bag
-                          </button>
-
-                          <button
-                            className="fav-combo-delete-btn"
-                            onClick={() => handleDeleteFavCombo(combo.id)}
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
 
-
         <div className="combo-category-row">
           <CategoryCard
             title="Starters"
             disabled={!!selectedItems.starter}
-            onClick={() => setActiveSection("starters")}
+            onClick={() => {
+              setActiveSection("starters");
+              setActiveMainGroup(null);
+              setActiveDrinkGroup(null);
+            }}
           />
+
           <CategoryCard
             title="Main Course"
-            disabled={!!selectedItems.main}
-            onClick={() => setActiveSection("mainCourse")}
+            disabled={!selectedItems.starter || !!selectedItems.main}
+            onClick={() => {
+              setActiveSection("mainCourse");
+              setActiveMainGroup(null);   // ✅ RESET GROUP
+            }}
           />
+
           <CategoryCard
             title="Drinks"
-            disabled={!!selectedItems.drink}
-            onClick={() => setActiveSection("drinks")}
+            disabled={!selectedItems.main || !!selectedItems.drink}
+            onClick={() => {
+              setActiveSection("drinks");
+              setActiveDrinkGroup(null); // ✅ RESET GROUP
+            }}
           />
         </div>
 
@@ -624,18 +649,21 @@ const ComboPage = ({
         <AnimatePresence>
           {selectedItems.starter && (
             <SelectedItem
+              key={`selected-starter-${selectedItems.starter.id}`}
               item={selectedItems.starter}
               onDelete={() => handleDelete("starter")}
             />
           )}
           {selectedItems.main && (
             <SelectedItem
+              key={`selected-main-${selectedItems.main.id}`}
               item={selectedItems.main}
               onDelete={() => handleDelete("main")}
             />
           )}
           {selectedItems.drink && (
             <SelectedItem
+              key={`selected-drink-${selectedItems.drink.id}`}
               item={selectedItems.drink}
               onDelete={() => handleDelete("drink")}
             />
@@ -645,9 +673,9 @@ const ComboPage = ({
         <div className="combo-summary">
           {appliedOffer ? (
             <>
-              <div className="combo-original-price">
-                <div>Total Price: </div>
-                <div>₹{originalTotal}</div>
+              <div className="combo-original-price strike">
+                <div>Total Price:</div>
+                <div className="diagonal-strike">₹{originalTotal}</div>
               </div>
 
               <div className="combo-offer-label">
@@ -655,20 +683,20 @@ const ComboPage = ({
               </div>
 
               <div className="combo-discounted-price">
-                <div>Discounted Price: </div>
+                <div>Final Price: </div>
                 <div>₹{discountedPrice}</div>
               </div>
             </>
           ) : (
             <div className="combo-discounted-price">
-              <div>Total Price: </div>
+              <div>Final Price: </div>
               <div>₹{originalTotal}</div>
             </div>
           )}
 
           <button
             className="combo-add-btn"
-            disabled={!selectedItems.starter || !selectedItems.main}
+            disabled={!isComboComplete}
             onClick={handleAddToBag}
           >
             Add Combo to Bag
@@ -706,8 +734,11 @@ const ComboItemCard = ({ item, onAdd }) => (
   <motion.div
     className="combo-item-card"
     variants={itemVariants}
-    whileHover={{ y: -6, scale: 1.02 }}
-    whileTap={{ scale: 0.97 }}
+    whileHover={{
+      y: -6,
+      scale: 1.03,
+      transition: { duration: 0.25, ease: "easeOut" }
+    }}
   >
     <div className="combo-item-image">
       <img src={item.image} alt="" />
@@ -719,11 +750,20 @@ const ComboItemCard = ({ item, onAdd }) => (
 );
 
 const SelectedItem = ({ item, onDelete }) => (
+
   <motion.div
     className="combo-selected-item"
-    initial={{ opacity: 0, x: 30 }}
-    animate={{ opacity: 1, x: 0 }}
-    exit={{ opacity: 0, x: 30 }}
+    initial={{ opacity: 0, x: 50 }}
+    animate={{
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] }
+    }}
+    exit={{
+      opacity: 0,
+      x: -50,
+      transition: { duration: 0.35, ease: "easeInOut" }
+    }}
   >
     <div className="combo-selected-image">
       <img src={item.image} alt="" />

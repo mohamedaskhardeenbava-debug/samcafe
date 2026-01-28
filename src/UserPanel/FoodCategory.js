@@ -3,16 +3,19 @@ import { Link } from "react-router-dom";
 import "./FoodCategory.css";
 
 const FoodCategory = ({ foodData, currentUser }) => {
-  const myFavourites = currentUser?.favourites || [];
+  const isAuthenticatedUser =
+    currentUser && currentUser.id !== "guest";
 
-  const othersFavourites = (foodData.favourites || []).filter(
-    (fav) => !myFavourites.some((mf) => mf.id === fav.id)
-  );
+  const myFavourites = isAuthenticatedUser
+    ? currentUser.favourites || []
+    : [];
+
+  const othersFavourites = foodData.favourites || [];
 
   const categoriesToRender = [];
 
-  /* LOGGED-IN USER */
-  if (currentUser) {
+  /* ONLY LOGGED-IN USERS */
+  if (isAuthenticatedUser) {
     categoriesToRender.push(
       {
         id: "my",
@@ -29,22 +32,14 @@ const FoodCategory = ({ foodData, currentUser }) => {
     );
   }
 
-  /* GUEST USER */
-  if (!currentUser) {
-    categoriesToRender.push(
-      {
-        id: "my",
-        name: "My Favourites",
-        image: "/assets/category-assets/pizza.png",
-        route: "/favourites/my"
-      },
-      {
-        id: "others",
-        name: "Crowd Picks",
-        image: "/assets/category-assets/pizza.png",
-        route: "/favourites/others"
-      }
-    );
+  /* GUESTS SEE ONLY CROWD PICKS */
+  if (!isAuthenticatedUser) {
+    categoriesToRender.push({
+      id: "others",
+      name: "Crowd Picks",
+      image: "/assets/category-assets/pizza.png",
+      route: "/favourites/others"
+    });
   }
 
   /* COMBO */
@@ -79,7 +74,12 @@ const FoodCategory = ({ foodData, currentUser }) => {
             `}
           >
             <div className="food-category-image">
-              <img src={category.image} alt={category.name} />
+              <img
+                src={category.image}
+                alt={category.name}
+                loading="lazy"
+                decoding="async"
+              />
             </div>
 
             <div className="food-category-name">

@@ -1,6 +1,6 @@
 import "./App.css";
 import { useEffect, useState } from "react";
-import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import api from "./api";
 
@@ -15,6 +15,7 @@ import FavouriteCategories from "./UserPanel/FavouriteCategories";
 import FavouriteDishList from "./UserPanel/FavouriteDishList";
 import FavouriteDishDetail from "./UserPanel/FavouriteDishDetail";
 import ComboPage from "./UserPanel/ComboPage";
+import FavouriteCombo from "./UserPanel/FavouriteCombo";
 
 function App() {
   const navigate = useNavigate();
@@ -25,15 +26,45 @@ function App() {
   const [bag, setBag] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
+  const isAuthenticatedUser =
+    currentUser && currentUser.id !== "guest";
+
+  const fetchMenu = async () => {
+    try {
+      const res = await api.get("/menu");
+      const menu = res.data;
+
+      setFoodData(prev => ({
+        ...prev,
+        categories: menu.categories || [],
+        favourites: menu.favourites || [], // ✅ REQUIRED FOR CROWD PICKS
+        combo: menu.combo || [],
+        ingredients: menu.ingredients || []
+      }));
+    } catch (err) {
+      console.error("Failed to load menu", err);
+    }
+  };
+
   useEffect(() => {
     const initUser = async () => {
-      const userId = localStorage.getItem("userId");
-      if (!userId) return;
+      const rawUserId = localStorage.getItem("userId");
+      if (!rawUserId) return;
 
-      const res = await api.get(`/users/${userId}`);
-      setCurrentUser(res.data);
+      // 🔒 normalize id (remove accidental prefix)
+      const userId = rawUserId.replace(/^user_/, "");
+
+      try {
+        const res = await api.get(`/users/${userId}`);
+        setCurrentUser(res.data);
+      } catch (err) {
+        console.warn("User not found, clearing session");
+
+        // 🔥 CRITICAL CLEANUP
+        localStorage.removeItem("userId");
+        setCurrentUser(null);
+      }
     };
-
     initUser();
   }, []);
 
@@ -109,12 +140,25 @@ function App() {
         ? menu.favourites
         : [];
 
+      let enrichedDish = dish;
+
+      if (userId) {
+        const userRes = await api.get(`/users/${userId}`);
+        const user = userRes.data;
+
+        enrichedDish = {
+          ...dish,
+          userId,
+          customerName: user.name    // ✅ ADD
+        };
+      }
+
       const existsInMenu = menuFavourites.some(f => f.id === dish.id);
 
       if (!existsInMenu) {
         const updatedMenu = {
           ...menu,
-          favourites: [...menuFavourites, dish]
+          favourites: [...menuFavourites, enrichedDish]
         };
 
         await api.put("/menu", updatedMenu);
@@ -169,26 +213,13 @@ function App() {
     }
   };
 
-
   useEffect(() => {
-    const fetchMenu = async () => {
-      try {
-        const res = await api.get("/menu");
-
-        setFoodData(prev => ({
-          ...prev,
-          categories: res.data.categories || [],
-          ingredients: res.data.ingredients || [],
-          combo: res.data.combo || [],
-          favourites: res.data.favourites || [],
-        }));
-      } catch (err) {
-        console.error("Failed to fetch menu:", err);
-      }
-    };
-
     fetchMenu();
   }, []);
+
+  useEffect(() => {
+    fetchMenu();
+  }, [currentUser]);
 
   const pageVariants = {
     initial: (direction) => ({
@@ -241,6 +272,8 @@ function App() {
                 <Welcome
                   handleNavigate={handleNavigate}
                   toCamelCase={toCamelCase}
+                  setCurrentUser={setCurrentUser}
+                  fetchMenu={fetchMenu}
                 />
               </motion.div>
             }
@@ -345,7 +378,7 @@ function App() {
 
           {/* FAV DISH LIST PAGE */}
           <Route
-            path="/favourites/:source/:categoryId"
+            path="/favourites/:source/category/:categoryId"
             element={
               <motion.div {...motionProps}>
                 <FavouriteDishList
@@ -361,7 +394,7 @@ function App() {
 
 
           <Route
-            path="/favourite/:dishId"
+            path="/favourites/:source/dish/:dishId"
             element={
               <motion.div {...motionProps}>
                 <FavouriteDishDetail
@@ -369,6 +402,7 @@ function App() {
                   handleBack={handleBack}
                   addToBag={addToBag}
                   handleHome={handleHome}
+                  currentUser={currentUser}
                 />
               </motion.div>
             }
@@ -383,10 +417,30 @@ function App() {
                   addToBag={addToBag}
                   updateBagItem={updateBagItem}
                   handleBack={handleBack}
-                  currentUser={currentUser}          // ✅ ADD
-                  setCurrentUser={setCurrentUser}    // ✅ ADD
+                  currentUser={currentUser}
+                  setCurrentUser={setCurrentUser}
                 />
               </motion.div>
+
+            }
+          />
+
+          <Route
+            path="/favourite-combos"
+            element={
+              isAuthenticatedUser ? (
+                <motion.div {...motionProps}>
+                  <FavouriteCombo
+                    currentUser={currentUser}
+                    setCurrentUser={setCurrentUser}
+                    addToBag={addToBag}
+                    handleBack={handleBack}
+                  />
+                </motion.div>
+
+              ) : (
+                <Navigate to="/categories" replace />
+              )
             }
           />
 
