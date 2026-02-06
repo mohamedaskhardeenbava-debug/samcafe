@@ -19,47 +19,50 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                     <img src={homeIcon} alt="" />
                 </div>
             </div>
-            <div className="food-grid">
-                {category.dishes.map(dish => (
-                    <div key={dish.id} className="food-grid-card">
-                        <div className="food-grid-card-image">
-                            <img src={dish.image} alt={dish.name} />
-                        </div>
+            <div className="food-category">
+                <div className="food-grid">
+                    {category.dishes.map(dish => (
+                        <div key={dish.id} className="food-grid-card">
+                            <div className="food-grid-card-image">
+                                <img src={dish.image} alt={dish.name} />
+                            </div>
 
-                        <div className="grid-info">
-                            <div className="grid-name">{dish.name}</div>
-                            <div className="grid-price">₹{dish.basePrice}</div>
-                        </div>
+                            <div className="grid-info">
+                                <div className="grid-name">{dish.name}</div>
+                                <div className="grid-price">₹{dish.basePrice}</div>
+                            </div>
 
-                        <div
-                            className="grid-link"
-                            onClick={() =>
-                                navigate(`/foods/${categoryId}`, {
-                                    state: { dishId: dish.id }
-                                })
-                            }
-                        >
-                            View dishes →
-                        </div>
+                            <div
+                                className="grid-link"
+                                onClick={() =>
+                                    navigate(`/foods/${categoryId}`, {
+                                        state: { dishId: dish.id }
+                                    })
+                                }
+                            >
+                                View dishes →
+                            </div>
 
-                        <button
-                            className="grid-add-btn"
-                            onClick={() =>
-                                addToBag({
-                                    id: dish.id,
-                                    name: dish.name,
-                                    image: dish.image,
-                                    categoryId,
-                                    quantity: 1,
-                                    unitPrice: dish.basePrice,
-                                    totalPrice: dish.basePrice
-                                })
-                            }
-                        >
-                            +
-                        </button>
-                    </div>
-                ))}
+                            <button
+                                className="grid-add-btn"
+                                onClick={() =>
+                                    addToBag({
+                                        id: dish.id,
+                                        name: dish.name,
+                                        image: dish.image,
+                                        categoryId,
+                                        quantity: 1,
+                                        unitPrice: dish.basePrice,
+                                        totalPrice: dish.basePrice
+                                    })
+                                }
+                            >
+                                +
+                            </button>
+                        </div>
+                    ))}
+                </div>
+
             </div>
         </div>
     );

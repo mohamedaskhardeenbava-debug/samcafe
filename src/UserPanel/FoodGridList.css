@@ -18,7 +18,7 @@
 /* ===== GRID ===== */
 .food-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
   gap: 16px;
 }
 
@@ -26,10 +26,11 @@
 .food-grid-card {
   background: #fff;
   border-radius: 18px;
-  padding: 12px;
+  padding: 20px;
   position: relative;
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  width: fit-content;
 }
 
 .food-grid-card-image {
