@@ -32,15 +32,15 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                         </div>
 
                         <div
-  className="grid-link"
-  onClick={() =>
-    navigate(`/foods/${categoryId}`, {
-      state: { dishId: dish.id }
-    })
-  }
->
-  View dishes →
-</div>
+                            className="grid-link"
+                            onClick={() =>
+                                navigate(`/foods/${categoryId}`, {
+                                    state: { dishId: dish.id }
+                                })
+                            }
+                        >
+                            View dishes →
+                        </div>
 
                         <button
                             className="grid-add-btn"

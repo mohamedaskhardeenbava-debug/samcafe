@@ -8,7 +8,7 @@
   font-family: "Geom", sans-serif;
   will-change: background-color, transform;
   transform-origin: center;
-  background-image: var(--bg-image);
+  /* background-image: var(--bg-image); */
   transition:
     background-color 1.8s cubic-bezier(0.22, 1, 0.36, 1),
     transform 1.6s cubic-bezier(0.16, 1, 0.3, 1);
