@@ -1,0 +1,133 @@
+.food-grid-page {
+  padding: 36px;
+  font-family: "Geom", system-ui, sans-serif;
+}
+
+.food-grid-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.food-grid-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ===== GRID ===== */
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+/* ===== CARD ===== */
+.food-grid-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 12px;
+  position: relative;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-grid-card-image {
+    width: 140px;
+    height: 140px;
+}
+
+.food-grid-card-image img{
+    width: 100%;
+    height: 100%;
+}
+
+.food-grid-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0,0,0,0.14);
+}
+
+/* ===== IMAGE ===== */
+.food-grid-card img {
+  width: 100%;
+  height: 140px;
+  object-fit: contain;
+}
+
+/* ===== INFO ===== */
+.grid-info {
+  margin-top: 8px;
+}
+
+.grid-name {
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.2;
+  height: 36px;
+}
+
+.grid-price {
+  margin-top: 6px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.grid-link {
+  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-red);
+
+  cursor: pointer;
+  user-select: none;
+  width: fit-content;
+
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.grid-link:hover {
+  transform: translateX(4px);
+  opacity: 0.9;
+}
+
+.grid-link:active {
+  transform: translateX(2px) scale(0.98);
+}
+
+/* ===== ADD BUTTON ===== */
+.grid-add-btn {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--color-red);
+  color: #fff;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.grid-add-btn:hover {
+  transform: scale(1.1);
+}
+
+/* ===== RESPONSIVE TUNING ===== */
+@media (min-width: 768px) {
+  .food-grid-page {
+    padding: 24px;
+  }
+
+  .grid-title {
+    font-size: 26px;
+  }
+}

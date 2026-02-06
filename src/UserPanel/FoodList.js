@@ -1,101 +1,96 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./FoodList.css";
 import AnimatedPrice from "./AnimatedPrice";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import caloriesIcon from "../assets/icons/calorie.png";
-import proteinIcon from "../assets/icons/protein.png";
-import fibreIcon from "../assets/icons/fiber.png";
-import fatIcon from "../assets/icons/fat.png";
-import IngredientsCarousel from "./IngredientsCarousel";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 import homeIcon from "../assets/icons/home.png";
 
-const SWIPE_THRESHOLD = 80;
-const ITEMS_PER_SLIDE = 5;
-const AUTO_SLIDE_INTERVAL = 5000;
+const SLOT_X = [-1000, 0, 420, 700, 900];
+const FOODLIST_EXIT_DURATION = 750;
 
-const imageVariants = {
-  enter: (direction) => ({
-    x: direction > 0 ? 140 : -140,
-    opacity: 0,
-    scale: 1.04,
-  }),
-
-  center: {
-    x: 0,
-    opacity: 1,
-    scale: 1,
-    transition: {
-      x: { type: "spring", stiffness: 280, damping: 34 },
-      scale: { duration: 0.28, ease: "easeOut" },
-      opacity: { duration: 0.22 },
-      filter: { duration: 0.22 }
-    }
-  },
-
-  exit: (direction) => ({
-    x: direction > 0 ? -140 : 140,
-    opacity: 0,
-    scale: 0.96,
-    transition: {
-      x: { type: "spring", stiffness: 320, damping: 36 },
-      opacity: { duration: 0.18 },
-      scale: { duration: 0.18 }
-    }
-  })
+const SLOW_SPRING = {
+  type: "spring",
+  stiffness: 55,
+  damping: 26,
+  mass: 1.4
 };
 
-const contentVariants = {
-  enter: {
-    opacity: 0,
-    filter: "blur(6px)"
-  },
+const SOFT_SPRING = {
+  type: "spring",
+  stiffness: 90,
+  damping: 22,
+  mass: 1.2
+};
 
-  center: {
+const DETAIL_VARIANTS = {
+  hidden: {
+    opacity: 0,
+    y: 0,
+    filter: "blur(10px)"
+  },
+  show: {
     opacity: 1,
-    filter: "blur(0px)",
-    transition: {
-      opacity: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
-      y: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
-      scale: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
-      filter: { duration: 0.3 }
-    }
-  },
-
-  exit: {
-    opacity: 0,
-    filter: "blur(4px)",
-    transition: {
-      duration: 0.22,
-      ease: [0.4, 0, 0.6, 1]
-    }
+    y: [-60, 0],
+    filter: "blur(0px)"
   }
+};
+
+const DETAIL_EXIT_VARIANT = {
+  opacity: 0,
+  y: -60,
+  filter: "blur(10px)"
 };
 
 const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   const { categoryId } = useParams();
+  const location = useLocation();
+  const initialDishId = location.state?.dishId;
   const navigate = useNavigate();
   const category = foodData.categories.find(
     (cat) => cat.id === categoryId
   );
 
-  const [[index, direction], setIndex] = useState([0, 0]);
+  const [slideDirection, setSlideDirection] = useState(1);
+  const [detailKey, setDetailKey] = useState(0);
+  const [isGlidingOut, setIsGlidingOut] = useState(false);
   const startX = useRef(0);
   const startY = useRef(0);
+  const exitTimerRef = useRef(null);
+  const isNavigatingRef = useRef(false);
   const isPointerDown = useRef(false);
-  const slides = [
-    { id: "__custom__", name: "Make Your Own" },
-    ...(category?.dishes || [])
+  const slides = category?.dishes || [];
+
+  useEffect(() => {
+    return () => {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current);
+      }
+    };
+  }, []);
+
+  const initialIndex = (() => {
+    if (!slides.length || !initialDishId) return 0;
+
+    const idx = slides.findIndex(d => d.id === initialDishId);
+    return idx !== -1 ? idx : 0;
+  })();
+
+  const [logicalIndex, setLogicalIndex] = useState(initialIndex);
+  const [renderIndex, setRenderIndex] = useState(initialIndex);
+
+  useEffect(() => {
+    setDetailKey(k => k + 1);
+  }, [renderIndex]);
+
+  const visible = [
+    slides[(renderIndex - 1 + slides.length) % slides.length], // slot 0 (far-left)
+    slides[renderIndex],                                       // slot 1 (ACTIVE)
+    slides[(renderIndex + 1) % slides.length],                 // slot 2 (NEXT)
+    slides[(renderIndex + 2) % slides.length],                 // slot 3 (LAST)
+    slides[(renderIndex + 3) % slides.length]                  // slot 4 (far-right)
   ];
 
-  const current = slides[index];
-  const isCustomCard = current && current.id === "__custom__";
-
-  const onPointerDown = (e) => {
-    isPointerDown.current = true;
-    startX.current = e.clientX;
-    startY.current = e.clientY;
-  };
+  const current = visible[1];
 
   // FoodList should only render REAL menu categories
   if (!category) {
@@ -112,291 +107,226 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
     );
   }
 
-  const onPointerUp = (e) => {
-    if (!isPointerDown.current) return;
-
-    const diffX = startX.current - e.clientX;
-    const diffY = Math.abs(startY.current - e.clientY);
-
-    if (diffY > Math.abs(diffX)) {
-      isPointerDown.current = false;
-      return;
-    }
-
-    if (diffX > SWIPE_THRESHOLD) {
-      setIndex(([i]) => [(i + 1) % slides.length, 1]);
-    } else if (diffX < -SWIPE_THRESHOLD) {
-      setIndex(([i]) => [(i - 1 + slides.length) % slides.length, -1]);
-    }
-
-    isPointerDown.current = false;
+  const goNext = () => {
+    setSlideDirection(-1);
+    setLogicalIndex(i => (i + 1) % slides.length);
+    setRenderIndex(i => (i + 1) % slides.length);
   };
 
-  if (category.id === "favourites" && slides.length === 0) {
-    return (
-      <div className="food-list">
-        <div className="food-header">
-          <button className="back-button" onClick={handleBack} />
-          <div className="food-list-title">Favourites</div>
-          <div className="home-btn" onClick={handleHome}>
-            <img src={homeIcon} alt="" />
-          </div>
-        </div>
-
-        <div className="empty-favourites">
-          <h3>No favourites yet</h3>
-          <p>
-            You haven’t added any dishes to favourites.
-            Tap the ♥ icon on a dish to save it here.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!category) {
-    return (
-      <div className="food-list">
-        <div className="food-header">
-          <button className="back-button" onClick={handleBack} />
-          <div className="food-list-title">Category not found</div>
-          <div className="home-btn" onClick={handleHome}>
-            <img src={homeIcon} alt="" />
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const goPrev = () => {
+    setSlideDirection(1);
+    setLogicalIndex(i => (i - 1 + slides.length) % slides.length);
+    setRenderIndex(i => (i - 1 + slides.length) % slides.length);
+  };
 
   return (
     <div className="food-list">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={category.id}
-          variants={contentVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          className="food-header"
-        >
-          <button className="back-button" onClick={handleBack} />
-          <div className="food-list-title">{category.name}</div>
-          <div className="home-btn" onClick={handleHome}>
-            <img src={homeIcon} alt="" />
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      {/* HEADER */}
+      <div className="food-header">
+        <button
+          className="back-button"
+          onClick={(e) => { handleBack(e) }}
+        />
+        <div className="food-list-title">
+          {category.name}
+        </div>
+        <div className="home-btn" onClick={handleHome}>
+          <img src={homeIcon} alt="" />
+        </div>
+      </div>
 
+      {/* MAIN AREA */}
       <div
-        className="dish-card"
+        className="food-reel"
         onPointerDown={(e) => {
-          e.stopPropagation();
-          onPointerDown(e);
+          startX.current = e.clientX;
+          startY.current = e.clientY;
+          isPointerDown.current = true;
         }}
         onPointerUp={(e) => {
-          e.stopPropagation();
-          onPointerUp(e);
+          if (!isPointerDown.current || isGlidingOut) return;
+          const dx = startX.current - e.clientX;
+          const dy = Math.abs(startY.current - e.clientY);
+
+          if (dy > Math.abs(dx)) {
+            isPointerDown.current = false;
+            return;
+          }
+
+          if (dx > 80) goNext();
+          else if (dx < -80) goPrev();
+
+          isPointerDown.current = false;
         }}
       >
-        <div className="dish-image-container">
-          <div
-            role="button"
-            className="image-nav-btn backward-btn"
-            onClick={() =>
-              setIndex(([i]) => [(i - 1 + slides.length) % slides.length, -1])
-            }
+        {/* LEFT — DETAILS */}
+        <div
+          className="food-details"
+          transition={SOFT_SPRING}
+        >
+          <motion.div
+            key={detailKey}
+            className="food-details-container"
+            initial="hidden"
+            animate={isGlidingOut ? DETAIL_EXIT_VARIANT : "show"}
+            variants={DETAIL_VARIANTS}
+            transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
           >
+            <h2 className="dish-name">
+              {visible[1].name}
+            </h2>
 
-          </div>
-
-          <AnimatePresence custom={direction} mode="wait">
-            <motion.div
-              key={current.id}
-              custom={direction}
-              variants={imageVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="dish-image"
-            >
-              {!isCustomCard ? (
-                <img
-                  src={current.image}
-                  alt={current.name}
-                  draggable={false}
-                />
-              ) : (
-                <img
-                  src="/image-assets/burger/image6.png"
-                  alt="Make your own"
-                  draggable={false}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
-
-          <div
-            role="button"
-            className="image-nav-btn forward-btn"
-            onClick={() => setIndex(([i]) => [(i + 1) % slides.length, 1])}
-          >
-
-          </div>
-        </div>
-
-        {!isCustomCard && (
-          <>
-            <div
-              className="dish-info"
-            >
-              <div className="dish-header">
-                <h2 className="dish-name">{current.name}</h2>
-                <div className="dish-price">
-                  <AnimatedPrice value={current.basePrice} />
-                </div>
-
-              </div>
+            <div className="dish-price">
+              <AnimatedPrice value={visible[1].basePrice} />
             </div>
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current.id + "-nutrition"}
-                variants={contentVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ delay: 0.05 }}
-                className="dish-nutrition"
+            <p className="dish-description">
+              {visible[1].description}
+            </p>
+
+            <div className="btn-section">
+              <div
+                className="reel-cta"
+                onClick={() => {
+                  const dish = visible[1];
+                  const unitPrice = Number(dish.basePrice || 0);
+
+                  addToBag({
+                    id: dish.id,
+                    name: dish.name,
+                    image: dish.image,
+                    categoryId: category.id,
+                    unitPrice,
+                    quantity: 1,
+                    totalPrice: unitPrice,
+                    selectedSize: null,
+                    notes: "",
+                    isCustomized: false,
+                    isCombo: false
+                  });
+                }}
               >
-                {[
-                  [caloriesIcon, "Calories", current.benefits.calories, "kcal"],
-                  [proteinIcon, "Protein", current.benefits.protein, "g"],
-                  [fibreIcon, "Fibre", current.benefits.fibre, "g"],
-                  [fatIcon, "Fat", current.benefits.fat, "g"]
-                ].map(([icon, label, value, unit]) => (
-                  <div className="dish-nutrition-item" key={label}>
-                    <div className="dish-nutrition-image">
-                      <img src={icon} alt={label} />
-                    </div>
-
-                    <div className="dish-nutrition-value">
-                      {value} {unit}
-                    </div>
-
-                    <div className="dish-nutrition-name">{label}</div>
-                  </div>
-                ))}
-              </motion.div>
-            </AnimatePresence>
-
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current.id + "-info"}
-                variants={contentVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="description-section"
-              >
-                <h2 className="description-heading">Description</h2>
-                <p className="dish-description">{current.description}</p>
-              </motion.div>
-            </AnimatePresence>
-
-            {current.ingredients && (
-              <div className="ingredients-section">
-                <h2 className="ingredient-heading">Add-ons</h2>
-
-                <IngredientsCarousel
-                  ingredients={current.ingredients}
-                  allIngredients={foodData.ingredients}
-                />
+                Add to Bag
               </div>
-            )}
 
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={current.id + "-actions"}
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.2 }}
-                className="button-section"
+              <button
+                className="show-more-btn"
+                onClick={() => {
+                  if (isNavigatingRef.current) return;
+                  isNavigatingRef.current = true;
+                  setIsGlidingOut(true);
+
+                  exitTimerRef.current = setTimeout(() => {
+                    navigate(`/foods/${category.id}/expanded`, {
+                      state: {
+                        categoryId: category.id,
+                        dishId: visible[1].id,
+                        disablePageAnimation: true
+                      }
+                    });
+                  }, FOODLIST_EXIT_DURATION);
+                }}
               >
-                <Link
-                  className="customize-button"
-                  to="/food/customize"
-                  state={{
-                    categoryId:
-                      category.id === "favourites"
-                        ? current.categoryId
-                        : category.id,
-                    dishId: current.id
-                  }}
+                Show more
+              </button>
+            </div>
+          </motion.div>
 
-                >
-                  Customize
-                </Link>
+        </div>
 
-                <Link
-                  to="/thank-you"
-                  className="place-order-button"
-                  onClick={() => {
-                    const bagItem = {
-                      id: current.id,
-                      name: current.name,
-                      image: current.image,
-                      categoryId: category.id,
-                      unitBasePrice: current.basePrice,
-                      ingredientPrice: 0,
-                      quantity: 1,
-                      totalPrice: current.basePrice,
-                      selectedSize:
-                        category?.sizes?.[0]?.name?.toLowerCase() || null,
-                      spiciness: null,
-                      ingredients: current.ingredients || [],
-                      notes: "",
-                      isCustomized: false
-                    };
-                    addToBag(bagItem);
-                  }}
-                >
-                  Add to Bag
-                </Link>
+        {/* RIGHT — IMAGE CONVEYOR */}
+        <div className="food-images">
+          {visible.map((item, slot) => {
+            const isBuffer = slot === 0 || slot === 4;
 
-              </motion.div>
-            </AnimatePresence>
-          </>
-        )}
+            return (
+              <motion.img
+                initial={
+                  slot === 2 || slot === 3
+                    ? { x: SLOT_X[slot] + 500 }
+                    : false
+                }
+                key={item.id}
+                layoutId={slot === 1 ? `dish-${item.id}` : undefined}
+                src={item.image}
+                className="dish-image"
+                animate={
+                  isGlidingOut
+                    ? slot === 1
+                      ? {
+                        x: SLOT_X[1],
+                        scale: 1,
+                        zIndex: 5
+                      }
+                      : slot === 2
+                        ? {
+                          x: SLOT_X[2] + 800,   // 👉 glide right from current pos
+                          scale: 0.7
+                        }
+                        : slot === 3
+                          ? {
+                            x: SLOT_X[3] + 1600, // 👉 glide right from current pos
+                            scale: 0.4
+                          }
+                          : {
+                            x: SLOT_X[slot],
+                            scale: 0.3
+                          }
+                    : {
+                      x: SLOT_X[slot],
+                      scale:
+                        slot === 1 ? 1 :
+                          slot === 2 ? 0.7 :
+                            slot === 3 ? 0.4 : 0.3,
+                      filter:
+                        slot === 1 ? "blur(0px)" :
+                          slot === 2 ? "blur(6px)" :
+                            slot === 3 ? "blur(10px)" : "blur(14px)",
+                      zIndex:
+                        slot === 1 ? 3 :
+                          slot === 2 ? 2 :
+                            slot === 3 ? 1 : 0
+                    }
+                }
+                transition={
+                  isGlidingOut
+                    ? SLOW_SPRING
+                    : SOFT_SPRING
+                }
+              />
+            );
+          })}
+        </div>
 
-        {isCustomCard && (
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={category.id}
-              variants={contentVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              className="custom-food-card"
-            >
-              <h3>Make Your Own {category.name}</h3>
-              <p>
-                Choose ingredients, control quantity, and build your food
-                exactly the way you like.
-              </p>
+        <div className="carousel-controls">
+          <button
+            className="image-nav-btn backward-btn"
+            onClick={goPrev}
+          />
 
-              <Link
-                className="make-your-own-button"
-                to="/food/customize"
-                state={{ categoryId, dishId: null }}
-              >
-                Make Your Own
-              </Link>
-            </motion.div>
-          </AnimatePresence>
-        )}
+          <div className="carousel-dots">
+            {slides.map((_, i) => (
+              <span
+                key={i}
+                className={`dot ${i === logicalIndex ? "active" : ""}`}
+                onClick={() => {
+                  if (i > logicalIndex) {
+                    setSlideDirection(-1);
+                    goNext();
+                  } else if (i < logicalIndex) {
+                    setSlideDirection(1);
+                    goPrev();
+                  }
+                }}
+              />
+            ))}
+          </div>
+
+          <button className="image-nav-btn forward-btn" onClick={goNext}>
+          </button>
+        </div>
       </div>
-    </div>
+    </div >
   );
 };
 

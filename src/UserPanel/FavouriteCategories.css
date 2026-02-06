@@ -1,9 +1,4 @@
-/* Optional: spacing consistency with FoodList */
-.food-list .food-category {
-  margin-top: 24px;
-}
 
-/* Empty state (if no favourites) */
 .empty-favourites {
   margin-top: 60px;
   text-align: center;

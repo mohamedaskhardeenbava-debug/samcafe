@@ -16,7 +16,7 @@
 
 /* 🔴 flash red ONLY when order is placed */
 .thankyou-page.flash {
-  background-color: rgb(255, 0, 0)
+  background-color: #ED3237
 }
 
 .thankyou-page::after {

@@ -16,9 +16,9 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
   }
 
   const dish =
-  source === "my"
-    ? currentUser?.favourites?.find((d) => d.id === dishId)
-    : foodData.favourites?.find((d) => d.id === dishId);
+    source === "my"
+      ? currentUser?.favourites?.find((d) => d.id === dishId)
+      : foodData.favourites?.find((d) => d.id === dishId);
 
   if (!dish) {
     return (
@@ -90,22 +90,12 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           <div className="fav-ingredient-container">
             <h4>Add-ons</h4>
             <ul className="fav-ingredients-grid">
-              {dish.ingredients.map((ing) => (
+              {(dish.ingredients || []).map((ing) => (
                 <li key={ing.name} className="fav-ingredient-item">
-                  <div className="fav-ingredient-img">
-                    <img
-                      src=""
-                      alt=""
-                    />
-                  </div>
-
+                  <div className="fav-ingredient-img" />
                   <div className="fav-ingredient-info">
-                    <div className="fav-ingredient-name">
-                      {ing.name}
-                    </div>
-                    <div className="fav-ingredient-qty">
-                      {ing.quantity} g
-                    </div>
+                    <div className="fav-ingredient-name">{ing.name}</div>
+                    <div className="fav-ingredient-qty">{ing.quantity} g</div>
                   </div>
                 </li>
               ))}
@@ -148,25 +138,6 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           {/* ACTIONS */}
           <div className="fav-actions">
             <button
-              className="fav-add-btn"
-              onClick={() => {
-                addToBag({
-                  ...dish,                 // favourite snapshot
-                  quantity: 1,
-                  unitPrice: dish.totalPrice,
-                  totalPrice: dish.totalPrice,
-
-                  // IMPORTANT FLAGS
-                  isCustomized: false,     // favourites are already finalized
-                  isFromFavourite: true    // critical to prevent "Customized" prefix
-                });
-                navigate("/thank-you");
-              }}
-            >
-              Add to Bag
-            </button>
-
-            <button
               className="fav-customize-btn"
               onClick={() =>
                 navigate(`/food/${dish.id}`, {
@@ -180,6 +151,24 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
               }
             >
               Customize
+            </button>
+
+            <button
+              className="fav-add-btn"
+              onClick={() => {
+                addToBag({
+                  ...dish,                 // favourite snapshot
+                  quantity: 1,
+                  unitPrice: dish.totalPrice,
+                  totalPrice: dish.totalPrice,
+
+                  // IMPORTANT FLAGS
+                  isCustomized: false,     // favourites are already finalized
+                  isFromFavourite: true    // critical to prevent "Customized" prefix
+                });
+              }}
+            >
+              Add to Bag
             </button>
           </div>
         </div>

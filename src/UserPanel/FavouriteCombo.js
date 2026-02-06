@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
@@ -15,23 +16,6 @@ const listVariants = {
             staggerChildren: 0.12,
             delayChildren: 0.08
         }
-    }
-};
-
-const itemVariants = {
-    hidden: { opacity: 0, y: 35 },
-    show: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.45,
-            ease: [0.16, 1, 0.3, 1]
-        }
-    },
-    exit: {
-        opacity: 0,
-        x: -60,
-        transition: { duration: 0.35, ease: "easeInOut" }
     }
 };
 
@@ -62,21 +46,35 @@ const FavouriteCombo = ({
     };
 
     const handleAddToBag = (combo) => {
+        const qty = qtyMap[combo.id] || 1;
+        const perUnitFinalPrice =
+            combo.perComboFinalPrice ??
+            combo.totalPrice ??
+            combo.originalPrice ??
+            0;
         addToBag({
             id: combo.id,
             name: combo.title,
             categoryId: "combo",
-            quantity: 1,
-            originalPrice: combo.originalPrice,
-            totalPrice: combo.totalPrice,
+            quantity: qty,
+            originalPrice: perUnitFinalPrice * qty,
+            totalPrice: perUnitFinalPrice * qty,
             appliedOffer: combo.appliedOffer,
             comboItems: combo.comboItems,
             isCombo: true,
             isFromFavourite: true
         });
-
-        navigate("/thank-you");
     };
+
+    const [qtyMap, setQtyMap] = useState({});
+    const increaseQty = (id) =>
+        setQtyMap(prev => ({ ...prev, [id]: (prev[id] || 1) + 1 }));
+
+    const decreaseQty = (id) =>
+        setQtyMap(prev => ({
+            ...prev,
+            [id]: Math.max(1, (prev[id] || 1) - 1)
+        }));
 
     return (
         <div
@@ -99,7 +97,7 @@ const FavouriteCombo = ({
             >
 
 
-                <AnimatePresence mode="wait">
+                <AnimatePresence>
                     {favCombos.length === 0 ? (
                         <motion.div
                             key="fav-combo-empty"
@@ -134,9 +132,8 @@ const FavouriteCombo = ({
 
                                     <div className="fav-combo-meta">
                                         <span className="fav-combo-price">
-                                            ₹{combo.totalPrice}
+                                            ₹{(combo.perComboFinalPrice || combo.totalPrice)}
                                         </span>
-
                                         {combo.appliedOffer && (
                                             <span className="fav-combo-badge">
                                                 Offer Applied
@@ -146,6 +143,22 @@ const FavouriteCombo = ({
                                 </div>
 
                                 <div className="fav-combo-actions">
+                                    <div className="fav-combo-quantity-section">
+                                        <button onClick={() => decreaseQty(combo.id)}>-</button>
+                                        <span>{qtyMap[combo.id] || 1}x</span>
+                                        <button onClick={() => increaseQty(combo.id)}>+</button>
+                                    </div>
+
+                                    <div className="price-section">
+                                        <div className="price-section-label">Total price:</div>
+                                        <div className="price-section-price">
+                                            ₹{(qtyMap[combo.id] || 1) *
+                                            (combo.perComboFinalPrice ||
+                                                combo.totalPrice ||
+                                                combo.originalPrice)}
+                                        </div>
+                                    </div>
+
                                     <button
                                         className="btn-primary"
                                         onClick={() => handleAddToBag(combo)}

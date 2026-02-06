@@ -75,6 +75,31 @@
   margin-bottom: 24px;
 }
 
+/* Subcategory row – centered between category & items */
+.combo-subcategory-row {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  margin: 10px 0 20px 0;
+  flex-wrap: wrap;
+}
+
+.combo-subcategory-btn {
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--text-tertiary);
+  background: var(--bg-main);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.combo-subcategory-btn.active {
+  background: var(--color-green);
+  color: var(--bg-main);
+  border-color: var(--color-green);
+}
+
 .combo-category-card {
   flex: 1;
   padding: 14px 0;
@@ -258,6 +283,7 @@
 }
 
 .combo-discounted-price,
+.combo-final-price,
 .combo-original-price {
   display: flex;
   align-items: center;
@@ -270,7 +296,13 @@
   color: var(--color-red) !important;
 }
 
-.combo-discounted-price div:last-child {
+.combo-discounted-price div:last-child{
+  color: var(--color-green) !important;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.combo-final-price div:last-child {
   color: var(--color-green) !important;
   font-size: 28px;
   font-weight: 700;

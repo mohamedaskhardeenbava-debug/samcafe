@@ -191,25 +191,27 @@
 .fav-add-btn {
   text-align: center;
   padding: 12px;
-  background: var(--color-green);
-  color: var(--bg-main);
+  background-color: var(--color-red);
+  color: #fff;
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
   width: 50%;
   border: none;
+  cursor: pointer;
 }
 
 .fav-customize-btn {
   text-align: center;
   padding: 12px;
-  background: var(--color-red);
+  background-color: var(--color-green);
   color: var(--bg-main);
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
   width: 50%;
   border: none;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 1200px) {

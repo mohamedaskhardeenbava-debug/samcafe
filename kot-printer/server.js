@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PRINTER_IP = "192.168.1.50";
+const PRINTER_IP = "192.168.1.87";
 const PRINTER_PORT = 9100;
 
 app.post("/print/kot", (req, res) => {
@@ -21,28 +21,30 @@ app.post("/print/kot", (req, res) => {
 
     const device = new escpos.Network(PRINTER_IP, PRINTER_PORT);
     const printer = new escpos.Printer(device);
+    const message = "hello";
 
     device.open(() => {
       printer
         .align("CT")
         .style("B")
-        .size(1, 1)
+        .size(0, 0)
         .text("KITCHEN ORDER")
-        .text("------------------------------")
+        .text("------------------------------------------")
         .align("LT")
         .style("NORMAL")
         .text(`Order: ${order.id}`)
-        .text(`Time: ${order.time}`)
-        .text("------------------------------");
+        .text(`Time: ${order.date} ${order.time}`)
+        .text("------------------------------------------");
 
       order.items.forEach(item => {
         printer.text(item.dishName);
+        printer.text(`Variant: ${item.selectedSize} - ${item.spiciness}`)
+        printer.text(`Spec: ${item.notes}`)
         printer.text(`Qty: ${item.quantity}`);
-        printer.text("");
+        printer.text("------------------------------------------");
       });
 
       printer
-        .text("------------------------------")
         .cut()
         .close();
     });
@@ -70,10 +72,30 @@ app.get("/test-print", (req, res) => {
   });
 
   res.send("Test print sent");
-});  
+});
 
 // test   --------------------------------------------------------------------------------------------
 
-app.listen(9100, () => {
-  console.log("KOT Printer Service running on port 9100");
+app.get("/printer/status", (req, res) => {
+  const device = new escpos.Network(PRINTER_IP, PRINTER_PORT, { timeout: 3000 });
+
+  device.open(err => {
+    if (err) {
+      console.error("Printer not reachable:", err.message);
+      return res.status(503).json({
+        connected: false,
+        message: "Printer not connected"
+      });
+    }
+
+    device.close();
+    res.json({
+      connected: true,
+      message: "Printer connected"
+    });
+  });
+});
+
+app.listen(9001, () => {
+  console.log("KOT Printer Service running on port 9001");
 });

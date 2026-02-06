@@ -32,7 +32,6 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     bagIndex,
     bagItem,
     fromFavouriteCustomize,
-    originalFavouriteId
   } = location.state || {};
 
   const [quantity, setQuantity] = useState(1);
@@ -51,6 +50,9 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   const { favouriteSnapshot } = location.state || {};
 
   const isEditMode = fromBag === true && typeof bagIndex === "number";
+  const safeIngredients = Array.isArray(foodData?.ingredients)
+  ? foodData.ingredients
+  : [];
 
   // find category and dish (minimal safe lookup)
   const category =
@@ -91,8 +93,6 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       basePrice: originalCategory?.basePrice ?? 200
     };
 
-  const favouriteId = `${wishlistDish.id}_${selectedSize}_${Date.now()}`;
-
   // sizes
   const selectedSizeObj =
     originalCategory?.sizes?.find((s) => s.name.toLowerCase() === selectedSize) || originalCategory?.sizes?.[0];
@@ -127,14 +127,14 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     );
 
     // 2️⃣ Ingredients allowed by category
-    const categoryIngredients = foodData.ingredients.filter(ing =>
+    const categoryIngredients = safeIngredients.filter(ing =>
       ing.usedInCategories?.includes(originalCategory?.id)
     );
 
     // 3️⃣ Fallback: if dish has no ingredients, allow category ingredients
     const allowedIngredients =
       dishIngredientNames.size > 0
-        ? foodData.ingredients.filter(ing => dishIngredientNames.has(ing.name))
+        ? safeIngredients.filter(ing => dishIngredientNames.has(ing.name))
         : categoryIngredients;
 
     // 4️⃣ Initialize quantities
@@ -161,45 +161,12 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       setNotes(bagItem.notes || "");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [foodData.ingredients.length, effectiveDish.id, bagItem?.id, fromFavouriteCustomize]);
+  }, [safeIngredients.length, effectiveDish.id, bagItem?.id, fromFavouriteCustomize]);
 
   // reset wishlist color when entering page
   useEffect(() => {
     setIsWishlisted(false);
   }, [effectiveDish.id]);
-
-  const handleWishlist = () => {
-    if (fromFavouriteCustomize || fromBag) return;
-
-    const bagItem = buildBagItem(); // calculate ONCE
-
-    const favouriteSnapshot = {
-      id: dish.id,
-      name: dish.name,
-      image: dish.image,
-      categoryId: category.id,
-
-      // ✅ NEW
-      selectedSize,
-      sizeMultiplier,
-
-      // prices
-      basePrice: dish.basePrice,
-      totalPrice: Math.round(bagItem.totalPrice),
-
-      // ingredients snapshot
-      ingredients: bagItem.ingredients,
-
-      // nutrition snapshot
-      benefits: bagItem.benefits || dish.benefits,
-
-      description: dish.description,
-      history: dish.history
-    };
-
-    onToggleFavourite(favouriteSnapshot);
-    setIsWishlisted(true);
-  };
 
   const increaseQty = () => setQuantity((q) => q + 1);
   const decreaseQty = () => setQuantity((q) => (q > 1 ? q - 1 : 1));
@@ -253,7 +220,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     const ingredients = Object.entries(ingredientQuantities)
       .filter(([, qty]) => Number(qty) > 0)
       .map(([name, qty]) => {
-        const master = foodData.ingredients.find((i) => i.name === name) || {};
+        const master = safeIngredients.find((i) => i.name === name) || {};
         const pricePer100g = Number(master.pricePer100g || 0);
         const totalPrice = Math.round((pricePer100g * qty) / 100);
 
@@ -275,7 +242,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     const baseDishIngredients = dish?.ingredients || [];
 
     const baseIngredientsTotal = baseDishIngredients.reduce((sum, ing) => {
-      const master = foodData.ingredients.find((i) => i.name === ing.name) || {};
+      const master = safeIngredients.find((i) => i.name === ing.name) || {};
       return (
         sum +
         Math.round(
@@ -344,15 +311,11 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     return () => clearTimeout(t);
   }, [totalPrice]);
 
-  const baseIngredientSet = new Set(
-    (dish?.ingredients || []).map((ing) => ing.name)
-  );
-
   const calculateNutritionFromIngredients = (ingredients) => {
     const totals = { calories: 0, protein: 0, fat: 0, fibre: 0 };
 
-    ingredients.forEach((ing) => {
-      const master = foodData.ingredients.find(
+    (dish?.ingredients || []).forEach((ing) => {
+      const master = safeIngredients.find(
         (i) => i.name === ing.name
       );
       if (!master?.nutritionPer100g) return;
@@ -413,20 +376,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   };
 
   if (!category) return <p>Category not found</p>;
-  const categoryIngredients = foodData.ingredients.filter((ing) => ing.usedInCategories.includes(originalCategory?.id));
-  const sortedCategoryIngredients = (() => {
-    const selected = [];
-    const unselected = [];
-
-    categoryIngredients.forEach((ing) => {
-      const qty = Number(ingredientQuantities[ing.name] || 0);
-      if (qty > 0) selected.push(ing);
-      else unselected.push(ing);
-    });
-
-    // selected first, but original order preserved
-    return [...selected, ...unselected];
-  })();
+  const categoryIngredients = safeIngredients.filter((ing) => ing.usedInCategories.includes(originalCategory?.id));
 
   const orderedIngredients = (() => {
     const available = [];
@@ -480,12 +430,6 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
                 const bagItem = buildBagItem();
 
-                const benefits = calculateFinalBenefits({
-                  baseDishBenefits,
-                  baseIngredients: dish?.ingredients || [],
-                  selectedIngredients: bagItem.ingredients
-                });
-
                 const ingredientsChanged = hasIngredientChanges();
 
                 // 🔹 CASE 1: NO ingredient change → auto save
@@ -522,7 +466,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           )}
         </div>
 
-        <AnimatePresence>
+        <AnimatePresence mode="wait">
           {showFavouriteForm && (
             <motion.div
               className="overlay"
@@ -714,10 +658,11 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
         <div className="top">
           <div className="ingredients-calculation">
             Selected Ingredients
-
-            <img src={notesIcon} alt="" className="note-icon"
-              onClick={() => setShowNotes((v) => !v)}
-              title="Add notes" />
+            <div className="note-icon">
+              <img src={notesIcon} alt="" className="note-icon"
+                onClick={() => setShowNotes((v) => !v)}
+                title="Add notes" />
+            </div>
           </div>
 
           <div className={`notes-wrapper ${showNotes ? "open" : ""}`}>
@@ -730,7 +675,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           </div>
 
           {previewItem.ingredients.map((ing) => {
-            const master = foodData.ingredients.find(i => i.name === ing.name);
+            const master = safeIngredients.find(i => i.name === ing.name);
             const out =
               !master ||
               Number(master.stockRemaining || 0) * 1000 < STEP; // kg → g check
@@ -743,7 +688,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   `}
                 key={ing.name}
                 onClick={() => {
-                  const master = foodData.ingredients.find(i => i.name === ing.name);
+                  const master = safeIngredients.find(i => i.name === ing.name);
                   if (master) navigate(`/ingredient/${master.id}`);
                 }}
                 role="button"
@@ -809,7 +754,6 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 isFromFavourite: fromFavouriteCustomize === true
               };
               if (isEditMode) updateBagItem(bagIndex, item); else addToBag(item);
-              navigate("/thank-you");
             }}
           >
             {isEditMode ? "Update Bag" : "Add to Bag"}

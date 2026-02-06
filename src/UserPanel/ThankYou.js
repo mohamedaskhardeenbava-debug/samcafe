@@ -5,7 +5,7 @@ import "./ThankYou.css";
 import api from "../api";
 import { AnimatePresence, motion } from "framer-motion";
 
-const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
+const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
   const navigate = useNavigate();
 
   const [showOrderConfirm, setShowOrderConfirm] = useState(false);
@@ -14,9 +14,19 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
   const [orderPlaced, setOrderPlaced] = useState(false);
   const [flashBg, setFlashBg] = useState(false);
   const [pulse, setPulse] = useState(false);
-  const [animateExit, setAnimateExit] = useState(false);
 
   const isBagEmpty = bag.length === 0;
+
+  useEffect(() => {
+    if (!orderPlaced) return;
+
+    const timer = setTimeout(() => {
+      localStorage.removeItem("userId");
+      navigate("/");
+    }, 60000); // 1 minute
+
+    return () => clearTimeout(timer);
+  }, [orderPlaced, navigate]);
 
   const totalAmount = bag.reduce(
     (sum, item) => sum + item.totalPrice,
@@ -110,7 +120,10 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
         ...ingredient,
         stockRemaining: Math.max(
           0,
-          Number(ingredient.stockRemaining || 0) - usedKg
+          roundTo(
+            Number(ingredient.stockRemaining || 0) - usedKg,
+            3
+          )
         ),
         lastUpdated: new Date().toISOString().split("T")[0]
       };
@@ -124,7 +137,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
 
   const sendKOTToPrinter = async (order) => {
     try {
-      await fetch("http://localhost:9100/print/kot", {
+      await fetch("http://localhost:9001/print/kot", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order })
@@ -133,6 +146,9 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
       console.error("KOT print failed", err);
     }
   };
+
+  const roundTo = (num, decimals = 3) =>
+    Math.round((num + Number.EPSILON) * 10 ** decimals) / 10 ** decimals;
 
   const confirmPlaceOrder = async () => {
     try {
@@ -169,6 +185,9 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
           unitPrice: Math.round(item.unitPrice || 0),
           totalPrice: Math.round(item.totalPrice),
 
+          // ✅ ITEM STATUS (IMPORTANT)
+          status: "placed",
+
           // CUSTOMIZATION INFO
           isCustomized: item.isCustomized === true,
           selectedSize: item.selectedSize || null,
@@ -176,8 +195,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
           notes: item.notes || "",
           createdAt,
 
-
-          // INGREDIENT SNAPSHOT (ONLY IF CUSTOMIZED)
+          // INGREDIENT SNAPSHOT
           ingredients:
             Array.isArray(item.ingredients) && item.ingredients.length > 0
               ? item.ingredients.map(ing => ({
@@ -237,9 +255,6 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
 
       // flash background red, then return to bg-main
       setFlashBg(true);
-      setTimeout(() => {
-        setFlashBg(false);
-      }, 900); // small delay ensures transition back runs
 
       setTimeout(() => {
         setPulse(false);
@@ -249,16 +264,6 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
       console.error("Failed to place order", err);
       alert("Failed to place order. Please try again.");
     }
-  };
-
-  const handleThanks = () => {
-    setBag([]);
-
-    const userId = localStorage.getItem("userId");
-    if (userId) {
-      localStorage.removeItem("userId");
-    }
-    navigate("/");
   };
 
   const getDisplayName = (item) => {
@@ -288,7 +293,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
   };
 
   const groupedBag = Object.values(
-    bag.reduce((acc, item) => {
+    bag.reduce((acc, item, index) => {   // ✅ index declared here
       const groupKey = [
         item.id,
         item.selectedSize || "",
@@ -297,15 +302,31 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
       ].join("__");
 
       if (!acc[groupKey]) {
-        acc[groupKey] = { ...item, groupKey };
+        acc[groupKey] = {
+          ...item,
+          groupKey,
+          indices: [index]   // ✅ now valid
+        };
       } else {
         acc[groupKey].quantity += item.quantity;
         acc[groupKey].totalPrice += item.totalPrice;
+        acc[groupKey].indices.push(index); // ✅ ALSO IMPORTANT
       }
 
       return acc;
     }, {})
   );
+
+  const handleOrderAnother = () => {
+    navigate("/categories");
+    setBag([])
+  };
+
+  const handleLogout = () => {
+    setBag([]);
+    localStorage.removeItem("userId");
+    navigate("/");
+  };
 
   return (
     <div
@@ -402,20 +423,31 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
                       <td>
                         <button
                           onClick={() => {
+                            setIsBagOpen(false);
+
                             if (item.isCombo) {
                               navigate("/combo", {
                                 state: {
                                   fromBag: true,
-                                  bagIndex: index,
-                                  comboItems: item.comboItems
+                                  bagIndex: item.indices[0],   // ✅ FIXED
+                                  comboItems: item.comboItems,
+                                  originalPrice: item.originalPrice,
+                                  totalPrice: item.totalPrice,
+                                  appliedOffer: item.appliedOffer,
+                                  quantity: item.quantity
                                 }
                               });
                             } else {
                               navigate(`/food/${item.id}`, {
                                 state: {
                                   fromBag: true,
-                                  bagIndex: index,
-                                  bagItem: item,
+                                  bagIndex: item.indices[0],   // ✅ FIXED
+                                  bagItem: {
+                                    ...item,
+                                    ingredients: Array.isArray(item.ingredients)
+                                      ? item.ingredients
+                                      : []
+                                  },
                                   categoryId: item.categoryId,
                                   dishId: item.id
                                 }
@@ -448,24 +480,34 @@ const ThankYou = ({ bag, setBag, onOrderPlaced }) => {
           </div>
         )}
 
-        {!isBagEmpty && (
-          <button
-            className={`order-again-btn ${orderPlaced ? "thanks-btn" : ""}`}
-            onClick={() =>
-              orderPlaced ? handleThanks() : navigate("/categories")
-            }
-          >
-            {orderPlaced ? "Thanks" : "Order Another"}
-          </button>
+        {orderPlaced && (
+          <>
+            <button className="order-again-btn" onClick={handleOrderAnother}>
+              Order Another
+            </button>
+
+            <button className="done-btn" onClick={handleLogout}>
+              Logout
+            </button>
+          </>
         )}
 
         {!isBagEmpty && !orderPlaced && (
-          <button
-            className="done-btn"
-            onClick={() => setShowOrderConfirm(true)}
-          >
-            Place Order
-          </button>
+          <>
+            <button
+              className="order-again-btn"
+              onClick={() => navigate("/categories")}
+            >
+              Order Another
+            </button>
+
+            <button
+              className="done-btn"
+              onClick={() => setShowOrderConfirm(true)}
+            >
+              Place Order
+            </button>
+          </>
         )}
       </div>
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./FoodCategory.css";
 
@@ -11,6 +11,13 @@ const FoodCategory = ({ foodData, currentUser }) => {
     : [];
 
   const othersFavourites = foodData.favourites || [];
+
+  useEffect(() => {
+  categoriesToRender.forEach(cat => {
+    const img = new Image();
+    img.src = cat.image;
+  });
+}, []);
 
   const categoriesToRender = [];
 
@@ -56,7 +63,7 @@ const FoodCategory = ({ foodData, currentUser }) => {
       id: category.id,
       name: category.name,
       image: category.image,
-      route: `/foods/${category.id}`
+      route: `/foods/${category.id}/grid`
     });
   });
 

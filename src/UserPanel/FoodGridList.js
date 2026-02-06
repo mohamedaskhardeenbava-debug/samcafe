@@ -1,0 +1,68 @@
+import "./FoodGridList.css";
+import { useParams, useNavigate } from "react-router-dom";
+import homeIcon from "../assets/icons/home.png";
+
+const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
+    const { categoryId } = useParams();
+    const navigate = useNavigate();
+
+    const category = foodData.categories.find(c => c.id === categoryId);
+    if (!category) return null;
+
+    return (
+        <div className="food-grid-page">
+
+            <div className="food-grid-header">
+                <button className="back-button" onClick={handleBack} />
+                <div className="food-grid-title">{category.name}</div>
+                <div className="home-btn" onClick={handleHome}>
+                    <img src={homeIcon} alt="" />
+                </div>
+            </div>
+            <div className="food-grid">
+                {category.dishes.map(dish => (
+                    <div key={dish.id} className="food-grid-card">
+                        <div className="food-grid-card-image">
+                            <img src={dish.image} alt={dish.name} />
+                        </div>
+
+                        <div className="grid-info">
+                            <div className="grid-name">{dish.name}</div>
+                            <div className="grid-price">₹{dish.basePrice}</div>
+                        </div>
+
+                        <div
+  className="grid-link"
+  onClick={() =>
+    navigate(`/foods/${categoryId}`, {
+      state: { dishId: dish.id }
+    })
+  }
+>
+  View dishes →
+</div>
+
+                        <button
+                            className="grid-add-btn"
+                            onClick={() =>
+                                addToBag({
+                                    id: dish.id,
+                                    name: dish.name,
+                                    image: dish.image,
+                                    categoryId,
+                                    quantity: 1,
+                                    unitPrice: dish.basePrice,
+                                    totalPrice: dish.basePrice
+                                })
+                            }
+                        >
+                            +
+                        </button>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default FoodGridList;

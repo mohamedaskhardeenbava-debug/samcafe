@@ -1,3 +1,335 @@
+/* =========================
+   ROOT
+========================= */
+
+.food-list {
+  padding: 36px;
+  font-family: "Geom", system-ui, sans-serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.food-header {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 100; /* ⬅ brings back button above images */
+}
+
+.food-list-title {
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.back-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: transparent;
+  border: none;
+  position: relative;
+  cursor: pointer;
+}
+
+.back-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 45%;
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid var(--text-primary);
+  border-bottom: 3px solid var(--text-primary);
+  transform: translateY(-50%) rotate(45deg);
+  border-left-color: #000;
+  border-bottom-color: #000;
+}
+
+.home-btn {
+  margin-left: auto;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+/* =========================
+   MAIN LAYOUT
+========================= */
+
+.food-reel {
+  height: calc(100vh - 116px);
+  display: flex;
+  align-items: center;
+  contain: layout;      
+  overflow: visible;
+}
+
+.expanded-back-btn {
+  background: transparent;
+  border: none;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+/* =========================
+   LEFT – DETAILS
+========================= */
+
+.food-details {
+  position: relative;
+  z-index: 10;
+  padding: 12px;
+  width: 30%;
+  height: 70vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.food-details-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.dish-name {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.dish-price {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-red);
+  margin: 10px 0 14px;
+}
+
+.dish-description {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  width: 100%;
+}
+
+.btn-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-top: 26px;
+}
+
+.reel-cta {
+  padding: 16px 28px;
+  background: var(--color-red);
+  color: #fff;
+  border-radius: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.show-more-btn {
+  padding: 16px 28px;
+  background: transparent;
+  color: var(--color-red);
+  border-radius: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  border: 1px solid var(--color-red);
+}
+
+.show-more-btn.back {
+  color: var(--text-primary);
+}
+
+.image-nav-btn {
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.image-nav-btn:disabled,
+.dot:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.forward-btn,
+.backward-btn {
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+
+.backward-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid var(--foodlist-arrow);
+  border-bottom: 3px solid var(--foodlist-arrow);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.forward-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid var(--foodlist-arrow);
+  border-top: 3px solid var(--foodlist-arrow);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* =========================
+   RIGHT – IMAGE CONVEYOR
+========================= */
+
+.food-images {
+  position: relative;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70%;
+  z-index: 0;
+  isolation: isolate;
+}
+
+/* MAIN IMAGE */
+.image-main {
+  width: 70%;
+  max-width: 360px;
+  z-index: 3;
+}
+
+/* NEXT IMAGES */
+.image-next {
+  position: absolute;
+  width: 58%;
+  max-width: 300px;
+  opacity: 0.35;
+  filter: blur(12px);
+  transform: scale(0.85);
+  z-index: 1;
+}
+
+.image-next.second {
+  transform: scale(0.78) translateY(34px);
+  opacity: 0.22;
+}
+
+.image-next.first {
+  right: -4%;
+}
+
+.image-next.second {
+  right: -12%;
+}
+
+.food-details * {
+  will-change: transform, opacity, filter;
+}
+
+.image-main,
+.image-next {
+  will-change: transform;
+}
+
+.image-main {
+  position: relative;
+}
+
+.image-next.first {
+  position: absolute;
+  right: -4%;
+}
+
+.image-next.second {
+  position: absolute;
+  right: -12%;
+}
+
+.food-images {
+  position: relative;
+  height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dish-image {
+  position: absolute;
+  width: 70%;
+  max-width: 500px;
+  will-change: transform, filter;
+  pointer-events: none;
+  transform-origin: center center;
+  opacity: 1 !important;
+}
+
+/* =========================
+   CAROUSEL CONTROLS
+========================= */
+
+.carousel-controls {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  z-index: 10;
+}
+
+/* DOTS */
+.carousel-dots {
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--foodlist-arrow);
+  cursor: pointer;
+}
+
+.dot.active {
+  background: var(--color-red);
+}
+
+.food-details>* {
+  will-change: transform, opacity;
+}
+
+/* old css */
+
 .food-list {
   padding: 36px;
   font-family: "Geom", system-ui, sans-serif;
@@ -37,32 +369,6 @@
 .food-list-title {
   font-size: 20px;
   font-weight: 600;
-}
-
-.dish-image-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  margin: 0 auto;
-  gap: 20px;
-}
-
-/* Square image wrapper */
-.dish-image {
-  position: relative;
-  width: 30%;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.dish-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
 }
 
 /* Forward and Backward navigation buttons */
@@ -116,20 +422,8 @@
 
 .dish-header {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
   align-items: center;
-}
-
-.dish-name {
-  font-size: 40px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-  width: 300px;
-  height: 100px;
-  text-align: center;
-  align-content: end;
 }
 
 .dish-price {
@@ -147,7 +441,7 @@
 .description-heading {
   font-size: 18px;
   font-weight: 600;
-  margin-bottom: 8px;
+  margin: 8px 0;
   color: var(--text-primary);
 }
 
@@ -216,7 +510,7 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 16px;
+  margin-top: auto;
 }
 
 .custom-food-card h3 {
@@ -228,26 +522,26 @@
 
 .customize-button {
   text-align: center;
-  margin-top: 16px;
   padding: 12px;
   background: var(--color-green);
   color: var(--bg-main);
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
-  width: 20%;
+  width: 100%;
 }
 
 .place-order-button {
   text-align: center;
-  margin-top: 16px;
   padding: 12px;
   background: var(--color-red);
   color: var(--bg-main);
    border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
-  width: 20%;
+  width: 100%;
+  outline: none;
+  border: none;
 }
 
 .make-your-own-button {
@@ -275,61 +569,4 @@
 .empty-favourites p {
   font-size: 14px;
   opacity: 0.8;
-}
-
-@media screen and (max-width: 1400px) {
-  .dish-image {
-    width: 33%;
-  }
-}
-
-@media screen and (max-width: 1200px) {
-  .dish-image {
-    width: 36%;
-  }
-
-  .dish-name {
-    font-size: 36px;
-  }
-
-  .place-order-button,
-  .customize-button {
-    width: 40%;
-  }
-}
-
-@media screen and (max-width: 992px) {
-  .food-list {
-    padding: 30px;
-  }
-
-  .dish-image {
-    width: 48%;
-  }
-
-  .place-order-button,
-  .customize-button {
-    width: 50%;
-  }
-}
-
-@media screen and (max-width: 768px) {
-  .food-list {
-    padding: 20px;
-  }
-
-  .dish-image {
-    width: 64%;
-  }
-
-  .dish-name,
-  .dish-price {
-    font-size: 32px;
-  }
-}
-
-@media screen and (max-width: 576px) {
-  .food-list {
-    padding: 10px;
-  }
 }

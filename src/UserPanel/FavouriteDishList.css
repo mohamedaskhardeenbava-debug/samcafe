@@ -1,11 +1,6 @@
 /* Reuse EXACT same category UI */
 @import "./FoodCategory.css";
 
-/* Align spacing with FoodList */
-.food-list .food-category {
-  margin-top: 24px;
-}
-
 /* Optional empty state */
 .empty-favourites {
   margin-top: 60px;

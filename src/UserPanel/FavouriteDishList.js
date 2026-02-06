@@ -138,7 +138,7 @@ const FavouriteDishList = ({
       </div>
 
       {/* DELETE CONFIRM OVERLAY */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showDeleteConfirm && (
           <motion.div
             className="confirm-overlay"
