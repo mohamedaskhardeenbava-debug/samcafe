@@ -112,6 +112,12 @@
   transition: all 0.25s ease;
 }
 
+.combo-category-card.active {
+  background: var(--color-green);
+  color: var(--bg-main);
+  border-color: var(--color-green);
+}
+
 .combo-category-card:hover {
   background: var(--color-green);
   color: var(--bg-main);
@@ -507,6 +513,7 @@
   align-items: center;
   justify-content: center;
   z-index: 3000;
+  padding: 36px;
 }
 
 /* ===============================
@@ -515,7 +522,7 @@
 .combo-my-fav-modal {
   background: var(--bg-main);
   border-radius: 18px;
-  width: 600px;
+  width: 1200px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;

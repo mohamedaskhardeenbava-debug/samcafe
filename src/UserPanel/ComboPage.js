@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import {  useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { COMBO_OFFER_RULES } from "./comboNotifications";
 import "./ComboPage.css";
+import FavouriteComboOverlay from "./FavouriteComboOverlay";
 import api from "../api";
 
 /*ANIMATIONS*/
@@ -73,6 +74,7 @@ const ComboPage = ({
   const editIndex = location.state?.bagIndex;
   const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
   const [isSavingFav, setIsSavingFav] = useState(false);
+  const [showFavOverlay, setShowFavOverlay] = useState(false);
 
   /*DATA*/
   const combo = useMemo(
@@ -123,7 +125,6 @@ const ComboPage = ({
   });
 
   const [appliedOffer, setAppliedOffer] = useState(null);
-  const navigate = useNavigate();
 
   /*PRICE CALCULATION*/
   const perComboBasePrice = useMemo(() => {
@@ -463,7 +464,6 @@ const ComboPage = ({
       await api.put(`/users/${currentUser.id}`, updatedUser);
       setCurrentUser(updatedUser);
       setShowAddFavConfirm(false);
-      navigate("/favourite-combos");
     } catch (err) {
       console.error("Failed to save favourite combo", err);
       alert("Failed to add combo to favourites.");
@@ -543,7 +543,7 @@ const ComboPage = ({
 
               <button
                 className="combo-my-fav-btn"
-                onClick={() => navigate("/favourite-combos")}
+                onClick={() => setShowFavOverlay(true)}
               >
                 My Favourites
               </button>
@@ -635,18 +635,21 @@ const ComboPage = ({
         <div className="combo-category-row">
           <CategoryCard
             title="Starters"
+            active={activeSection === "starters"}
             disabled={!!selectedItems.starter}
             onClick={() => setActiveSection("starters")}
           />
 
           <CategoryCard
             title="Main Course"
+            active={activeSection === "mainCourse"}
             disabled={!!selectedItems.main}
             onClick={() => setActiveSection("mainCourse")}
           />
 
           <CategoryCard
             title="Drinks"
+            active={activeSection === "drinks"}
             disabled={!!selectedItems.drink}
             onClick={() => setActiveSection("drinks")}
           />
@@ -753,18 +756,27 @@ const ComboPage = ({
 
       </div>
 
+      <FavouriteComboOverlay
+        open={showFavOverlay}
+        onClose={() => setShowFavOverlay(false)}
+        currentUser={currentUser}
+        setCurrentUser={setCurrentUser}
+        addToBag={addToBag}
+      />
     </motion.div>
   );
 };
 
 /*SUB COMPONENTS*/
-const CategoryCard = ({ title, disabled, onClick }) => (
-  <div
-    className={`combo-category-card ${disabled ? "disabled" : ""}`}
+const CategoryCard = ({ title, active, disabled, onClick }) => (
+  <button
+    className={`combo-category-card 
+      ${active ? "active" : ""} 
+      ${disabled ? "disabled" : ""}`}
     onClick={!disabled ? onClick : undefined}
   >
     {title}
-  </div>
+  </button>
 );
 
 const GroupCard = ({ title, onClick }) => (

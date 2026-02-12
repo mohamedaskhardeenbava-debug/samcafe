@@ -52,33 +52,22 @@
   100% { box-shadow: 0 10px 24px rgba(0,0,0,0.25); }
 }
 
-/* ===== OVERLAY ===== */
-.bag-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
-    z-index: 200;
-}
-
-/* ===== SHEET ===== */
+/* ===== SHEET (BOTTOM RIGHT) ===== */
 .bag-sheet {
-    width: 100%;
-    max-width: 480px;
-    max-height: 85vh;
-    /* ✅ LIMIT HEIGHT */
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    width: 380px;
+    max-height: 80vh;
     background: #fff;
-    border-radius: 22px 22px 0 0;
-    padding: 0;
-    /* remove padding here */
+    border-radius: 22px;
     display: flex;
-    /* ✅ FLEX LAYOUT */
     flex-direction: column;
-    animation: slideUp 0.35s cubic-bezier(.22, 1, .36, 1);
     padding: 20px;
+    animation: slideUp 0.35s cubic-bezier(.22, 1, .36, 1);
+    z-index: 300;
+    box-shadow: var(--shadow-card-normal);
+    border: 1px solid #ebebeb;
 }
 
 /* ===== HEADER ===== */
@@ -126,13 +115,47 @@
     align-items: center;
     gap: 12px;
     padding: 10px 0;
+    animation: slideInRight 0.35s cubic-bezier(.22,1,.36,1);
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(60px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 .bag-item-row img {
-    width: 46px;
-    height: 46px;
-    object-fit: contain;
-    border-radius: 8px;
+  width: 46px;
+  height: 46px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* hidden during flight */
+.bag-item-row img.pending-img {
+  opacity: 0;
+}
+
+/* revealed after flight */
+.bag-item-row img.visible-img {
+  opacity: 1;
+  animation: imageReveal 0.25s ease forwards;
+}
+
+@keyframes imageReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .bag-item-info {
@@ -153,7 +176,8 @@
 .bag-qty {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    width: 92px;
     padding: 6px;
     border-radius: 20px;
     border: 1px solid var(--border-light);

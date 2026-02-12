@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./FoodList.css";
 import AnimatedPrice from "./AnimatedPrice";
-import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import homeIcon from "../assets/icons/home.png";
+import { flyToBag } from "./flyToBag";
 
 const SLOT_X = [-1000, 0, 420, 700, 900];
 const FOODLIST_EXIT_DURATION = 750;
@@ -50,7 +51,6 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
     (cat) => cat.id === categoryId
   );
 
-  const [slideDirection, setSlideDirection] = useState(1);
   const [detailKey, setDetailKey] = useState(0);
   const [isGlidingOut, setIsGlidingOut] = useState(false);
   const startX = useRef(0);
@@ -59,6 +59,7 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   const isNavigatingRef = useRef(false);
   const isPointerDown = useRef(false);
   const slides = category?.dishes || [];
+  const imageRefs = useRef({});
 
   useEffect(() => {
     return () => {
@@ -90,8 +91,6 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
     slides[(renderIndex + 3) % slides.length]                  // slot 4 (far-right)
   ];
 
-  const current = visible[1];
-
   // FoodList should only render REAL menu categories
   if (!category) {
     return (
@@ -108,13 +107,11 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   }
 
   const goNext = () => {
-    setSlideDirection(-1);
     setLogicalIndex(i => (i + 1) % slides.length);
     setRenderIndex(i => (i + 1) % slides.length);
   };
 
   const goPrev = () => {
-    setSlideDirection(1);
     setLogicalIndex(i => (i - 1 + slides.length) % slides.length);
     setRenderIndex(i => (i - 1 + slides.length) % slides.length);
   };
@@ -139,10 +136,17 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
       <div
         className="food-reel"
         onPointerDown={(e) => {
+          // ❗ ignore clicks on buttons
+          if (e.target.closest("button") || e.target.closest(".reel-cta")) {
+            return;
+          }
+
+          e.currentTarget.setPointerCapture(e.pointerId);
           startX.current = e.clientX;
           startY.current = e.clientY;
           isPointerDown.current = true;
         }}
+
         onPointerUp={(e) => {
           if (!isPointerDown.current || isGlidingOut) return;
           const dx = startX.current - e.clientX;
@@ -153,8 +157,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
             return;
           }
 
-          if (dx > 80) goNext();
-          else if (dx < -80) goPrev();
+          if (dx > 40) goNext();
+          else if (dx < -40) goPrev();
 
           isPointerDown.current = false;
         }}
@@ -185,29 +189,42 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
             </p>
 
             <div className="btn-section">
-              <div
+              <button
                 className="reel-cta"
                 onClick={() => {
                   const dish = visible[1];
                   const unitPrice = Number(dish.basePrice || 0);
+                  const img = document.querySelector(
+                    `.dish-image[data-active-dish="${dish.id}"]`
+                  );
 
                   addToBag({
                     id: dish.id,
                     name: dish.name,
                     image: dish.image,
                     categoryId: category.id,
-                    unitPrice,
                     quantity: 1,
+                    unitPrice,
                     totalPrice: unitPrice,
+                    ingredients: Array.isArray(dish.ingredients)
+                      ? dish.ingredients.map(i => ({
+                        id: i.id,
+                        name: i.name,
+                        quantity: i.quantity,
+                        pricePer100g: i.pricePer100g || 0,
+                        totalPrice: 0
+                      }))
+                      : [],
                     selectedSize: null,
                     notes: "",
                     isCustomized: false,
                     isCombo: false
                   });
+                  flyToBag({ imgEl: img, dishId: visible[1].id });
                 }}
               >
                 Add to Bag
-              </div>
+              </button>
 
               <button
                 className="show-more-btn"
@@ -237,15 +254,20 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
         {/* RIGHT — IMAGE CONVEYOR */}
         <div className="food-images">
           {visible.map((item, slot) => {
-            const isBuffer = slot === 0 || slot === 4;
 
             return (
               <motion.img
+                data-active-dish={slot === 1 ? item.id : undefined}
                 initial={
                   slot === 2 || slot === 3
                     ? { x: SLOT_X[slot] + 500 }
                     : false
                 }
+                ref={(el) => {
+                  if (slot === 1 && el) {
+                    imageRefs.current[visible[1].id] = el;
+                  }
+                }}
                 key={item.id}
                 layoutId={slot === 1 ? `dish-${item.id}` : undefined}
                 src={item.image}
@@ -311,10 +333,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                 className={`dot ${i === logicalIndex ? "active" : ""}`}
                 onClick={() => {
                   if (i > logicalIndex) {
-                    setSlideDirection(-1);
                     goNext();
                   } else if (i < logicalIndex) {
-                    setSlideDirection(1);
                     goPrev();
                   }
                 }}

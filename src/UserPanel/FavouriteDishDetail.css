@@ -90,6 +90,7 @@
   padding: 10px;
   background: var(--fav-ingredient-color);
   border-radius: 12px;
+  cursor: pointer;
 }
 
 .fav-ingredient-img {

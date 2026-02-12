@@ -1,6 +1,7 @@
 import "./FoodGridList.css";
 import { useParams, useNavigate } from "react-router-dom";
 import homeIcon from "../assets/icons/home.png";
+import { flyToBag } from "./flyToBag";
 
 const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
     const { categoryId } = useParams();
@@ -45,7 +46,12 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
 
                             <button
                                 className="grid-add-btn"
-                                onClick={() =>
+                                onClick={(e) => {
+                                    const img = e.currentTarget
+                                        .closest(".food-grid-card")
+                                        .querySelector("img");
+
+                                    // 1️⃣ Add placeholder item immediately (text only)
                                     addToBag({
                                         id: dish.id,
                                         name: dish.name,
@@ -53,9 +59,15 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                                         categoryId,
                                         quantity: 1,
                                         unitPrice: dish.basePrice,
-                                        totalPrice: dish.basePrice
-                                    })
-                                }
+                                        totalPrice: dish.basePrice,
+                                        ingredients: [],
+                                        isCustomized: false,
+                                        notes: "",
+                                        __pendingImage: true
+                                    });
+
+                                    flyToBag({ imgEl: img, dishId: dish.id });
+                                }}
                             >
                                 +
                             </button>

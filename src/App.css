@@ -148,4 +148,12 @@ img {
   -webkit-user-drag: none;
   user-drag: none;
 }
+
+button{
+  transition: ease-in 0.2s;
+}
+button:hover{
+  scale: 1.05 !important;
+  cursor:  pointer !important;
+}
 /* https://dashboard-ecommerce-react.netlify.app/ */

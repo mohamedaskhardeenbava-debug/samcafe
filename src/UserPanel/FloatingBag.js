@@ -2,6 +2,8 @@ import "./FloatingBag.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import closeIcon from "../assets/icons/close.png";
+import confetti from "canvas-confetti";
+import { placeOrder } from "./placeOrder.js";
 
 const FloatingBag = ({
     bag,
@@ -20,8 +22,7 @@ const FloatingBag = ({
         safeBag.reduce((acc, item, index) => {
             const key = [
                 item.id,
-                item.selectedSize || "",
-                item.notes || "",
+                item.customizationKey || "",
                 item.isCustomized ? "custom" : "normal"
             ].join("__");
 
@@ -50,10 +51,6 @@ const FloatingBag = ({
     useEffect(() => {
         if (totalItems > prevCountRef.current) {
             setShake(true);
-
-            const timer = setTimeout(() => {
-                setShake(false);
-            }, 450); // must match animation duration
         }
 
         prevCountRef.current = totalItems;
@@ -82,19 +79,19 @@ const FloatingBag = ({
 
     const total = Number(subtotal.toFixed(2));
 
-    const closeSheet = () => {
+    const minimizeSheet = () => {
         setClosing(true);
         setTimeout(() => {
-            setIsOpen(false)
-                ;
+            setIsOpen(false);
             setClosing(false);
-        }, 300); // must match CSS animation
+        }, 250);
     };
 
     return (
         <>
             {/* Floating pill */}
             <button
+                id="floating-bag-btn"
                 className={`floating-btn ${shake ? "shake" : ""}`}
                 onClick={() => setIsOpen(true)}
             >
@@ -102,77 +99,98 @@ const FloatingBag = ({
             </button>
 
             {isOpen && (
-                <div className="bag-overlay" onClick={closeSheet}>
-                    <div
-                        className={`bag-sheet ${closing ? "closing" : ""}`}
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        {/* Header */}
-                        <div className="bag-title-row">
-                            <h3>Ordered Dishes</h3>
-                            <div
-                                className="bag-close"
-                                onClick={closeSheet}
-                                role="button"
-                            >
-                                <img src={closeIcon} alt="" className="close-icon" />
-                            </div>
+                <div className={`bag-sheet ${closing ? "closing" : ""}`}>
+                    {/* Header */}
+                    <div className="bag-title-row">
+                        <h3>Ordered Dishes</h3>
+                        <div
+                            className="bag-close"
+                            onClick={minimizeSheet}
+                            role="button"
+                        >
+                            <img src={closeIcon} alt="" className="close-icon" />
                         </div>
+                    </div>
 
-                        {/* Items */}
-                        <div className="bag-items">
-                            {groupedBag.map((item, i) => (
-                                <div key={i} className="bag-item-row">
-                                    <img src={item.image} alt="" />
+                    {/* Items */}
+                    <div className="bag-items" id="bag-items-container">
+                        {groupedBag.map((item, i) => (
+                            <div
+                                key={i}
+                                className="bag-item-row"
+                                data-dish-id={item.id}
+                                data-custom-key={item.customizationKey || ""}
+                            >
+                                <img
+                                    src={item.image}
+                                    alt=""
+                                    className={item.__pendingImage ? "pending-img" : "visible-img"}
+                                />
 
-                                    <div className="bag-item-info">
-                                        <div className="bag-item-name">{item.name}</div>
-                                        <div className="bag-item-price">
-                                            ₹{getUnitPrice(item).toFixed(2)}
-                                        </div>
-                                    </div>
-
-                                    <div className="bag-qty">
-                                        <button onClick={() => decreaseQty(item.indices[0])}>−</button>
-                                        <span>{item.quantity}</span>
-                                        <button onClick={() => increaseQty(item.indices[0])}>+</button>
-                                    </div>
-
-                                    <div className="bag-item-total">
-                                        ₹{getLineTotal(item).toFixed(2)}
+                                <div className="bag-item-info">
+                                    <div className="bag-item-name">{item.name}</div>
+                                    <div className="bag-item-price">
+                                        ₹{getUnitPrice(item).toFixed(2)}
                                     </div>
                                 </div>
-                            ))}
 
-                            {bag.length === 0 && (
-                                <p style={{ textAlign: "center", marginTop: 20 }}>
-                                    Your bag is empty
-                                </p>
-                            )}
-                        </div>
+                                <div className="bag-qty">
+                                    <button onClick={() => decreaseQty(item.indices[0])}>−</button>
+                                    <span>{item.quantity}</span>
+                                    <button onClick={() => increaseQty(item.indices[0])}>+</button>
+                                </div>
 
-                        {/* Summary */}
-                        <div className="bag-summary">
-                            <div className="summary-row">
-                                <span>Subtotal</span>
-                                <span>₹{subtotal.toFixed(2)}</span>
+                                <div className="bag-item-total">
+                                    ₹{getLineTotal(item).toFixed(2)}
+                                </div>
                             </div>
+                        ))}
 
-                            <div className="summary-total">
-                                <span>Total ({totalItems} items)</span>
-                                <span className="floating-total-price">₹{total}</span>
-                            </div>
-                        </div>
-
-                        {/* CTA */}
-                        <button
-                            className="continue-btn"
-                            disabled={bag.length === 0}
-                            onClick={() => navigate("/thank-you")}
-                        >
-                            Continue
-                        </button>
+                        {bag.length === 0 && (
+                            <p style={{ textAlign: "center", marginTop: 20 }}>
+                                Your bag is empty
+                            </p>
+                        )}
                     </div>
+
+                    {/* Summary */}
+                    <div className="bag-summary">
+                        <div className="summary-row">
+                            <span>Subtotal</span>
+                            <span>₹{subtotal.toFixed(2)}</span>
+                        </div>
+
+                        <div className="summary-total">
+                            <span>Total ({totalItems} items)</span>
+                            <span className="floating-total-price">₹{total}</span>
+                        </div>
+                    </div>
+
+                    {/* CTA */}
+                    <button
+                        className="continue-btn"
+                        disabled={bag.length === 0}
+                        onClick={async () => {
+                            try {
+                                await placeOrder(bag);
+
+                                confetti({
+                                    particleCount: 180,
+                                    spread: 70,
+                                    startVelocity: 50,
+                                    origin: { y: 0.6 }
+                                });
+
+                                setIsOpen(false);
+                                navigate("/thank-you", { replace: true });
+                            } catch (err) {
+                                console.error(err);
+                                alert("Failed to place order");
+                            }
+                        }}
+                    >
+                        Place Order
+                    </button>
                 </div>
             )}
         </>

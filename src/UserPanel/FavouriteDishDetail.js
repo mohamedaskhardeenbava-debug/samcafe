@@ -6,6 +6,7 @@ import proteinIcon from "../assets/icons/protein.png";
 import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
 import homeIcon from "../assets/icons/home.png";
+import { flyToBag } from "./flyToBag";
 
 const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, currentUser }) => {
   const { dishId, source } = useParams();
@@ -61,6 +62,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
               src={dish.image}
               alt={dish.name}
               className="fav-image"
+              data-fav-dish-id={dish.id}
             />
           </div>
 
@@ -91,7 +93,9 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
             <h4>Add-ons</h4>
             <ul className="fav-ingredients-grid">
               {(dish.ingredients || []).map((ing) => (
-                <li key={ing.name} className="fav-ingredient-item">
+                <li key={ing.name} className="fav-ingredient-item" onClick={() => {
+                  navigate(`/ingredient/${ing.id}`);
+                }}>
                   <div className="fav-ingredient-img" />
                   <div className="fav-ingredient-info">
                     <div className="fav-ingredient-name">{ing.name}</div>
@@ -156,6 +160,10 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
             <button
               className="fav-add-btn"
               onClick={() => {
+                const img = document.querySelector(
+                  `.fav-image[data-fav-dish-id="${dish.id}"]`
+                );
+
                 addToBag({
                   ...dish,                 // favourite snapshot
                   quantity: 1,
@@ -165,6 +173,10 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
                   // IMPORTANT FLAGS
                   isCustomized: false,     // favourites are already finalized
                   isFromFavourite: true    // critical to prevent "Customized" prefix
+                });
+                flyToBag({
+                  imgEl: img,
+                  dishId: dish.id
                 });
               }}
             >

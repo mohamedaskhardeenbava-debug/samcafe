@@ -8,6 +8,7 @@ import extreme from "../assets/icons/extreme.png";
 import notesIcon from "../assets/icons/notes.png";
 import homeIcon from "../assets/icons/home.png";
 import { AnimatePresence, motion } from "framer-motion";
+import { flyToBag } from "./flyToBag";
 
 const STEP = 10;
 
@@ -51,8 +52,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const isEditMode = fromBag === true && typeof bagIndex === "number";
   const safeIngredients = Array.isArray(foodData?.ingredients)
-  ? foodData.ingredients
-  : [];
+    ? foodData.ingredients
+    : [];
 
   // find category and dish (minimal safe lookup)
   const category =
@@ -204,9 +205,9 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const buildBagItem = () => {
     // 1️⃣ Base price (ALWAYS from original dish/category)
-    const base =
-      Number(dish?.basePrice ?? originalCategory?.basePrice ?? 200) *
-      sizeMultiplier;
+    const base = fromFavouriteCustomize && favouriteDish?.totalPrice
+      ? Number(favouriteDish.totalPrice)
+      : Number(dish?.basePrice ?? originalCategory?.basePrice ?? 200) * sizeMultiplier;
 
     const isCustomized = fromFavouriteCustomize
       ? false
@@ -225,6 +226,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
         const totalPrice = Math.round((pricePer100g * qty) / 100);
 
         return {
+          id: master.id,
           name,                 // ✅ ingredient name ONLY
           quantity: Number(qty),
           pricePer100g,
@@ -253,7 +255,9 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
     // 4️⃣ Ingredient delta
     const ingredientDeltaPrice =
-      selectedIngredientsTotal - baseIngredientsTotal;
+      fromFavouriteCustomize
+        ? 0
+        : selectedIngredientsTotal - baseIngredientsTotal;
 
     // 5️⃣ Final prices
     const unitPrice = Math.max(0, Math.round(base + ingredientDeltaPrice));
@@ -262,22 +266,33 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
     const ingredientModified = hasIngredientChanges();
 
+    // 🔑 build a stable signature for customization
+    const customizationKey = (() => {
+      if (!ingredientModified && !notes?.trim() && !selectedSize) return null;
+
+      const ingSignature = ingredients
+        .map(i => `${i.name}:${i.quantity}`)
+        .sort()
+        .join("|");
+
+      return [
+        selectedSize || "",
+        spiciness || "",
+        notes?.trim() || "",
+        ingSignature
+      ].join("__");
+    })();
+
     return {
       id: dish?.id || effectiveDish.id,
+
+      // 🔑 THIS IS THE IMPORTANT PART
+      customizationKey,
+
       name: (() => {
-        // editing existing bag item → keep original name
         if (fromBag && bagItem?.name) return bagItem.name;
-
-        // favourite customization → keep favourite name
-        if (fromFavouriteCustomize && favouriteDish?.name)
-          return favouriteDish.name;
-
-        // ingredient modified → prefix Customized
-        if (ingredientModified) {
-          return `Customized ${effectiveDish.name}`;
-        }
-
-        // default → normal dish name
+        if (fromFavouriteCustomize && favouriteDish?.name) return favouriteDish.name;
+        if (ingredientModified) return `Customized ${effectiveDish.name}`;
         return effectiveDish.name;
       })(),
 
@@ -290,7 +305,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       unitPrice,
       totalPrice,
       notes: notes?.trim() || "",
-      isCustomized: fromFavouriteCustomize ? false : isCustomized,
+      isCustomized: fromFavouriteCustomize ? false : ingredientModified,
       isFromFavourite: fromFavouriteCustomize === true
     };
   };
@@ -658,10 +673,11 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
         <div className="top">
           <div className="ingredients-calculation">
             Selected Ingredients
-            <div className="note-icon">
-              <img src={notesIcon} alt="" className="note-icon"
-                onClick={() => setShowNotes((v) => !v)}
-                title="Add notes" />
+            <div
+              className="notes-btn"
+              onClick={() => setShowNotes(v => !v)}
+            >
+              <img src={notesIcon} alt="Notes" />
             </div>
           </div>
 
@@ -747,13 +763,21 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           <button
             className="food-place-order-button"
             onClick={() => {
+              const img = document.querySelector(".food-item-image img");
               const builtItem = buildBagItem();
               const item = {
                 ...builtItem,
                 isCustomized: builtItem.isCustomized === true,
                 isFromFavourite: fromFavouriteCustomize === true
               };
-              if (isEditMode) updateBagItem(bagIndex, item); else addToBag(item);
+              if (isEditMode) updateBagItem(bagIndex, item);
+              else addToBag(item);
+
+              flyToBag({
+                imgEl: img,
+                dishId: builtItem.id,
+                customizationKey: builtItem.customizationKey || ""
+              });
             }}
           >
             {isEditMode ? "Update Bag" : "Add to Bag"}

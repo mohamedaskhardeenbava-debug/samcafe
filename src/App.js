@@ -24,7 +24,7 @@ function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [isBagOpen, setIsBagOpen] = useState(false);
+  const [isBagOpen, setIsBagOpen] = useState(true);
   const [direction, setDirection] = useState(1);
   const [lastAction, setLastAction] = useState("forward");
   const [bag, setBag] = useState([]);
@@ -77,6 +77,29 @@ function App() {
   const addToBag = (item) => {
     setBag(prev => [...prev, item]);
   };
+
+  // 👇 ADD THIS ONCE (useEffect)
+  useEffect(() => {
+    const handler = () => {
+      setBag(prev => {
+        if (!prev.length) return prev;
+
+        const copy = [...prev];
+        const lastIndex = copy.length - 1;
+
+        copy[lastIndex] = {
+          ...copy[lastIndex],
+          __pendingImage: false
+        };
+
+        return copy;
+      });
+    };
+
+    window.addEventListener("REVEAL_LAST_BAG_IMAGE", handler);
+    return () =>
+      window.removeEventListener("REVEAL_LAST_BAG_IMAGE", handler);
+  }, []);
 
   const getEffectiveUnitPrice = (item) => {
     if (item.isCombo) {
@@ -270,17 +293,6 @@ function App() {
     fetchMenu();
   }, [currentUser]);
 
-  useEffect(() => {
-    // Close floating bag on category / home-like pages
-    if (
-      location.pathname === "/categories" ||
-      location.pathname === "/" ||
-      location.pathname === "/thank-you"
-    ) {
-      setIsBagOpen(false);
-    }
-  }, [location.pathname]);
-
   const pageVariants = {
     initial: (direction) => ({
       x: direction > 0 ? 100 : -100,
@@ -316,9 +328,6 @@ function App() {
       )
     );
   };
-
-  const disablePageAnimation =
-    location.state?.disablePageAnimation === true;
 
   // if (loading) return <div className="app-loading">Loading menu...</div>;
   // if (error) return <div className="app-error">Failed to load menu</div>;

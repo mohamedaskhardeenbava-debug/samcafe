@@ -15,7 +15,8 @@
   display: flex;
   align-items: center;
   position: relative;
-  z-index: 100; /* ⬅ brings back button above images */
+  z-index: 100;
+  /* ⬅ brings back button above images */
 }
 
 .food-list-title {
@@ -63,8 +64,9 @@
   height: calc(100vh - 116px);
   display: flex;
   align-items: center;
-  contain: layout;      
+  contain: layout;
   overflow: visible;
+  touch-action: pan-y;
 }
 
 .expanded-back-btn {
@@ -133,6 +135,7 @@
   font-weight: 700;
   cursor: pointer;
   width: fit-content;
+  border: none;
 }
 
 .show-more-btn {
@@ -215,7 +218,6 @@
   justify-content: center;
   width: 70%;
   z-index: 0;
-  isolation: isolate;
 }
 
 /* MAIN IMAGE */
@@ -529,6 +531,7 @@
   text-decoration: none;
   font-weight: 600;
   width: 100%;
+  border: none;
 }
 
 .place-order-button {
@@ -536,7 +539,7 @@
   padding: 12px;
   background: var(--color-red);
   color: var(--bg-main);
-   border-radius: 10px;
+  border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
   width: 100%;
@@ -569,4 +572,14 @@
 .empty-favourites p {
   font-size: 14px;
   opacity: 0.8;
+}
+
+.reel-cta,
+.show-more-btn,
+.image-nav-btn,
+.carousel-controls,
+.carousel-dots,
+.dot {
+  pointer-events: auto;
+  z-index: 20;
 }

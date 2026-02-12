@@ -16,7 +16,6 @@
 .fav-combo-page {
   min-height: 100vh;
   background: transparent;
-  padding: 20px 16px 32px;
   color: var(--text-main);
 }
 

@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
 import "./FavouriteCombo.css";
+import { flyToBag } from "./flyToBag";
 
 const listVariants = {
     hidden: { opacity: 0, y: 60 },
@@ -25,7 +25,6 @@ const FavouriteCombo = ({
     addToBag,
     handleBack
 }) => {
-    const navigate = useNavigate();
 
     const favCombos = currentUser?.combo || [];
 
@@ -52,9 +51,16 @@ const FavouriteCombo = ({
             combo.totalPrice ??
             combo.originalPrice ??
             0;
+
+        // ✅ Resolve image at CLICK TIME (bulletproof)
+        const img = document.querySelector(
+            `.fav-combo-image[data-combo-id="${combo.id}"]`
+        );
+
         addToBag({
             id: combo.id,
             name: combo.title,
+            image: combo.image,
             categoryId: "combo",
             quantity: qty,
             originalPrice: perUnitFinalPrice * qty,
@@ -63,6 +69,12 @@ const FavouriteCombo = ({
             comboItems: combo.comboItems,
             isCombo: true,
             isFromFavourite: true
+        });
+
+        // ✅ Trigger animation
+        flyToBag({
+            imgEl: img,
+            dishId: combo.id
         });
     };
 
@@ -80,14 +92,6 @@ const FavouriteCombo = ({
         <div
             className="fav-combo-page"
         >
-            {/* HEADER */}
-            <header className="fav-combo-header">
-                <button className="back-button" onClick={handleBack} />
-                <div className="fav-combo-header-text">
-                    <h1>My Favourite Combo</h1>
-                </div>
-            </header>
-
             {/* CONTENT */}
             <motion.section
                 className="fav-combo-content"
@@ -153,9 +157,9 @@ const FavouriteCombo = ({
                                         <div className="price-section-label">Total price:</div>
                                         <div className="price-section-price">
                                             ₹{(qtyMap[combo.id] || 1) *
-                                            (combo.perComboFinalPrice ||
-                                                combo.totalPrice ||
-                                                combo.originalPrice)}
+                                                (combo.perComboFinalPrice ||
+                                                    combo.totalPrice ||
+                                                    combo.originalPrice)}
                                         </div>
                                     </div>
 

@@ -1,3 +1,17 @@
+.fly-img {
+  position: fixed;
+  z-index: 1000;
+  pointer-events: none;
+  will-change: left, top, transform;
+  object-fit: contain;
+  display: block;
+}
+
+.fly-img {
+  backface-visibility: hidden;
+  transform-origin: center center;
+}
+
 .food-grid-page {
   padding: 36px;
   font-family: "Geom", system-ui, sans-serif;
@@ -124,9 +138,6 @@
 
 /* ===== RESPONSIVE TUNING ===== */
 @media (min-width: 768px) {
-  .food-grid-page {
-    padding: 24px;
-  }
 
   .grid-title {
     font-size: 26px;

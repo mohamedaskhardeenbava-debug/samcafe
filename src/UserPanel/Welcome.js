@@ -238,11 +238,10 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
             >
               <h3>Create Profile</h3>
 
-              <div className="section">
-                <label>Name</label>
+              <div className="section floating-field">
                 <input
                   required
-                  autoFocus
+                  placeholder=" "
                   type="text"
                   maxLength={100}
                   value={name}
@@ -257,13 +256,14 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                     setName(toCamelCase(value));
                   }}
                 />
+                <label>Enter Name</label>
               </div>
 
-              <div className="section">
-                <label>Mobile Number</label>
+              <div className="section floating-field">
                 <input
                   required
                   type="tel"
+                  placeholder=" "
                   inputMode="numeric"
                   pattern="[0-9]{10}"
                   maxLength={10}
@@ -275,6 +275,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                     }
                   }}
                 />
+                <label>Enter Mobile Number</label>
               </div>
 
               <div className="btn-container">
@@ -321,12 +322,11 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
             >
               <h3>Login</h3>
 
-              <div className="section">
-                <label>Mobile Number</label>
+              <div className="section  floating-field">
                 <input
                   ref={mobileInputRef}
-                  autoFocus
                   type="tel"
+                  placeholder=" "
                   list={enableAutocomplete ? "user-mobiles" : undefined}
                   maxLength={10}
                   value={mobile}
@@ -346,6 +346,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                     }
                   }}
                 />
+                <label>Enter Mobile Number</label>
               </div>
 
               <div className="btn-container">

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import "./FoodList.css"; // reuse same styles
 import "./FoodListExpanded.css";
@@ -10,6 +10,7 @@ import caloriesIcon from "../assets/icons/calorie.png";
 import proteinIcon from "../assets/icons/protein.png";
 import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
+import { flyToBag } from "./flyToBag";
 
 /* 🔁 SAME animation config */
 const SOFT_SPRING = {
@@ -170,45 +171,51 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
             variants={DETAIL_VARIANTS}
             transition={SOFT_SPRING}
           >
-            <Link
+            <button
               className="customize-button"
-              to="/food/customize"
-              state={{
-                categoryId:
-                  category.id === "favourites"
-                    ? dish.categoryId
-                    : category.id,
-                dishId: dish.id
+              onClick={() => {
+                navigate("/food/customize", {
+                  state: {
+                    categoryId:
+                      category.id === "favourites"
+                        ? dish.categoryId
+                        : category.id,
+                    dishId: dish.id
+                  }
+                });
               }}
-
             >
               Customize
-            </Link>
+            </button>
 
             <button
               type="button"
               className="place-order-button"
               onClick={() => {
-                const base = Number(dish.basePrice || 0);
-
+                const img = document.querySelector(".dish-image.image-main");
                 const bagItem = {
                   id: dish.id,
                   name: dish.name,
                   image: dish.image,
-                  categoryId: category.id,
-                  unitPrice: base,
+                  categoryId,
                   quantity: 1,
-                  totalPrice: base,
-                  selectedSize:
-                    category?.sizes?.[0]?.name?.toLowerCase() || null,
-                  spiciness: null,
-                  ingredients: dish.ingredients || [],
-                  notes: "",
+                  unitPrice: dish.basePrice,
+                  totalPrice: dish.basePrice,
+                  ingredients: Array.isArray(dish.ingredients)
+                    ? dish.ingredients.map(i => ({
+                      id: i.id,
+                      name: i.name,
+                      quantity: i.quantity,
+                      pricePer100g: i.pricePer100g || 0,
+                      totalPrice: 0
+                    }))
+                    : [],
                   isCustomized: false,
-                  isCombo: false
+                  notes: ""
                 };
 
                 addToBag(bagItem);
+                flyToBag({ imgEl: img, dishId: dish.id });
               }}
             >
               Add to Bag
