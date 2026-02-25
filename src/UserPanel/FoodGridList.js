@@ -60,7 +60,6 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                                         quantity: 1,
                                         unitPrice: dish.basePrice,
                                         totalPrice: dish.basePrice,
-                                        ingredients: [],
                                         isCustomized: false,
                                         notes: "",
                                         __pendingImage: true

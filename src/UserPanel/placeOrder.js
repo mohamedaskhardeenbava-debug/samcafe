@@ -9,6 +9,15 @@ export const placeOrder = async (bag) => {
     const rawUser = localStorage.getItem("user");
     console.log("RAW USER FROM STORAGE:", rawUser);
 
+    const rawTableNo = localStorage.getItem("tableNo");
+
+    const tableNo =
+        rawTableNo && rawTableNo.trim() !== ""
+            ? Number(rawTableNo)
+            : null;
+
+    const mode = tableNo ? "dine in" : "take away";
+
     const user = JSON.parse(rawUser);
     console.log("PARSED USER:", user);
 
@@ -69,13 +78,13 @@ export const placeOrder = async (bag) => {
         userId: userId || null,
         userName,
         mobile: mobileNo,
-
+        tableNo: tableNo ? Number(tableNo) : null,
+        mode,
         // ✅ UNFORMATTED / ISO
         date,
         time,                  // "2026-02-10"
         createdAt: nowISO,       // "2026-02-10T06:25:45.065Z"
         updatedAt: nowISO,
-
         status: "placed",
         totalAmount: Math.round(totalAmount),
         totalWithGST,

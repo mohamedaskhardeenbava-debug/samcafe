@@ -1,5 +1,5 @@
 import "./App.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import api from "./api";
@@ -13,12 +13,17 @@ import FoodItem from "./UserPanel/FoodItem";
 import IngredientDetail from "./UserPanel/IngredientDetail";
 import ThankYou from "./UserPanel/ThankYou";
 import FloatingBag from "./UserPanel/FloatingBag";
+import TableScanner from "./UserPanel/TableScanner";
 
 import FavouriteCategories from "./UserPanel/FavouriteCategories";
 import FavouriteDishList from "./UserPanel/FavouriteDishList";
 import FavouriteDishDetail from "./UserPanel/FavouriteDishDetail";
 import ComboPage from "./UserPanel/ComboPage";
 import FavouriteCombo from "./UserPanel/FavouriteCombo";
+
+import bellSound from "./assets/sounds/bell.mp3";
+import bellGif from "./assets/bell/bell.gif";
+import bellStatic from "./assets/bell/bell-static.png";
 
 function App() {
   const navigate = useNavigate();
@@ -29,8 +34,10 @@ function App() {
   const [lastAction, setLastAction] = useState("forward");
   const [bag, setBag] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isRinging, setIsRinging] = useState(false);
 
   const isExpandedPage = location.pathname.includes("/expanded");
+  const bellAudioRef = useRef(new Audio(bellSound));
 
   const isAuthenticatedUser =
     currentUser && currentUser.id !== "guest";
@@ -74,8 +81,85 @@ function App() {
     initUser();
   }, []);
 
-  const addToBag = (item) => {
-    setBag(prev => [...prev, item]);
+  const normalizeBagItem = (rawItem, foodData) => {
+    const category =
+      foodData.categories.find(c => c.id === rawItem.categoryId) ||
+      foodData.categories.find(c =>
+        c.dishes.some(d => d.id === rawItem.id)
+      );
+
+    const dish =
+      category?.dishes.find(d => d.id === rawItem.id) || {};
+
+    const defaultSize =
+      category?.sizes?.[0]?.name?.toLowerCase() || "regular";
+
+    const quantity = Number(rawItem.quantity || 1);
+    const unitPrice = Number(rawItem.unitPrice || dish.basePrice || 0);
+    const baseIngredients =
+      Array.isArray(rawItem.ingredients) && rawItem.ingredients.length > 0
+        ? rawItem.ingredients
+        : (dish.ingredients || []).map(i => ({
+          id: i.id,
+          name: i.name,
+          quantity: i.quantity,
+          pricePer100g: i.pricePer100g || 0,
+          totalPrice: 0
+        }));
+
+    return {
+      id: rawItem.id,
+      name: rawItem.name || dish.name,
+      image: rawItem.image || dish.image,
+      categoryId: category?.id || rawItem.categoryId,
+
+      quantity,
+      unitPrice,
+      totalPrice: unitPrice * quantity,
+
+      status: "placed",
+      isCustomized: !!rawItem.isCustomized,
+      selectedSize: rawItem.selectedSize || defaultSize,
+      notes: rawItem.notes || "",
+      ingredients: baseIngredients,
+      createdAt: new Date().toISOString(),
+      pickupAt: null
+    };
+  };
+
+  const ingredientSignature = (ings = []) =>
+    ings
+      .map(i => `${i.name}:${i.quantity}`)
+      .sort()
+      .join("|");
+
+  const addToBag = (rawItem) => {
+    setBag(prev => {
+      const item = normalizeBagItem(rawItem, foodData);
+
+      const matchIndex = prev.findIndex(p =>
+        p.id === item.id &&
+        p.selectedSize === item.selectedSize &&
+        p.isCustomized === item.isCustomized &&
+        ingredientSignature(p.ingredients) === ingredientSignature(item.ingredients) &&
+        (p.notes || "") === (item.notes || "")
+      );
+
+      if (matchIndex !== -1) {
+        return prev.map((p, i) =>
+          i === matchIndex
+            ? {
+              ...p,
+              quantity: p.quantity + item.quantity,
+              totalPrice:
+                p.unitPrice * (p.quantity + item.quantity)
+            }
+            : p
+        );
+      }
+
+      return [...prev, item];
+    });
   };
 
   // 👇 ADD THIS ONCE (useEffect)
@@ -296,6 +380,7 @@ function App() {
   const pageVariants = {
     initial: (direction) => ({
       x: direction > 0 ? 100 : -100,
+      opacity: 0,
     }),
     animate: {
       opacity: 1,
@@ -328,6 +413,21 @@ function App() {
       )
     );
   };
+  const handleRingBell = () => {
+    const audio = bellAudioRef.current;
+
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play().catch(err => console.error(err));
+
+    setIsRinging(true);
+
+    setTimeout(() => {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsRinging(false);
+    }, 2000);
+  };
 
   // if (loading) return <div className="app-loading">Loading menu...</div>;
   // if (error) return <div className="app-error">Failed to load menu</div>;
@@ -342,6 +442,23 @@ function App() {
           increaseQty={increaseQty}
           decreaseQty={decreaseQty}
         />
+
+        <div className="floating-bell-wrapper" onClick={handleRingBell}>
+          <button
+            className={`floating-bell ${isRinging ? "ringing" : ""}`}
+          >
+            <img
+              key={isRinging ? "animated" : "static"}
+              src={isRinging ? bellGif : bellStatic}
+              alt="Call Attender"
+              className="bell-image"
+            />
+          </button>
+
+          <div className="bell-tooltip">
+            Click to call the attender
+          </div>
+        </div>
 
         {isExpandedPage ? (
           <AnimatePresence mode="wait" initial={false}>
@@ -473,6 +590,14 @@ function App() {
                 }
               />
 
+              <Route
+                path="/scan-table"
+                element={
+                  <motion.div {...motionProps}>
+                    <TableScanner />
+                  </motion.div>
+                }
+              />
 
               {/* FAV CATEGORY PAGE */}
               <Route

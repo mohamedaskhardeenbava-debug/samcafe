@@ -205,17 +205,9 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const buildBagItem = () => {
     // 1️⃣ Base price (ALWAYS from original dish/category)
-    const base = fromFavouriteCustomize && favouriteDish?.totalPrice
-      ? Number(favouriteDish.totalPrice)
-      : Number(dish?.basePrice ?? originalCategory?.basePrice ?? 200) * sizeMultiplier;
-
-    const isCustomized = fromFavouriteCustomize
-      ? false
-      : Object.entries(ingredientQuantities).some(([name, qty]) => {
-        const baseQty =
-          (dish?.ingredients || []).find(i => i.name === name)?.quantity || 0;
-        return Number(qty) !== Number(baseQty);
-      });
+    const base =
+      Number(dish?.basePrice ?? originalCategory?.basePrice ?? 200) *
+      sizeMultiplier;
 
     // 2️⃣ Build selected ingredients
     const ingredients = Object.entries(ingredientQuantities)
@@ -255,9 +247,10 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
     // 4️⃣ Ingredient delta
     const ingredientDeltaPrice =
-      fromFavouriteCustomize
-        ? 0
-        : selectedIngredientsTotal - baseIngredientsTotal;
+      selectedIngredientsTotal - baseIngredientsTotal;
+
+    const isCustomized =
+      selectedIngredientsTotal !== baseIngredientsTotal;
 
     // 5️⃣ Final prices
     const unitPrice = Math.max(0, Math.round(base + ingredientDeltaPrice));
@@ -290,10 +283,19 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       customizationKey,
 
       name: (() => {
+        const baseName =
+          dish?.name ||
+          favouriteDish?.name ||
+          effectiveDish?.name ||
+          "Custom Dish";
+
         if (fromBag && bagItem?.name) return bagItem.name;
-        if (fromFavouriteCustomize && favouriteDish?.name) return favouriteDish.name;
-        if (ingredientModified) return `Customized ${effectiveDish.name}`;
-        return effectiveDish.name;
+
+        if (ingredientModified) {
+          return `Customized ${baseName}`;
+        }
+
+        return baseName;
       })(),
 
       image: dish?.image || effectiveDish.image,

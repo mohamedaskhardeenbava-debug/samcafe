@@ -201,15 +201,6 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
                   quantity: 1,
                   unitPrice: dish.basePrice,
                   totalPrice: dish.basePrice,
-                  ingredients: Array.isArray(dish.ingredients)
-                    ? dish.ingredients.map(i => ({
-                      id: i.id,
-                      name: i.name,
-                      quantity: i.quantity,
-                      pricePer100g: i.pricePer100g || 0,
-                      totalPrice: 0
-                    }))
-                    : [],
                   isCustomized: false,
                   notes: ""
                 };

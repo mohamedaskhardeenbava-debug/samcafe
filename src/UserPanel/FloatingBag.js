@@ -2,7 +2,6 @@ import "./FloatingBag.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import closeIcon from "../assets/icons/close.png";
-import confetti from "canvas-confetti";
 import { placeOrder } from "./placeOrder.js";
 
 const FloatingBag = ({
@@ -56,7 +55,7 @@ const FloatingBag = ({
         prevCountRef.current = totalItems;
     }, [totalItems]);
 
-    if (location.pathname === "/" || location.pathname === "/thank-you")
+    if (location.pathname === "/" || location.pathname === "/thank-you" || location.pathname === "/scan-table")
         return null;
 
     const getUnitPrice = (item) => {
@@ -116,7 +115,7 @@ const FloatingBag = ({
                     <div className="bag-items" id="bag-items-container">
                         {groupedBag.map((item, i) => (
                             <div
-                                key={i}
+                                key={`${item.id}__${item.customizationKey || "base"}__${item.selectedSize}`}
                                 className="bag-item-row"
                                 data-dish-id={item.id}
                                 data-custom-key={item.customizationKey || ""}
@@ -173,13 +172,6 @@ const FloatingBag = ({
                         onClick={async () => {
                             try {
                                 await placeOrder(bag);
-
-                                confetti({
-                                    particleCount: 180,
-                                    spread: 70,
-                                    startVelocity: 50,
-                                    origin: { y: 0.6 }
-                                });
 
                                 setIsOpen(false);
                                 navigate("/thank-you", { replace: true });

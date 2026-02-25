@@ -5,27 +5,59 @@ import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "./ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
 import api from "../api";
+import loginImg from "../assets/welcome-images/login-image.jpeg";
+import signupImg from "../assets/welcome-images/signup-image.jpeg";
+import guestImg from "../assets/welcome-images/guest-image.jpeg";
+
+const containerVariants = {
+  hidden: {},
+  visible: {}
+};
+
+const cardVariants = {
+  hidden: (index) => ({
+    opacity: 1,
+    x: 0,
+    position: "absolute",
+    left: 0,
+    zIndex: 10 - index
+  }),
+  visible: (index) => ({
+    x: index * 240,   // 320 = card width + gap
+    position: "absolute",
+    left: 0,
+    transition: {
+      delay: index * 0.4,
+      type: "spring",
+      stiffness: 120,
+      damping: 18
+    }
+  })
+};
 
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
   const mobileInputRef = useRef(null);
   const [users, setUsers] = useState([]);
-  const [showSignupForm, setShowSignupForm] = useState(false);
-  const [showLoginForm, setShowLoginForm] = useState(false);
   const [enableAutocomplete, setEnableAutocomplete] = useState(true);
-  const [alertConfig, setAlertConfig] = useState({
-    open: false,
-    title: "",
-    message: ""
-  });
+  const [errorMsg, setErrorMsg] = useState("");
+  const [activeCard, setActiveCard] = useState(null);
 
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
+  const [animateCards, setAnimateCards] = useState(false);
   const filteredMobiles = users
     .map(u => u.mobile)
     .filter(m => m.startsWith(mobile))
     .sort();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimateCards(true);
+    }, 100); // slight delay ensures visible animation
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -45,44 +77,37 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   };
 
   const handleGuest = () => {
-    // 🔒 clear any previous login
     localStorage.removeItem("userId");
+    localStorage.removeItem("tableNo");
 
     setCurrentUser({
       id: "guest",
       role: "guest"
     });
 
-    goToCategories();
+    if (window.innerWidth <= 768) {
+      navigate("/scan-table");
+    } else {
+      navigate("/categories");
+    }
   };
 
   const handleLogin = async () => {
+    localStorage.removeItem("tableNo");
     if (mobile.length !== 10) {
-      setAlertConfig({
-        open: true,
-        title: "Invalid Mobile Number",
-        message: "Enter a valid 10-digit mobile number."
-      });
+      setErrorMsg("Enter a valid 10-digit mobile number.");
       return;
     }
 
     const matches = users.filter(u => u.mobile === mobile);
 
     if (matches.length === 0) {
-      setAlertConfig({
-        open: true,
-        title: "User Not Found",
-        message: "No account exists with this mobile number."
-      });
+      setErrorMsg("No account exists with this mobile number.");
       return;
     }
 
     if (matches.length > 1) {
-      setAlertConfig({
-        open: true,
-        title: "Duplicate Accounts Found",
-        message: "Multiple accounts exist with this number. Contact support."
-      });
+      setErrorMsg("Multiple accounts exist with this number. Contact support.");
       return;
     }
 
@@ -94,18 +119,19 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
     // 🔁 REFRESH MENU + FAVOURITES
     fetchMenu();
-    setShowLoginForm(false);
+    setActiveCard(null);
     setMobile("");
-    navigate("/categories");
+    if (window.innerWidth <= 768) {
+      navigate("/scan-table");
+    } else {
+      navigate("/categories");
+    }
   };
 
   const handleSignup = async () => {
+    localStorage.removeItem("tableNo");
     if (!name.trim() || mobile.length !== 10) {
-      setAlertConfig({
-        open: true,
-        title: "Invalid Input",
-        message: "Enter name and valid mobile number."
-      });
+      setErrorMsg("Enter name and valid mobile number.");
       return;
     }
 
@@ -118,11 +144,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       const matches = users.filter(u => u.mobile === mobile);
 
       if (matches.length > 0) {
-        setAlertConfig({
-          open: true,
-          title: "Duplicate Account",
-          message: "An account already exists with this mobile number."
-        });
+        setErrorMsg("An account already exists with this mobile number.");
         return;
       }
 
@@ -140,34 +162,21 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       // ✅ login ONLY first time
       localStorage.setItem("userId", newUser.id);
 
-      setShowSignupForm(false);
+      setActiveCard(null);
       setName("");
       setMobile("");
       setCurrentUser(newUser);
       // 🔁 REFRESH MENU
       fetchMenu();
-      navigate("/categories");
+      if (window.innerWidth <= 768) {
+        navigate("/scan-table");
+      } else {
+        navigate("/categories");
+      }
 
     } finally {
       setLoading(false);
     }
-  };
-
-  const overlayVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-    exit: { opacity: 0 }
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0, scale: 0.95, y: 20 },
-    visible: { opacity: 1, scale: 1, y: 0 },
-    exit: { opacity: 0, scale: 0.95, y: 20 }
-  };
-
-  const resetSignupForm = () => {
-    setName("");
-    setMobile("");
   };
 
   return (
@@ -190,226 +199,202 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           Where every bite feels right
         </div>
 
-        <div className="profile-cards">
-          <div
+        <motion.div
+          className="profile-cards"
+          variants={containerVariants}
+          initial="hidden"
+          animate={animateCards ? "visible" : "hidden"}
+        >
+          <motion.div
+            className={`profile-card flip-card ${activeCard === "login" ? "flipped" : ""}`}
+            variants={cardVariants}
+            custom={0}
+          >
+            <div
+              className="flip-inner"
+              onClick={() => {
+                setErrorMsg("");
+                setMobile("");
+                setActiveCard(prev => (prev === "login" ? null : "login"));
+              }}
+            >
+              {/* FRONT */}
+              <div className="flip-front">
+                <div className="card-image">
+                  <img src={loginImg} alt="Login" />
+                </div>
+
+                <div className="card-overlay">
+                  <h4>Login</h4>
+                  <p>Login using your mobile number</p>
+                </div>
+              </div>
+
+              {/* BACK */}
+              <div className="flip-back signup-modal">
+                <h3>Login</h3>
+
+                <div
+                  className="section floating-field"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    ref={mobileInputRef}
+                    type="tel"
+                    placeholder=" "
+                    list={enableAutocomplete ? "user-mobiles" : undefined}
+                    maxLength={10}
+                    value={mobile}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                      setMobile(value);
+
+                      if (value.length === 10) {
+                        setEnableAutocomplete(false);
+                        setTimeout(() => mobileInputRef.current?.blur(), 0);
+                      } else {
+                        setEnableAutocomplete(true);
+                      }
+                    }}
+                  />
+                  <label>Enter Mobile Number</label>
+                </div>
+
+                {errorMsg && activeCard === "login" && (
+                  <div className="inline-error">
+                    {errorMsg}
+                  </div>
+                )}
+
+                <div
+                  className="btn-container"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLogin();
+                    }}
+                  >
+                    Login
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className={`profile-card flip-card ${activeCard === "signup" ? "flipped" : ""}`}
+            variants={cardVariants}
+            custom={1}
+          >
+            <div
+              className="flip-inner"
+              onClick={() => {
+                setErrorMsg("");
+                setName("");
+                setMobile("");
+                setActiveCard(prev => (prev === "signup" ? null : "signup"));
+              }}
+            >
+              {/* FRONT */}
+              <div className="flip-front">
+                <div className="card-image">
+                  <img src={signupImg} alt="Signup" />
+                </div>
+
+                <div className="card-overlay">
+                  <h4>Sign Up</h4>
+                  <p>Create a new profile</p>
+                </div>
+              </div>
+
+              {/* BACK */}
+              <div className="flip-back signup-modal">
+                <h3>Create Profile</h3>
+
+                <div
+                  className="section floating-field"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    required
+                    placeholder=" "
+                    type="text"
+                    maxLength={100}
+                    value={name}
+                    onChange={(e) => {
+                      let value = e.target.value;
+                      if (value.length > 100) return;
+                      const words = value.trim().split(/\s+/);
+                      if (words.length > 5) return;
+                      setName(toCamelCase(value));
+                    }}
+                  />
+                  <label>Enter Name</label>
+                </div>
+
+                <div
+                  className="section floating-field"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <input
+                    required
+                    type="tel"
+                    placeholder=" "
+                    maxLength={10}
+                    value={mobile}
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/\D/g, "");
+                      if (digitsOnly.length <= 10) {
+                        setMobile(digitsOnly);
+                      }
+                    }}
+                  />
+                  <label>Enter Mobile Number</label>
+                </div>
+
+                {errorMsg && activeCard === "signup" && (
+                  <div className="inline-error">
+                    {errorMsg}
+                  </div>
+                )}
+
+                <div
+                  className="btn-container"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    className="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSignup();
+                    }}
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
             className="profile-card"
-            onClick={() => setShowLoginForm(true)}
-          >
-            <h4>Login</h4>
-            <p>Login using your mobile number</p>
-          </div>
-
-          <div
-            className="profile-card secondary"
-            onClick={() => setShowSignupForm(true)}
-          >
-            <h4>Sign Up</h4>
-            <p>Create a new profile</p>
-          </div>
-
-          <div
-            className="profile-card secondary"
+            variants={cardVariants}
+            custom={2}
             onClick={handleGuest}
           >
-            <h4>Guest</h4>
-            <p>Continue without an account</p>
-          </div>
-        </div>
+            <div className="card-image">
+              <img src={guestImg} alt="Guest" />
+            </div>
+            <div className="card-overlay">
+              <h4>Guest</h4>
+              <p>Continue without an account</p>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
-
-      {/* SIGNUP FORM OVERLAY */}
-      <AnimatePresence>
-        {showSignupForm && (
-          <motion.div
-            className="overlay"
-            variants={overlayVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            <motion.div
-              className="signup-modal"
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <h3>Create Profile</h3>
-
-              <div className="section floating-field">
-                <input
-                  required
-                  placeholder=" "
-                  type="text"
-                  maxLength={100}
-                  value={name}
-                  onChange={(e) => {
-                    let value = e.target.value;
-
-                    if (value.length > 100) return;
-
-                    const words = value.trim().split(/\s+/);
-                    if (words.length > 5) return;
-
-                    setName(toCamelCase(value));
-                  }}
-                />
-                <label>Enter Name</label>
-              </div>
-
-              <div className="section floating-field">
-                <input
-                  required
-                  type="tel"
-                  placeholder=" "
-                  inputMode="numeric"
-                  pattern="[0-9]{10}"
-                  maxLength={10}
-                  value={mobile}
-                  onChange={(e) => {
-                    const digitsOnly = e.target.value.replace(/\D/g, "");
-                    if (digitsOnly.length <= 10) {
-                      setMobile(digitsOnly);
-                    }
-                  }}
-                />
-                <label>Enter Mobile Number</label>
-              </div>
-
-              <div className="btn-container">
-                <button
-                  className="primary"
-                  onClick={handleSignup}
-                  disabled={loading}
-                >
-                  {loading ? "Signing Up..." : "Sign Up"}
-                </button>
-
-                <button
-                  className="link-btn"
-                  onClick={() => {
-                    resetSignupForm();
-                    setShowSignupForm(false);
-                  }}
-                >
-                  Back
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {showLoginForm && (
-          <motion.div
-            className="overlay"
-            variants={overlayVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
-            <motion.div
-              className="signup-modal"
-              variants={modalVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <h3>Login</h3>
-
-              <div className="section  floating-field">
-                <input
-                  ref={mobileInputRef}
-                  type="tel"
-                  placeholder=" "
-                  list={enableAutocomplete ? "user-mobiles" : undefined}
-                  maxLength={10}
-                  value={mobile}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                    setMobile(value);
-
-                    if (value.length === 10) {
-                      setEnableAutocomplete(false);
-
-                      setTimeout(() => {
-                        mobileInputRef.current?.blur();
-                      }, 0);
-                    } else {
-                      // re-enable while typing
-                      setEnableAutocomplete(true);
-                    }
-                  }}
-                />
-                <label>Enter Mobile Number</label>
-              </div>
-
-              <div className="btn-container">
-                <button
-                  className="primary"
-                  onClick={handleLogin}
-                  disabled={loading}
-                >
-                  {loading ? "Logging In..." : "Login"}
-                </button>
-
-                <button
-                  className="link-btn"
-                  onClick={() => {
-                    setShowLoginForm(false);
-                    setMobile("");
-                    setEnableAutocomplete(true);
-                  }}
-                >
-                  Back
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {alertConfig.open && (
-          <motion.div
-            className="alert-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              className="alert-modal"
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <div className="alert-icon">⚠️</div>
-
-              <h3 className="alert-title">{alertConfig.title}</h3>
-
-              <p className="alert-message">
-                {alertConfig.message}
-              </p>
-
-              <button
-                className="alert-btn"
-                onClick={() =>
-                  setAlertConfig({ open: false, title: "", message: "" })
-                }
-              >
-                OK
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };

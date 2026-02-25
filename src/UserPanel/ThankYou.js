@@ -6,6 +6,14 @@ import { AnimatePresence, motion } from "framer-motion";
 
 const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
   const navigate = useNavigate();
+  const rawTableNo = localStorage.getItem("tableNo");
+
+  const tableNo =
+    rawTableNo && rawTableNo.trim() !== ""
+      ? rawTableNo
+      : null;
+
+  const mode = tableNo ? "dine in" : "take away";
 
   const orderPlaced = true;
 
@@ -99,9 +107,22 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
 
         {orderPlaced && (
           <h5 className="thankyou-message">
-            Your order has been successfully placed and will be delivered to{" "}
-            <span className="table-number">TABLE #07</span> within{" "}
-            <span className="time">15–20 minutes</span>.
+            Your order has been successfully placed and will be ready for <br />
+            <span className="table-number">
+              {mode === "dine in" ? "DINE IN" : "TAKE AWAY"}
+            </span>
+
+            {tableNo && (
+              <>
+                {" "}and delivered to{" "}
+                <span className="table-number">
+                  TABLE NUMBER #{tableNo}
+                </span>
+              </>
+            )}
+
+            <br />
+            within <span className="time">15–20 minutes</span>.
           </h5>
         )}
 

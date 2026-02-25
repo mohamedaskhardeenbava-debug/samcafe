@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from "react";
-import {  useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { COMBO_OFFER_RULES } from "./comboNotifications";
 import "./ComboPage.css";
+import FavouriteCombo from "./FavouriteCombo";
 import FavouriteComboOverlay from "./FavouriteComboOverlay";
 import api from "../api";
 
@@ -74,8 +75,7 @@ const ComboPage = ({
   const editIndex = location.state?.bagIndex;
   const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
   const [isSavingFav, setIsSavingFav] = useState(false);
-  const [showFavOverlay, setShowFavOverlay] = useState(false);
-
+  const [activeLeftView, setActiveLeftView] = useState("builder");
   /*DATA*/
   const combo = useMemo(
     () => (Array.isArray(foodData?.combo) ? foodData.combo : []),
@@ -299,11 +299,20 @@ const ComboPage = ({
       id: `combo_${Date.now()}`,
       name: comboTitle,
       categoryId: "combo",
+
       quantity,
+
+      // ✅ ADD THIS (CRITICAL)
+      unitPrice: perComboFinalPrice,
+
+      // keep existing fields
       perComboBasePrice,
       perComboFinalPrice,
+
+      // total must ALWAYS be unitPrice * quantity
+      totalPrice: perComboFinalPrice * quantity,
+
       originalPrice: originalTotal,
-      totalPrice: discountedPrice,
       appliedOffer,
       comboItems: selectedItems,
       isCombo: true
@@ -435,6 +444,7 @@ const ComboPage = ({
       },
       comboItems: selectedItems,
       originalPrice: originalTotal,
+      perComboFinalPrice,
       totalPrice: discountedPrice,
       appliedOffer,
       createdAt: new Date().toISOString()
@@ -464,6 +474,7 @@ const ComboPage = ({
       await api.put(`/users/${currentUser.id}`, updatedUser);
       setCurrentUser(updatedUser);
       setShowAddFavConfirm(false);
+      setActiveLeftView("favourites");
     } catch (err) {
       console.error("Failed to save favourite combo", err);
       alert("Failed to add combo to favourites.");
@@ -523,33 +534,37 @@ const ComboPage = ({
 
       {/* LEFT */}
       <div className="combo-left">
-        <div className="combo-header">
-          <button className="back-button" onClick={handleBack} />
+        {activeLeftView === "builder" && (
+          <div className="combo-header">
+            <button className="back-button" onClick={handleBack} />
 
-          <div>
-            <h2>{isEditMode ? "Edit Combo" : "Create Your Combo"}</h2>
-            <p>Select one starter, one main & one drink</p>
-          </div>
-
-          {currentUser && currentUser.id !== "guest" && (
-            <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
-              <button
-                className="combo-add-fav-btn"
-                disabled={!isComboComplete}
-                onClick={() => setShowAddFavConfirm(true)}
-              >
-                Add to Fav
-              </button>
-
-              <button
-                className="combo-my-fav-btn"
-                onClick={() => setShowFavOverlay(true)}
-              >
-                My Favourites
-              </button>
+            <div>
+              <h2>{isEditMode ? "Edit Combo" : "Create Your Combo"}</h2>
+              <p>Select one starter, one main & one drink</p>
             </div>
-          )}
-        </div>
+
+            {currentUser && currentUser.id !== "guest" && (
+              <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
+                <button
+                  className="combo-add-fav-btn"
+                  disabled={!isComboComplete}
+                  onClick={() => {
+                    setShowAddFavConfirm(true);
+                  }}
+                >
+                  Add to Fav
+                </button>
+
+                <button
+                  className="combo-my-fav-btn"
+                  onClick={() => setActiveLeftView("favourites")}
+                >
+                  My Favourites
+                </button>
+              </div>
+            )}
+          </div>
+        )}
 
         <AnimatePresence mode="wait">
           {showAddFavConfirm && (
@@ -587,7 +602,10 @@ const ComboPage = ({
                   <button
                     className="combo-add-fav-confirm"
                     disabled={!isComboComplete || isSavingFav}
-                    onClick={handleConfirmAddFav}
+                    onClick={() => {
+                      handleConfirmAddFav();
+                      setActiveLeftView("favourites");
+                    }}
                   >
                     {isSavingFav ? "Saving..." : "Confirm"}
                   </button>
@@ -632,35 +650,57 @@ const ComboPage = ({
           )}
         </AnimatePresence>
 
-        <div className="combo-category-row">
-          <CategoryCard
-            title="Starters"
-            active={activeSection === "starters"}
-            disabled={!!selectedItems.starter}
-            onClick={() => setActiveSection("starters")}
-          />
+        {activeLeftView === "builder" && (
+          <>
+            <div className="combo-category-row">
+              <CategoryCard
+                title="Starters"
+                active={activeSection === "starters"}
+                disabled={!!selectedItems.starter}
+                onClick={() => setActiveSection("starters")}
+              />
 
-          <CategoryCard
-            title="Main Course"
-            active={activeSection === "mainCourse"}
-            disabled={!!selectedItems.main}
-            onClick={() => setActiveSection("mainCourse")}
-          />
+              <CategoryCard
+                title="Main Course"
+                active={activeSection === "mainCourse"}
+                disabled={!!selectedItems.main}
+                onClick={() => setActiveSection("mainCourse")}
+              />
 
-          <CategoryCard
-            title="Drinks"
-            active={activeSection === "drinks"}
-            disabled={!!selectedItems.drink}
-            onClick={() => setActiveSection("drinks")}
-          />
-        </div>
+              <CategoryCard
+                title="Drinks"
+                active={activeSection === "drinks"}
+                disabled={!!selectedItems.drink}
+                onClick={() => setActiveSection("drinks")}
+              />
+            </div>
 
-        {activeSection === "mainCourse" && renderMainSubCategories()}
-        {activeSection === "drinks" && renderDrinkSubCategories()}
+            {activeSection === "mainCourse" && renderMainSubCategories()}
+            {activeSection === "drinks" && renderDrinkSubCategories()}
 
-        <div className="combo-items-grid">
-          {renderItems()}
-        </div>
+            <div className="combo-items-grid">
+              {renderItems()}
+            </div>
+          </>
+        )}
+
+        {activeLeftView === "favourites" && (
+          <>
+            <div className="combo-header">
+              <button
+                className="back-button"
+                onClick={() => setActiveLeftView("builder")}
+              />
+              <h2>My Favourite Combos</h2>
+            </div>
+
+            <FavouriteCombo
+              currentUser={currentUser}
+              setCurrentUser={setCurrentUser}
+              addToBag={addToBag}
+            />
+          </>
+        )}
       </div>
 
       {/* RIGHT */}
@@ -755,14 +795,6 @@ const ComboPage = ({
         </div>
 
       </div>
-
-      <FavouriteComboOverlay
-        open={showFavOverlay}
-        onClose={() => setShowFavOverlay(false)}
-        currentUser={currentUser}
-        setCurrentUser={setCurrentUser}
-        addToBag={addToBag}
-      />
     </motion.div>
   );
 };

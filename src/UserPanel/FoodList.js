@@ -206,15 +206,6 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                     quantity: 1,
                     unitPrice,
                     totalPrice: unitPrice,
-                    ingredients: Array.isArray(dish.ingredients)
-                      ? dish.ingredients.map(i => ({
-                        id: i.id,
-                        name: i.name,
-                        quantity: i.quantity,
-                        pricePer100g: i.pricePer100g || 0,
-                        totalPrice: 0
-                      }))
-                      : [],
                     selectedSize: null,
                     notes: "",
                     isCustomized: false,

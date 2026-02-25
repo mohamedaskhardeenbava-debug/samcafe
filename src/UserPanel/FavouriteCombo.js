@@ -26,7 +26,10 @@ const FavouriteCombo = ({
     handleBack
 }) => {
 
-    const favCombos = currentUser?.combo || [];
+    const favCombos = [...(currentUser?.combo || [])]
+        .sort((a, b) =>
+            new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
+        );
 
     const handleDelete = async (comboId) => {
         if (!currentUser) return;
@@ -60,9 +63,10 @@ const FavouriteCombo = ({
         addToBag({
             id: combo.id,
             name: combo.title,
-            image: combo.image,
             categoryId: "combo",
             quantity: qty,
+            perComboFinalPrice: perUnitFinalPrice,
+            unitPrice: perUnitFinalPrice,
             originalPrice: perUnitFinalPrice * qty,
             totalPrice: perUnitFinalPrice * qty,
             appliedOffer: combo.appliedOffer,
