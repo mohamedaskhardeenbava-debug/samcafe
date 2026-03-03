@@ -5,6 +5,7 @@
   justify-content: center;
   overflow: hidden;
   font-family: "Geom", system-ui, sans-serif;
+  padding: 20px;
 }
 
 .welcome-container {
@@ -249,9 +250,9 @@
   height: 300px;
   border-radius: 14px;
   border: 1px solid transparent;
-  box-shadow: var(--shadow-card-red);
-  cursor: pointer;
-  transition: box-shadow 0.4s ease;
+  /* box-shadow: 0 12px 28px rgba(236, 233, 227),
+    0 6px 14px rgba(236, 233, 227); */
+  box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
 }
 
 .profile-card:not(.secondary):hover {
@@ -276,6 +277,7 @@
   overflow: hidden;
   z-index: 1;
   border-radius: 14px;
+  cursor: pointer;
 }
 
 .card-image img {
@@ -285,6 +287,7 @@
 }
 
 .card-overlay {
+  cursor: pointer;
   position: absolute;
   bottom: 0;
   left: 0;
@@ -361,7 +364,8 @@
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   border-radius: 14px;
-  overflow: hidden; /* keep here */
+  overflow: hidden;
+  /* keep here */
   transform-style: preserve-3d;
 }
 
@@ -439,4 +443,46 @@
 
 .signup-modal .primary:hover {
   transform: translateY(-1px);
+}
+
+/* =========================================
+   MOBILE STACK ( < 576px )
+========================================= */
+
+@media (max-width: 576px) {
+
+  .profile-cards {
+    width: 100%;
+    height: auto;
+    margin-top: 40px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+
+    position: static;
+    /* important */
+  }
+
+  .profile-card {
+    position: relative !important;
+    /* remove absolute */
+    width: 90%;
+    max-width: 320px;
+    height: 420px;
+  }
+
+  .flip-inner {
+    height: 100%;
+  }
+
+  .card-image {
+    height: 100%;
+  }
+
+  .card-overlay {
+    height: 260px;
+  }
+
 }

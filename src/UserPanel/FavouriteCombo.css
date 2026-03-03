@@ -232,6 +232,11 @@
   }
 
   .fav-combo-actions {
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fav-combo-quantity-section {
+    width: fit-content;
   }
 }

@@ -7,6 +7,7 @@
 
 .carousel-viewport {
   overflow: hidden;
+  margin: 0 auto;
   width: calc((84px * 4) + (14px * 3));
 }
 
@@ -103,7 +104,7 @@
 }
 
 .dish-ingredient-item {
- width: 84px;
+  width: 84px;
   flex-shrink: 0;
   padding: 18px 10px 12px;
   background-color: var(--color-pale-yellow);
@@ -147,4 +148,15 @@
   gap: 14px;
   will-change: transform;
   touch-action: pan-y;
+}
+
+@media screen and (max-width: 578px) {
+  .ingredients-carousel {
+    justify-content: center;
+  }
+
+  .carousel-viewport {
+    overflow: hidden;
+    width: calc((84px * 3) + (14px * 2) + 4px);
+  }
 }

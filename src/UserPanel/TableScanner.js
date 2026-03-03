@@ -8,45 +8,59 @@ const TableScanner = () => {
     const [showSuccess, setShowSuccess] = useState(false);
 
     useEffect(() => {
-        const scanner = new Html5QrcodeScanner(
-            "qr-reader",
-            {
-                fps: 10,
-                qrbox: { width: 250, height: 250 }
-            },
-            false
-        );
+        let scanner;
 
-        scanner.render(
-            (decodedText) => {
-                /**
-                 * Accept formats:
-                 *  table=1
-                 *  TABLE:1
-                 *  1
-                 */
-                const match = decodedText.match(/\d+/);
-                if (!match) return;
+        const initScanner = async () => {
+            try {
+                scanner = new Html5QrcodeScanner(
+                    "qr-reader",
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        videoConstraints: {
+                            facingMode: "environment"   // ✅ NOT exact
+                        }
+                    },
+                    false
+                );
 
-                const tableNo = match[0];
+                scanner.render(onScanSuccess, () => { });
+            } catch (err) {
+                console.warn("Back camera failed, falling back...");
 
-                localStorage.setItem("tableNo", tableNo);
+                scanner = new Html5QrcodeScanner(
+                    "qr-reader",
+                    {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 }
+                    },
+                    false
+                );
 
-                setShowSuccess(true);
-
-                scanner.clear().catch(() => { });
-
-                setTimeout(() => {
-                    navigate("/categories");
-                }, 800);
-            },
-            (error) => {
-                // ignore scan errors
+                scanner.render(onScanSuccess, () => { });
             }
-        );
+        };
+
+        const onScanSuccess = (decodedText) => {
+            const match = decodedText.match(/\d+/);
+            if (!match) return;
+
+            const tableNo = match[0];
+
+            localStorage.setItem("tableNo", tableNo);
+            setShowSuccess(true);
+
+            scanner?.clear().catch(() => { });
+
+            setTimeout(() => {
+                navigate("/categories");
+            }, 800);
+        };
+
+        initScanner();
 
         return () => {
-            scanner.clear().catch(() => { });
+            scanner?.clear().catch(() => { });
         };
     }, [navigate]);
 

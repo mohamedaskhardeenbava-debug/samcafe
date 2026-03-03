@@ -121,6 +121,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
     // initialize ingredient quantities
     const initial = {};
+    const selected = [];
     // start with used-in-category ingredients (default 0)
     // 1️⃣ Ingredients explicitly used by the dish
     const dishIngredientNames = new Set(
@@ -128,9 +129,23 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     );
 
     // 2️⃣ Ingredients allowed by category
-    const categoryIngredients = safeIngredients.filter(ing =>
-      ing.usedInCategories?.includes(originalCategory?.id)
-    );
+    const categoryIngredients = safeIngredients.filter(ing => {
+      const usedInCategory =
+        ing.usedInCategories?.includes(originalCategory?.id);
+
+      if (!usedInCategory) return false;
+
+      const isGloballyDisabled = ing.isDisabledGlobally === true;
+
+      const isDisabledForDish =
+        Array.isArray(ing.disabledForDishes) &&
+        ing.disabledForDishes.includes(dish?.id);
+
+      if (isGloballyDisabled) return false;
+      if (isDisabledForDish) return false;
+
+      return true;
+    });
 
     // 3️⃣ Fallback: if dish has no ingredients, allow category ingredients
     const allowedIngredients =
@@ -144,11 +159,35 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     });
 
     // overlay dish or bag quantities
-    const source = isEditMode && bagItem ? bagItem.ingredients : effectiveDish.ingredients || [];
-    const selected = [];
+    const source = isEditMode && bagItem
+      ? bagItem.ingredients
+      : effectiveDish.ingredients || [];
+
     source.forEach((ing) => {
+      const master = safeIngredients.find(
+        (i) =>
+          i.id === ing.id ||
+          i.name === ing.name
+      );
+
+      if (!master) return;
+
+      const isGloballyDisabled =
+        master.isDisabledGlobally === true;
+
+      const isDisabledForDish =
+        Array.isArray(master.disabledForDishes) &&
+        master.disabledForDishes.includes(dish?.id);
+
+      if (isGloballyDisabled || isDisabledForDish) {
+        return; // 🚫 DO NOT initialize disabled ingredient
+      }
+
       initial[ing.name] = Number(ing.quantity) || 0;
-      if (Number(ing.quantity) > 0) selected.push(ing.name);
+
+      if (Number(ing.quantity) > 0) {
+        selected.push(ing.name);
+      }
     });
 
     // ensure selectedOrder preserves selected items (bag or dish order)
@@ -393,7 +432,23 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   };
 
   if (!category) return <p>Category not found</p>;
-  const categoryIngredients = safeIngredients.filter((ing) => ing.usedInCategories.includes(originalCategory?.id));
+  const categoryIngredients = safeIngredients.filter((ing) => {
+    const usedInCategory =
+      ing.usedInCategories?.includes(originalCategory?.id);
+
+    if (!usedInCategory) return false;
+
+    const isGloballyDisabled = ing.isDisabledGlobally === true;
+
+    const isDisabledForDish =
+      Array.isArray(ing.disabledForDishes) &&
+      ing.disabledForDishes.includes(dish?.id);
+
+    if (isGloballyDisabled) return false;
+    if (isDisabledForDish) return false;
+
+    return true;
+  });
 
   const orderedIngredients = (() => {
     const available = [];

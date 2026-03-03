@@ -35,6 +35,7 @@ function App() {
   const [bag, setBag] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [isRinging, setIsRinging] = useState(false);
+  const [isDineIn, setIsDineIn] = useState(false);
 
   const isExpandedPage = location.pathname.includes("/expanded");
   const bellAudioRef = useRef(new Audio(bellSound));
@@ -80,6 +81,11 @@ function App() {
     };
     initUser();
   }, []);
+
+  useEffect(() => {
+    const tableNo = localStorage.getItem("tableNo");
+    setIsDineIn(!!tableNo);
+  }, [location.pathname]);
 
   const normalizeBagItem = (rawItem, foodData) => {
     const category =
@@ -443,22 +449,24 @@ function App() {
           decreaseQty={decreaseQty}
         />
 
-        <div className="floating-bell-wrapper" onClick={handleRingBell}>
-          <button
-            className={`floating-bell ${isRinging ? "ringing" : ""}`}
-          >
-            <img
-              key={isRinging ? "animated" : "static"}
-              src={isRinging ? bellGif : bellStatic}
-              alt="Call Attender"
-              className="bell-image"
-            />
-          </button>
+        {isDineIn && (
+          <div className="floating-bell-wrapper" onClick={handleRingBell}>
+            <button
+              className={`floating-bell ${isRinging ? "ringing" : ""}`}
+            >
+              <img
+                key={isRinging ? "animated" : "static"}
+                src={isRinging ? bellGif : bellStatic}
+                alt="Call Attender"
+                className="bell-image"
+              />
+            </button>
 
-          <div className="bell-tooltip">
-            Click to call the attender
+            <div className="bell-tooltip">
+              Click to call the attender
+            </div>
           </div>
-        </div>
+        )}
 
         {isExpandedPage ? (
           <AnimatePresence mode="wait" initial={false}>
@@ -687,7 +695,7 @@ function App() {
           </AnimatePresence>
         )}
       </div>
-    </LayoutGroup>
+    </LayoutGroup >
   );
 }
 

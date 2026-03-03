@@ -536,15 +536,17 @@ const ComboPage = ({
       <div className="combo-left">
         {activeLeftView === "builder" && (
           <div className="combo-header">
-            <button className="back-button" onClick={handleBack} />
+            <div className="back-and-head">
+              <button className="back-button" onClick={handleBack} />
 
-            <div>
-              <h2>{isEditMode ? "Edit Combo" : "Create Your Combo"}</h2>
-              <p>Select one starter, one main & one drink</p>
+              <div>
+                <h2>{isEditMode ? "Edit Combo" : "Create Your Combo"}</h2>
+                <p>Select one starter, one main & one drink</p>
+              </div>
             </div>
 
             {currentUser && currentUser.id !== "guest" && (
-              <div style={{ marginLeft: "auto", display: "flex", gap: "10px" }}>
+              <div className="combo-header-btn-section">
                 <button
                   className="combo-add-fav-btn"
                   disabled={!isComboComplete}

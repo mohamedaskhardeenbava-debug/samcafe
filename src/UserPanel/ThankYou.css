@@ -87,6 +87,7 @@
   font-weight: 700;
   font-size: 18px;
   color: var(--color-green);
+  white-space: nowrap;
 }
 
 .time {
@@ -99,7 +100,7 @@
   padding: 14px 28px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 14px;
   margin-top: 36px;
   border: none;
   cursor: pointer;
@@ -118,7 +119,7 @@
   padding: 14px 28px;
   font-size: 15px;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: 14px;
   margin-top: 36px;
   border: none;
   cursor: pointer;
@@ -310,5 +311,15 @@
 @media screen and (max-width: 992px) {
   .order-table {
     width: 100%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .thankyou-card {
+    padding: var(--mobile-page-padding);
+  }
+
+  .order-again-btn,.done-btn {
+    margin-top: 18px;
   }
 }

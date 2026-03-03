@@ -124,8 +124,8 @@
   right: 10px;
   width: 4px;
   height: 10px;
-  border-right: 2px solid #fff;
-  border-bottom: 2px solid #fff;
+  border-right: 2px solid var(--bg-main);
+  border-bottom: 2px solid var(--bg-main);
   transform: rotate(45deg) scale(0);
   transform-origin: center;
   opacity: 0;
@@ -455,13 +455,11 @@
   position: absolute;
   inset: 0;
 
-  background: radial-gradient(
-    circle at center,
-    rgba(246, 72, 72, 0.25) 0%,
-    rgba(246, 72, 72, 0.18) 35%,
-    rgba(246, 72, 72, 0.08) 55%,
-    rgba(246, 72, 72, 0.0) 70%
-  );
+  background: radial-gradient(circle at center,
+      rgba(246, 72, 72, 0.25) 0%,
+      rgba(246, 72, 72, 0.18) 35%,
+      rgba(246, 72, 72, 0.08) 55%,
+      rgba(246, 72, 72, 0.0) 70%);
 
   transform: scale(0);
   opacity: 0;
@@ -578,9 +576,11 @@
     transform: scale(1);
     opacity: 0.5;
   }
+
   35% {
     transform: scale(1.06);
   }
+
   100% {
     transform: scale(1);
     opacity: 1;
@@ -591,8 +591,8 @@
   width: 80%;
   margin: 0 auto;
   margin-top: 20px;
-  padding: 14px;
-  border-radius: 10px;
+  padding: 16px 28px;
+  border-radius: 14px;
   color: var(--bg-main);
   background: var(--color-red);
   text-align: center;
@@ -704,7 +704,8 @@
   margin: 0 0 14px;
   font-size: 18px;
   font-weight: 600;
-  color: #1f2937; /* slate-800 */
+  color: #1f2937;
+  /* slate-800 */
   text-align: center;
 }
 
@@ -715,7 +716,8 @@
   padding: 12px 14px;
   margin-bottom: 12px;
   border-radius: 10px;
-  border: 1px solid #d1d5db; /* gray-300 */
+  border: 1px solid #d1d5db;
+  /* gray-300 */
   font-size: 14px;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -733,14 +735,16 @@
 /* Focus state */
 .fav-confirm-box input:focus,
 .fav-confirm-box textarea:focus {
-  border-color: #16a34a; /* green-600 */
+  border-color: #16a34a;
+  /* green-600 */
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
 
 /* Placeholder */
 .fav-confirm-box input::placeholder,
 .fav-confirm-box textarea::placeholder {
-  color: #9ca3af; /* gray-400 */
+  color: #9ca3af;
+  /* gray-400 */
 }
 
 /* ===== Action Buttons ===== */
@@ -755,7 +759,8 @@
 .fav-confirm-cancel {
   background: transparent;
   border: none;
-  color: #6b7280; /* gray-500 */
+  color: #6b7280;
+  /* gray-500 */
   font-size: 14px;
   font-weight: 500;
   padding: 8px 10px;
@@ -763,12 +768,14 @@
 }
 
 .fav-confirm-cancel:hover {
-  color: #374151; /* gray-700 */
+  color: #374151;
+  /* gray-700 */
 }
 
 /* Save button */
 .fav-confirm-yes {
-  background: #16a34a; /* green-600 */
+  background: #16a34a;
+  /* green-600 */
   color: #ffffff;
   border: none;
   border-radius: 10px;
@@ -780,7 +787,8 @@
 }
 
 .fav-confirm-yes:hover {
-  background: #15803d; /* green-700 */
+  background: #15803d;
+  /* green-700 */
 }
 
 .fav-confirm-yes:active {
@@ -793,6 +801,7 @@
     opacity: 0;
     transform: scale(0.92);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -825,6 +834,7 @@
     opacity: 0;
     transform: translateY(12px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -935,7 +945,8 @@
 }
 
 .notes-wrapper.open {
-  max-height: 200px; /* safe buffer */
+  max-height: 200px;
+  /* safe buffer */
   opacity: 1;
   transform: translateY(0) scale(1);
   filter: blur(0);
@@ -973,8 +984,10 @@
     padding: 0;
   }
 
-  .left-panel {
-    padding: 30px;
+  .left-panel,
+  .right-panel,
+  .bottom {
+    padding: var(--mobile-page-padding);
   }
 }
 
@@ -1006,17 +1019,51 @@
   }
 
   @media screen and (max-width: 576px) {
+    .food-item {
+      flex-direction: column;
+    }
+
     .left-panel {
       padding: 10px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .image-header {
+      flex-direction: column;
+    }
+
+    .image-header-right {
+      gap: 10px;
+    }
+
+    .ingredient-list {
+      padding: 0;
+      gap: 6px;
+      height: 360px;
+    }
+
+    .right-panel {
+      width: 100%;
     }
 
     .top {
       padding: 10px 10px 0 10px;
+      height: auto;
+    }
+
+    .ingredient-item-calculation {
+      padding: 6px;
     }
 
     .bottom {
       padding: 8px 12px;
       border-radius: 10px 10px 0 0;
+    }
+
+    .food-place-order-button {
+      margin: 10px auto;
+      width: fit-content;
     }
 
     .ingredient-modification {
@@ -1026,9 +1073,63 @@
 
     .ingredient-item {
       gap: 4px;
-
       padding: 8px;
     }
+  }
+}
+
+@media screen and (max-height: 500px) {
+
+  .left-panel,
+  .right-panel {
+    padding: var(--mobile-page-padding);
+  }
+
+  .food-item-image {
+    height: 110px;
+
+  }
+
+  .image-header-right {
+    gap: 0;
+  }
+
+  .ingredient-list {
+    max-height: calc(100vh - 290px);
+    gap: 2px;
+  }
+
+  .ingredient-item {
+    padding: 4px;
+  }
+
+  .ingredient-item-image {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ingredient-modification {
+    padding: 0;
+  }
+
+  .top {
+    padding: 0;
+  }
+
+  .ingredient-item-calculation {
+    padding: 4px;
+  }
+
+  .bottom {
+    padding: 10px;
+  }
+
+  .quantity-section {
+    margin: 0;
+  }
+
+  .food-place-order-button {
+    margin: 10px auto;
   }
 }
 

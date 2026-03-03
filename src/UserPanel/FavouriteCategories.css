@@ -23,3 +23,15 @@
 .fav-category-list .food-category-items.favourites .food-category-name::after {
   content: none;
 }
+
+@media screen and (max-width: 992px) {
+  .fav-category-list {
+    padding: var(--medium-page-padding);
+  }
+}
+
+@media screen and (max-width: 578px) {
+  .fav-category-list {
+    padding: var(--mobile-page-padding);
+  }
+}

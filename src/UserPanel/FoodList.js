@@ -310,33 +310,17 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
             );
           })}
         </div>
+      </div>
 
-        <div className="carousel-controls">
+      <div className="carousel-controls">
           <button
             className="image-nav-btn backward-btn"
             onClick={goPrev}
           />
 
-          <div className="carousel-dots">
-            {slides.map((_, i) => (
-              <span
-                key={i}
-                className={`dot ${i === logicalIndex ? "active" : ""}`}
-                onClick={() => {
-                  if (i > logicalIndex) {
-                    goNext();
-                  } else if (i < logicalIndex) {
-                    goPrev();
-                  }
-                }}
-              />
-            ))}
-          </div>
-
           <button className="image-nav-btn forward-btn" onClick={goNext}>
           </button>
         </div>
-      </div>
     </div >
   );
 };

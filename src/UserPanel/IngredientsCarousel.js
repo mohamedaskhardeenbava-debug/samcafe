@@ -39,12 +39,27 @@ export default function IngredientsCarousel({
   const autoTimer = useRef(null);
 
   const items = useMemo(() => {
-    if (safe.length === 0) return [];
-    return [...safe, ...safe, ...safe]; // 🔁 triple clone
-  }, [safe]);
+    if (!Array.isArray(safe) || safe.length === 0) return [];
+
+    const validItems = safe.filter((ing) => {
+      const full = fullList.find(item =>
+        item.id === ing.id ||
+        item.name === ing.name
+      );
+
+      if (!full) return false;
+
+      const isGloballyDisabled = full.isDisabledGlobally === true;
+      return !isGloballyDisabled;
+    });
+
+    if (validItems.length === 0) return [];
+
+    return [...validItems, ...validItems, ...validItems];
+  }, [safe, fullList]);
 
   const totalWidth =
-    safe.length * (ITEM_WIDTH + GAP);
+    (items.length / 3) * (ITEM_WIDTH + GAP);
 
   /* ---------------- AUTO SLIDE ---------------- */
 
@@ -91,18 +106,20 @@ export default function IngredientsCarousel({
   /* ---------------- EFFECTS ---------------- */
 
   useEffect(() => {
-    if (safe.length <= 5) return;
+    const originalLength = items.length / 3;
+
+    if (originalLength <= 5) return;
 
     // start from middle copy
     x.set(-totalWidth);
 
     startAutoSlide();
     return stopAutoSlide;
-  }, [safe.length]);
+  }, [items.length]);
 
   /* ---------------- RENDER ---------------- */
 
-  if (safe.length === 0) return null;
+  if (items.length === 0) return null;
 
   return (
     <div className="ingredients-carousel">
@@ -148,18 +165,17 @@ export default function IngredientsCarousel({
         >
           {items.map((ing, i) => {
             const full = fullList.find(
-              (item) => item.name === ing.name
+              (item) =>
+                item.id === ing.id ||
+                item.name === ing.name
             );
 
             return (
               <div
-                key={`${ing.name}-${i}`}
+                key={`${ing.id}-${i}`}
                 className="dish-ingredient-item"
                 onClick={() =>
-                  full &&
-                  navigate(`/ingredient/${full.id}`, {
-                    state: { ingredientId: full.id }
-                  })
+                  navigate(`/ingredient/${full.id}`)
                 }
               >
                 <div className="dish-ingredient-image">

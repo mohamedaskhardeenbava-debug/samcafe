@@ -9,32 +9,6 @@ import loginImg from "../assets/welcome-images/login-image.jpeg";
 import signupImg from "../assets/welcome-images/signup-image.jpeg";
 import guestImg from "../assets/welcome-images/guest-image.jpeg";
 
-const containerVariants = {
-  hidden: {},
-  visible: {}
-};
-
-const cardVariants = {
-  hidden: (index) => ({
-    opacity: 1,
-    x: 0,
-    position: "absolute",
-    left: 0,
-    zIndex: 10 - index
-  }),
-  visible: (index) => ({
-    x: index * 240,   // 320 = card width + gap
-    position: "absolute",
-    left: 0,
-    transition: {
-      delay: index * 0.4,
-      type: "spring",
-      stiffness: 120,
-      damping: 18
-    }
-  })
-};
-
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
   const mobileInputRef = useRef(null);
@@ -71,6 +45,43 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
     fetchUsers();
   }, []);
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 576);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 576);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const containerVariants = {
+    hidden: {},
+    visible: {}
+  };
+
+  const cardVariants = {
+    hidden: (index) => ({
+      opacity: 1,
+      x: 0,
+      position: isMobile ? "relative" : "absolute",
+      left: 0,
+      zIndex: 10 - index
+    }),
+    visible: (index) => ({
+      x: isMobile ? 0 : index * 240,
+      position: isMobile ? "relative" : "absolute",
+      left: 0,
+      transition: {
+        delay: isMobile ? 0 : index * 0.4,
+        type: "spring",
+        stiffness: 120,
+        damping: 18
+      }
+    })
+  };
 
   const goToCategories = () => {
     navigate("/categories", { state: { direction: "forward" } });
@@ -385,12 +396,14 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
             custom={2}
             onClick={handleGuest}
           >
-            <div className="card-image">
-              <img src={guestImg} alt="Guest" />
-            </div>
-            <div className="card-overlay">
-              <h4>Guest</h4>
-              <p>Continue without an account</p>
+            <div className="flip-front">
+              <div className="card-image">
+                <img src={guestImg} alt="Guest" />
+              </div>
+              <div className="card-overlay">
+                <h4>Guest</h4>
+                <p>Continue without an account</p>
+              </div>
             </div>
           </motion.div>
         </motion.div>

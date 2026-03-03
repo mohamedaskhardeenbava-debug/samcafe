@@ -1,23 +1,20 @@
-import React, {useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./FoodCategory.css";
+import listIcon from "../assets/icons/list.png";
+import gridIcon from "../assets/icons/grid.png";
 
 const FoodCategory = ({ foodData, currentUser }) => {
+  const [viewMode, setViewMode] = useState("grid"); // default grid
   const isAuthenticatedUser =
     currentUser && currentUser.id !== "guest";
 
-  const myFavourites = isAuthenticatedUser
-    ? currentUser.favourites || []
-    : [];
-
-  const othersFavourites = foodData.favourites || [];
-
   useEffect(() => {
-  categoriesToRender.forEach(cat => {
-    const img = new Image();
-    img.src = cat.image;
-  });
-}, []);
+    categoriesToRender.forEach(cat => {
+      const img = new Image();
+      img.src = cat.image;
+    });
+  }, []);
 
   const categoriesToRender = [];
 
@@ -69,16 +66,35 @@ const FoodCategory = ({ foodData, currentUser }) => {
 
   return (
     <div className="food-category">
-      <div className="food-category-container">
+
+      {/* VIEW TOGGLE */}
+      <div className="view-toggle">
+        <button
+          className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
+          onClick={() => setViewMode("grid")}
+        >
+          <img className="grid-icon" src={gridIcon} alt="" />
+        </button>
+
+        <button
+          className={`view-btn ${viewMode === "list" ? "active" : ""}`}
+          onClick={() => setViewMode("list")}
+        >
+          <img className="list-icon" src={listIcon} alt="" />
+        </button>
+      </div>
+
+      <div className={`food-category-container ${viewMode}`}>
         {categoriesToRender.map((category) => (
           <Link
             key={category.id}
             to={category.route}
             className={`food-category-items
-              ${category.id === "my" ? "my-favourites" : ""}
-              ${category.id === "others" ? "crowd-picks" : ""}
-              ${category.id === "combo" ? "combo-category" : ""}
-            `}
+            ${viewMode}
+            ${category.id === "my" ? "my-favourites" : ""}
+            ${category.id === "others" ? "crowd-picks" : ""}
+            ${category.id === "combo" ? "combo-category" : ""}
+          `}
           >
             <div className="food-category-image">
               <img

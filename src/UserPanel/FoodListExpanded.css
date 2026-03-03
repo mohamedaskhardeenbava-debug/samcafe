@@ -1,20 +1,17 @@
 .food-reel-expanded {
-  height: calc(100vh - 116px);
   display: flex;
   align-items: center;
-  contain: layout paint;
   font-family: "Geom", system-ui, sans-serif;
 }
 
 .food-images-expanded {
-    position: relative;
-    height: 70vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 70%;
-    z-index: 0;
-    isolation: isolate;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70%;
+  z-index: 0;
+  isolation: isolate;
 }
 
 .food-details-expanded {
@@ -28,10 +25,17 @@
   justify-content: space-between;
 }
 
-.food-details-expanded-header{
+.food-details-expanded-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.dish-nutrition {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .dish-nutrition-item {
@@ -39,7 +43,6 @@
   width: 70px;
   height: auto;
   padding: 12px 10px;
-  color: #444;
   background-color: var(--color-pale-green);
   display: flex;
   flex-direction: column;
@@ -60,10 +63,146 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: var(--nutrition-icon-filter)
 }
 
-.ingredient-head{
+.dish-nutrition-value {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dish-nutrition-name {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.ingredient-head {
   text-align: center;
   font-size: 18px;
   font-weight: 500;
+}
+
+.button-section {
+  gap: 10px;
+  margin-top: 10px;
+}
+
+@media screen and (max-width: 1200px) {
+  .food-reel-expanded {
+    flex-direction: column;
+  }
+
+  .food-images-expanded {
+    width: 100%;
+    height: 40vh;
+  }
+
+  .food-details-expanded {
+    width: 100%;
+  }
+
+  .dish-nutrition {
+    margin-top: 0;
+  }
+
+  .dish-nutrition-item {
+    width: 60px;
+    padding: 8px;
+  }
+
+  .dish-description {
+    margin: 0;
+  }
+
+  .ingredient-head {
+    font-size: 16px;
+  }
+
+  .button-section {
+    gap: 10px;
+    margin-top: 10px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+
+  .food-images-expanded {
+    height: 260px;
+  }
+
+  .dish-image.image-main {
+    max-width: 280px;
+    width: 80%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+
+  .food-reel-expanded {
+    flex-direction: column;
+  }
+
+  .food-images-expanded {
+    width: 100%;
+    height: 220px;
+  }
+
+  .food-details-expanded {
+    width: 100%;
+    height: 100%;
+  }
+
+  .button-section {
+    gap: 12px;
+  }
+
+}
+
+/* ======================================
+   LANDSCAPE MOBILE FIX (HEIGHT BASED)
+====================================== */
+
+@media screen and (max-height: 500px) {
+
+  .food-reel-expanded {
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .food-images-expanded {
+    width: 50%;
+    height: auto;
+  }
+
+  .food-details-expanded {
+    width: 50%;
+    height: auto;
+    padding: 8px;
+    justify-content: center;
+  }
+
+  .dish-name {
+    font-size: 20px;
+  }
+
+  .dish-price {
+    font-size: 18px;
+  }
+
+  .dish-nutrition {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .dish-nutrition-item {
+    width: 55px;
+    padding: 6px;
+  }
+
+  .button-section {
+    flex-direction: row;
+  }
+
 }

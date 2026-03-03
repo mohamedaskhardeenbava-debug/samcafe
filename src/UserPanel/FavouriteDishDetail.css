@@ -1,27 +1,32 @@
 .fav-detail-container {
   display: flex;
-  gap: 24px;
-  height: calc(100vh - 122px);
-}
-
-.fav-left {
-  width: 50%;
+  gap: 32px;
+  align-items: stretch;
+  min-height: calc(100dvh - 122px);
 }
 
 .fav-right {
   display: flex;
   flex-direction: column;
-  width: 50%;
 }
 
 .fav-right {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  height: stretch;
+}
+
+.fav-left,
+.fav-right {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .fav-image-container {
-  width: 50%;
+  width: 70%;
+  max-width: 400px;
   aspect-ratio: 1 / 1;
   margin: 0 auto;
   display: flex;
@@ -44,6 +49,7 @@
 .fav-title {
   margin: 0;
   color: var(--text-primary);
+  font-size: 20px;
 }
 
 .fav-customer-name {
@@ -186,14 +192,14 @@
 .fav-actions {
   display: flex;
   gap: 12px;
-  margin-top: auto !important;
+  margin-top: auto;   /* push to bottom */
 }
 
 .fav-add-btn {
   text-align: center;
   padding: 12px;
   background-color: var(--color-red);
-  color: #fff;
+  color: var(--bg-main);
   border-radius: 10px;
   text-decoration: none;
   font-weight: 600;
@@ -215,15 +221,75 @@
   cursor: pointer;
 }
 
-@media screen and (max-width: 1200px) {
+/* =====================================
+   MOBILE RESPONSIVE
+===================================== */
+
+@media screen and (max-width: 992px) {
+
+  .fav-detail-container {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .fav-left,
+  .fav-right {
+    width: 100%;
+    padding: var(--medium-page-padding);
+  }
+
   .fav-image-container {
     width: 80%;
   }
-}
 
-@media screen and (max-width: 992px) {
-  .fav-image-container {
-    width: 100%;
+  .fav-name-header {
+    align-items: flex-start;
+    height: auto;
+    gap: 6px;
+  }
+
+  .fav-price {
+    font-size: 26px;
   }
 }
 
+
+/* =====================================
+   SMALL MOBILE (<576px)
+===================================== */
+
+@media screen and (max-width: 576px) {
+
+  .food-list {
+    padding: var(--mobile-page-padding);
+  }
+
+  .fav-image-container {
+    width: 90%;
+  }
+
+  .fav-title {
+    font-size: 18px;
+  }
+
+  .fav-description {
+    font-size: 13px;
+  }
+
+  .fav-ingredients-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .fav-nutrition {
+    gap: 6px;
+  }
+
+  .fav-nutrition-item {
+    width: 60px;
+  }
+
+  .fav-actions {
+    flex-direction: row;
+  }
+}

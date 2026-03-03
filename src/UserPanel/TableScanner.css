@@ -43,6 +43,9 @@
 #qr-reader video {
   border-radius: 12px;
   overflow: hidden;
+  width: 100% !important;
+  height: auto !important;
+  object-fit: cover;
 }
 
 .html5-qrcode-element {

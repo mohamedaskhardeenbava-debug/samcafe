@@ -8,7 +8,7 @@
 
 .left {
   width: 50%;
-  padding: 40px;
+  padding: 36px;
   position: relative;
   display: flex;
   align-items: center;
@@ -32,8 +32,8 @@
 .ingredient-back-button::after {
   content: "";
   position: absolute;
-  top: 50% ;
-  left: 50% ;
+  top: 50%;
+  left: 50%;
   width: 12px;
   height: 12px;
   border-left: 3px solid var(--text-primary);
@@ -58,7 +58,7 @@
 
 .right {
   width: 50%;
-  padding: 32px;
+  padding: 36px;
   background: var(--bg-primary);
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.08);
   overflow-y: auto;
@@ -159,19 +159,31 @@
 
 @media (max-width: 1200px) {
   .ingredient-back-button {
-  top: 42px;
-  left: 42px;
+    top: 42px;
+    left: 42px;
+  }
 }
-}
+
 @media (max-width: 992px) {
-  .left, .right {
+
+  .left,
+  .right {
     width: 100%;
+    padding: var(--medium-page-padding);
+  }
+
+  .ingredient-nutrition {
+    gap: 8px;
+  }
+
+  .ingredient-nutrition-item {
+    width: 50px;
   }
 
   .ingredient-back-button {
-  top: 36px;
-  left: 36px;
-}
+    top: 36px;
+    left: 36px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -184,10 +196,10 @@
   }
 
   .ingredient-back-button {
-  top: 24px;
-  left: 24px;
-  position: absolute;
-}
+    top: 24px;
+    left: 24px;
+    position: absolute;
+  }
 
 
   .right {
@@ -206,5 +218,21 @@
 
   .health-benefits-list li {
     margin-bottom: 8px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+
+  .left,
+  .right {
+    padding: var(--mobile-page-padding);
+  }
+
+  .ingredient-nutrition {
+    gap: 20px;
+  }
+
+  .ingredient-nutrition-item {
+    width: 70px;
   }
 }

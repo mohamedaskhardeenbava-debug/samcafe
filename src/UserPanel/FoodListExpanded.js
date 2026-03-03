@@ -72,6 +72,30 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
     return null;
   }
 
+  const filteredIngredients = (dish.ingredients || []).filter((ing) => {
+    const full = foodData.ingredients.find(i =>
+      i.id === ing.id ||
+      i.name === ing.name
+    );
+
+    // If ingredient not found in master list → allow it
+    if (!full) return true;
+
+    // Treat undefined as false
+    const isGloballyDisabled = full.isDisabledGlobally === true;
+    const isDisabledForDish =
+      Array.isArray(full.disabledForDishes) &&
+      full.disabledForDishes.includes(dish.id);
+
+    if (isGloballyDisabled) return false;
+    if (isDisabledForDish) return false;
+
+    return true;
+  });
+
+  console.log("Dish Ingredients:", dish.ingredients);
+  console.log("Master Ingredients:", foodData.ingredients);
+
   return (
     <div className="food-list">
       {/* HEADER */}
@@ -131,8 +155,8 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
                 <div className="dish-nutrition-image">
                   <img src={icon} alt="" />
                 </div>
-                <div>{label}</div>
-                <div>{value}{unit}</div>
+                <div className="dish-nutrition-name">{label}</div>
+                <div className="dish-nutrition-value">{value}{unit}</div>
               </div>
             ))}
           </motion.div>
@@ -157,7 +181,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
               <div className="ingredient-head">Add-ons</div>
               {Array.isArray(dish.ingredients) && dish.ingredients.length > 0 && (
                 <IngredientsCarousel
-                  ingredients={dish.ingredients}
+                  ingredients={filteredIngredients}
                   allIngredients={foodData.ingredients || []}
                 />
               )}

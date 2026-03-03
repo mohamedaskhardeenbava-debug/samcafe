@@ -12,7 +12,8 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
   const { dishId, source } = useParams();
   const navigate = useNavigate();
 
-  if (!currentUser) {
+  // 🔒 Only block "my" favourites for guests
+  if (source === "my" && !currentUser) {
     return null;
   }
 
@@ -92,17 +93,33 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           <div className="fav-ingredient-container">
             <h4>Add-ons</h4>
             <ul className="fav-ingredients-grid">
-              {(dish.ingredients || []).map((ing) => (
-                <li key={ing.name} className="fav-ingredient-item" onClick={() => {
-                  navigate(`/ingredient/${ing.id}`);
-                }}>
-                  <div className="fav-ingredient-img" />
-                  <div className="fav-ingredient-info">
-                    <div className="fav-ingredient-name">{ing.name}</div>
-                    <div className="fav-ingredient-qty">{ing.quantity} g</div>
-                  </div>
-                </li>
-              ))}
+              {(dish.ingredients || [])
+                .filter((ing) => {
+                  const full = foodData.ingredients.find(i => i.id === ing.id);
+
+                  if (!full) return true;
+
+                  const isGloballyDisabled = full.isDisabledGlobally === true;
+                  const isDisabledForDish =
+                    Array.isArray(full.disabledForDishes) &&
+                    full.disabledForDishes.includes(dish.id);
+
+                  if (isGloballyDisabled) return false;
+                  if (isDisabledForDish) return false;
+
+                  return true;
+                })
+                .map((ing) => (
+                  <li key={ing.name} className="fav-ingredient-item" onClick={() => {
+                    navigate(`/ingredient/${ing.id}`);
+                  }}>
+                    <div className="fav-ingredient-img" />
+                    <div className="fav-ingredient-info">
+                      <div className="fav-ingredient-name">{ing.name}</div>
+                      <div className="fav-ingredient-qty">{ing.quantity} g</div>
+                    </div>
+                  </li>
+                ))}
             </ul>
           </div>
 

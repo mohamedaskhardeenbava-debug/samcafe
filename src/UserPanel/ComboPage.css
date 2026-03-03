@@ -21,6 +21,7 @@
   width: 80%;
   padding: 32px 36px;
   overflow-y: auto;
+  box-sizing: border-box;
 }
 
 .combo-right {
@@ -30,6 +31,7 @@
   padding: 24px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 /* HEADER */
@@ -92,6 +94,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  color: var(--text-primary);
 }
 
 .combo-subcategory-btn.active {
@@ -110,6 +113,7 @@
   background: var(--bg-main);
   border: 1px solid var(--text-tertiary);
   transition: all 0.25s ease;
+  color: var(--text-primary);
 }
 
 .combo-category-card.active {
@@ -207,7 +211,7 @@
 .combo-item-card button {
   width: 100%;
   padding: 10px 0;
-  border-radius: 10px;
+  border-radius: 14px;
   border: none;
   background: var(--color-green);
   color: var(--bg-main);
@@ -302,7 +306,7 @@
   color: var(--color-red) !important;
 }
 
-.combo-discounted-price div:last-child{
+.combo-discounted-price div:last-child {
   color: var(--color-green) !important;
   font-size: 20px;
   font-weight: 600;
@@ -349,13 +353,15 @@
 
 .combo-add-btn {
   width: 100%;
+  max-width: 300px;
   padding: 14px 0;
   border-radius: 12px;
   border: none;
   background: var(--color-red);
-  color: white;
+  color:var(--bg-main);
   font-weight: 700;
   cursor: pointer;
+  margin: 0 auto;
 }
 
 .combo-add-btn:disabled {
@@ -429,7 +435,7 @@
 .combo-add-fav-btn,
 .combo-my-fav-btn {
   padding: 10px 14px;
-  border-radius: 10px;
+  border-radius: 14px;
   font-weight: 700;
   border: none;
   cursor: pointer;
@@ -633,36 +639,184 @@
   border-radius: 10px;
 }
 
-
 /* =====================================================
-   RESPONSIVE
+   RESPONSIVE – TABLET
 ===================================================== */
 @media (max-width: 1024px) {
+
   .combo-page {
     flex-direction: column;
+    height: auto;
   }
 
   .combo-left,
   .combo-right {
     width: 100%;
+    padding: 0;
   }
 
   .combo-right {
     border-left: none;
     border-top: 1px solid var(--text-tertiary);
+    padding: 20px;
   }
 
   .combo-add-btn {
-    width: 200px;
+    width: 100%;
   }
 }
 
-@media (max-width: 640px) {
-  .combo-category-row {
+@media (max-width: 992px) {
+  .combo-page {
+    padding: var(--medium-page-padding);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE – MOBILE
+===================================================== */
+@media (max-width: 768px) {
+  .combo-header {
     flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .combo-category-row {
+    gap: 12px;
+  }
+
+  .combo-category-card {
+    width: 100%;
   }
 
   .combo-items-grid {
     grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
   }
+
+  .combo-item-card {
+    padding: 14px;
+  }
+
+  .combo-item-image {
+    width: 70%;
+  }
+
+  .combo-right {
+    padding: 18px;
+  }
+
+  .combo-selected-item {
+    padding: 10px;
+  }
+
+  .combo-summary {
+    gap: 8px;
+  }
+
+  .combo-final-price div:last-child {
+    font-size: 22px;
+  }
+
+  .combo-add-btn {
+    padding: 12px 0;
+  }
+
+  /* FAV MODAL FIX */
+  .combo-my-fav-modal {
+    width: 100%;
+    max-width: 100%;
+    border-radius: 14px;
+  }
+
+  .combo-add-fav-modal {
+    width: 95%;
+  }
+}
+
+/* =====================================================
+   RESPONSIVE – SMALL MOBILE
+===================================================== */
+@media (max-width: 578px) {
+  .combo-page {
+    padding: var(--mobile-page-padding);
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+  }
+
+  .offer-hint-modal {
+    padding: 20px 16px;
+  }
+
+  .combo-header {
+    flex-direction: column;
+  }
+
+  .back-and-head {
+    gap: 0 !important;
+  }
+
+  .back-and-head div {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    gap: 2px;
+  }
+
+  .combo-header-btn-section {
+    width: 100%;
+  }
+
+  .combo-add-fav-btn,
+  .combo-my-fav-btn {
+    width: 100%;
+  }
+
+  .combo-left,
+  .combo-right {
+    padding: 0;
+  }
+
+  .combo-category-row {
+    gap: 6px;
+  }
+
+  .combo-items-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .combo-item-card {
+    padding: 16px;
+  }
+
+  .combo-item-image {
+    width: 60%;
+  }
+
+  .combo-header h2 {
+    font-size: 18px;
+  }
+
+  .combo-header p {
+    font-size: 13px;
+  }
+
+  .combo-summary {
+    font-size: 14px;
+  }
+
+  .combo-final-price div:last-child {
+    font-size: 20px;
+  }
+
+  .combo-add-btn {
+    font-size: 14px;
+    width: fit-content;
+    padding: 14px 24px;
+    margin: 0 auto;
+  }
+
 }
