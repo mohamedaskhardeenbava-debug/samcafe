@@ -9,14 +9,13 @@ const FoodCategory = ({ foodData, currentUser }) => {
   const isAuthenticatedUser =
     currentUser && currentUser.id !== "guest";
 
+  const categoriesToRender = [];
   useEffect(() => {
     categoriesToRender.forEach(cat => {
       const img = new Image();
       img.src = cat.image;
     });
   }, []);
-
-  const categoriesToRender = [];
 
   /* ONLY LOGGED-IN USERS */
   if (isAuthenticatedUser) {
