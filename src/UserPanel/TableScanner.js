@@ -1,92 +1,91 @@
 import { useNavigate } from "react-router-dom";
-import { Html5QrcodeScanner } from "html5-qrcode";
-import { useEffect, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
+import { useEffect, useRef, useState } from "react";
 import "./TableScanner.css";
 
 const TableScanner = () => {
-    const navigate = useNavigate();
-    const [showSuccess, setShowSuccess] = useState(false);
+  const navigate = useNavigate();
+  const qrRef = useRef(null);
+  const scannerRef = useRef(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [cameraStarted, setCameraStarted] = useState(false);
 
-    useEffect(() => {
-        let scanner;
+  const startScanner = async () => {
+    if (!qrRef.current) return;
 
-        const initScanner = async () => {
-            try {
-                scanner = new Html5QrcodeScanner(
-                    "qr-reader",
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 },
-                        videoConstraints: {
-                            facingMode: "environment"   // ✅ NOT exact
-                        }
-                    },
-                    false
-                );
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    scannerRef.current = html5QrCode;
 
-                scanner.render(onScanSuccess, () => { });
-            } catch (err) {
-                console.warn("Back camera failed, falling back...");
-
-                scanner = new Html5QrcodeScanner(
-                    "qr-reader",
-                    {
-                        fps: 10,
-                        qrbox: { width: 250, height: 250 }
-                    },
-                    false
-                );
-
-                scanner.render(onScanSuccess, () => { });
-            }
-        };
-
-        const onScanSuccess = (decodedText) => {
+    try {
+      const cameras = await Html5Qrcode.getCameras();
+      if (cameras && cameras.length) {
+        await html5QrCode.start(
+          cameras[cameras.length - 1].id, // last camera = usually back
+          {
+            fps: 10,
+            qrbox: 250,
+          },
+          (decodedText) => {
             const match = decodedText.match(/\d+/);
             if (!match) return;
 
             const tableNo = match[0];
-
             localStorage.setItem("tableNo", tableNo);
+
             setShowSuccess(true);
 
-            scanner?.clear().catch(() => { });
-
-            setTimeout(() => {
+            html5QrCode.stop().then(() => {
+              setTimeout(() => {
                 navigate("/categories");
-            }, 800);
-        };
+              }, 800);
+            });
+          }
+        );
 
-        initScanner();
+        setCameraStarted(true);
+      }
+    } catch (err) {
+      console.error("Camera start failed:", err);
+    }
+  };
 
-        return () => {
-            scanner?.clear().catch(() => { });
-        };
-    }, [navigate]);
+  useEffect(() => {
+    return () => {
+      if (scannerRef.current) {
+        scannerRef.current.stop().catch(() => {});
+      }
+    };
+  }, []);
 
-    return (
-        <div className="table-scanner-page">
-            <div className="table-scanner-card">
-                <div className="table-scanner-title">
-                    Scan Your Table QR
-                </div>
-
-                <div className="table-scanner-subtitle">
-                    Point your camera at the QR code on your table
-                </div>
-
-                <div id="qr-reader" />
-            </div>
-
-            {showSuccess && (
-                <div className="success-overlay">
-                    <div className="success-circle">
-                        <div className="success-check" />
-                    </div>
-                </div>
-            )}
+  return (
+    <div className="table-scanner-page">
+      <div className="table-scanner-card">
+        <div className="table-scanner-title">
+          Scan Your Table QR
         </div>
-    );
+
+        <div className="table-scanner-subtitle">
+          Tap below to start camera
+        </div>
+
+        {!cameraStarted && (
+          <button className="start-camera-btn" onClick={startScanner}>
+            Start Camera
+          </button>
+        )}
+
+        <div id="qr-reader" ref={qrRef} />
+      </div>
+
+      {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-circle">
+            <div className="success-check" />
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default TableScanner;
