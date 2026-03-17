@@ -137,8 +137,8 @@
 /* ITEMS GRID */
 .combo-items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
 }
 
 /* =====================================================
@@ -166,7 +166,7 @@
 .combo-item-card {
   background: var(--bg-main);
   border-radius: 16px;
-  padding: 16px;
+  padding: 10px;
   border: 1px solid var(--text-tertiary);
   display: flex;
   flex-direction: column;
@@ -178,13 +178,12 @@
 .combo-item-card:hover {
   transform: translateY(-6px);
   box-shadow: var(--thankyou-shadow);
+  cursor: pointer;
 }
 
 .combo-item-image {
-  width: 50%;
+  width: 60%;
   aspect-ratio: 1 / 1;
-  background-color: var(--text-tertiary);
-  border-radius: 50%;
   overflow: hidden;
 }
 
@@ -199,13 +198,13 @@
   font-weight: 600;
   margin-bottom: 6px;
   text-align: center;
+  height: 37px;
 }
 
 .combo-item-price {
   font-size: 14px;
   font-weight: 600;
   color: var(--color-green);
-  margin-bottom: 10px;
 }
 
 .combo-item-card button {
@@ -218,6 +217,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: transform 0.2s ease;
+  margin-top: auto;
 }
 
 .combo-item-card button:hover {
@@ -691,7 +691,7 @@
   }
 
   .combo-items-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
   }
 

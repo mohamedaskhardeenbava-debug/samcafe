@@ -1,5 +1,4 @@
 import "./Welcome.css";
-import logo from "../assets/logo.png";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "./ThemeToggle";
@@ -9,6 +8,11 @@ import loginImg from "../assets/welcome-images/login-image.jpeg";
 import signupImg from "../assets/welcome-images/signup-image.jpeg";
 import guestImg from "../assets/welcome-images/guest-image.jpeg";
 
+import logoLight from "../assets/logo-light.png";
+import logoDark from "../assets/logo-dark.png";
+
+import { useTheme } from "./ThemeContext";
+
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
   const mobileInputRef = useRef(null);
@@ -16,6 +20,8 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const [enableAutocomplete, setEnableAutocomplete] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [activeCard, setActiveCard] = useState(null);
+  
+const { theme } = useTheme();
 
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -96,11 +102,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       role: "guest"
     });
 
-    if (window.innerWidth <= 768) {
-      navigate("/scan-table");
-    } else {
-      navigate("/categories");
-    }
+    navigate("/categories");
   };
 
   const handleLogin = async () => {
@@ -132,11 +134,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     fetchMenu();
     setActiveCard(null);
     setMobile("");
-    if (window.innerWidth <= 768) {
-      navigate("/scan-table");
-    } else {
-      navigate("/categories");
-    }
+    navigate("/categories");
   };
 
   const handleSignup = async () => {
@@ -179,11 +177,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       setCurrentUser(newUser);
       // 🔁 REFRESH MENU
       fetchMenu();
-      if (window.innerWidth <= 768) {
-        navigate("/scan-table");
-      } else {
-        navigate("/categories");
-      }
+      navigate("/categories");
 
     } finally {
       setLoading(false);
@@ -203,7 +197,10 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
         <div className="welcome-text">Welcome to</div>
 
         <div className="welcome-title">
-          <img src={logo} alt="Cafe" />
+          <img
+            src={theme === "light" ? logoLight : logoDark }
+            alt="Cafe"
+          />
         </div>
 
         <div className="welcome-slogan">

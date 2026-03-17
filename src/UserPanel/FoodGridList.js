@@ -7,8 +7,19 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
     const { categoryId } = useParams();
     const navigate = useNavigate();
 
-    const category = foodData.categories.find(c => c.id === categoryId);
-    if (!category) return null;
+let category = foodData.categories.find(c => c.id === categoryId);
+
+if (!category) {
+  for (const cat of foodData.categories) {
+    const sub = cat.subCategories?.find(s => s.id === categoryId);
+    if (sub) {
+      category = sub;
+      break;
+    }
+  }
+}
+
+if (!category) return null;
 
     return (
         <div className="food-grid-page">
@@ -21,8 +32,16 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                 </div>
             </div>
             <div className="food-grid">
-                {category.dishes.map(dish => (
-                    <div key={dish.id} className="food-grid-card">
+                {(category.dishes || []).map(dish => (
+                    <div
+                        key={dish.id}
+                        className="food-grid-card"
+                        onClick={() =>
+                            navigate(`/foods/${categoryId}`, {
+                                state: { dishId: dish.id }
+                            })
+                        }
+                    >
                         <div className="food-grid-card-image">
                             <img src={dish.image} alt={dish.name} />
                         </div>
@@ -34,11 +53,6 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
 
                         <div
                             className="grid-link"
-                            onClick={() =>
-                                navigate(`/foods/${categoryId}`, {
-                                    state: { dishId: dish.id }
-                                })
-                            }
                         >
                             View dishes →
                         </div>
@@ -46,6 +60,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                         <button
                             className="grid-add-btn"
                             onClick={(e) => {
+                                e.stopPropagation()
                                 const img = e.currentTarget
                                     .closest(".food-grid-card")
                                     .querySelector("img");

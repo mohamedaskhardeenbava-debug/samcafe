@@ -47,9 +47,17 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   const location = useLocation();
   const initialDishId = location.state?.dishId;
   const navigate = useNavigate();
-  const category = foodData.categories.find(
-    (cat) => cat.id === categoryId
-  );
+  let category = foodData.categories.find(c => c.id === categoryId);
+
+if (!category) {
+  for (const cat of foodData.categories) {
+    const sub = cat.subCategories?.find(s => s.id === categoryId);
+    if (sub) {
+      category = sub;
+      break;
+    }
+  }
+}
 
   const [detailKey, setDetailKey] = useState(0);
   const [isGlidingOut, setIsGlidingOut] = useState(false);

@@ -32,17 +32,6 @@ const NUTRITION_CONFIG = [
   }
 ];
 
-const getIngredientImage = (name) => {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const imageNumber = (Math.abs(hash) % 29) + 1;
-
-  return `/assets/ingredient-assets/image${imageNumber}.png`;
-};
-
 const IngredientDetail = ({ handleBack, foodData }) => {
   const { id } = useParams()
 
@@ -71,7 +60,7 @@ const IngredientDetail = ({ handleBack, foodData }) => {
         ></button>
         <div className="ingredient-detail-image">
           <img
-            src={getIngredientImage(ingredient.name)}
+            src={ingredient.image}
             alt={ingredient.name}
             loading="lazy"
             decoding="async" />

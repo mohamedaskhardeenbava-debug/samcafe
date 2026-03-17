@@ -285,6 +285,8 @@
 .dish-image {
   position: absolute;
   width: 70%;
+  aspect-ratio: 1/1;
+  object-fit: contain;
   max-width: 500px;
   will-change: transform, filter;
   pointer-events: none;

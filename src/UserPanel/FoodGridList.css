@@ -35,17 +35,18 @@
 .food-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 16px;
+  gap: 10px;
 }
 
 /* ===== CARD ===== */
 .food-grid-card {
   background: var(--bg-main);
   border-radius: 18px;
-  padding: 20px;
+  padding: 12px;
   position: relative;
   box-shadow: var(--shadow-primary);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
 }
 
 .food-grid-card-image {
@@ -80,7 +81,7 @@
   font-size: 15px;
   font-weight: 600;
   line-height: 1.2;
-  height: 36px;
+  height: 54px;
 }
 
 .grid-price {

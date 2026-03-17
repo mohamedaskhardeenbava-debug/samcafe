@@ -76,6 +76,7 @@ const ComboPage = ({
   const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
   const [isSavingFav, setIsSavingFav] = useState(false);
   const [activeLeftView, setActiveLeftView] = useState("builder");
+
   /*DATA*/
   const combo = useMemo(
     () => (Array.isArray(foodData?.combo) ? foodData.combo : []),
@@ -83,20 +84,21 @@ const ComboPage = ({
   );
 
   const startersSection =
-    combo.find(c => c.type === "starters") || { items: [] };
+    combo.find(c => c.type === "starters") || { groups: [] };
 
   const mainSection = useMemo(
     () => combo.find(c => c.type === "mainCourse") || { groups: [] },
     [combo]
   );
 
-  const drinksSection = useMemo(
-    () => combo.find(c => c.type === "drinks") || { groups: [] },
+  const beveragesSection = useMemo(
+    () => combo.find(c => c.type === "beverages") || { groups: [] },
     [combo]
   );
 
   /*STATE*/
   const [activeSection, setActiveSection] = useState("starters");
+  const [activeStarterGroup, setActiveStarterGroup] = useState(null);
   const [activeMainGroup, setActiveMainGroup] = useState(null);
   const [activeDrinkGroup, setActiveDrinkGroup] = useState(null);
   const [offerHint, setOfferHint] = useState(null);
@@ -105,6 +107,13 @@ const ComboPage = ({
     isEditMode && editQuantity ? editQuantity : 1
   );
 
+
+  useEffect(() => {
+    if (activeSection === "starters" && !activeStarterGroup) {
+      setActiveStarterGroup(startersSection.groups?.[0]?.id || null);
+    }
+  }, [activeSection, startersSection, activeStarterGroup]);
+
   useEffect(() => {
     if (activeSection === "mainCourse" && !activeMainGroup) {
       setActiveMainGroup(mainSection.groups?.[0]?.id || null);
@@ -112,10 +121,10 @@ const ComboPage = ({
   }, [activeSection, mainSection, activeMainGroup]);
 
   useEffect(() => {
-    if (activeSection === "drinks" && !activeDrinkGroup) {
-      setActiveDrinkGroup(drinksSection.groups?.[0]?.id || null);
+    if (activeSection === "beverages" && !activeDrinkGroup) {
+      setActiveDrinkGroup(beveragesSection.groups?.[0]?.id || null);
     }
-  }, [activeSection, drinksSection, activeDrinkGroup]);
+  }, [activeSection, beveragesSection, activeDrinkGroup]);
 
   const [selectedItems, setSelectedItems] = useState(() => {
     if (isEditMode && location.state?.comboItems) {
@@ -184,7 +193,7 @@ const ComboPage = ({
     }
 
     if (type === "drink") {
-      for (const group of drinksSection.groups) {
+      for (const group of beveragesSection.groups) {
         const found = group.items.find(i => i.name === name);
         if (found) return found;
       }
@@ -200,7 +209,7 @@ const ComboPage = ({
     if (starter && !main) {
       setActiveSection("mainCourse");
     } else if (starter && main && !drink) {
-      setActiveSection("drinks");
+      setActiveSection("beverages");
     } else if (starter && main && drink) {
       setActiveSection(null);
     }
@@ -261,7 +270,7 @@ const ComboPage = ({
       if (type === "starter") {
         setActiveSection("mainCourse");
       } else if (type === "main") {
-        setActiveSection("drinks");
+        setActiveSection("beverages");
       } else {
         setActiveSection(null);
       }
@@ -287,7 +296,7 @@ const ComboPage = ({
         setActiveSection("mainCourse");
         setActiveMainGroup(null);
       } else if (type === "drink") {
-        setActiveSection("drinks");
+        setActiveSection("beverages");
         setActiveDrinkGroup(null);
       }
       return updated;
@@ -331,14 +340,23 @@ const ComboPage = ({
   const decreaseQty = () => setQuantity(q => (q > 1 ? q - 1 : 1));
 
   /*RENDER HELPERS*/
-  const renderStarters = () =>
-    (startersSection?.items || []).map(item => (
+  const renderStarters = () => {
+    if (!Array.isArray(startersSection.groups)) return null;
+
+    const group = startersSection.groups.find(
+      g => g.id === activeStarterGroup
+    );
+
+    if (!group || !Array.isArray(group.items)) return null;
+
+    return group.items.map(item => (
       <ComboItemCard
         key={item.id}
         item={item}
         onAdd={() => handleAddItem("starter", item)}
       />
     ));
+  };
 
   const renderMain = () => {
     if (!Array.isArray(mainSection.groups)) return null;
@@ -355,11 +373,11 @@ const ComboPage = ({
     ));
   };
 
-  const renderDrinks = () => {
-    if (!Array.isArray(drinksSection.groups)) return null;
+  const renderBeverages = () => {
+    if (!Array.isArray(beveragesSection.groups)) return null;
 
     if (!activeDrinkGroup) {
-      return drinksSection.groups.map(group => (
+      return beveragesSection.groups.map(group => (
         <GroupCard
           key={group.id}
           title={group.title}
@@ -368,7 +386,7 @@ const ComboPage = ({
       ));
     }
 
-    const group = drinksSection.groups.find(g => g.id === activeDrinkGroup);
+    const group = beveragesSection.groups.find(g => g.id === activeDrinkGroup);
     if (!group || !Array.isArray(group.items)) return null;
 
     return group.items.map(item => (
@@ -379,6 +397,21 @@ const ComboPage = ({
       />
     ));
   };
+
+  const renderStarterSubCategories = () => (
+    <div className="combo-subcategory-row">
+      {startersSection.groups.map(group => (
+        <button
+          key={group.id}
+          className={`combo-subcategory-btn ${activeStarterGroup === group.id ? "active" : ""
+            }`}
+          onClick={() => setActiveStarterGroup(group.id)}
+        >
+          {group.title}
+        </button>
+      ))}
+    </div>
+  );
 
   const renderMainSubCategories = () => (
     <div className="combo-subcategory-row">
@@ -397,7 +430,7 @@ const ComboPage = ({
 
   const renderDrinkSubCategories = () => (
     <div className="combo-subcategory-row">
-      {drinksSection.groups.map(group => (
+      {beveragesSection.groups.map(group => (
         <button
           key={group.id}
           className={`combo-subcategory-btn ${activeDrinkGroup === group.id ? "active" : ""
@@ -419,14 +452,14 @@ const ComboPage = ({
       return renderMain();
     }
 
-    if (activeSection === "drinks") {
-      return renderDrinks();
+    if (activeSection === "beverages") {
+      return renderBeverages();
     }
 
     return null;
   };
 
-  if (!startersSection || !mainSection || !drinksSection) {
+  if (!startersSection || !mainSection || !beveragesSection) {
     return <div className="combo-page combo-loading">Loading combos...</div>;
   }
 
@@ -670,15 +703,16 @@ const ComboPage = ({
               />
 
               <CategoryCard
-                title="Drinks"
-                active={activeSection === "drinks"}
+                title="Beverages"
+                active={activeSection === "beverages"}
                 disabled={!!selectedItems.drink}
-                onClick={() => setActiveSection("drinks")}
+                onClick={() => setActiveSection("beverages")}
               />
             </div>
 
+            {activeSection === "starters" && renderStarterSubCategories()}
             {activeSection === "mainCourse" && renderMainSubCategories()}
-            {activeSection === "drinks" && renderDrinkSubCategories()}
+            {activeSection === "beverages" && renderDrinkSubCategories()}
 
             <div className="combo-items-grid">
               {renderItems()}

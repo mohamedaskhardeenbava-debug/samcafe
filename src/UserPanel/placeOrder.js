@@ -6,11 +6,9 @@ export const placeOrder = async (bag) => {
         throw new Error("Bag is empty");
     }
 
-    const rawUser = localStorage.getItem("user");
-    console.log("RAW USER FROM STORAGE:", rawUser);
+    const userId = localStorage.getItem("userId");
 
     const rawTableNo = localStorage.getItem("tableNo");
-
     const tableNo =
         rawTableNo && rawTableNo.trim() !== ""
             ? Number(rawTableNo)
@@ -18,16 +16,18 @@ export const placeOrder = async (bag) => {
 
     const mode = tableNo ? "dine in" : "take away";
 
-    const user = JSON.parse(rawUser);
-    console.log("PARSED USER:", user);
-
-    const userId = localStorage.getItem("userId");
-
     /* 🔹 ORDER ID */
-    const res = await api.get("/orders");
-    const orders = Array.isArray(res.data) ? res.data : [];
-    const orderId = `order_${String(orders.length + 1).padStart(5, "0")}`;
+    let orderId;
+    const allOrdersRes = await api.get("/orders");
+    const allOrders = allOrdersRes.data;
 
+    if (!allOrders || allOrders.length === 0) {
+        orderId = "order_00001";
+    } else {
+        const lastOrder = allOrders[allOrders.length - 1];
+        const lastNum = parseInt(lastOrder.id?.replace("order_", "")) || 0;
+        orderId = `order_${String(lastNum + 1).padStart(5, "0")}`;
+    }
     /* 🔹 USER */
     /* 🔹 USER */
     let userName = "Guest";
@@ -80,10 +80,9 @@ export const placeOrder = async (bag) => {
         mobile: mobileNo,
         tableNo: tableNo ? Number(tableNo) : null,
         mode,
-        // ✅ UNFORMATTED / ISO
         date,
-        time,                  // "2026-02-10"
-        createdAt: nowISO,       // "2026-02-10T06:25:45.065Z"
+        time,
+        createdAt: nowISO,
         updatedAt: nowISO,
         status: "placed",
         totalAmount: Math.round(totalAmount),
@@ -106,16 +105,29 @@ export const placeOrder = async (bag) => {
         }))
     };
 
-    /* 🔹 SAVE ORDER */
+    /* 🔹 SAVE ORDER TO GLOBAL ORDERS */
     await api.post("/orders", newOrder);
 
+    /* 🔹 SAVE ORDER INSIDE USER */
+    if (userId) {
+        const userRes = await api.get(`/users/${userId}`);
+
+        const updatedUser = {
+            ...userRes.data,
+            orders: [...(userRes.data.orders || []), newOrder]
+        };
+
+        await api.put(`/users/${userId}`, updatedUser);
+    }
+
     /* 🔹 UPDATE INGREDIENT STOCK */
-    const menuRes = await api.get("/menu");
-    const menu = menuRes.data;
+    /* 🔹 UPDATE INGREDIENT STOCK */
+    const ingredientsRes = await api.get("/ingredients");
+    const allIngredients = ingredientsRes.data;
 
-    const updatedIngredients = menu.ingredients.map(ing => {
+    const stockUpdatePromises = [];
+    allIngredients.forEach(ing => {
         let usedKg = 0;
-
         bag.forEach(item => {
             (item.ingredients || []).forEach(i => {
                 if (i.name === ing.name) {
@@ -123,25 +135,15 @@ export const placeOrder = async (bag) => {
                 }
             });
         });
-
-        if (usedKg === 0) return ing;
-
-        return {
-            ...ing,
-            stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
-        };
+        if (usedKg > 0) {
+            const updated = {
+                ...ing,
+                stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
+            };
+            stockUpdatePromises.push(api.put(`/ingredients/${ing.id}`, updated));
+        }
     });
-
-    await api.put("/menu", { ...menu, ingredients: updatedIngredients });
-
-    /* 🔹 SAVE TO USER */
-    if (userId) {
-        const userRes = await api.get(`/users/${userId}`);
-        await api.put(`/users/${userId}`, {
-            ...userRes.data,
-            orders: [...(userRes.data.orders || []), newOrder]
-        });
-    }
+    await Promise.all(stockUpdatePromises);
 
     const formatForPrinter = (iso) => {
         if (!iso) return "";

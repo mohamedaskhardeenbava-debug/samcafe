@@ -13,18 +13,6 @@ const SLIDE_DISTANCE =
 const AUTO_SLIDE_MS = 4000;
 const DRAG_THRESHOLD = 60;
 
-const getIngredientImage = (name) => {
-  // simple stable hash from name
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  const imageNumber = (Math.abs(hash) % 29) + 1;
-
-  return `/assets/ingredient-assets/image${imageNumber}.png`;
-};
-
 export default function IngredientsCarousel({
   ingredients = [],
   allIngredients = []
@@ -180,7 +168,7 @@ export default function IngredientsCarousel({
               >
                 <div className="dish-ingredient-image">
                   <img
-                    src={getIngredientImage(ing.name)}
+                    src={full.image}
                     alt={ing.name}
                     draggable={false}
                     loading="lazy"

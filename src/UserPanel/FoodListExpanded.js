@@ -45,7 +45,18 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
   const { state } = useLocation();
   const { categoryId, dishId } = state || {};
 
-  const category = foodData.categories.find(c => c.id === categoryId);
+  let category = foodData.categories.find(c => c.id === categoryId);
+
+  if (!category) {
+    for (const cat of foodData.categories) {
+      const sub = cat.subCategories?.find(s => s.id === categoryId);
+      if (sub) {
+        category = sub;
+        break;
+      }
+    }
+  }
+  
   const dish = category?.dishes.find(d => d.id === dishId);
 
   const [steps, setSteps] = useState(["hidden", "hidden", "hidden", "hidden"]);

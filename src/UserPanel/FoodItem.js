@@ -56,14 +56,42 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     : [];
 
   // find category and dish (minimal safe lookup)
-  const category =
-    foodData.categories.find((c) => c.id === categoryId) ||
-    foodData.categories.find((c) => c.dishes.some((d) => d.id === dishId));
+  let category = foodData.categories.find(c => c.id === categoryId);
+
+  if (!category) {
+    for (const cat of foodData.categories) {
+      const sub = cat.subCategories?.find(s => s.id === categoryId);
+      if (sub) {
+        category = sub;
+        break;
+      }
+    }
+  }
 
   const dish = category && dishId ? category.dishes.find((d) => d.id === dishId) : null;
 
-  const originalCategory =
-    foodData.categories.find((c) => c.dishes.some((d) => d.id === dish?.id)) || category;
+  let originalCategory = foodData.categories.find(
+    (c) =>
+      Array.isArray(c.dishes) &&
+      c.dishes.some((d) => d.id === dish?.id)
+  );
+
+  if (!originalCategory) {
+    for (const cat of foodData.categories) {
+      const sub = cat.subCategories?.find(
+        (s) =>
+          Array.isArray(s.dishes) &&
+          s.dishes.some((d) => d.id === dish?.id)
+      );
+
+      if (sub) {
+        originalCategory = sub;
+        break;
+      }
+    }
+  }
+
+  originalCategory = originalCategory || category;
 
   const favouriteDish = fromFavouriteCustomize ? favouriteSnapshot : null;
 

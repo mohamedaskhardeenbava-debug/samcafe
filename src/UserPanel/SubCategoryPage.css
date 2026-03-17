@@ -1,0 +1,34 @@
+.food-grid-title {
+    text-transform: capitalize;
+    font-family: "Geom", system-ui, sans-serif;
+}
+
+.food-category-items {
+    background: var(--bg-main);
+    border-radius: 20px;
+    padding: 16px;
+    height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-primary);
+    transition: transform .2s ease;
+}
+
+.food-category-items:hover {
+    transform: translateY(-6px);
+}
+
+.food-category-image img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+}
+
+.food-category-name {
+    font-size: 16px;
+    text-align: center;
+    font-weight: 600;
+}

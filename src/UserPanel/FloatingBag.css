@@ -12,6 +12,7 @@
   z-index: 120;
   box-shadow: var(--floating-btn-shadow);
   cursor: pointer;
+  font-family: "Geom", system-ui, sans-serif;
 }
 
 /* ===== SHAKE ANIMATION ===== */
@@ -82,6 +83,7 @@
   z-index: 300;
   box-shadow: var(--shadow-card-normal);
   border: 1px solid var(--text-tertiary);
+  font-family: "Geom", system-ui, sans-serif;
 }
 
 /* ===== HEADER ===== */

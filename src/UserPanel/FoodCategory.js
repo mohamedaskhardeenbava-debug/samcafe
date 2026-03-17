@@ -29,7 +29,7 @@ const FoodCategory = ({ foodData, currentUser }) => {
       {
         id: "others",
         name: "Crowd Picks",
-        image: "/assets/category-assets/pizza.png",
+        image: "/assets/category-assets/crowd.png",
         route: "/favourites/others"
       }
     );
@@ -40,7 +40,7 @@ const FoodCategory = ({ foodData, currentUser }) => {
     categoriesToRender.push({
       id: "others",
       name: "Crowd Picks",
-      image: "/assets/category-assets/pizza.png",
+      image: "/assets/category-assets/crowd.png",
       route: "/favourites/others"
     });
   }
@@ -49,18 +49,35 @@ const FoodCategory = ({ foodData, currentUser }) => {
   categoriesToRender.push({
     id: "combo",
     name: "Combos",
-    image: "/assets/category-assets/pizza.png",
+    image: "/assets/category-assets/combo.png",
     route: "/combo"
   });
 
   /* NORMAL CATEGORIES */
   (foodData.categories || []).forEach((category) => {
+
+    const hasSubCategories =
+      Array.isArray(category.subCategories) &&
+      category.subCategories.length > 0;
+
+    let route;
+
+    // ✅ SPECIAL CASE FOR APPETIZER
+    if (category.id === "appetizer") {
+      route = "/appetizer-builder";
+    } else {
+      route = hasSubCategories
+        ? `/subcategory/${category.id}`
+        : `/foods/${category.id}/grid`;
+    }
+
     categoriesToRender.push({
       id: category.id,
       name: category.name,
       image: category.image,
-      route: `/foods/${category.id}/grid`
+      route
     });
+
   });
 
   return (

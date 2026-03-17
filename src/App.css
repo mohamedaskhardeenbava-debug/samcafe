@@ -44,6 +44,7 @@
   --mobile-page-padding: 10px;
   --medium-page-padding: 24px;
   --floating-btn-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  --bg-hover: #ffd563;
 }
 
 [data-theme="dark"] {
@@ -84,6 +85,7 @@
     0 12px 26px rgba(248, 113, 113, 0.35);
   --filter: brightness(0) invert(1);
   --floating-btn-shadow: 0 4px 18px rgba(212, 212, 212, 0.25);
+  --bg-hover: #ffd563;
 }
 
 .theme-toggle {

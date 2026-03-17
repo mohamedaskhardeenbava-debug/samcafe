@@ -9,6 +9,7 @@ import homeIcon from "../assets/icons/home.png";
 const FavouriteDishList = ({
   foodData,
   currentUser,
+  setCurrentUser,
   handleBack,
   handleHome
 }) => {
@@ -62,7 +63,10 @@ const FavouriteDishList = ({
         setShowDeleteConfirm(false);
 
         // force UI refresh safely
-        currentUser.favourites = updatedFavourites;
+        setCurrentUser({
+  ...currentUser,
+  favourites: updatedFavourites
+});
       }
     } catch (err) {
       console.error("Failed to delete favourite", err);

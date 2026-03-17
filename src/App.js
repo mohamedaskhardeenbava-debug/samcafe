@@ -3,9 +3,12 @@ import { useEffect, useState, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
 import api from "./api";
+import socket from "./socket";
 
 import Welcome from "./UserPanel/Welcome";
 import FoodCategory from "./UserPanel/FoodCategory";
+import AppetizerBuilder from "./UserPanel/AppetizerBuilder";
+import SubCategoryPage from "./UserPanel/SubCategoryPage";
 import FoodGridList from "./UserPanel/FoodGridList";
 import FoodList from "./UserPanel/FoodList";
 import FoodListExpanded from "./UserPanel/FoodListExpanded";
@@ -40,20 +43,23 @@ function App() {
   const isExpandedPage = location.pathname.includes("/expanded");
   const bellAudioRef = useRef(new Audio(bellSound));
 
-  const isAuthenticatedUser =
-    currentUser && currentUser.id !== "guest";
+  const isAuthenticatedUser = Boolean(currentUser?.id);
 
   const fetchMenu = async () => {
     try {
-      const res = await api.get("/menu");
-      const menu = res.data;
+      const [categoriesRes, ingredientsRes, favouritesRes, comboRes] = await Promise.all([
+        api.get("/categories"),
+        api.get("/ingredients"),
+        api.get("/favourites"),
+        api.get("/combo")
+      ]);
 
       setFoodData(prev => ({
         ...prev,
-        categories: menu.categories || [],
-        favourites: menu.favourites || [], // ✅ REQUIRED FOR CROWD PICKS
-        combo: menu.combo || [],
-        ingredients: menu.ingredients || []
+        categories: categoriesRes.data || [],
+        ingredients: ingredientsRes.data || [],
+        favourites: favouritesRes.data || [],
+        combo: comboRes.data || []
       }));
     } catch (err) {
       console.error("Failed to load menu", err);
@@ -87,15 +93,37 @@ function App() {
     setIsDineIn(!!tableNo);
   }, [location.pathname]);
 
+  const findCategoryByDish = (foodData, dishId) => {
+    for (const cat of foodData.categories) {
+
+      if (Array.isArray(cat.dishes) &&
+        cat.dishes.some(d => d.id === dishId)) {
+        return cat;
+      }
+
+      if (Array.isArray(cat.subCategories)) {
+        for (const sub of cat.subCategories) {
+          if (Array.isArray(sub.dishes) &&
+            sub.dishes.some(d => d.id === dishId)) {
+            return sub;
+          }
+        }
+      }
+
+    }
+
+    return null;
+  };
+
   const normalizeBagItem = (rawItem, foodData) => {
     const category =
       foodData.categories.find(c => c.id === rawItem.categoryId) ||
-      foodData.categories.find(c =>
-        c.dishes.some(d => d.id === rawItem.id)
-      );
+      findCategoryByDish(foodData, rawItem.id);
 
     const dish =
-      category?.dishes.find(d => d.id === rawItem.id) || {};
+      Array.isArray(category?.dishes)
+        ? category.dishes.find(d => d.id === rawItem.id)
+        : null || {};
 
     const defaultSize =
       category?.sizes?.[0]?.name?.toLowerCase() || "regular";
@@ -293,16 +321,9 @@ function App() {
       const userId = localStorage.getItem("userId");
 
       /* =========================
-         1️⃣ UPDATE MENU.FAVOURITES (ALWAYS)
+         1️⃣ PREPARE DISH OBJECT
          ========================= */
-      const menuRes = await api.get("/menu");
-      const menu = menuRes.data;
-
-      const menuFavourites = Array.isArray(menu.favourites)
-        ? menu.favourites
-        : [];
-
-      let enrichedDish = dish;
+      let enrichedDish = { ...dish };
 
       if (userId) {
         const userRes = await api.get(`/users/${userId}`);
@@ -311,46 +332,54 @@ function App() {
         enrichedDish = {
           ...dish,
           userId,
-          customerName: user.name    // ✅ ADD
+          customerName: user.name || "Guest"
         };
       }
 
-      const existsInMenu = menuFavourites.some(f => f.id === dish.id);
+      /* =========================
+         2️⃣ UPDATE MENU.FAVOURITES
+         ========================= */
+      /* =========================
+   2️⃣ UPDATE /favourites
+   ========================= */
+      const favsRes = await api.get("/favourites");
+      const menuFavourites = Array.isArray(favsRes.data) ? favsRes.data : [];
+
+      const existsInMenu = menuFavourites.some(f => f.id === enrichedDish.id);
 
       if (!existsInMenu) {
-        const updatedMenu = {
-          ...menu,
-          favourites: [...menuFavourites, enrichedDish]
-        };
-
-        await api.put("/menu", updatedMenu);
+        await api.post("/favourites", enrichedDish);
 
         setFoodData(prev => ({
           ...prev,
-          favourites: updatedMenu.favourites
+          favourites: [...menuFavourites, enrichedDish]
         }));
       }
 
       /* =========================
-         2️⃣ UPDATE USER.FAVOURITES (ONLY IF LOGGED IN)
+         3️⃣ GUEST USER
          ========================= */
       if (!userId) {
         const guestFavs =
           JSON.parse(localStorage.getItem("guestFavourites")) || [];
 
-        const exists = guestFavs.some(f => f.id === dish.id);
-        if (!exists) {
-          const updated = [...guestFavs, dish];
-          localStorage.setItem("guestFavourites", JSON.stringify(updated));
+        const exists = guestFavs.some(f => f.id === enrichedDish.id);
 
-          setFoodData(prev => ({
-            ...prev,
-            favourites: prev.favourites // menu favourites unchanged
-          }));
+        if (!exists) {
+          const updated = [...guestFavs, enrichedDish];
+
+          localStorage.setItem(
+            "guestFavourites",
+            JSON.stringify(updated)
+          );
         }
+
         return;
       }
 
+      /* =========================
+         4️⃣ UPDATE USER.FAVOURITES
+         ========================= */
       const userRes = await api.get(`/users/${userId}`);
       const user = userRes.data;
 
@@ -358,15 +387,18 @@ function App() {
         ? user.favourites
         : [];
 
-      const existsInUser = userFavourites.some(f => f.id === dish.id);
+      const existsInUser = userFavourites.some(
+        f => f.id === enrichedDish.id
+      );
 
       if (!existsInUser) {
         const updatedUser = {
           ...user,
-          favourites: [...userFavourites, dish]
+          favourites: [...userFavourites, enrichedDish]
         };
 
         await api.put(`/users/${userId}`, updatedUser);
+
         setCurrentUser(updatedUser);
       }
 
@@ -382,6 +414,37 @@ function App() {
   useEffect(() => {
     fetchMenu();
   }, [currentUser]);
+
+  useEffect(() => {
+
+    socket.on("data-change", ({ resource, action, payload }) => {
+
+      console.log("SYNC EVENT:", resource, action);
+
+      if (resource === "orders") {
+        setFoodData(prev => ({
+          ...prev,
+          orders:
+            action === "created"
+              ? [...prev.orders, payload]
+              : prev.orders.map(o => o.id === payload.id ? payload : o)
+        }));
+      }
+
+      if (
+        resource === "ingredients" ||
+        resource === "categories" ||
+        resource === "favourites" ||
+        resource === "combo"
+      ) {
+        fetchMenu();
+      }
+
+    });
+
+    return () => socket.off("data-change");
+
+  }, []);
 
   const pageVariants = {
     initial: (direction) => ({
@@ -438,6 +501,7 @@ function App() {
   // if (loading) return <div className="app-loading">Loading menu...</div>;
   // if (error) return <div className="app-error">Failed to load menu</div>;
 
+  console.log(foodData);
   return (
     <LayoutGroup>
       <div className="App">
@@ -514,6 +578,40 @@ function App() {
                       currentUser={currentUser}
                     />
                   </motion.div>
+                }
+              />
+
+              <Route
+                path="/appetizer-builder"
+                element={
+                  <AppetizerBuilder
+                    foodData={foodData}
+                    addToBag={addToBag}
+                    handleBack={handleBack}
+                    handleHome={handleHome}
+                  />
+                }
+              />
+
+              <Route
+                path="/subcategory/:categoryId"
+                element={
+                  <SubCategoryPage
+                    foodData={foodData}
+                    handleBack={handleBack}
+                    handleHome={handleHome}
+                  />
+                }
+              />
+
+              <Route
+                path="/subcategory/:categoryId"
+                element={
+                  <SubCategoryPage
+                    foodData={foodData}
+                    handleBack={handleBack}
+                    handleHome={handleHome}
+                  />
                 }
               />
 
@@ -630,6 +728,7 @@ function App() {
                     <FavouriteDishList
                       foodData={foodData}
                       currentUser={currentUser}
+                      setCurrentUser={setCurrentUser}
                       handleBack={handleBack}
                       handleHome={handleHome}
                     />
