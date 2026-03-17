@@ -416,6 +416,16 @@ function App() {
   }, [currentUser]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const table = params.get("table");
+
+    if (table) {
+      localStorage.setItem("tableNo", table);
+      setIsDineIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
 
     socket.on("data-change", ({ resource, action, payload }) => {
 
