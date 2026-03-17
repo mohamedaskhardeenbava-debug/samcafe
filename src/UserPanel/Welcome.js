@@ -95,7 +95,6 @@ const { theme } = useTheme();
 
   const handleGuest = () => {
     localStorage.removeItem("userId");
-    localStorage.removeItem("tableNo");
 
     setCurrentUser({
       id: "guest",
@@ -106,7 +105,7 @@ const { theme } = useTheme();
   };
 
   const handleLogin = async () => {
-    localStorage.removeItem("tableNo");
+    ;
     if (mobile.length !== 10) {
       setErrorMsg("Enter a valid 10-digit mobile number.");
       return;
@@ -138,7 +137,7 @@ const { theme } = useTheme();
   };
 
   const handleSignup = async () => {
-    localStorage.removeItem("tableNo");
+    ;
     if (!name.trim() || mobile.length !== 10) {
       setErrorMsg("Enter name and valid mobile number.");
       return;
