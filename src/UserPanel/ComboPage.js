@@ -722,7 +722,7 @@ const ComboPage = ({
 
         {activeLeftView === "favourites" && (
           <>
-            <div className="combo-header">
+            <div className="fav-combo-header">
               <button
                 className="back-button"
                 onClick={() => setActiveLeftView("builder")}

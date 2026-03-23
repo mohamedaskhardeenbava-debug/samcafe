@@ -7,6 +7,7 @@
   grid-template-columns: repeat(9, 1fr);
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  padding: 10px 0 0 0;
 }
 
 .food-category-items {
@@ -202,6 +203,12 @@
   justify-content: flex-end;
   gap: 12px;
   margin-bottom: 24px;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-main);
+  padding: 6px 0;
 }
 
 .view-btn {

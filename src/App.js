@@ -16,7 +16,7 @@ import FoodItem from "./UserPanel/FoodItem";
 import IngredientDetail from "./UserPanel/IngredientDetail";
 import ThankYou from "./UserPanel/ThankYou";
 import FloatingBag from "./UserPanel/FloatingBag";
-import TableScanner from "./UserPanel/TableScanner";
+//import TableScanner from "./UserPanel/TableScanner";
 
 import FavouriteCategories from "./UserPanel/FavouriteCategories";
 import FavouriteDishList from "./UserPanel/FavouriteDishList";
@@ -511,7 +511,6 @@ function App() {
   // if (loading) return <div className="app-loading">Loading menu...</div>;
   // if (error) return <div className="app-error">Failed to load menu</div>;
 
-  console.log(foodData);
   return (
     <LayoutGroup>
       <div className="App">
@@ -706,14 +705,14 @@ function App() {
                 }
               />
 
-              <Route
+              {/* <Route
                 path="/scan-table"
                 element={
                   <motion.div {...motionProps}>
                     <TableScanner />
                   </motion.div>
                 }
-              />
+              /> */}
 
               {/* FAV CATEGORY PAGE */}
               <Route

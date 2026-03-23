@@ -159,4 +159,8 @@
     overflow: hidden;
     width: calc((84px * 3) + (14px * 2) + 4px);
   }
+
+  .dish-ingredient-item {
+    padding: 12px;
+  }
 }

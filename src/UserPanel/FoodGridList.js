@@ -43,7 +43,7 @@ if (!category) return null;
                         }
                     >
                         <div className="food-grid-card-image">
-                            <img src={dish.image} alt={dish.name} />
+                            <img src={dish.image} loading="eager" alt={dish.name} />
                         </div>
 
                         <div className="grid-info">

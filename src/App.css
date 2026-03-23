@@ -153,6 +153,8 @@ img {
   pointer-events: none;
   -webkit-user-drag: none;
   user-drag: none;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 button {

@@ -23,6 +23,11 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
+
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-main);
 }
 
 .food-grid-title {
@@ -36,6 +41,8 @@
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   gap: 10px;
+  overflow-x: hidden;
+  padding: 6px;
 }
 
 /* ===== CARD ===== */

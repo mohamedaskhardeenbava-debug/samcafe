@@ -358,7 +358,7 @@
   border-radius: 12px;
   border: none;
   background: var(--color-red);
-  color:var(--bg-main);
+  color: var(--bg-main);
   font-weight: 700;
   cursor: pointer;
   margin: 0 auto;
@@ -750,9 +750,6 @@
     padding: 20px 16px;
   }
 
-  .combo-header {
-    flex-direction: column;
-  }
 
   .back-and-head {
     gap: 0 !important;
