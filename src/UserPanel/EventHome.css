@@ -1,0 +1,134 @@
+/* =========================
+   PAGE
+========================= */
+
+.event-home-page {
+  padding: 36px;
+  background: var(--bg-main);
+    font-family: "Geom", system-ui, sans-serif;
+}
+
+/* =========================
+   HERO SECTION
+========================= */
+
+.event-hero {
+  margin: 20px 0 30px;
+}
+
+.event-hero h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.event-hero p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* =========================
+   GRID
+========================= */
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.event-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  cursor: pointer;
+    box-shadow: var(--shadow-primary);
+  transition: all 0.25s ease;
+
+  will-change: transform;
+  contain: layout paint;
+}
+
+/* HOVER */
+.event-card:hover {
+  transform: translateY(-6px);
+}
+
+/* =========================
+   ICON
+========================= */
+
+.event-icon {
+  height: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.04);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.event-icon img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.event-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.event-content p {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+  .event-home-page {
+    padding: 20px;
+  }
+
+  .event-grid {
+    gap: 16px;
+  }
+
+  .event-content h3 {
+    font-size: 15px;
+  }
+
+  .event-content p {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 578px) {
+  .event-home-page {
+    padding: 10px;
+  }
+
+  .event-grid {
+    gap: 12px;
+  }
+}

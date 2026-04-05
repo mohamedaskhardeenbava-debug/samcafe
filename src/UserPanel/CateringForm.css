@@ -1,0 +1,202 @@
+/* =========================
+   PAGE
+========================= */
+
+.cfp-page {
+    padding: 36px;
+    background: var(--bg-main);
+    font-family: "Geom", system-ui, sans-serif;
+
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.cfp-container {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    height: calc(100vh - 132px);
+}
+
+.cfp-section {
+        background: #ffffff;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: var(--shadow-primary);
+    width: 50%;
+    position: relative;
+    overflow-y: auto;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.cfp-card {
+    background: #ffffff;
+    transition: 0.25s ease;
+    margin-bottom: 12px;
+}
+
+.cfp-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text-secondary);
+}
+
+/* =========================
+   FORM
+========================= */
+
+.cfp-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+    gap: 14px;
+}
+
+.cfp-group label {
+    font-size: 13px;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+}
+
+.cfp-group input,
+.cfp-group textarea {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    font-family: inherit;
+}
+
+.cfp-group textarea {
+    min-height: 90px;
+    resize: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.cfp-error {
+    font-size: 11px;
+    color: red;
+    margin-top: 4px;
+}
+
+.cfp-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cfp-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cfp-item-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.cfp-item-size {
+    font-size: 11px;
+    color: #6b7280;
+    margin-left: 6px;
+}
+
+.cfp-item-price {
+    font-weight: 600;
+}
+
+/* TOTAL */
+.cfp-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+/* EMPTY */
+.cfp-empty {
+    text-align: center;
+    padding: 20px 0;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+}
+
+.cfp-empty span {
+    font-size: 12px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.cfp-submit-container {
+    text-align: center;
+}
+
+.cfp-submit {
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: var(--color-red);
+    color: var(--bg-main);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+        box-shadow: var(--shadow-card-red);
+}
+
+.cfp-submit:hover {
+        box-shadow: var(--shadow-card-red-hover);
+}
+
+.cfp-submit.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+    .cfp-page {
+        padding: 20px;
+    }
+
+    .cfp-section {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .cfp-container {
+        margin-top: 10px;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+    }
+}
+
+@media (max-width: 578px) {
+    .cfp-page {
+        padding: 10px;
+    }
+    .cfp-section {
+        padding: 12px;
+    }
+}

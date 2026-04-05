@@ -23,6 +23,13 @@ import FavouriteDishList from "./UserPanel/FavouriteDishList";
 import FavouriteDishDetail from "./UserPanel/FavouriteDishDetail";
 import ComboPage from "./UserPanel/ComboPage";
 import FavouriteCombo from "./UserPanel/FavouriteCombo";
+import OffersGrid from "./UserPanel/OffersGrid";
+
+import EventHome from "./UserPanel/EventHome";
+import ReservationForm from "./UserPanel/ReservationForm";
+import CelebrationForm from "./UserPanel/CelebrationForm";
+import PreBooking from "./UserPanel/PreBooking";
+import CateringForm from "./UserPanel/CateringForm";
 
 import bellSound from "./assets/sounds/bell.mp3";
 import bellGif from "./assets/bell/bell.gif";
@@ -47,11 +54,13 @@ function App() {
 
   const fetchMenu = async () => {
     try {
-      const [categoriesRes, ingredientsRes, favouritesRes, comboRes] = await Promise.all([
+      const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes] = await Promise.all([
         api.get("/categories"),
         api.get("/ingredients"),
         api.get("/favourites"),
-        api.get("/combo")
+        api.get("/combo"),
+        api.get("/offers"),
+        api.get("/tables")
       ]);
 
       setFoodData(prev => ({
@@ -59,7 +68,10 @@ function App() {
         categories: categoriesRes.data || [],
         ingredients: ingredientsRes.data || [],
         favourites: favouritesRes.data || [],
-        combo: comboRes.data || []
+        combo: comboRes.data || [],
+        offers: offersRes.data || [],
+        tables: tablesRes.data?.[0]?.list || []
+
       }));
     } catch (err) {
       console.error("Failed to load menu", err);
@@ -795,6 +807,85 @@ function App() {
                   ) : (
                     <Navigate to="/categories" replace />
                   )
+                }
+              />
+
+              <Route
+                path="/offers"
+                element={
+                  <motion.div {...motionProps}>
+                    <OffersGrid
+                      foodData={foodData}
+                      addToBag={addToBag}
+                      handleBack={() => navigate(-1)}
+                      handleHome={() => navigate("/categories")}
+                    />
+                  </motion.div>
+                }
+              />
+
+              <Route
+                path="/events"
+                element={
+                  <motion.div {...motionProps}>
+                    <EventHome
+                      handleBack={handleBack}
+                      handleHome={handleHome}
+                    />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/events/reservation"
+                element={
+                  <motion.div {...motionProps}>
+                    <ReservationForm
+                      foodData={foodData}
+                      bag={bag}
+                      setBag={setBag}
+                      handleBack={handleBack}
+                      handleHome={handleHome}
+                    />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/events/celebration"
+                element={
+                  <motion.div {...motionProps}>
+                    <CelebrationForm
+                      bag={bag}
+                      setBag={setBag}
+                      handleBack={handleBack}
+                      handleHome={handleHome}
+                    />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/events/prebooking"
+                element={
+                  <motion.div {...motionProps}>
+                    <PreBooking
+                      bag={bag}
+                      setBag={setBag}
+                      handleBack={handleBack}
+                      handleHome={handleHome}
+                    />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/events/catering"
+                element={
+                  <motion.div {...motionProps}>
+                    <CateringForm
+                      bag={bag}
+                      setBag={setBag}
+                      handleBack={handleBack}
+                      handleHome={handleHome}
+                    />
+                  </motion.div>
                 }
               />
 

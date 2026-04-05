@@ -1,0 +1,185 @@
+/* =========================
+   PAGE
+========================= */
+
+.rf-page {
+    padding: 36px;
+    background: var(--bg-main);
+    font-family: "Geom", system-ui, sans-serif;
+}
+
+.rf-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: var(--bg-main);
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.rf-container {
+    display: flex;
+    gap: 24px;
+    height: calc(100vh - 132px);
+    margin-top: 10px;
+}
+
+/* =========================
+   SECTION
+========================= */
+
+.rf-section {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: var(--shadow-primary);
+    width: 50%;
+    position: relative;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.rf-section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* =========================
+   FORM
+========================= */
+
+.rf-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.rf-group label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+}
+
+.rf-group input {
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    padding: 0 12px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+}
+
+/* ROW */
+.rf-row {
+    display: flex;
+    gap: 12px;
+}
+
+.rf-row .rf-group {
+    flex: 1;
+}
+
+/* =========================
+   TABLE GRID
+========================= */
+
+.rf-table-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.rf-table {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 14px 0;
+    text-align: center;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid #f0f0f0;
+}
+
+.rf-table:hover {
+    background: #f3f4f6;
+}
+
+/* ACTIVE */
+.rf-table.active {
+    background: #111;
+    color: #fff;
+    transform: scale(1.05);
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.rf-submit-btn-container {
+    text-align: center;
+}
+
+.rf-submit-btn {
+    padding: 16px;
+    border-radius: 14px;
+    border: none;
+    background: var(--color-red);
+    color: var(--bg-main);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    width: fit-content;
+    box-shadow: var(--shadow-card-red);
+}
+
+.rf-submit-btn:hover {
+    box-shadow: var(--shadow-card-red-hover);
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+    .rf-page {
+        padding: 20px;
+    }
+
+    .rf-container {
+        margin-top: 10px;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+    }
+
+    .rf-section {
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .rf-row {
+        flex-direction: column;
+    }
+
+    .rf-table-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 578px) {
+    .rf-page {
+        padding: 10px;
+    }
+
+    .rf-section {
+        padding: 12px;
+    }
+}

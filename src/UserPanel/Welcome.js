@@ -105,7 +105,7 @@ const { theme } = useTheme();
   };
 
   const handleLogin = async () => {
-    ;
+    
     if (mobile.length !== 10) {
       setErrorMsg("Enter a valid 10-digit mobile number.");
       return;

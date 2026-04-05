@@ -1,0 +1,190 @@
+/* =========================
+   PAGE
+========================= */
+
+.pbp-page {
+    padding: 36px;
+    background: var(--bg-main);
+    font-family: "Geom", system-ui, sans-serif;
+}
+
+/* =========================
+   CONTAINER
+========================= */
+
+.pbp-container {
+    max-width: 650px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    box-shadow: var(--shadow-primary);
+    border-radius: 20px;
+    padding: 20px;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.pbp-card {
+    background: #fff;
+    border-radius: 20px;
+}
+
+.pbp-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+/* =========================
+   FORM
+========================= */
+
+.pbp-group {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.pbp-group label {
+    font-size: 13px;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+}
+
+.pbp-group input {
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    padding: 0 12px;
+    font-size: 14px;
+}
+
+/* ROW */
+.pbp-row {
+    display: flex;
+    gap: 14px;
+}
+
+.pbp-row .pbp-group {
+    flex: 1;
+}
+
+/* =========================
+   BAG
+========================= */
+
+.pbp-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pbp-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pbp-item-name {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.pbp-item-size {
+    font-size: 11px;
+    color: #6b7280;
+    margin-left: 6px;
+}
+
+.pbp-item-price {
+    font-weight: 600;
+}
+
+/* TOTAL */
+.pbp-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 14px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+}
+
+/* EMPTY */
+.pbp-empty {
+    text-align: center;
+    padding: 20px 0;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+}
+
+.pbp-empty span {
+    font-size: 12px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+.pbp-submit-container {
+    text-align: center;
+}
+
+.pbp-submit {
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: var(--color-red);
+    color: var(--bg-main);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    width: fit-content;
+    box-shadow: var(--shadow-card-red);
+}
+
+.pbp-submit:hover {
+    box-shadow: var(--shadow-card-red-hover);
+}
+
+.pbp-submit.loading {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* =========================
+   ERROR
+========================= */
+
+.pbp-error {
+    font-size: 11px;
+    color: red;
+    margin-top: 6px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 768px) {
+    .pbp-page {
+        padding: 20px;
+    }
+
+    .pbp-row {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 578px) {
+    .pbp-page {
+        padding: 10px;
+    }
+
+    .pbp-container {
+        padding: 12px;
+    }
+}

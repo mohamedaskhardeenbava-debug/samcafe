@@ -53,6 +53,20 @@ const FoodCategory = ({ foodData, currentUser }) => {
     route: "/combo"
   });
 
+  categoriesToRender.push({
+    id: "offers",
+    name: "Offers",
+    image: "/assets/category-assets/offers.png", // use any image
+    route: "/offers"
+  });
+
+  categoriesToRender.push({
+  id: "events",
+  name: "Events & Booking",
+  image: "/assets/category-assets/events.png",
+  route: "/events"
+});
+
   /* NORMAL CATEGORIES */
   (foodData.categories || []).forEach((category) => {
 
