@@ -26,6 +26,7 @@ import FavouriteCombo from "./UserPanel/FavouriteCombo";
 import OffersGrid from "./UserPanel/OffersGrid";
 
 import EventHome from "./UserPanel/EventHome";
+import EventsPage from "./UserPanel/EventsPage";
 import ReservationForm from "./UserPanel/ReservationForm";
 import CelebrationForm from "./UserPanel/CelebrationForm";
 import PreBooking from "./UserPanel/PreBooking";
@@ -835,6 +836,20 @@ function App() {
                   </motion.div>
                 }
               />
+
+                <Route
+                  path="/events/hosted"
+                  element={
+                    <motion.div {...motionProps}>
+                      <EventsPage
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                        currentUser={currentUser}
+                      />
+                    </motion.div>
+                  }
+                />
+                
               <Route
                 path="/events/reservation"
                 element={

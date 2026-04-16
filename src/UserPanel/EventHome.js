@@ -8,6 +8,12 @@ const EventHome = ({ handleBack, handleHome }) => {
 
   const options = [
     {
+      name: "Book event",
+      path: "/events/hosted",
+      icon: "/assets/icons/table.png",
+      description: "Book for events"
+    },
+    {
       name: "Table Reservation",
       path: "/events/reservation",
       icon: "/assets/icons/table.png",

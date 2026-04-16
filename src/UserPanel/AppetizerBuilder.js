@@ -103,7 +103,7 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                     <div className="final-column">
                         <h3 className="builder-column-header">Your Appetizer</h3>
                         <div className="final-column-scroll">
-                            {finalDish && (
+                            {finalDish ? (
                                 <div className="final-card">
                                     <div className="final-image">
                                         <img src={finalDish.image} alt={finalDish.name} />
@@ -117,22 +117,12 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                                         ₹ {finalDish.basePrice}
                                     </div>
 
-                                    {/* <div className="appetizer-qty-controls">
-
-                                <button className="appetizer-qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>-</button>
-
-                                <span>{qty}</span>
-
-                                <button className="appetizer-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
-
-                            </div> */}
-
                                     <button
                                         className="appetizer-delete-btn"
                                         onClick={() => {
                                             setSelectedSauce(null);
                                             setSelectedMain(null);
-                                            setQty(1)
+                                            setQty(1);
                                         }}
                                     >
                                         Delete
@@ -144,7 +134,13 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                                     >
                                         Add to Bag
                                     </button>
-
+                                </div>
+                            ) : (
+                                <div className="final-placeholder">
+                                    <div className="placeholder-icon">🍽️</div>
+                                    <div className="placeholder-text">
+                                        Select a <strong>sauce</strong> and <strong>main ingredient</strong> to build your appetizer
+                                    </div>
                                 </div>
                             )}
                         </div>
