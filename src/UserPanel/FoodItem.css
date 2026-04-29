@@ -1023,64 +1023,7 @@
     gap: 2px;
   }
 
-  @media screen and (max-width: 576px) {
-    .food-item {
-      flex-direction: column;
-    }
 
-    .left-panel {
-      padding: 10px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .image-header {
-      flex-direction: column;
-    }
-
-    .image-header-right {
-      gap: 10px;
-    }
-
-    .ingredient-list {
-      padding: 0;
-      gap: 6px;
-      height: 360px;
-    }
-
-    .right-panel {
-      width: 100%;
-    }
-
-    .top {
-      padding: 10px 10px 0 10px;
-      height: auto;
-    }
-
-    .ingredient-item-calculation {
-      padding: 6px;
-    }
-
-    .bottom {
-      padding: 8px 12px;
-      border-radius: 10px 10px 0 0;
-    }
-
-    .food-place-order-button {
-      margin: 10px auto;
-      width: fit-content;
-    }
-
-    .ingredient-modification {
-      gap: 0px;
-      padding: 8px;
-    }
-
-    .ingredient-item {
-      gap: 4px;
-      padding: 8px;
-    }
-  }
 }
 
 @media screen and (max-height: 500px) {
@@ -1138,68 +1081,61 @@
   }
 }
 
-/*
-
-.ingredient-item-calculation {
-  position: relative;
-  overflow: hidden;
-}
-
-.ingredient-item-calculation.blink::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(239, 68, 68, 0.08); 
-  opacity: 0;
-  animation: surfaceTint 1.1s ease-out;
-  pointer-events: none;
-}
-
-.ingredient-item-calculation.blink::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -80%;
-  width: 55%; 
-  height: 100%;
-
-  background: linear-gradient(
-    120deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.45) 45%,
-    rgba(239, 68, 68, 0.35) 50%,
-    rgba(255, 255, 255, 0.45) 55%,
-    transparent 100%
-  );
-
-  animation: polishedSweep 1.1s cubic-bezier(0.16, 1, 0.3, 1);
-  pointer-events: none;
-}
-
-@keyframes polishedSweep {
-  0% {
-    left: -80%;
-    opacity: 0;
+@media screen and (max-width: 576px) {
+  .food-item {
+    flex-direction: column;
   }
-  20% {
-    opacity: 1;
-  }
-  100% {
-    left: 130%;
-    opacity: 0;
-  }
-}
 
-@keyframes surfaceTint {
-  0% {
-    opacity: 0;
+  .left-panel {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
   }
-  30% {
-    opacity: 1;
+
+  .image-header {
+    flex-direction: column;
   }
-  100% {
-    opacity: 0;
+
+  .image-header-right {
+    gap: 10px;
+  }
+
+  .ingredient-list {
+    padding: 0;
+    gap: 6px;
+    height: 360px;
+  }
+
+  .right-panel {
+    width: 100%;
+  }
+
+  .top {
+    padding: 10px 10px 0 10px;
+    height: auto;
+  }
+
+  .ingredient-item-calculation {
+    padding: 6px;
+  }
+
+  .bottom {
+    padding: 8px 12px;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .food-place-order-button {
+    margin: 10px auto;
+    width: fit-content;
+  }
+
+  .ingredient-modification {
+    gap: 0px;
+    padding: 8px;
+  }
+
+  .ingredient-item {
+    gap: 4px;
+    padding: 8px;
   }
 }
-
-*/

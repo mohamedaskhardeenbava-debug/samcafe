@@ -56,7 +56,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
       }
     }
   }
-  
+
   const dish = category?.dishes.find(d => d.id === dishId);
 
   const [steps, setSteps] = useState(["hidden", "hidden", "hidden", "hidden"]);

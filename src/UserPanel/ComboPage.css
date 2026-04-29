@@ -1,96 +1,225 @@
+/* ============================================================
+   ComboPage.css — Premium Combo Builder
+   Design: Clean editorial — bold typography, precise spacing,
+   high-contrast accents on a light/dark variable base
+============================================================ */
+
+/* ── Page layout ─────────────────────────────────────────── */
 .combo-page {
   display: flex;
   height: 100vh;
   background: var(--bg-primary);
   font-family: "Geom", system-ui, sans-serif;
   color: var(--text-primary);
+  overflow: hidden;
 }
 
-/* LOADING */
 .combo-loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 16px;
   color: var(--text-secondary);
+  height: 100vh;
 }
 
-/* LAYOUT */
+/* ── Left panel ──────────────────────────────────────────── */
 .combo-left {
-  width: 80%;
-  padding: 32px 36px;
+  flex: 1;
+  min-width: 0;
+  padding: 28px 32px;
   overflow-y: auto;
   box-sizing: border-box;
+  scrollbar-width: none;
 }
 
+.combo-left::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Right panel ─────────────────────────────────────────── */
 .combo-right {
-  width: 20%;
+  width: 280px;
+  flex-shrink: 0;
   background: var(--bg-main);
   border-left: 1px solid var(--text-tertiary);
-  padding: 24px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
 }
 
-/* HEADER */
+/* ── Header ──────────────────────────────────────────────── */
 .combo-header {
   display: flex;
-  gap: 6px;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
   margin-bottom: 20px;
-  align-items: center;
+  flex-wrap: wrap;
 }
 
-.combo-header div {
+.back-and-head {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.combo-header h2 {
-  font-size: 22px;
+.back-and-head h2 {
+  font-size: 20px;
   font-weight: 700;
-  margin: 0;
+  margin: 0 0 2px;
+  letter-spacing: -0.3px;
 }
 
-.combo-header p {
-  font-size: 14px;
+.back-and-head p {
+  font-size: 13px;
   color: var(--text-secondary);
   margin: 0;
 }
 
-.combo-back-btn {
-  background: transparent;
-  border: none;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  width: fit-content;
-  margin-bottom: 6px;
+.combo-header-btn-section {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
-/* CATEGORY ROW */
+/* ── Progress stepper ────────────────────────────────────── */
+.combo-progress {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 0;
+}
+
+.combo-progress-step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+}
+
+.combo-progress-dot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  border: 2px solid var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+  color: var(--text-secondary);
+}
+
+.combo-progress-step.done .combo-progress-dot {
+  background: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--bg-main);
+}
+
+.combo-progress-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  transition: color 0.3s ease;
+}
+
+.combo-progress-step.done .combo-progress-label {
+  color: var(--color-green);
+  font-weight: 600;
+}
+
+.combo-progress-line {
+  height: 2px;
+  flex: 0 0 20px;
+  background: var(--text-tertiary);
+  margin: 0 4px;
+  border-radius: 1px;
+  transition: background 0.3s ease;
+}
+
+.combo-progress-line.done {
+  background: var(--color-green);
+}
+
+/* ── Category tabs ───────────────────────────────────────── */
 .combo-category-row {
   display: flex;
-  gap: 16px;
-  margin-bottom: 24px;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
-/* Subcategory row – centered between category & items */
+.combo-category-card {
+  flex: 1;
+  padding: 12px 8px;
+  text-align: center;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  background: var(--bg-main);
+  border: 1.5px solid var(--text-tertiary);
+  transition: all 0.22s ease;
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.combo-category-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--color-green);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.combo-category-card.active {
+  border-color: var(--color-green);
+  color: var(--color-green);
+  background: color-mix(in srgb, var(--color-green) 8%, var(--bg-main));
+}
+
+.combo-category-card.selected {
+  border-color: var(--color-green);
+  background: color-mix(in srgb, var(--color-green) 12%, var(--bg-main));
+  color: var(--color-green);
+}
+
+.combo-category-tick {
+  display: inline-block;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.combo-category-card:hover:not(.active):not(.selected) {
+  border-color: var(--color-green);
+  background: color-mix(in srgb, var(--color-green) 6%, var(--bg-main));
+}
+
+/* ── Subcategory row ─────────────────────────────────────── */
 .combo-subcategory-row {
   display: flex;
-  justify-content: center;
-  gap: 14px;
-  margin: 10px 0 20px 0;
+  gap: 8px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
 .combo-subcategory-btn {
-  padding: 8px 18px;
+  padding: 6px 14px;
   border-radius: 20px;
   border: 1px solid var(--text-tertiary);
   background: var(--bg-main);
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -103,342 +232,112 @@
   border-color: var(--color-green);
 }
 
-.combo-category-card {
-  flex: 1;
-  padding: 14px 0;
-  text-align: center;
-  border-radius: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  background: var(--bg-main);
-  border: 1px solid var(--text-tertiary);
-  transition: all 0.25s ease;
-  color: var(--text-primary);
-}
-
-.combo-category-card.active {
-  background: var(--color-green);
-  color: var(--bg-main);
+.combo-subcategory-btn:hover:not(.active) {
   border-color: var(--color-green);
 }
 
-.combo-category-card:hover {
-  background: var(--color-green);
-  color: var(--bg-main);
-  border-color: var(--color-green);
-}
-
-.combo-category-card.disabled {
-  background-color: var(--text-tertiary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-/* ITEMS GRID */
+/* ── Items grid ──────────────────────────────────────────── */
 .combo-items-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 12px;
 }
 
-/* =====================================================
-   GROUP CARD
-===================================================== */
-.combo-group-card {
-  background: var(--bg-main);
-  border: 1px solid var(--text-tertiary);
-  border-radius: 16px;
-  padding: 28px 16px;
+.combo-empty {
+  grid-column: 1 / -1;
   text-align: center;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s ease;
+  padding: 48px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
-.combo-group-card:hover {
-  border-color: var(--color-green);
-  transform: translateY(-4px);
-}
-
-/* =====================================================
-   ITEM CARD
-===================================================== */
+/* ── Item card ───────────────────────────────────────────── */
 .combo-item-card {
   background: var(--bg-main);
   border-radius: 16px;
-  padding: 10px;
+  padding: 14px 12px 12px;
   border: 1px solid var(--text-tertiary);
   display: flex;
   flex-direction: column;
-  gap: 5px;
   align-items: center;
-  transition: all 0.25s ease;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .combo-item-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--thankyou-shadow);
-  cursor: pointer;
+  border-color: var(--color-green);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
 }
 
 .combo-item-image {
-  width: 60%;
-  aspect-ratio: 1 / 1;
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
   overflow: hidden;
+  background: var(--bg-primary);
+  flex-shrink: 0;
 }
 
-.combo-item-card img {
+.combo-item-image img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
 .combo-item-name {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
-  margin-bottom: 6px;
   text-align: center;
-  height: 37px;
+  line-height: 1.3;
+  color: var(--text-primary);
+  height: 34px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .combo-item-price {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--color-green);
 }
 
 .combo-item-card button {
   width: 100%;
-  padding: 10px 0;
-  border-radius: 14px;
+  padding: 8px 0;
+  border-radius: 10px;
   border: none;
   background: var(--color-green);
   color: var(--bg-main);
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease;
   margin-top: auto;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .combo-item-card button:hover {
-  transform: translateY(-2px);
+  opacity: 0.88;
+  transform: translateY(-1px);
 }
 
-/* =====================================================
-   RIGHT PANEL
-===================================================== */
-.combo-right h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 16px;
+.combo-item-card button:active {
+  transform: translateY(0);
 }
 
-.combo-selected-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-primary);
-  border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 10px;
-}
-
-.combo-selected-image {
-  width: 48px;
-  height: 48px;
-  background-color: var(--text-tertiary);
-  border-radius: 50%;
-  overflow: hidden;
-}
-
-.combo-selected-item img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-}
-
-.combo-selected-info {
-  flex: 1;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.combo-selected-info div:last-child {
-  color: var(--color-green);
-  font-weight: 600;
-}
-
-.combo-selected-item button {
-  border: none;
-  background: transparent;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--color-red);
-}
-
-/* =====================================================
-   SUMMARY
-===================================================== */
-.combo-summary {
-  margin-top: auto;
-  border-top: 1px solid var(--text-tertiary);
-  padding-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.combo-offer-label {
-  color: var(--color-green);
-}
-
-.combo-discounted-price,
-.combo-final-price,
-.combo-original-price {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.combo-original-price div:last-child {
-  color: var(--color-red) !important;
-}
-
-.combo-discounted-price div:last-child {
-  color: var(--color-green) !important;
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.combo-final-price div:last-child {
-  color: var(--color-green) !important;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.diagonal-strike {
-  position: relative;
-  display: inline-block;
-  color: var(--text-secondary);
-}
-
-/* diagonal line */
-.diagonal-strike::after {
-  content: "";
-  position: absolute;
-  left: -6%;
-  top: 50%;
-  width: 112%;
-  height: 1.5px;
-  background: var(--color-red);
-  transform: rotate(-12deg);
-  transform-origin: center;
-  pointer-events: none;
-  animation: strike-in 0.25s ease-out;
-}
-
-@keyframes strike-in {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-
-  to {
-    width: 112%;
-    opacity: 0.75;
-  }
-}
-
-.combo-add-btn {
-  width: 100%;
-  max-width: 300px;
-  padding: 14px 0;
-  border-radius: 12px;
-  border: none;
-  background: var(--color-red);
-  color: var(--bg-main);
-  font-weight: 700;
-  cursor: pointer;
-  margin: 0 auto;
-}
-
-.combo-add-btn:disabled {
-  background: var(--text-tertiary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-/* ===============================
-   CENTER OFFER HINT MODAL
-================================ */
-
-/* Backdrop with blur */
-.offer-hint-backdrop {
-  position: fixed;
-  inset: 0;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-/* White modal */
-.offer-hint-modal {
-  padding: 24px 28px;
-  border-radius: 18px;
-  width: 360px;
-  text-align: center;
-  box-shadow: 0 30px 60px var(--text-tertiary);
-  background-color: var(--bg-main);
-}
-
-/* Message */
-.offer-hint-text {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 18px;
-}
-
-/* Actions */
-.offer-hint-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.offer-hint-add {
-  flex: 1;
-  background: var(--color-green);
-  color: var(--bg-main);
-  border: none;
-  padding: 10px 0;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.offer-hint-skip {
-  flex: 1;
-  background: transparent;
-  border: 1px solid #ddd;
-  color: var(--text-secondary);
-  padding: 10px 0;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
+/* ── Favourite views ─────────────────────────────────────── */
 .combo-add-fav-btn,
 .combo-my-fav-btn {
-  padding: 10px 14px;
-  border-radius: 14px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 13px;
   font-weight: 700;
-  border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: none;
 }
 
 .combo-add-fav-btn {
@@ -453,18 +352,440 @@
 }
 
 .combo-my-fav-btn {
-  background: var(--bg-main);
-  border: 1px solid var(--color-green);
+  background: transparent;
+  border: 1.5px solid var(--color-green);
   color: var(--color-green);
 }
 
+.combo-my-fav-btn:hover {
+  background: color-mix(in srgb, var(--color-green) 8%, var(--bg-main));
+}
 
+.fav-combo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.fav-combo-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* ── Right panel header ──────────────────────────────────── */
+.combo-right-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.combo-right-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.combo-complete-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-green);
+  background: color-mix(in srgb, var(--color-green) 12%, var(--bg-main));
+  padding: 3px 8px;
+  border-radius: 20px;
+}
+
+/* ── Slots (empty placeholders) ─────────────────────────── */
+.combo-slots {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.combo-slots::-webkit-scrollbar {
+  display: none;
+}
+
+.combo-slots-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.combo-slot-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px dashed var(--text-tertiary);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.combo-slot-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+/* ── Selected items ──────────────────────────────────────── */
+.combo-selected-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.combo-selected-item:hover {
+  border-color: var(--text-tertiary);
+}
+
+.combo-selected-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-green);
+  width: 36px;
+  flex-shrink: 0;
+}
+
+.combo-selected-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-main);
+  flex-shrink: 0;
+}
+
+.combo-selected-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.combo-selected-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.combo-selected-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.combo-selected-price {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-green);
+  margin-top: 2px;
+}
+
+.combo-selected-delete {
+  background: none;
+  border: none;
+  color: var(--color-red);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  flex-shrink: 0;
+}
+
+.combo-selected-delete:hover {
+  opacity: 1;
+}
+
+/* ── Summary ─────────────────────────────────────────────── */
+.combo-summary {
+  margin-top: auto;
+  border-top: 1px solid var(--text-tertiary);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quantity-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.quantity-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-primary);
+  border-radius: 10px;
+  padding: 4px 10px;
+}
+
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-main);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.qty-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.qty-btn:not(:disabled):hover {
+  transform: scale(1.12);
+  background: var(--color-green);
+  color: #fff;
+}
+
+.qty-value {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 20px;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+/* Price block */
+.combo-price-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.combo-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.combo-price-row.final {
+  color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 800;
+  border-top: 1px solid var(--text-tertiary);
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.combo-price-row.final span:last-child {
+  color: var(--color-green);
+}
+
+.combo-price-row.muted {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.combo-offer-tag {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.combo-offer-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--color-green) 15%, var(--bg-main));
+  color: var(--color-green);
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.combo-offer-saving {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-green);
+}
+
+/* Diagonal strikethrough */
+.diagonal-strike {
+  position: relative;
+  color: var(--text-secondary);
+}
+
+.diagonal-strike::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  top: 50%;
+  width: 108%;
+  height: 1.5px;
+  background: var(--color-red);
+  transform: rotate(-10deg);
+  border-radius: 1px;
+}
+
+/* Add to bag */
+.combo-add-btn {
+  width: 100%;
+  padding: 14px 0;
+  border-radius: 14px;
+  border: none;
+  background: var(--color-red);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+
+.combo-add-btn:not(:disabled):hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.combo-add-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.combo-add-btn:disabled {
+  background: var(--text-tertiary);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+}
+
+/* ── Offer hint overlay ──────────────────────────────────── */
+.offer-hint-backdrop {
+  position: fixed;
+  inset: 0;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.offer-hint-modal {
+  padding: 28px 26px;
+  border-radius: 20px;
+  width: 340px;
+  text-align: center;
+  background: var(--bg-main);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.18);
+}
+
+.offer-hint-emoji {
+  font-size: 36px;
+  margin-bottom: 8px;
+  animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.offer-hint-text {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+
+.offer-hint-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.offer-hint-add {
+  flex: 1;
+  background: var(--color-green);
+  color: var(--bg-main);
+  border: none;
+  padding: 11px 0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.offer-hint-add:hover {
+  opacity: 0.88;
+}
+
+.offer-hint-skip {
+  flex: 1;
+  background: transparent;
+  border: 1.5px solid var(--text-tertiary);
+  color: var(--text-secondary);
+  padding: 11px 0;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.offer-hint-skip:hover {
+  border-color: var(--text-primary);
+  color: var(--text-primary);
+}
+
+/* ── Fav overlays ────────────────────────────────────────── */
 .combo-add-fav-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(1px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,30 +793,48 @@
 }
 
 .combo-add-fav-modal {
-  padding: 26px;
-  border-radius: 16px;
-  width: 360px;
+  padding: 28px 24px;
+  border-radius: 20px;
+  width: 340px;
   text-align: center;
-  background-color: var(--bg-main);
+  background: var(--bg-main);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.2);
+}
+
+.combo-add-fav-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+  animation: pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.combo-add-fav-modal h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: var(--text-primary);
 }
 
 .combo-add-fav-title {
-  font-weight: 700;
-  margin: 10px 0 18px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0 0 18px;
 }
 
 .combo-add-fav-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
 .combo-add-fav-cancel {
   flex: 1;
   background: transparent;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 10px;
-  color: var(--text-primary);
+  border: 1.5px solid var(--text-tertiary);
+  border-radius: 12px;
+  padding: 11px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
 }
 
@@ -504,262 +843,55 @@
   background: var(--color-green);
   color: var(--bg-main);
   border: none;
-  border-radius: 10px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.combo-my-fav-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(1px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 3000;
-  padding: 36px;
-}
-
-/* ===============================
-   MY FAV OVERLAY – HEADER
-================================ */
-.combo-my-fav-modal {
-  background: var(--bg-main);
-  border-radius: 18px;
-  width: 1200px;
-  max-height: 80vh;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  /* important */
-}
-
-/* Fixed header */
-.combo-my-fav-header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: var(--bg-main);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 18px;
-  border-bottom: 1px solid var(--text-tertiary);
-}
-
-.combo-my-fav-title {
-  font-size: 18px;
-  font-weight: 700;
-  margin: 0;
-}
-
-.combo-my-fav-close-btn {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  font-weight: 700;
-  cursor: pointer;
-  line-height: 1;
-  color: var(--color-red);
-}
-
-/* ===============================
-   SCROLLABLE LIST (NO SCROLLBAR)
-================================ */
-.combo-my-fav-list {
-  padding: 16px 18px;
-  overflow-y: auto;
-  flex: 1;
-}
-
-/* Hide scrollbar (Chrome, Edge, Safari) */
-.combo-my-fav-list::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-
-/* Hide scrollbar (Firefox) */
-.combo-my-fav-list {
-  scrollbar-width: none;
-}
-
-.combo-my-fav-empty {
-  color: var(--text-secondary);
-  text-align: center;
-  margin-top: 20px;
-}
-
-.fav-combo-card {
-  border: 1px solid var(--text-tertiary);
   border-radius: 12px;
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.fav-combo-title {
+  padding: 11px;
+  font-size: 14px;
   font-weight: 700;
-  margin-bottom: 6px;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
 
-.fav-combo-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.combo-add-fav-confirm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-.fav-combo-actions {
-  display: flex;
-  gap: 8px;
+.combo-add-fav-confirm:not(:disabled):hover {
+  opacity: 0.88;
 }
 
-.fav-combo-add-btn {
-  background: var(--color-green);
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-
-.fav-combo-delete-btn {
-  background: var(--color-red);
-  color: #fff;
-  border: none;
-  padding: 6px 10px;
-  border-radius: 8px;
-}
-
-.combo-my-fav-close {
-  margin-top: 12px;
-  width: 100%;
-  background: transparent;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
-}
-
-/* =====================================================
-   RESPONSIVE – TABLET
-===================================================== */
+/* ── Responsive ──────────────────────────────────────────── */
 @media (max-width: 1024px) {
-
   .combo-page {
     flex-direction: column;
     height: auto;
+    overflow: visible;
   }
 
-  .combo-left,
+  .combo-left {
+    padding: 20px;
+  }
+
   .combo-right {
     width: 100%;
-    padding: 0;
-  }
-
-  .combo-right {
     border-left: none;
     border-top: 1px solid var(--text-tertiary);
     padding: 20px;
   }
 
-  .combo-add-btn {
-    width: 100%;
+  .combo-summary {
+    margin-top: 16px;
   }
 }
 
-@media (max-width: 992px) {
-  .combo-page {
-    padding: var(--medium-page-padding);
-  }
-}
-
-/* =====================================================
-   RESPONSIVE – MOBILE
-===================================================== */
 @media (max-width: 768px) {
-  .combo-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .combo-items-grid {
+    grid-template-columns: repeat(3, 1fr);
     gap: 10px;
   }
 
-  .combo-category-row {
-    gap: 12px;
-  }
-
-  .combo-category-card {
-    width: 100%;
-  }
-
-  .combo-items-grid {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-  }
-
-  .combo-item-card {
-    padding: 14px;
-  }
-
-  .combo-item-image {
-    width: 70%;
-  }
-
-  .combo-right {
-    padding: 18px;
-  }
-
-  .combo-selected-item {
-    padding: 10px;
-  }
-
-  .combo-summary {
-    gap: 8px;
-  }
-
-  .combo-final-price div:last-child {
-    font-size: 22px;
-  }
-
-  .combo-add-btn {
-    padding: 12px 0;
-  }
-
-  /* FAV MODAL FIX */
-  .combo-my-fav-modal {
-    width: 100%;
-    max-width: 100%;
-    border-radius: 14px;
-  }
-
-  .combo-add-fav-modal {
-    width: 95%;
-  }
-}
-
-/* =====================================================
-   RESPONSIVE – SMALL MOBILE
-===================================================== */
-@media (max-width: 578px) {
-  .combo-page {
-    padding: var(--mobile-page-padding);
+  .combo-header {
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 100vh;
-  }
-
-  .offer-hint-modal {
-    padding: 20px 16px;
-  }
-
-
-  .back-and-head {
-    gap: 0 !important;
-  }
-
-  .back-and-head div {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    gap: 2px;
   }
 
   .combo-header-btn-section {
@@ -768,52 +900,45 @@
 
   .combo-add-fav-btn,
   .combo-my-fav-btn {
-    width: 100%;
+    flex: 1;
+    text-align: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .combo-page {
+    padding: var(--mobile-page-padding, 16px);
   }
 
-  .combo-left,
-  .combo-right {
+  .combo-left {
     padding: 0;
+  }
+
+  .combo-right {
+    padding: 16px;
+  }
+
+  .combo-items-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
   }
 
   .combo-category-row {
     gap: 6px;
   }
 
-  .combo-items-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+  .combo-add-fav-modal,
+  .offer-hint-modal {
+    width: calc(100vw - 32px);
   }
 
-  .combo-item-card {
-    padding: 16px;
+  .combo-progress-label {
+    display: none;
   }
 
-  .combo-item-image {
-    width: 60%;
+  .combo-progress-dot {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
   }
-
-  .combo-header h2 {
-    font-size: 18px;
-  }
-
-  .combo-header p {
-    font-size: 13px;
-  }
-
-  .combo-summary {
-    font-size: 14px;
-  }
-
-  .combo-final-price div:last-child {
-    font-size: 20px;
-  }
-
-  .combo-add-btn {
-    font-size: 14px;
-    width: fit-content;
-    padding: 14px 24px;
-    margin: 0 auto;
-  }
-
 }

@@ -5,179 +5,372 @@
   will-change: left, top, transform;
   object-fit: contain;
   display: block;
-}
-
-.fly-img {
   backface-visibility: hidden;
   transform-origin: center center;
 }
 
+/* ============================================================
+   FoodGridList.css — Premium Dish Grid
+============================================================ */
 .food-grid-page {
-  padding: 36px;
+  padding: 28px 36px 48px;
   font-family: "Geom", system-ui, sans-serif;
   box-sizing: border-box;
+  min-height: 100vh;
+  background: var(--bg-primary);
 }
 
+/* ── Header ──────────────────────────────────────────── */
 .food-grid-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-
+  gap: 12px;
   position: sticky;
   top: 0;
   z-index: 100;
   background: var(--bg-main);
+  padding: 10px 0 12px;
+  margin-bottom: 6px;
 }
 
 .food-grid-title {
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--text-primary);
+  flex: 1;
 }
 
-/* ===== GRID ===== */
+/* ── Toolbar ─────────────────────────────────────────── */
+.food-grid-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+
+/* Search */
+.food-grid-search-wrap {
+  flex: 1;
+  min-width: 180px;
+  max-width: 320px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.food-grid-search-icon {
+  position: absolute;
+  left: 12px;
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.food-grid-search {
+  width: 100%;
+  padding: 9px 36px 9px 34px;
+  border-radius: 12px;
+  border: 1.5px solid var(--text-tertiary);
+  background: var(--bg-main);
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.food-grid-search:focus {
+  border-color: var(--color-red);
+}
+
+.food-grid-search::placeholder {
+  color: var(--text-secondary);
+}
+
+.food-grid-search-clear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--text-secondary);
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+
+.food-grid-search-clear:hover {
+  color: var(--color-red);
+}
+
+/* Sort pills */
+.food-grid-sort {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.food-grid-sort-btn {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1.5px solid var(--text-tertiary);
+  background: var(--bg-main);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.food-grid-sort-btn:hover {
+  border-color: var(--color-red);
+  color: var(--color-red);
+}
+
+.food-grid-sort-btn.active {
+  background: var(--color-red);
+  color: #fff;
+  border-color: var(--color-red);
+}
+
+/* Count */
+.food-grid-count {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+/* ── Grid ────────────────────────────────────────────── */
 .food-grid {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 10px;
-  overflow-x: hidden;
-  padding: 6px;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 16px;
 }
 
-/* ===== CARD ===== */
+/* ── Card ────────────────────────────────────────────── */
 .food-grid-card {
   background: var(--bg-main);
-  border-radius: 18px;
-  padding: 12px;
-  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid transparent;
   box-shadow: var(--shadow-primary);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
   cursor: pointer;
-}
-
-.food-grid-card-image {
-  width: 140px;
-  height: 140px;
-  margin: 0 auto;
-}
-
-.food-grid-card-image img {
-  width: 100%;
-  height: 100%;
+  transition:
+    transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.24s ease,
+    border-color 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  outline: none;
 }
 
 .food-grid-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.13);
+  border-color: color-mix(in srgb, var(--color-red) 25%, transparent);
 }
 
-/* ===== IMAGE ===== */
-.food-grid-card img {
+.food-grid-card:focus-visible {
+  border-color: var(--color-red);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-red) 20%, transparent);
+}
+
+/* Card image area */
+.food-grid-card-img-wrap {
   width: 100%;
-  height: 140px;
-  object-fit: contain;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  background: var(--bg-primary);
+  overflow: hidden;
 }
 
-/* ===== INFO ===== */
-.grid-info {
-  margin-top: 8px;
-}
-
-.grid-name {
-  font-size: 15px;
-  font-weight: 600;
-  line-height: 1.2;
-  height: 54px;
-}
-
-.grid-price {
-  margin-top: 6px;
-  font-weight: 700;
-  font-size: 15px;
-}
-
-.grid-link {
-  margin-top: 10px;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-red);
-
-  cursor: pointer;
-  user-select: none;
-  width: fit-content;
-
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
-
-.grid-link:hover {
-  transform: translateX(4px);
-  opacity: 0.9;
-}
-
-.grid-link:active {
-  transform: translateX(2px) scale(0.98);
-}
-
-/* ===== ADD BUTTON ===== */
-.grid-add-btn {
+.food-grid-img-skeleton {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 34px;
-  height: 34px;
+  inset: 0;
+  background: linear-gradient(90deg, var(--bg-primary) 25%, color-mix(in srgb, var(--text-tertiary) 40%, var(--bg-primary)) 50%, var(--bg-primary) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.food-grid-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  transform: scale(0.92);
+}
+
+.food-grid-card-img.loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.food-grid-card:hover .food-grid-card-img.loaded {
+  transform: scale(1.06);
+}
+
+/* Card body */
+.food-grid-card-body {
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.food-grid-card-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 34px;
+}
+
+.food-grid-card-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.food-grid-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.food-grid-card-price {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-red);
+}
+
+.food-grid-card-add {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--color-red);
   color: #fff;
   border: none;
-  font-size: 18px;
+  font-size: 20px;
+  font-weight: 400;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.2s ease, background 0.2s ease;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.15s ease;
+  flex-shrink: 0;
 }
 
-.grid-add-btn:hover {
-  transform: scale(1.1);
+.food-grid-card-add:hover {
+  transform: scale(1.18) rotate(90deg);
+  background: color-mix(in srgb, var(--color-red) 85%, black);
 }
 
-/* ===== RESPONSIVE TUNING ===== */
+.food-grid-card-add:active {
+  transform: scale(0.94) rotate(90deg);
+}
+
+/* View hint — appears on hover */
+.food-grid-card-view-hint {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-red);
+  background: var(--bg-main);
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--color-red) 20%, transparent);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+}
+
+.food-grid-card:hover .food-grid-card-view-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Empty state ─────────────────────────────────────── */
+.food-grid-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.food-grid-empty-icon {
+  font-size: 44px;
+  opacity: 0.5;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 1200px) {
-
   .food-grid {
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
   }
 }
 
 @media (max-width: 992px) {
   .food-grid-page {
-    padding: var(--medium-page-padding);
+    padding: var(--medium-page-padding, 20px);
+    padding-bottom: 36px;
   }
 
   .food-grid {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
   }
 }
 
-
 @media (max-width: 768px) {
-  .grid-title {
-    font-size: 26px;
-  }
-
   .food-grid {
     grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
 }
 
 @media (max-width: 578px) {
   .food-grid-page {
-    padding: var(--mobile-page-padding);
+    padding: var(--mobile-page-padding, 14px);
+    padding-bottom: 32px;
   }
 
   .food-grid {
@@ -185,11 +378,20 @@
     gap: 10px;
   }
 
-  .food-grid-card {
-    padding: 10px;
+  .food-grid-toolbar {
+    gap: 8px;
   }
 
-  .food-grid-card-image {
-    margin: 0 auto;
+  .food-grid-count {
+    display: none;
+  }
+
+  .food-grid-sort {
+    gap: 4px;
+  }
+
+  .food-grid-sort-btn {
+    padding: 5px 10px;
+    font-size: 11px;
   }
 }

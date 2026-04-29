@@ -49,15 +49,15 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   const navigate = useNavigate();
   let category = foodData.categories.find(c => c.id === categoryId);
 
-if (!category) {
-  for (const cat of foodData.categories) {
-    const sub = cat.subCategories?.find(s => s.id === categoryId);
-    if (sub) {
-      category = sub;
-      break;
+  if (!category) {
+    for (const cat of foodData.categories) {
+      const sub = cat.subCategories?.find(s => s.id === categoryId);
+      if (sub) {
+        category = sub;
+        break;
+      }
     }
   }
-}
 
   const [detailKey, setDetailKey] = useState(0);
   const [isGlidingOut, setIsGlidingOut] = useState(false);
@@ -321,14 +321,14 @@ if (!category) {
       </div>
 
       <div className="carousel-controls">
-          <button
-            className="image-nav-btn backward-btn"
-            onClick={goPrev}
-          />
+        <button
+          className="image-nav-btn backward-btn"
+          onClick={goPrev}
+        />
 
-          <button className="image-nav-btn forward-btn" onClick={goNext}>
-          </button>
-        </div>
+        <button className="image-nav-btn forward-btn" onClick={goNext}>
+        </button>
+      </div>
     </div >
   );
 };

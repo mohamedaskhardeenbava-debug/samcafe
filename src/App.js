@@ -33,6 +33,7 @@ import PreBooking from "./UserPanel/PreBooking";
 import CateringForm from "./UserPanel/CateringForm";
 
 import bellSound from "./assets/sounds/bell.mp3";
+import { ToastProvider } from "./UserPanel/Usetoast";
 import bellGif from "./assets/bell/bell.gif";
 import bellStatic from "./assets/bell/bell-static.png";
 
@@ -129,6 +130,39 @@ function App() {
   };
 
   const normalizeBagItem = (rawItem, foodData) => {
+
+    // ✅ HANDLE COMBO FIRST
+    if (rawItem.isCombo) {
+      const quantity = Number(rawItem.quantity || 1);
+      const unitPrice = Number(rawItem.perComboFinalPrice || rawItem.unitPrice || 0);
+
+      return {
+        id: rawItem.id,
+        name: rawItem.name,
+        image:
+          rawItem.comboItems?.main?.image ||
+          rawItem.comboItems?.starter?.image ||
+          rawItem.comboItems?.drink?.image ||
+          "",
+        categoryId: "combo",
+
+        isCombo: true,
+        comboItems: rawItem.comboItems || {},
+
+        quantity,
+        unitPrice,
+        // ✅ FIX: preserve perComboFinalPrice so FloatingBag.getUnitPrice() works correctly
+        perComboFinalPrice: unitPrice,
+        totalPrice: unitPrice * quantity,
+
+        status: "placed",
+        selectedSize: "regular",
+        notes: "",
+        ingredients: [],
+        createdAt: new Date().toISOString()
+      };
+    }
+
     const category =
       foodData.categories.find(c => c.id === rawItem.categoryId) ||
       findCategoryByDish(foodData, rawItem.id);
@@ -186,6 +220,8 @@ function App() {
 
       const matchIndex = prev.findIndex(p =>
         p.id === item.id &&
+        p.isCombo === item.isCombo &&
+        JSON.stringify(p.comboItems) === JSON.stringify(item.comboItems) &&
         p.selectedSize === item.selectedSize &&
         p.isCustomized === item.isCustomized &&
         ingredientSignature(p.ingredients) === ingredientSignature(item.ingredients) &&
@@ -525,200 +561,201 @@ function App() {
   // if (error) return <div className="app-error">Failed to load menu</div>;
 
   return (
-    <LayoutGroup>
-      <div className="App">
-        <FloatingBag
-          bag={bag}
-          isOpen={isBagOpen}
-          setIsOpen={setIsBagOpen}
-          increaseQty={increaseQty}
-          decreaseQty={decreaseQty}
-        />
+    <ToastProvider>
+      <LayoutGroup>
+        <div className="App">
+          <FloatingBag
+            bag={bag}
+            isOpen={isBagOpen}
+            setIsOpen={setIsBagOpen}
+            increaseQty={increaseQty}
+            decreaseQty={decreaseQty}
+          />
 
-        {isDineIn && (
-          <div className="floating-bell-wrapper" onClick={handleRingBell}>
-            <button
-              className={`floating-bell ${isRinging ? "ringing" : ""}`}
-            >
-              <img
-                key={isRinging ? "animated" : "static"}
-                src={isRinging ? bellGif : bellStatic}
-                alt="Call Attender"
-                className="bell-image"
-              />
-            </button>
+          {isDineIn && (
+            <div className="floating-bell-wrapper" onClick={handleRingBell}>
+              <button
+                className={`floating-bell ${isRinging ? "ringing" : ""}`}
+              >
+                <img
+                  key={isRinging ? "animated" : "static"}
+                  src={isRinging ? bellGif : bellStatic}
+                  alt="Call Attender"
+                  className="bell-image"
+                />
+              </button>
 
-            <div className="bell-tooltip">
-              Click to call the attender
+              <div className="bell-tooltip">
+                Click to call the attender
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {isExpandedPage ? (
-          <AnimatePresence mode="wait" initial={false}>
-            <Routes location={location}>
-              {/* Expanded page renders with NO exit/enter animation */}
-              <Route
-                path="/foods/:categoryId/expanded"
-                element={
-                  <div>
-                    <FoodListExpanded
+          {isExpandedPage ? (
+            <AnimatePresence mode="wait" initial={false}>
+              <Routes location={location}>
+                {/* Expanded page renders with NO exit/enter animation */}
+                <Route
+                  path="/foods/:categoryId/expanded"
+                  element={
+                    <div>
+                      <FoodListExpanded
+                        foodData={foodData}
+                        addToBag={addToBag}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </div>
+                  }
+                />
+              </Routes>
+            </AnimatePresence>
+          ) : (
+            <AnimatePresence mode="wait" initial={false}>
+              <Routes location={location} key={location.pathname}>
+                <Route
+                  path="/"
+                  element={
+                    <motion.div {...motionProps}>
+                      <Welcome
+                        handleNavigate={handleNavigate}
+                        toCamelCase={toCamelCase}
+                        setCurrentUser={setCurrentUser}
+                        fetchMenu={fetchMenu}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path="/categories"
+                  element={
+                    <motion.div {...motionProps}>
+                      <FoodCategory
+                        foodData={foodData}
+                        handleNavigate={handleNavigate}
+                        currentUser={currentUser}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path="/appetizer-builder"
+                  element={
+                    <AppetizerBuilder
                       foodData={foodData}
                       addToBag={addToBag}
                       handleBack={handleBack}
                       handleHome={handleHome}
                     />
-                  </div>
-                }
-              />
-            </Routes>
-          </AnimatePresence>
-        ) : (
-          <AnimatePresence mode="wait" initial={false}>
-            <Routes location={location} key={location.pathname}>
-              <Route
-                path="/"
-                element={
-                  <motion.div {...motionProps}>
-                    <Welcome
-                      handleNavigate={handleNavigate}
-                      toCamelCase={toCamelCase}
-                      setCurrentUser={setCurrentUser}
-                      fetchMenu={fetchMenu}
-                    />
-                  </motion.div>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path="/categories"
-                element={
-                  <motion.div {...motionProps}>
-                    <FoodCategory
+                <Route
+                  path="/subcategory/:categoryId"
+                  element={
+                    <SubCategoryPage
                       foodData={foodData}
-                      handleNavigate={handleNavigate}
-                      currentUser={currentUser}
-                    />
-                  </motion.div>
-                }
-              />
-
-              <Route
-                path="/appetizer-builder"
-                element={
-                  <AppetizerBuilder
-                    foodData={foodData}
-                    addToBag={addToBag}
-                    handleBack={handleBack}
-                    handleHome={handleHome}
-                  />
-                }
-              />
-
-              <Route
-                path="/subcategory/:categoryId"
-                element={
-                  <SubCategoryPage
-                    foodData={foodData}
-                    handleBack={handleBack}
-                    handleHome={handleHome}
-                  />
-                }
-              />
-
-              <Route
-                path="/subcategory/:categoryId"
-                element={
-                  <SubCategoryPage
-                    foodData={foodData}
-                    handleBack={handleBack}
-                    handleHome={handleHome}
-                  />
-                }
-              />
-
-              <Route
-                path="/foods/:categoryId/grid"
-                element={
-                  <motion.div {...motionProps}>
-                    <FoodGridList
-                      foodData={foodData}
-                      addToBag={addToBag}
                       handleBack={handleBack}
                       handleHome={handleHome}
                     />
-                  </motion.div>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path="/foods/:categoryId"
-                element={
-                  <FoodList
-                    handleBack={handleBack}
-                    foodData={foodData}
-                    handleNavigate={handleNavigate}
-                    addToBag={addToBag}
-                    handleHome={handleHome}
-                  />
-                }
-              />
-
-              <Route
-                path="/food/:id"
-                element={
-                  <motion.div {...motionProps}>
-                    <FoodItem
-                      handleBack={handleBack}
+                <Route
+                  path="/subcategory/:categoryId"
+                  element={
+                    <SubCategoryPage
                       foodData={foodData}
-                      handleNavigate={handleNavigate}
-                      onToggleFavourite={onToggleFavourite}
-                      addToBag={addToBag}
-                      updateBagItem={updateBagItem}
-                      setDirection={setDirection}
-                      setLastAction={setLastAction}
-                      toCamelCase={toCamelCase}
+                      handleBack={handleBack}
                       handleHome={handleHome}
-                      currentUser={currentUser}
                     />
-                  </motion.div>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path="/ingredient/:id"
-                element={
-                  <motion.div {...motionProps}>
-                    <IngredientDetail
+                <Route
+                  path="/foods/:categoryId/grid"
+                  element={
+                    <motion.div {...motionProps}>
+                      <FoodGridList
+                        foodData={foodData}
+                        addToBag={addToBag}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path="/foods/:categoryId"
+                  element={
+                    <FoodList
                       handleBack={handleBack}
                       foodData={foodData}
                       handleNavigate={handleNavigate}
+                      addToBag={addToBag}
+                      handleHome={handleHome}
                     />
-                  </motion.div>
-                }
-              />
+                  }
+                />
 
-              <Route
-                path="/thank-you"
-                element={
-                  <motion.div {...motionProps}>
-                    <ThankYou
-                      bag={bag}
-                      setBag={setBag}
-                      setIsBagOpen={setIsBagOpen}
-                      onOrderPlaced={(order) =>
-                        setFoodData(prev => ({
-                          ...prev,
-                          orders: [...(prev.orders || []), order]
-                        }))
-                      }
-                    />
-                  </motion.div>
+                <Route
+                  path="/food/:id"
+                  element={
+                    <motion.div {...motionProps}>
+                      <FoodItem
+                        handleBack={handleBack}
+                        foodData={foodData}
+                        handleNavigate={handleNavigate}
+                        onToggleFavourite={onToggleFavourite}
+                        addToBag={addToBag}
+                        updateBagItem={updateBagItem}
+                        setDirection={setDirection}
+                        setLastAction={setLastAction}
+                        toCamelCase={toCamelCase}
+                        handleHome={handleHome}
+                        currentUser={currentUser}
+                      />
+                    </motion.div>
+                  }
+                />
 
-                }
-              />
+                <Route
+                  path="/ingredient/:id"
+                  element={
+                    <motion.div {...motionProps}>
+                      <IngredientDetail
+                        handleBack={handleBack}
+                        foodData={foodData}
+                        handleNavigate={handleNavigate}
+                      />
+                    </motion.div>
+                  }
+                />
 
-              {/* <Route
+                <Route
+                  path="/thank-you"
+                  element={
+                    <motion.div {...motionProps}>
+                      <ThankYou
+                        bag={bag}
+                        setBag={setBag}
+                        setIsBagOpen={setIsBagOpen}
+                        onOrderPlaced={(order) =>
+                          setFoodData(prev => ({
+                            ...prev,
+                            orders: [...(prev.orders || []), order]
+                          }))
+                        }
+                      />
+                    </motion.div>
+
+                  }
+                />
+
+                {/* <Route
                 path="/scan-table"
                 element={
                   <motion.div {...motionProps}>
@@ -727,115 +764,116 @@ function App() {
                 }
               /> */}
 
-              {/* FAV CATEGORY PAGE */}
-              <Route
-                path="/favourites/:source"
-                element={
-                  <motion.div {...motionProps}>
-                    <FavouriteCategories
-                      foodData={foodData}
-                      currentUser={currentUser}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
-
-              {/* FAV DISH LIST PAGE */}
-              <Route
-                path="/favourites/:source/category/:categoryId"
-                element={
-                  <motion.div {...motionProps}>
-                    <FavouriteDishList
-                      foodData={foodData}
-                      currentUser={currentUser}
-                      setCurrentUser={setCurrentUser}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
-
-
-
-              <Route
-                path="/favourites/:source/dish/:dishId"
-                element={
-                  <motion.div {...motionProps}>
-                    <FavouriteDishDetail
-                      foodData={foodData}
-                      handleBack={handleBack}
-                      addToBag={addToBag}
-                      handleHome={handleHome}
-                      currentUser={currentUser}
-                    />
-                  </motion.div>
-                }
-              />
-
-              <Route
-                path="/combo"
-                element={
-                  <motion.div {...motionProps}>
-                    <ComboPage
-                      foodData={foodData}
-                      addToBag={addToBag}
-                      updateBagItem={updateBagItem}
-                      handleBack={handleBack}
-                      currentUser={currentUser}
-                      setCurrentUser={setCurrentUser}
-                    />
-                  </motion.div>
-
-                }
-              />
-
-              <Route
-                path="/favourite-combos"
-                element={
-                  isAuthenticatedUser ? (
+                {/* FAV CATEGORY PAGE */}
+                <Route
+                  path="/favourites/:source"
+                  element={
                     <motion.div {...motionProps}>
-                      <FavouriteCombo
+                      <FavouriteCategories
+                        foodData={foodData}
+                        currentUser={currentUser}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                {/* FAV DISH LIST PAGE */}
+                <Route
+                  path="/favourites/:source/category/:categoryId"
+                  element={
+                    <motion.div {...motionProps}>
+                      <FavouriteDishList
+                        foodData={foodData}
                         currentUser={currentUser}
                         setCurrentUser={setCurrentUser}
-                        addToBag={addToBag}
                         handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
+
+
+
+                <Route
+                  path="/favourites/:source/dish/:dishId"
+                  element={
+                    <motion.div {...motionProps}>
+                      <FavouriteDishDetail
+                        foodData={foodData}
+                        handleBack={handleBack}
+                        addToBag={addToBag}
+                        handleHome={handleHome}
+                        currentUser={currentUser}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path="/combo"
+                  element={
+                    <motion.div {...motionProps}>
+                      <ComboPage
+                        foodData={foodData}
+                        comboOfferRules={foodData.comboOffers || []}
+                        addToBag={addToBag}
+                        updateBagItem={updateBagItem}
+                        handleBack={handleBack}
+                        currentUser={currentUser}
+                        setCurrentUser={setCurrentUser}
                       />
                     </motion.div>
 
-                  ) : (
-                    <Navigate to="/categories" replace />
-                  )
-                }
-              />
+                  }
+                />
 
-              <Route
-                path="/offers"
-                element={
-                  <motion.div {...motionProps}>
-                    <OffersGrid
-                      foodData={foodData}
-                      addToBag={addToBag}
-                      handleBack={() => navigate(-1)}
-                      handleHome={() => navigate("/categories")}
-                    />
-                  </motion.div>
-                }
-              />
+                <Route
+                  path="/favourite-combos"
+                  element={
+                    isAuthenticatedUser ? (
+                      <motion.div {...motionProps}>
+                        <FavouriteCombo
+                          currentUser={currentUser}
+                          setCurrentUser={setCurrentUser}
+                          addToBag={addToBag}
+                          handleBack={handleBack}
+                        />
+                      </motion.div>
 
-              <Route
-                path="/events"
-                element={
-                  <motion.div {...motionProps}>
-                    <EventHome
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
+                    ) : (
+                      <Navigate to="/categories" replace />
+                    )
+                  }
+                />
+
+                <Route
+                  path="/offers"
+                  element={
+                    <motion.div {...motionProps}>
+                      <OffersGrid
+                        foodData={foodData}
+                        addToBag={addToBag}
+                        handleBack={() => navigate(-1)}
+                        handleHome={() => navigate("/categories")}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path="/events"
+                  element={
+                    <motion.div {...motionProps}>
+                      <EventHome
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
 
                 <Route
                   path="/events/hosted"
@@ -849,67 +887,68 @@ function App() {
                     </motion.div>
                   }
                 />
-                
-              <Route
-                path="/events/reservation"
-                element={
-                  <motion.div {...motionProps}>
-                    <ReservationForm
-                      foodData={foodData}
-                      bag={bag}
-                      setBag={setBag}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/events/celebration"
-                element={
-                  <motion.div {...motionProps}>
-                    <CelebrationForm
-                      bag={bag}
-                      setBag={setBag}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/events/prebooking"
-                element={
-                  <motion.div {...motionProps}>
-                    <PreBooking
-                      bag={bag}
-                      setBag={setBag}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
-              <Route
-                path="/events/catering"
-                element={
-                  <motion.div {...motionProps}>
-                    <CateringForm
-                      bag={bag}
-                      setBag={setBag}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  </motion.div>
-                }
-              />
 
-            </Routes>
+                <Route
+                  path="/events/reservation"
+                  element={
+                    <motion.div {...motionProps}>
+                      <ReservationForm
+                        foodData={foodData}
+                        bag={bag}
+                        setBag={setBag}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
+                <Route
+                  path="/events/celebration"
+                  element={
+                    <motion.div {...motionProps}>
+                      <CelebrationForm
+                        bag={bag}
+                        setBag={setBag}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
+                <Route
+                  path="/events/prebooking"
+                  element={
+                    <motion.div {...motionProps}>
+                      <PreBooking
+                        bag={bag}
+                        setBag={setBag}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
+                <Route
+                  path="/events/catering"
+                  element={
+                    <motion.div {...motionProps}>
+                      <CateringForm
+                        bag={bag}
+                        setBag={setBag}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                      />
+                    </motion.div>
+                  }
+                />
 
-          </AnimatePresence>
-        )}
-      </div>
-    </LayoutGroup >
+              </Routes>
+
+            </AnimatePresence>
+          )}
+        </div>
+      </LayoutGroup>
+    </ToastProvider>
   );
 }
 

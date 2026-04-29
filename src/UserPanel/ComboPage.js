@@ -1,480 +1,292 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { COMBO_OFFER_RULES } from "./comboNotifications";
 import "./ComboPage.css";
 import FavouriteCombo from "./FavouriteCombo";
-import FavouriteComboOverlay from "./FavouriteComboOverlay";
 import api from "../api";
 
-/*ANIMATIONS*/
+/* ─── Animations ──────────────────────────────────────────── */
 const pageVariant = {
-  hidden: { opacity: 0, y: 30, scale: 0.98 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] }
-  }
+  hidden: { opacity: 0, y: 24, scale: 0.985 },
+  show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] } }
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.3 }
-  }
+  hidden: { opacity: 0, y: 16, scale: 0.96 },
+  show: (i) => ({ opacity: 1, y: 0, scale: 1, transition: { duration: 0.3, delay: i * 0.04, ease: "easeOut" } })
 };
 
+const gridVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.04 } }
+};
+
+const slideIn = {
+  hidden: { opacity: 0, x: 40 },
+  show: { opacity: 1, x: 0, transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] } },
+  exit: { opacity: 0, x: -30, transition: { duration: 0.28, ease: "easeInOut" } }
+};
+
+const overlayAnim = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0, transition: { duration: 0.18 } }
+};
+
+const modalAnim = {
+  hidden: { scale: 0.9, y: 20, opacity: 0 },
+  show: { scale: 1, y: 0, opacity: 1, transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] } },
+  exit: { scale: 0.93, y: 12, opacity: 0, transition: { duration: 0.22 } }
+};
+
+/* ─── Helpers ─────────────────────────────────────────────── */
 const getOfferHint = (starter, main) => {
   if (starter && !main) {
-    const rule = COMBO_OFFER_RULES.find(
-      r => r.condition.starter === starter.name
-    );
-
-    if (rule) {
-      return {
-        message: `Add ${rule.condition.main} to unlock ${rule.label}`,
-        targetType: "main",
-        targetName: rule.condition.main
-      };
-    }
+    const rule = COMBO_OFFER_RULES.find(r => r.condition.starter === starter.name);
+    if (rule) return { message: `Add "${rule.condition.main}" to unlock ${rule.label}`, targetType: "main", targetName: rule.condition.main };
   }
-
-  if (main && !starter) {
-    const rule = COMBO_OFFER_RULES.find(
-      r => r.condition.main === main.name
-    );
-
-    if (rule) {
-      return {
-        message: `Add ${rule.condition.starter} to unlock ${rule.label}`,
-        targetType: "starter",
-        targetName: rule.condition.starter
-      };
-    }
+  if (!starter && main) {
+    const rule = COMBO_OFFER_RULES.find(r => r.condition.main === main.name);
+    if (rule) return { message: `Add "${rule.condition.starter}" to unlock ${rule.label}`, targetType: "starter", targetName: rule.condition.starter };
   }
-
   return null;
 };
 
-/*COMPONENT*/
-const ComboPage = ({
-  foodData,
-  addToBag,
-  updateBagItem,
-  handleBack,
-  currentUser,
-  setCurrentUser
-}) => {
-  const location = useLocation();
+/* ─── Sub-components ──────────────────────────────────────── */
+const CategoryCard = ({ title, active, selected, onClick }) => (
+  <button
+    className={`combo-category-card ${active ? "active" : ""} ${selected ? "selected" : ""}`}
+    onClick={onClick}
+  >
+    {selected && <span className="combo-category-tick">✓</span>}
+    {title}
+  </button>
+);
 
+const SubCategoryBar = ({ groups, activeGroup, onSelect }) => (
+  <div className="combo-subcategory-row">
+    {groups.map(g => (
+      <button
+        key={g.id}
+        className={`combo-subcategory-btn ${activeGroup === g.id ? "active" : ""}`}
+        onClick={() => onSelect(g.id)}
+      >
+        {g.title}
+      </button>
+    ))}
+  </div>
+);
+
+const ComboItemCard = ({ item, onAdd, index }) => (
+  <motion.div
+    className="combo-item-card"
+    variants={itemVariants}
+    custom={index}
+    whileHover={{ y: -6, scale: 1.03, transition: { duration: 0.2 } }}
+    whileTap={{ scale: 0.97 }}
+  >
+    <div className="combo-item-image">
+      <img src={item.image} alt={item.name} loading="lazy" />
+    </div>
+    <div className="combo-item-name">{item.name}</div>
+    <div className="combo-item-price">₹{item.price ?? item.basePrice ?? 0}</div>
+    <button onClick={onAdd}>Add</button>
+  </motion.div>
+);
+
+const SelectedItem = ({ item, label, onDelete }) => (
+  <motion.div
+    className="combo-selected-item"
+    variants={slideIn}
+    initial="hidden"
+    animate="show"
+    exit="exit"
+    layout
+  >
+    <div className="combo-selected-label">{label}</div>
+    <div className="combo-selected-image">
+      <img src={item.image} alt={item.name} />
+    </div>
+    <div className="combo-selected-info">
+      <div className="combo-selected-name">{item.name}</div>
+      <div className="combo-selected-price">₹{item.price ?? item.basePrice ?? 0}</div>
+    </div>
+    <button className="combo-selected-delete" onClick={onDelete} aria-label="Remove">✕</button>
+  </motion.div>
+);
+
+const ProgressSteps = ({ starter, main, drink }) => {
+  const steps = [
+    { key: "starter", label: "Starter", done: !!starter, name: starter?.name },
+    { key: "main", label: "Main", done: !!main, name: main?.name },
+    { key: "drink", label: "Drink", done: !!drink, name: drink?.name },
+  ];
+  return (
+    <div className="combo-progress">
+      {steps.map((s, i) => (
+        <React.Fragment key={s.key}>
+          <div className={`combo-progress-step ${s.done ? "done" : ""}`}>
+            <div className="combo-progress-dot">{s.done ? "✓" : i + 1}</div>
+            <div className="combo-progress-label">{s.done ? s.name : s.label}</div>
+          </div>
+          {i < 2 && <div className={`combo-progress-line ${s.done ? "done" : ""}`} />}
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
+/* ─── Main Component ──────────────────────────────────────── */
+const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser, setCurrentUser }) => {
+  const location = useLocation();
   const isEditMode = location.state?.fromBag;
   const editQuantity = location.state?.quantity;
   const editIndex = location.state?.bagIndex;
-  const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
-  const [isSavingFav, setIsSavingFav] = useState(false);
-  const [activeLeftView, setActiveLeftView] = useState("builder");
 
-  /*DATA*/
-  const combo = useMemo(
-    () => (Array.isArray(foodData?.combo) ? foodData.combo : []),
-    [foodData]
-  );
+  /* ── Data ── */
+  const combo = useMemo(() => (Array.isArray(foodData?.combo) ? foodData.combo : []), [foodData]);
 
-  const startersSection =
-    combo.find(c => c.type === "starters") || { groups: [] };
+  const startersSection = useMemo(() => combo.find(c => c.type === "starters") || { groups: [] }, [combo]);
+  const mainSection = useMemo(() => combo.find(c => c.type === "mainCourse") || { groups: [] }, [combo]);
+  const beveragesSection = useMemo(() => combo.find(c => c.type === "beverages") || { groups: [] }, [combo]);
 
-  const mainSection = useMemo(
-    () => combo.find(c => c.type === "mainCourse") || { groups: [] },
-    [combo]
-  );
-
-  const beveragesSection = useMemo(
-    () => combo.find(c => c.type === "beverages") || { groups: [] },
-    [combo]
-  );
-
-  /*STATE*/
+  /* ── State ── */
   const [activeSection, setActiveSection] = useState("starters");
-  const [activeStarterGroup, setActiveStarterGroup] = useState(null);
+  const [activeStarterGroup, setActiveStarterGroup] = useState(() => startersSection.groups?.[0]?.id || null);
   const [activeMainGroup, setActiveMainGroup] = useState(null);
   const [activeDrinkGroup, setActiveDrinkGroup] = useState(null);
   const [offerHint, setOfferHint] = useState(null);
   const [showAddFavConfirm, setShowAddFavConfirm] = useState(false);
-  const [quantity, setQuantity] = useState(() =>
-    isEditMode && editQuantity ? editQuantity : 1
-  );
-
-
-  useEffect(() => {
-    if (activeSection === "starters" && !activeStarterGroup) {
-      setActiveStarterGroup(startersSection.groups?.[0]?.id || null);
-    }
-  }, [activeSection, startersSection, activeStarterGroup]);
-
-  useEffect(() => {
-    if (activeSection === "mainCourse" && !activeMainGroup) {
-      setActiveMainGroup(mainSection.groups?.[0]?.id || null);
-    }
-  }, [activeSection, mainSection, activeMainGroup]);
-
-  useEffect(() => {
-    if (activeSection === "beverages" && !activeDrinkGroup) {
-      setActiveDrinkGroup(beveragesSection.groups?.[0]?.id || null);
-    }
-  }, [activeSection, beveragesSection, activeDrinkGroup]);
+  const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
+  const [isSavingFav, setIsSavingFav] = useState(false);
+  const [activeLeftView, setActiveLeftView] = useState("builder");
+  const [quantity, setQuantity] = useState(() => (isEditMode && editQuantity) ? editQuantity : 1);
 
   const [selectedItems, setSelectedItems] = useState(() => {
-    if (isEditMode && location.state?.comboItems) {
-      return location.state.comboItems;
-    }
+    if (isEditMode && location.state?.comboItems) return location.state.comboItems;
     return { starter: null, main: null, drink: null };
   });
 
-  const [appliedOffer, setAppliedOffer] = useState(null);
+  /* ── Initialise groups when section activates ── */
+  useEffect(() => {
+    if (activeSection === "starters" && !activeStarterGroup)
+      setActiveStarterGroup(startersSection.groups?.[0]?.id || null);
+    if (activeSection === "mainCourse" && !activeMainGroup)
+      setActiveMainGroup(mainSection.groups?.[0]?.id || null);
+    if (activeSection === "beverages" && !activeDrinkGroup)
+      setActiveDrinkGroup(beveragesSection.groups?.[0]?.id || null);
+  }, [activeSection]);
 
-  /*PRICE CALCULATION*/
-  const perComboBasePrice = useMemo(() => {
-    return Object.values(selectedItems)
-      .filter(Boolean)
-      .reduce((sum, item) => {
-        const price = Number(item.price ?? item.basePrice ?? 0);
-        return sum + price;
-      }, 0);
-  }, [selectedItems]);
+  /* ── Edit mode auto-advance ── */
+  const { starter, main, drink } = selectedItems;
+  useEffect(() => {
+    if (!isEditMode) return;
+    if (starter && !main) setActiveSection("mainCourse");
+    else if (starter && main && !drink) setActiveSection("beverages");
+    else if (starter && main && drink) setActiveSection(null);
+  }, [isEditMode, starter?.name, main?.name, drink?.name]);
+
+  /* ── Offer matching ── */
+  const appliedOffer = useMemo(() => {
+    const sName = selectedItems.starter?.name;
+    const mName = selectedItems.main?.name;
+    if (!sName || !mName) return null;
+    return COMBO_OFFER_RULES.find(r => r.condition.starter === sName && r.condition.main === mName) || null;
+  }, [selectedItems.starter?.name, selectedItems.main?.name]);
+
+  /* ── Offer hint (only when exactly one is selected) ── */
+  useEffect(() => {
+    const hint = getOfferHint(selectedItems.starter, selectedItems.main);
+    setOfferHint(hint);
+  }, [selectedItems.starter?.name, selectedItems.main?.name]);
+
+  /* ── Prices ── */
+  const perComboBasePrice = useMemo(() => (
+    Object.values(selectedItems).filter(Boolean).reduce((s, i) => s + Number(i.price ?? i.basePrice ?? 0), 0)
+  ), [selectedItems]);
 
   const perComboFinalPrice = useMemo(() => {
     if (!appliedOffer) return perComboBasePrice;
-
-    if (appliedOffer.type === "FLAT") {
-      return Math.max(perComboBasePrice - appliedOffer.value, 0);
-    }
-
-    if (appliedOffer.type === "PERCENT") {
-      return Math.round(
-        perComboBasePrice -
-        (perComboBasePrice * appliedOffer.value) / 100
-      );
-    }
-
+    if (appliedOffer.type === "FLAT") return Math.max(perComboBasePrice - appliedOffer.value, 0);
+    if (appliedOffer.type === "PERCENT") return Math.round(perComboBasePrice * (1 - appliedOffer.value / 100));
     return perComboBasePrice;
   }, [perComboBasePrice, appliedOffer]);
 
   const originalTotal = perComboBasePrice * quantity;
   const discountedPrice = perComboFinalPrice * quantity;
+  const savings = originalTotal - discountedPrice;
 
-  const isComboComplete =
-    selectedItems.starter &&
-    selectedItems.main &&
-    selectedItems.drink;
+  const isComboComplete = !!(selectedItems.starter && selectedItems.main && selectedItems.drink);
 
   const comboTitle = useMemo(() => {
     if (!isComboComplete) return "";
-
-    return [
-      selectedItems.starter.name,
-      selectedItems.main.name,
-      selectedItems.drink.name
-    ].join(" + ");
+    return [selectedItems.starter.name, selectedItems.main.name, selectedItems.drink.name].join(" + ");
   }, [selectedItems, isComboComplete]);
 
-  const findComboItemByName = (type, name) => {
-    if (type === "starter") {
-      return startersSection.items.find(i => i.name === name);
+  /* ── Find item by name (bug fix: search groups not section.items) ── */
+  const findComboItemByName = useCallback((type, name) => {
+    const section = type === "starter" ? startersSection : type === "main" ? mainSection : beveragesSection;
+    for (const group of (section.groups || [])) {
+      const found = (group.items || []).find(i => i.name === name);
+      if (found) return found;
     }
-
-    if (type === "main") {
-      for (const group of mainSection.groups) {
-        const found = group.items.find(i => i.name === name);
-        if (found) return found;
-      }
-    }
-
-    if (type === "drink") {
-      for (const group of beveragesSection.groups) {
-        const found = group.items.find(i => i.name === name);
-        if (found) return found;
-      }
-    }
-
     return null;
-  };
+  }, [startersSection, mainSection, beveragesSection]);
 
-  const { starter, main, drink } = selectedItems;
-  useEffect(() => {
-    if (!isEditMode) return;
+  /* ── Actions ── */
+  const handleAddItem = useCallback((type, item) => {
+    setSelectedItems(prev => ({ ...prev, [type]: item }));
+    if (type === "starter") { setActiveSection("mainCourse"); setActiveMainGroup(null); }
+    else if (type === "main") { setActiveSection("beverages"); setActiveDrinkGroup(null); }
+    else setActiveSection(null);
+  }, []);
 
-    if (starter && !main) {
-      setActiveSection("mainCourse");
-    } else if (starter && main && !drink) {
-      setActiveSection("beverages");
-    } else if (starter && main && drink) {
-      setActiveSection(null);
-    }
-  }, [isEditMode, starter, main, drink]);
-
-  useEffect(() => {
-    const starterName = selectedItems.starter?.name;
-    const mainName = selectedItems.main?.name;
-
-    // Only starter or main missing → remove offer
-    if (!starterName || !mainName) {
-      setAppliedOffer(null);
-      return;
-    }
-
-    // Find matching offer
-    const matched = COMBO_OFFER_RULES.find(
-      rule =>
-        rule.condition.starter === starterName &&
-        rule.condition.main === mainName
-    );
-
-    setAppliedOffer(matched || null);
-  }, [
-    selectedItems.starter?.name,
-    selectedItems.main?.name
-  ]);
-
-  useEffect(() => {
-    const hint = getOfferHint(starter, main);
-    setOfferHint(hint);
-  }, [starter, main]);
-
-  const handleHintAdd = () => {
-    if (!offerHint) return;
-
-    const { targetType, targetName } = offerHint;
-
-    const item = findComboItemByName(targetType, targetName);
-
-    if (item) {
-      handleAddItem(targetType, item); // ✅ ACTUALLY ADD
-    }
-
-    setOfferHint(null); // close overlay
-  };
-
-  const handleHintSkip = () => {
-    setOfferHint(null); // manual close
-  };
-
-  /*ACTIONS*/
-  const handleAddItem = (type, item) => {
-    setSelectedItems(prev => {
-      const updated = { ...prev, [type]: item };
-
-      // 🔁 AUTO-ADVANCE FLOW
-      if (type === "starter") {
-        setActiveSection("mainCourse");
-      } else if (type === "main") {
-        setActiveSection("beverages");
-      } else {
-        setActiveSection(null);
-      }
-
-      setActiveMainGroup(null);
-      setActiveDrinkGroup(null);
-      return updated;
-    });
-  };
-
-  const handleDelete = (type) => {
+  const handleDelete = useCallback((type) => {
     setSelectedItems(prev => {
       const updated = { ...prev, [type]: null };
-
-      if (type === "starter") {
-        updated.main = null;
-        updated.drink = null;
-        setActiveSection("starters");
-        setActiveMainGroup(null);
-        setActiveDrinkGroup(null);
-      } else if (type === "main") {
-        updated.drink = null;
-        setActiveSection("mainCourse");
-        setActiveMainGroup(null);
-      } else if (type === "drink") {
-        setActiveSection("beverages");
-        setActiveDrinkGroup(null);
-      }
+      if (type === "starter") { updated.main = null; updated.drink = null; setActiveSection("starters"); setActiveMainGroup(null); setActiveDrinkGroup(null); }
+      else if (type === "main") { updated.drink = null; setActiveSection("mainCourse"); setActiveMainGroup(null); }
+      else setActiveSection("beverages");
       return updated;
     });
-  };
+  }, []);
 
-  const handleAddToBag = () => {
+  const handleAddToBag = useCallback(() => {
     const comboItem = {
       id: `combo_${Date.now()}`,
       name: comboTitle,
       categoryId: "combo",
-
       quantity,
-
-      // ✅ ADD THIS (CRITICAL)
       unitPrice: perComboFinalPrice,
-
-      // keep existing fields
       perComboBasePrice,
       perComboFinalPrice,
-
-      // total must ALWAYS be unitPrice * quantity
       totalPrice: perComboFinalPrice * quantity,
-
       originalPrice: originalTotal,
       appliedOffer,
       comboItems: selectedItems,
       isCombo: true
     };
-
-    if (isEditMode) {
-      updateBagItem(editIndex, comboItem);
-    } else {
-      addToBag(comboItem);
-    }
+    if (isEditMode) updateBagItem(editIndex, comboItem);
+    else addToBag(comboItem);
     setQuantity(1);
-  };
+  }, [comboTitle, quantity, perComboFinalPrice, perComboBasePrice, originalTotal, appliedOffer, selectedItems, isEditMode, editIndex]);
 
-  const increaseQty = () => setQuantity(q => q + 1);
+  const handleHintAdd = useCallback(() => {
+    if (!offerHint) return;
+    const item = findComboItemByName(offerHint.targetType, offerHint.targetName);
+    if (item) handleAddItem(offerHint.targetType, item);
+    setOfferHint(null);
+  }, [offerHint, findComboItemByName, handleAddItem]);
 
-  const decreaseQty = () => setQuantity(q => (q > 1 ? q - 1 : 1));
-
-  /*RENDER HELPERS*/
-  const renderStarters = () => {
-    if (!Array.isArray(startersSection.groups)) return null;
-
-    const group = startersSection.groups.find(
-      g => g.id === activeStarterGroup
-    );
-
-    if (!group || !Array.isArray(group.items)) return null;
-
-    return group.items.map(item => (
-      <ComboItemCard
-        key={item.id}
-        item={item}
-        onAdd={() => handleAddItem("starter", item)}
-      />
-    ));
-  };
-
-  const renderMain = () => {
-    if (!Array.isArray(mainSection.groups)) return null;
-
-    const group = mainSection.groups.find(g => g.id === activeMainGroup);
-    if (!group || !Array.isArray(group.items)) return null;
-
-    return group.items.map(item => (
-      <ComboItemCard
-        key={item.id}
-        item={item}
-        onAdd={() => handleAddItem("main", item)}
-      />
-    ));
-  };
-
-  const renderBeverages = () => {
-    if (!Array.isArray(beveragesSection.groups)) return null;
-
-    if (!activeDrinkGroup) {
-      return beveragesSection.groups.map(group => (
-        <GroupCard
-          key={group.id}
-          title={group.title}
-          onClick={() => setActiveDrinkGroup(group.id)}
-        />
-      ));
-    }
-
-    const group = beveragesSection.groups.find(g => g.id === activeDrinkGroup);
-    if (!group || !Array.isArray(group.items)) return null;
-
-    return group.items.map(item => (
-      <ComboItemCard
-        key={item.id}
-        item={item}
-        onAdd={() => handleAddItem("drink", item)}
-      />
-    ));
-  };
-
-  const renderStarterSubCategories = () => (
-    <div className="combo-subcategory-row">
-      {startersSection.groups.map(group => (
-        <button
-          key={group.id}
-          className={`combo-subcategory-btn ${activeStarterGroup === group.id ? "active" : ""
-            }`}
-          onClick={() => setActiveStarterGroup(group.id)}
-        >
-          {group.title}
-        </button>
-      ))}
-    </div>
-  );
-
-  const renderMainSubCategories = () => (
-    <div className="combo-subcategory-row">
-      {mainSection.groups.map(group => (
-        <button
-          key={group.id}
-          className={`combo-subcategory-btn ${activeMainGroup === group.id ? "active" : ""
-            }`}
-          onClick={() => setActiveMainGroup(group.id)}
-        >
-          {group.title}
-        </button>
-      ))}
-    </div>
-  );
-
-  const renderDrinkSubCategories = () => (
-    <div className="combo-subcategory-row">
-      {beveragesSection.groups.map(group => (
-        <button
-          key={group.id}
-          className={`combo-subcategory-btn ${activeDrinkGroup === group.id ? "active" : ""
-            }`}
-          onClick={() => setActiveDrinkGroup(group.id)}
-        >
-          {group.title}
-        </button>
-      ))}
-    </div>
-  );
-
-  const renderItems = () => {
-    if (activeSection === "starters") {
-      return renderStarters();
-    }
-
-    if (activeSection === "mainCourse") {
-      return renderMain();
-    }
-
-    if (activeSection === "beverages") {
-      return renderBeverages();
-    }
-
-    return null;
-  };
-
-  if (!startersSection || !mainSection || !beveragesSection) {
-    return <div className="combo-page combo-loading">Loading combos...</div>;
-  }
-
-  const handleConfirmAddFav = async () => {
+  const handleConfirmAddFav = useCallback(async () => {
     if (!currentUser || !isComboComplete) return;
     setIsSavingFav(true);
 
     const newCombo = {
       id: `favcombo_${Date.now()}`,
       title: comboTitle,
-      items: {
-        starter: selectedItems.starter.name,
-        main: selectedItems.main.name,
-        drink: selectedItems.drink.name
-      },
+      items: { starter: selectedItems.starter.name, main: selectedItems.main.name, drink: selectedItems.drink.name },
       comboItems: selectedItems,
       originalPrice: originalTotal,
       perComboFinalPrice,
@@ -484,79 +296,77 @@ const ComboPage = ({
     };
 
     const existingCombos = currentUser.combo || [];
-
     const isDuplicate = existingCombos.some(c =>
       c.items.starter === newCombo.items.starter &&
       c.items.main === newCombo.items.main &&
       c.items.drink === newCombo.items.drink
     );
 
-    if (isDuplicate) {
-      setIsSavingFav(false);          // ✅ RESET LOADING STATE
-      setShowAddFavConfirm(false);
-      setShowDuplicateOverlay(true);
-      return;
-    }
+    if (isDuplicate) { setIsSavingFav(false); setShowAddFavConfirm(false); setShowDuplicateOverlay(true); return; }
 
     try {
-      const updatedUser = {
-        ...currentUser,
-        combo: [...existingCombos, newCombo]
-      };
-
+      const updatedUser = { ...currentUser, combo: [...existingCombos, newCombo] };
       await api.put(`/users/${currentUser.id}`, updatedUser);
       setCurrentUser(updatedUser);
       setShowAddFavConfirm(false);
       setActiveLeftView("favourites");
     } catch (err) {
       console.error("Failed to save favourite combo", err);
-      alert("Failed to add combo to favourites.");
     } finally {
       setIsSavingFav(false);
     }
-  };
+  }, [currentUser, isComboComplete, comboTitle, selectedItems, originalTotal, perComboFinalPrice, discountedPrice, appliedOffer]);
 
-  /*JSX*/
+  /* ── Render items ── */
+  const currentItems = useMemo(() => {
+    const getGroup = (section, activeGroup) => (section.groups || []).find(g => g.id === activeGroup);
+    if (activeSection === "starters") return (getGroup(startersSection, activeStarterGroup)?.items || []);
+    if (activeSection === "mainCourse") return (getGroup(mainSection, activeMainGroup)?.items || []);
+    if (activeSection === "beverages") return (getGroup(beveragesSection, activeDrinkGroup)?.items || []);
+    return [];
+  }, [activeSection, activeStarterGroup, activeMainGroup, activeDrinkGroup, startersSection, mainSection, beveragesSection]);
+
+  const currentGroups = useMemo(() => {
+    if (activeSection === "starters") return startersSection.groups || [];
+    if (activeSection === "mainCourse") return mainSection.groups || [];
+    if (activeSection === "beverages") return beveragesSection.groups || [];
+    return [];
+  }, [activeSection, startersSection, mainSection, beveragesSection]);
+
+  const activeGroup = activeSection === "starters" ? activeStarterGroup : activeSection === "mainCourse" ? activeMainGroup : activeDrinkGroup;
+  const setActiveGroup = activeSection === "starters" ? setActiveStarterGroup : activeSection === "mainCourse" ? setActiveMainGroup : setActiveDrinkGroup;
+
   return (
-    <motion.div
-      className="combo-page"
-      variants={pageVariant}
-      initial="hidden"
-      animate="show"
-    >
+    <motion.div className="combo-page" variants={pageVariant} initial="hidden" animate="show">
 
+      {/* ── Offer hint overlay ── */}
       <AnimatePresence mode="wait">
         {offerHint && (
-          <motion.div
-            className="offer-hint-backdrop"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <motion.div
-              className="offer-hint-modal"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <div className="offer-hint-text">
-                🎉 {offerHint.message}
-              </div>
-
+          <motion.div className="offer-hint-backdrop" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
+            <motion.div className="offer-hint-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+              <div className="offer-hint-emoji">🎉</div>
+              <div className="offer-hint-text">{offerHint.message}</div>
               <div className="offer-hint-actions">
-                <button
-                  className="offer-hint-add"
-                  onClick={handleHintAdd}
-                >
-                  Add
-                </button>
+                <button className="offer-hint-add" onClick={handleHintAdd}>Add Item</button>
+                <button className="offer-hint-skip" onClick={() => setOfferHint(null)}>Skip for now</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-                <button
-                  className="offer-hint-skip"
-                  onClick={handleHintSkip}
-                >
-                  Skip for now
+      {/* ── Add to fav confirm ── */}
+      <AnimatePresence mode="wait">
+        {showAddFavConfirm && (
+          <motion.div className="combo-add-fav-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
+            <motion.div className="combo-add-fav-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+              <div className="combo-add-fav-icon">⭐</div>
+              <h3>Save to Favourites?</h3>
+              <p className="combo-add-fav-title">{comboTitle}</p>
+              <div className="combo-add-fav-actions">
+                <button className="combo-add-fav-cancel" onClick={() => setShowAddFavConfirm(false)}>Cancel</button>
+                <button className="combo-add-fav-confirm" disabled={!isComboComplete || isSavingFav} onClick={() => { handleConfirmAddFav(); }}>
+                  {isSavingFav ? "Saving…" : "Confirm"}
                 </button>
               </div>
             </motion.div>
@@ -564,344 +374,175 @@ const ComboPage = ({
         )}
       </AnimatePresence>
 
+      {/* ── Duplicate overlay ── */}
+      <AnimatePresence mode="wait">
+        {showDuplicateOverlay && (
+          <motion.div className="combo-add-fav-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
+            <motion.div className="combo-add-fav-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+              <div className="combo-add-fav-icon">⚠️</div>
+              <h3>Already Saved</h3>
+              <p className="combo-add-fav-title">This combo already exists in your favourites.</p>
+              <div className="combo-add-fav-actions">
+                <button className="combo-add-fav-confirm" onClick={() => setShowDuplicateOverlay(false)}>Okay</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* LEFT */}
+      {/* ── LEFT PANEL ── */}
       <div className="combo-left">
         {activeLeftView === "builder" && (
           <div className="combo-header">
             <div className="back-and-head">
               <button className="back-button" onClick={handleBack} />
-
               <div>
-                <h2>{isEditMode ? "Edit Combo" : "Create Your Combo"}</h2>
-                <p>Select one starter, one main & one drink</p>
+                <h2>{isEditMode ? "Edit Combo" : "Build Your Combo"}</h2>
+                <p>Starter · Main · Drink — one of each</p>
               </div>
             </div>
-
             {currentUser && currentUser.id !== "guest" && (
               <div className="combo-header-btn-section">
-                <button
-                  className="combo-add-fav-btn"
-                  disabled={!isComboComplete}
-                  onClick={() => {
-                    setShowAddFavConfirm(true);
-                  }}
-                >
-                  Add to Fav
+                <button className="combo-add-fav-btn" disabled={!isComboComplete} onClick={() => setShowAddFavConfirm(true)}>
+                  ♥ Save
                 </button>
-
-                <button
-                  className="combo-my-fav-btn"
-                  onClick={() => setActiveLeftView("favourites")}
-                >
-                  My Favourites
+                <button className="combo-my-fav-btn" onClick={() => setActiveLeftView("favourites")}>
+                  My Favs
                 </button>
               </div>
             )}
           </div>
         )}
 
-        <AnimatePresence mode="wait">
-          {showAddFavConfirm && (
-            <motion.div
-              className="combo-add-fav-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <motion.div
-                className="combo-add-fav-modal"
-                initial={{ scale: 0.94, y: 30, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.96, y: 20, opacity: 0 }}
-                transition={{
-                  duration: 0.4,
-                  ease: [0.16, 1, 0.3, 1]
-                }}
-              >
-                <h3>Add Combo to Favourites?</h3>
-
-                <p className="combo-add-fav-title">
-                  {comboTitle}
-                </p>
-
-                <div className="combo-add-fav-actions">
-                  <button
-                    className="combo-add-fav-cancel"
-                    onClick={() => setShowAddFavConfirm(false)}
-                  >
-                    Cancel
-                  </button>
-
-                  <button
-                    className="combo-add-fav-confirm"
-                    disabled={!isComboComplete || isSavingFav}
-                    onClick={() => {
-                      handleConfirmAddFav();
-                      setActiveLeftView("favourites");
-                    }}
-                  >
-                    {isSavingFav ? "Saving..." : "Confirm"}
-                  </button>
-                </div>
-
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <AnimatePresence mode="wait">
-          {showDuplicateOverlay && (
-            <motion.div
-              className="combo-add-fav-overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              <motion.div
-                className="combo-add-fav-modal"
-                initial={{ scale: 0.92, y: 20, opacity: 0 }}
-                animate={{ scale: 1, y: 0, opacity: 1 }}
-                exit={{ scale: 0.92, y: 20, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-              >
-                <h3>Already Added</h3>
-
-                <p className="combo-add-fav-title">
-                  This combo already exists in your favourites.
-                </p>
-
-                <div className="combo-add-fav-actions">
-                  <button
-                    className="combo-add-fav-confirm"
-                    onClick={() => setShowDuplicateOverlay(false)}
-                  >
-                    Okay
-                  </button>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Progress steps */}
+        {activeLeftView === "builder" && (
+          <ProgressSteps starter={selectedItems.starter} main={selectedItems.main} drink={selectedItems.drink} />
+        )}
 
         {activeLeftView === "builder" && (
           <>
+            {/* Section tabs */}
             <div className="combo-category-row">
-              <CategoryCard
-                title="Starters"
-                active={activeSection === "starters"}
-                disabled={!!selectedItems.starter}
-                onClick={() => setActiveSection("starters")}
-              />
-
-              <CategoryCard
-                title="Main Course"
-                active={activeSection === "mainCourse"}
-                disabled={!!selectedItems.main}
-                onClick={() => setActiveSection("mainCourse")}
-              />
-
-              <CategoryCard
-                title="Beverages"
-                active={activeSection === "beverages"}
-                disabled={!!selectedItems.drink}
-                onClick={() => setActiveSection("beverages")}
-              />
+              <CategoryCard title="Starters" active={activeSection === "starters"} selected={!!selectedItems.starter} onClick={() => setActiveSection("starters")} />
+              <CategoryCard title="Main Course" active={activeSection === "mainCourse"} selected={!!selectedItems.main} onClick={() => setActiveSection("mainCourse")} />
+              <CategoryCard title="Beverages" active={activeSection === "beverages"} selected={!!selectedItems.drink} onClick={() => setActiveSection("beverages")} />
             </div>
 
-            {activeSection === "starters" && renderStarterSubCategories()}
-            {activeSection === "mainCourse" && renderMainSubCategories()}
-            {activeSection === "beverages" && renderDrinkSubCategories()}
+            {/* Subcategory bar */}
+            {activeSection && currentGroups.length > 1 && (
+              <SubCategoryBar groups={currentGroups} activeGroup={activeGroup} onSelect={setActiveGroup} />
+            )}
 
-            <div className="combo-items-grid">
-              {renderItems()}
-            </div>
+            {/* Items grid */}
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeSection + activeGroup}
+                className="combo-items-grid"
+                variants={gridVariants}
+                initial="hidden"
+                animate="show"
+                exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              >
+                {currentItems.map((item, i) => (
+                  <ComboItemCard
+                    key={item.id}
+                    item={item}
+                    index={i}
+                    onAdd={() => handleAddItem(
+                      activeSection === "starters" ? "starter" : activeSection === "mainCourse" ? "main" : "drink",
+                      item
+                    )}
+                  />
+                ))}
+                {currentItems.length === 0 && (
+                  <div className="combo-empty">Select a category above to get started</div>
+                )}
+              </motion.div>
+            </AnimatePresence>
           </>
         )}
 
         {activeLeftView === "favourites" && (
           <>
             <div className="fav-combo-header">
-              <button
-                className="back-button"
-                onClick={() => setActiveLeftView("builder")}
-              />
+              <button className="back-button" onClick={() => setActiveLeftView("builder")} />
               <h2>My Favourite Combos</h2>
             </div>
-
-            <FavouriteCombo
-              currentUser={currentUser}
-              setCurrentUser={setCurrentUser}
-              addToBag={addToBag}
-            />
+            <FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} />
           </>
         )}
       </div>
 
-      {/* RIGHT */}
+      {/* ── RIGHT PANEL ── */}
       <div className="combo-right">
-        <h3>Your Combo</h3>
+        <div className="combo-right-header">
+          <h3>Your Combo</h3>
+          {isComboComplete && <span className="combo-complete-badge">Complete ✓</span>}
+        </div>
 
-        <AnimatePresence>
-          {selectedItems.starter && (
-            <SelectedItem
-              key={`selected-starter-${selectedItems.starter.id}`}
-              item={selectedItems.starter}
-              onDelete={() => handleDelete("starter")}
-            />
+        <div className="combo-slots">
+          {/* Placeholder slots when empty */}
+          {!selectedItems.starter && !selectedItems.main && !selectedItems.drink && (
+            <div className="combo-slots-empty">
+              {["Starter", "Main Course", "Beverage"].map(l => (
+                <div key={l} className="combo-slot-placeholder">
+                  <span className="combo-slot-icon">+</span>
+                  <span>{l}</span>
+                </div>
+              ))}
+            </div>
           )}
-          {selectedItems.main && (
-            <SelectedItem
-              key={`selected-main-${selectedItems.main.id}`}
-              item={selectedItems.main}
-              onDelete={() => handleDelete("main")}
-            />
-          )}
-          {selectedItems.drink && (
-            <SelectedItem
-              key={`selected-drink-${selectedItems.drink.id}`}
-              item={selectedItems.drink}
-              onDelete={() => handleDelete("drink")}
-            />
-          )}
-        </AnimatePresence>
+
+          <AnimatePresence>
+            {selectedItems.starter && <SelectedItem key={`s-${selectedItems.starter.id}`} item={selectedItems.starter} label="Starter" onDelete={() => handleDelete("starter")} />}
+            {selectedItems.main && <SelectedItem key={`m-${selectedItems.main.id}`} item={selectedItems.main} label="Main" onDelete={() => handleDelete("main")} />}
+            {selectedItems.drink && <SelectedItem key={`d-${selectedItems.drink.id}`} item={selectedItems.drink} label="Drink" onDelete={() => handleDelete("drink")} />}
+          </AnimatePresence>
+        </div>
 
         <div className="combo-summary">
+          {/* Quantity */}
           <div className="quantity-section">
-            <div className="quantity-label">Quantity</div>
-
+            <div className="quantity-label">Qty</div>
             <div className="quantity-controls">
-              <button
-                className="qty-btn"
-                onClick={decreaseQty}
-                disabled={quantity === 1}
-              >
-                -
-              </button>
-
-              <div className="qty-value">{quantity}x</div>
-
-              <button
-                className="qty-btn"
-                onClick={increaseQty}
-              >
-                +
-              </button>
+              <button className="qty-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity === 1}>−</button>
+              <div className="qty-value">{quantity}</div>
+              <button className="qty-btn" onClick={() => setQuantity(q => q + 1)}>+</button>
             </div>
           </div>
 
-          {appliedOffer ? (
-            <>
-              <div className="combo-original-price strike">
-                <div>Total Price:</div>
-                <div className="diagonal-strike">₹{originalTotal}</div>
-              </div>
-
-              <div className="combo-offer-label">
-                {appliedOffer.label}
-              </div>
-
-              <div className="combo-discounted-price">
-                <div>Discounted Price</div>
-                <div>
-                  ₹{(perComboBasePrice - perComboFinalPrice) * quantity}
+          {/* Price breakdown */}
+          <div className="combo-price-block">
+            {appliedOffer ? (
+              <>
+                <div className="combo-price-row muted">
+                  <span>Subtotal</span>
+                  <span className="diagonal-strike">₹{originalTotal}</span>
                 </div>
+                <div className="combo-offer-tag">
+                  <span className="combo-offer-badge">🏷 {appliedOffer.label}</span>
+                  <span className="combo-offer-saving">−₹{savings}</span>
+                </div>
+                <div className="combo-price-row final">
+                  <span>Total</span>
+                  <span>₹{discountedPrice}</span>
+                </div>
+              </>
+            ) : (
+              <div className="combo-price-row final">
+                <span>Total</span>
+                <span>₹{originalTotal}</span>
               </div>
+            )}
+          </div>
 
-              <div className="combo-final-price">
-                <div>Final Price: </div>
-                <div>₹{discountedPrice}</div>
-              </div>
-            </>
-          ) : (
-            <div className="combo-final-price">
-              <div>Final Price: </div>
-              <div>₹{originalTotal}</div>
-            </div>
-          )}
-
-          <button
-            className="combo-add-btn"
-            disabled={!isComboComplete}
-            onClick={handleAddToBag}
-          >
-            {isEditMode ? "Update Combo" : "Add Combo to Bag"}
+          <button className="combo-add-btn" disabled={!isComboComplete} onClick={handleAddToBag}>
+            {isEditMode ? "Update Combo" : "Add to Bag"}
           </button>
         </div>
-
       </div>
     </motion.div>
   );
 };
-
-/*SUB COMPONENTS*/
-const CategoryCard = ({ title, active, disabled, onClick }) => (
-  <button
-    className={`combo-category-card 
-      ${active ? "active" : ""} 
-      ${disabled ? "disabled" : ""}`}
-    onClick={!disabled ? onClick : undefined}
-  >
-    {title}
-  </button>
-);
-
-const GroupCard = ({ title, onClick }) => (
-  <motion.div
-    className="combo-group-card"
-    variants={itemVariants}
-    whileHover={{ y: -4 }}
-    onClick={onClick}
-  >
-    {title}
-  </motion.div>
-);
-
-const ComboItemCard = ({ item, onAdd }) => (
-  <motion.div
-    className="combo-item-card"
-    variants={itemVariants}
-    whileHover={{
-      y: -6,
-      scale: 1.03,
-      transition: { duration: 0.25, ease: "easeOut" }
-    }}
-  >
-    <div className="combo-item-image">
-      <img src={item.image} alt="" />
-    </div>
-    <div className="combo-item-name">{item.name}</div>
-    <div className="combo-item-price">₹{item.price}</div>
-    <button onClick={onAdd}>Add</button>
-  </motion.div>
-);
-
-const SelectedItem = ({ item, onDelete }) => (
-
-  <motion.div
-    className="combo-selected-item"
-    initial={{ opacity: 0, x: 50 }}
-    animate={{
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] }
-    }}
-    exit={{
-      opacity: 0,
-      x: -50,
-      transition: { duration: 0.35, ease: "easeInOut" }
-    }}
-  >
-    <div className="combo-selected-image">
-      <img src={item.image} alt="" />
-    </div>
-    <div className="combo-selected-info">
-      <div>{item.name}</div>
-      <div>₹{item.price}</div>
-    </div>
-    <button onClick={onDelete}>✕</button>
-  </motion.div>
-);
 
 export default ComboPage;

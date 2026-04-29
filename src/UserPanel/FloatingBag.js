@@ -19,11 +19,13 @@ const FloatingBag = ({
 
     const groupedBag = Object.values(
         safeBag.reduce((acc, item, index) => {
-            const key = [
-                item.id,
-                item.customizationKey || "",
-                item.isCustomized ? "custom" : "normal"
-            ].join("__");
+            const key = item.isCombo
+                ? `${item.id}__${JSON.stringify(item.comboItems)}`
+                : [
+                    item.id,
+                    item.customizationKey || "",
+                    item.isCustomized ? "custom" : "normal"
+                ].join("__");
 
             if (!acc[key]) {
                 acc[key] = {
