@@ -2,12 +2,219 @@
   padding: 36px;
 }
 
+/* =============================================
+   VIEW TOGGLE ROW
+============================================= */
+
+.view-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-main);
+  padding: 8px 0;
+}
+
+.view-toggle-btns {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light);
+  background: var(--bg-main);
+  cursor: pointer;
+  font-size: 18px;
+  color: var(--text-primary);
+  transition: 0.2s ease;
+  flex-shrink: 0;
+}
+
+.view-btn.active {
+  background: var(--color-red-secondary);
+  color: #fff;
+}
+
+.grid-icon,
+.list-icon {
+  width: 18px;
+  height: 18px;
+  filter: var(--filter);
+}
+
+/* =============================================
+   PROMO CAROUSEL  (.pc-*)
+============================================= */
+
+.pc-root {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 6px;
+  height: 38px;
+}
+
+.pc-viewport {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  height: 38px;
+}
+
+.pc-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.pc-page {
+  display: flex;
+  flex-shrink: 0;
+  width: 100%;
+  gap: 8px;
+  align-items: center;
+  overflow-y: visible;
+}
+
+.pc-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.1));
+  background: var(--bg-main);
+  cursor: pointer;
+  overflow: hidden;
+  overflow-y: visible;
+  white-space: nowrap;
+  text-align: left;
+  transition: background 0.18s ease, transform 0.15s ease;
+}
+
+.pc-chip:hover {
+  background: var(--bg-hover, rgba(0, 0, 0, 0.04));
+  scale: 1 !important;
+}
+
+.pc-chip:active {
+  transform: scale(0.97);
+}
+
+.pc-chip-hot {
+  box-shadow: inset 3px 0 0 #FF6B35;
+}
+
+.pc-chip-pop {
+  box-shadow: inset 3px 0 0 #1A73E8;
+}
+
+.pc-chip-combo {
+  box-shadow: inset 3px 0 0 #7B61FF;
+}
+
+.pc-chip-event {
+  box-shadow: inset 3px 0 0 #0F9D58;
+}
+
+.pc-chip-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--chip-accent, #FF6B35);
+  flex-shrink: 0;
+  letter-spacing: 0.1px;
+}
+
+.pc-chip-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: "Geom", sans-serif;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pc-chip-discount {
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--chip-accent, #FF6B35);
+  padding: 2px 7px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.pc-arrow {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.12));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  padding: 0;
+}
+
+.pc-arrow:disabled {
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.pc-arrow:hover:not(:disabled) {
+  transform: scale(1.08);
+}
+
+.pc-arrow::after {
+  content: "";
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-right: 2px solid var(--text-primary);
+  border-top: 2px solid var(--text-primary);
+}
+
+.pc-arrow-left::after {
+  transform: rotate(-135deg) translateX(-1px);
+}
+
+.pc-arrow-right::after {
+  transform: rotate(45deg) translateX(-1px);
+}
+
+/* =============================================
+   FOOD CATEGORY GRID
+============================================= */
+
 .food-category-container {
   display: grid;
-  grid-template-columns: repeat(9, 1fr);
   gap: 16px;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   padding: 10px 0 0 0;
+  transition: all 0.3s ease;
 }
 
 .food-category-items {
@@ -91,165 +298,16 @@
   align-content: center;
 }
 
-/*  COMBOS SECTION  */
-
-.combo-section {
-  margin-bottom: 40px;
-  padding: 24px;
-  border-radius: 18px;
-  background: linear-gradient(135deg,
-      rgba(255, 179, 71, 0.18),
-      rgba(255, 99, 71, 0.12));
-}
-
-.combo-header h2 {
-  font-size: 22px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.combo-description {
-  font-size: 15px;
-  color: #333;
-  margin-bottom: 4px;
-}
-
-.combo-sub-description {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 24px;
-}
-
-.combo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
-}
-
-/*  COMBO CARD  */
-
-.combo-card {
-  background: #fff;
-  border-radius: 16px;
-  overflow: hidden;
-  transition: transform 0.35s ease, box-shadow 0.35s ease;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
-}
-
-.combo-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
-}
-
-.combo-image {
-  position: relative;
-  height: 140px;
-}
-
-.combo-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.combo-badge {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/*  CONTENT  */
-
-.combo-content {
-  padding: 14px;
-}
-
-.combo-content h3 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.combo-content p {
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 12px;
-}
-
-.combo-cta {
-  display: inline-block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #ff6b35;
-  text-decoration: none;
-}
-
-.combo-cta:hover {
-  text-decoration: underline;
-}
-
-/* =========================
-   VIEW TOGGLE
-========================= */
-
-.view-toggle {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 24px;
-
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg-main);
-  padding: 6px 0;
-}
-
-.view-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 1px solid var(--border-light);
-  background: var(--bg-main);
-  cursor: pointer;
-  font-size: 18px;
-  color: var(--text-primary);
-  transition: 0.25s ease;
-}
-
-.view-btn.active {
-  background: var(--color-red-secondary);
-  color: #fff;
-}
-
-.food-category-container {
-  transition: all 0.3s ease;
-}
-
-/* GRID VIEW (DEFAULT) */
 .food-category-container.grid {
-  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 14px;
 }
 
-/* LIST VIEW */
 .food-category-container.list {
-  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 14px;
 }
 
-/* LIST STYLE */
 .food-category-items.list {
   flex-direction: row;
   height: auto;
@@ -268,12 +326,378 @@
   text-align: left;
 }
 
-.grid-icon,
-.list-icon {
-  width: 18px;
-  height: 18px;
-  filter: var(--filter);
+/* =============================================
+   SHARED SECTION STYLES
+============================================= */
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Geom", sans-serif;
+  margin: 0;
+}
+
+.section-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.section-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-red, #f33716);
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.section-link:hover {
+  text-decoration: underline;
+}
+
+/* =============================================
+   POPULAR DISHES
+============================================= */
+
+.popular-section {
+  margin-top: 36px;
+}
+
+/* Horizontal scroll row */
+.popular-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge */
+}
+
+.popular-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Card */
+.popular-card {
+  flex-shrink: 0;
+  width: 130px;
+  background: var(--bg-main);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 16px;
+  padding: 0 0 12px;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  overflow: hidden;
+}
+
+.popular-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.10);
+}
+
+.popular-card:active {
+  transform: scale(0.97);
+}
+
+/* Rank badge */
+.popular-rank {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  z-index: 2;
+  font-size: 14px;
+  line-height: 1;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border-radius: 8px;
+  padding: 3px 6px;
+  font-weight: 700;
+  font-family: "Geom", sans-serif;
+}
+
+.popular-rank-top {
+  background: transparent;
+  /* emoji medals don't need bg */
+  font-size: 18px;
+  padding: 2px 4px;
+}
+
+/* Image */
+.popular-img-wrap {
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  background: var(--bg-surface, #fafafa);
+}
+
+.popular-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.32s ease;
+}
+
+.popular-card:hover .popular-img-wrap img {
+  transform: scale(1.06);
+}
+
+/* Info */
+.popular-info {
+  padding: 8px 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popular-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: "Geom", sans-serif;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.popular-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+
+.popular-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Geom", sans-serif;
+}
+
+.popular-orders {
+  font-size: 10px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* =============================================
+   EVENTS SECTION
+============================================= */
+
+.events-section {
+  margin-top: 36px;
+  margin-bottom: 20px;
+}
+
+/* Grid: auto-fit up to ~360px wide cards */
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+/* Card */
+.event-card {
+  background: var(--bg-main);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  border-radius: 20px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.10);
+}
+
+.event-card:active {
+  transform: scale(0.98);
+}
+
+/* Image / placeholder */
+.event-img-wrap {
+  position: relative;
+  height: 160px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0F9D58 0%, #34a853 100%);
+}
+
+.event-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.event-card:hover .event-img-wrap img {
+  transform: scale(1.04);
+}
+
+/* Placeholder when no image */
+.event-img-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0F9D58 0%, #1ab56a 100%);
+}
+
+.event-img-icon {
+  font-size: 52px;
+  opacity: 0.85;
+}
+
+/* Date badge overlay */
+.event-date-badge {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.68);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.2px;
+}
+
+/* Body */
+.event-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.event-type-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #0F9D58;
+  background: rgba(15, 157, 88, 0.10);
+  padding: 2px 8px;
+  border-radius: 20px;
+  align-self: flex-start;
+}
+
+.event-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Geom", sans-serif;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.event-venue {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Highlights list */
+.event-highlights {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.event-highlights li {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-surface, #fafafa);
+  border: 1px solid var(--border-light, rgba(0, 0, 0, 0.08));
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+/* Footer row */
+.event-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.event-price-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.event-price-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.event-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: "Geom", sans-serif;
+  line-height: 1;
+}
+
+.event-capacity {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+
+.event-capacity-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0F9D58;
+  flex-shrink: 0;
+}
+
+.event-cta {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 20px;
+  background: #0F9D58;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.event-cta:hover {
+  opacity: 0.88;
+  transform: scale(1.03);
+}
+
+/* =============================================
+   RESPONSIVE
+============================================= */
 
 @media screen and (max-width: 992px) {
   .food-category {
@@ -290,8 +714,12 @@
     padding: 20px;
   }
 
-  .combo-header h2 {
-    font-size: 20px;
+  .pc-chip-badge {
+    display: none;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -310,8 +738,28 @@
   }
 
   .food-category-container.list {
-    display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 16px;
+  }
+
+  .pc-chip-discount {
+    display: none;
+  }
+
+  .popular-section,
+  .events-section {
+    margin-top: 28px;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
+  .popular-card {
+    width: 115px;
+  }
+
+  .popular-img-wrap {
+    height: 88px;
   }
 }

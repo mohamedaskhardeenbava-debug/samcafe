@@ -2,9 +2,10 @@
    ReservationForm.css  —  User Panel
    All CSS vars from App.css (--bg-main, --color-red, etc.)
 ══════════════════════════════════════════════════════ */
+/* user panel */
 
 .rf-page {
-    padding: 0;
+    padding: 36px;
     background: var(--bg-main);
     min-height: 100vh;
     height: 100vh;
@@ -316,7 +317,7 @@
     overflow: hidden;
     background: #f9fafb;
     height: 46px;
-    width: 300px;
+    width: fit-content;
 }
 
 .rf-stepper-btn {
@@ -1414,7 +1415,6 @@
     flex: 1;
     overflow: hidden;
     width: 100%;
-    padding: 0 20px 16px;
     box-sizing: border-box;
 }
 
@@ -1552,7 +1552,6 @@
 /* ── Custom Date Picker trigger inside form ── */
 .rf-cdp-trigger {
     width: 100%;
-    justify-content: flex-start;
     font-size: 14px;
     height: 44px;
     border-radius: 10px;
@@ -1706,7 +1705,7 @@
 }
 
 .ctp-header {
-    background: #1dd1a1;
+    background: var(--color-red);
     padding: 14px 16px;
     display: flex;
     align-items: center;
@@ -1793,7 +1792,7 @@
     padding: 6px 18px;
     border-radius: 8px;
     border: none;
-    background: #1dd1a1;
+    background: var(--color-red);
     color: #fff;
     font-size: 13px;
     font-weight: 700;
@@ -1980,6 +1979,10 @@
 
 /* Medium screens: reduce padding */
 @media (max-width: 1024px) {
+    .rf-page {
+        padding: var(--medium-page-padding);
+    }
+
     .rf-single-form {
         padding: 0 14px 14px;
     }
@@ -2024,7 +2027,11 @@
 }
 
 /* Very small screens */
-@media (max-width: 480px) {
+@media (max-width: 578px) {
+    .rf-page {
+        padding: var(--mobile-page-padding);
+    }
+
     .rf-single-form {
         padding: 0 10px 24px;
     }
@@ -2039,9 +2046,4 @@
 }
 
 /* Large screens: ensure header is tight */
-@media (min-width: 769px) {
-    .rf-header {
-        padding: 16px 20px 10px;
-        margin-bottom: 0;
-    }
-}
+@media (min-width: 768px) {}

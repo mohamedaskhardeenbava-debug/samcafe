@@ -1,82 +1,714 @@
-/* =========================
-   PAGE
-========================= */
+/* ══════════════════════════════════════════
+   PreBooking.css  —  User Panel
+══════════════════════════════════════════ */
 
 .pbp-page {
     padding: 36px;
     background: var(--bg-main);
     font-family: "Geom", system-ui, sans-serif;
+    min-height: 100vh;
 }
 
-/* =========================
-   CONTAINER
-========================= */
+/* ── FORM SHELL — two-column on wide screens ── */
+.pbp-form-shell {
+    padding: 0 20px 32px;
+    box-sizing: border-box;
+}
 
-.pbp-container {
-    max-width: 650px;
-    margin-top: 10px;
+.pbp-form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+.pbp-col {
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    box-shadow: var(--shadow-primary);
-    border-radius: 20px;
-    padding: 20px;
+    gap: 6px;
 }
 
-/* =========================
-   CARD
-========================= */
+@media (max-width: 860px) {
+    .pbp-form-grid {
+        grid-template-columns: 1fr;
+    }
 
+    .pbp-form-shell {
+        padding: 0 12px 32px;
+    }
+}
+
+/* SECTION LABEL */
+.pbp-section-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin: 10px 0 4px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+/* CARD */
 .pbp-card {
     background: #fff;
-    border-radius: 20px;
-}
-
-.pbp-card-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
-}
-
-/* =========================
-   FORM
-========================= */
-
-.pbp-group {
+    border-radius: 16px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s;
 }
 
-.pbp-group label {
-    font-size: 13px;
-    margin-bottom: 5px;
-    color: var(--text-secondary);
+/* Card-level error (empty bag) */
+.pbp-card.pbp-card-error {
+    border-color: #e74c3c;
+    background: #fff8f8;
 }
 
-.pbp-group input {
-    height: 42px;
-    border-radius: 12px;
-    border: 1px solid #e5e7eb;
-    padding: 0 12px;
-    font-size: 14px;
-}
-
-/* ROW */
-.pbp-row {
+/* ── FORM ROW / GROUP ── */
+.pbp-form-row {
     display: flex;
-    gap: 14px;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.pbp-row .pbp-group {
+.pbp-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
     flex: 1;
+    min-width: 130px;
 }
 
-/* =========================
-   BAG
-========================= */
+.pbp-form-group label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
 
+/* INPUT */
+.pbp-input {
+    height: 42px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    padding: 0 12px;
+    font-size: 13px;
+    font-family: inherit;
+    color: #111;
+    background: #f9fafb;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pbp-input:focus {
+    border-color: #111;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+.pbp-input.error {
+    border-color: #e74c3c;
+    background: #fff5f5;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+.pbp-input.error:focus {
+    border-color: #e74c3c;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.14);
+}
+
+/* REQ / OPTIONAL */
+.pbp-req {
+    color: #e74c3c;
+}
+
+.pbp-opt {
+    font-size: 9px;
+    color: #aaa;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    margin-left: 4px;
+}
+
+/* ── STEPPER ── */
+.pbp-stepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f9fafb;
+    height: 42px;
+    width: fit-content;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pbp-stepper.error {
+    border-color: #e74c3c;
+    background: #fff5f5;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+.pbp-stepper button {
+    width: 40px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.pbp-stepper button:hover {
+    background: #f0f0f0;
+}
+
+.pbp-stepper span {
+    min-width: 42px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* ── DISCOUNT NOTE ── */
+.pbp-discount-note {
+    font-size: 11px;
+    color: #065f46;
+    background: #d1fae5;
+    padding: 3px 8px;
+    border-radius: 999px;
+    display: inline-block;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* ══ SCHEDULE ROW — date | slots | time ══ */
+.pbp-schedule-date {
+    flex: 0 0 auto;
+}
+
+.pbp-schedule-slots {
+    flex: 1 1 auto;
+    min-width: 220px;
+}
+
+.pbp-schedule-time {
+    flex: 0 0 auto;
+}
+
+/* ══ SLOT GROUPS (matches ReservationForm) ══ */
+.pbp-slot-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pbp-slot-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    padding: 12px 8px;
+    border-radius: 14px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 72px;
+    user-select: none;
+}
+
+.pbp-slot-group:hover:not(.pbp-slot-disabled) {
+    border-color: var(--color-red, #e74c3c);
+    transform: translateY(-2px);
+}
+
+.pbp-slot-group.active {
+    background: var(--color-red, #e74c3c);
+    border-color: var(--color-red, #e74c3c);
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.3);
+    transform: translateY(-2px);
+}
+
+.pbp-sg-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+}
+
+.pbp-sg-time {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+}
+
+.pbp-slot-group.active .pbp-sg-label,
+.pbp-slot-group.active .pbp-sg-time {
+    color: #fff;
+}
+
+.pbp-slot-disabled {
+    opacity: 0.42;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.pbp-slot-past-badge {
+    font-size: 9px;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.13);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 6px;
+}
+
+.pbp-field-error {
+    font-size: 11px;
+    color: #e74c3c;
+    margin-top: 3px;
+    display: block;
+}
+
+.pbp-time-hint {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
+    display: block;
+}
+
+/* ══ CUSTOM DATE PICKER ══ */
+.pbp-cdp-wrap {
+    position: relative;
+    display: block;
+}
+
+.pbp-cdp-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 14px;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.pbp-cdp-trigger:hover {
+    border-color: #111;
+    background: #fff;
+}
+
+/* Error state for date picker trigger */
+.pbp-cdp-trigger.error {
+    border-color: #e74c3c;
+    background: #fff5f5;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+.pbp-cdp-val {
+    font-weight: 500;
+    flex: 1;
+    text-align: left;
+}
+
+.pbp-cdp-val.ph {
+    color: #aaa;
+    font-weight: 400;
+}
+
+.pbp-cdp-popup {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
+    padding: 14px;
+    width: 268px;
+    animation: pbpCdpFade 0.18s ease;
+}
+
+@keyframes pbpCdpFade {
+    from {
+        opacity: 0;
+        transform: translateY(-6px)
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.pbp-cdp-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.pbp-cdp-nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 1.5px solid #f0f0f0;
+    background: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+}
+
+.pbp-cdp-nav-center {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.pbp-cdp-nav-lbl {
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.pbp-cdp-nav-lbl:hover {
+    background: #f5f5f5;
+}
+
+.pbp-cdp-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.pbp-cdp-weekdays span {
+    font-size: 9px;
+    font-weight: 700;
+    color: #222;
+    text-transform: uppercase;
+    padding: 3px 0;
+}
+
+.pbp-cdp-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+}
+
+.pbp-cdp-day {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.pbp-cdp-day:hover:not(.dis) {
+    background: #e0e0e0;
+    color: var(--color-red, #e74c3c);
+}
+
+.pbp-cdp-day.today {
+    font-weight: 700;
+    color: var(--color-red, #e74c3c);
+}
+
+.pbp-cdp-day.sel {
+    background: #111 !important;
+    color: #fff !important;
+    font-weight: 700;
+}
+
+.pbp-cdp-day.dis {
+    color: #b6b6b6;
+    cursor: not-allowed;
+}
+
+.pbp-cdp-month-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    padding: 4px 0;
+}
+
+.pbp-cdp-month-btn {
+    padding: 9px 4px;
+    border-radius: 9px;
+    border: 1.5px solid #f0f0f0;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.pbp-cdp-month-btn.sel {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+.pbp-cdp-year-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 4px 0;
+}
+
+.pbp-cdp-year-btn {
+    padding: 9px 4px;
+    border-radius: 9px;
+    border: 1.5px solid #f0f0f0;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.pbp-cdp-year-btn.sel {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+/* ══ CLOCK TIME PICKER ══ */
+.pbp-ctp-wrap {
+    position: relative;
+    display: block;
+}
+
+.pbp-ctp-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 14px;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.pbp-ctp-trigger:hover {
+    border-color: #111;
+    background: #fff;
+}
+
+/* Error state for time picker trigger */
+.pbp-ctp-trigger.error {
+    border-color: #e74c3c;
+    background: #fff5f5;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+}
+
+/* Disabled state — slot not yet selected */
+.pbp-ctp-trigger.pbp-ctp-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f3f4f6;
+    border-color: #e5e7eb;
+    pointer-events: none;
+}
+
+.pbp-ctp-val {
+    font-weight: 500;
+    flex: 1;
+    text-align: left;
+}
+
+.pbp-ctp-val.ph {
+    color: #aaa;
+    font-weight: 400;
+}
+
+.pbp-ctp-popup {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    padding: 0 0 12px;
+    width: 260px;
+    animation: pbpCdpFade 0.18s ease;
+    overflow: hidden;
+}
+
+.pbp-ctp-slot-hint {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.15);
+    padding: 5px 14px;
+    text-align: center;
+    border-radius: 0;
+    margin-bottom: 0;
+}
+
+/* Red header — matches ReservationForm ClockTimePicker */
+.pbp-ctp-header {
+    background: var(--color-red, #e74c3c);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pbp-ctp-ampm-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.pbp-ctp-ampm-btn {
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.pbp-ctp-ampm-btn.active {
+    background: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.pbp-ctp-time-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 auto 0 8px;
+}
+
+.pbp-ctp-hm {
+    font-size: 30px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 8px;
+    line-height: 1;
+    transition: all 0.15s;
+}
+
+.pbp-ctp-hm.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.pbp-ctp-colon {
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1;
+}
+
+.pbp-ctp-clock {
+    display: block;
+    margin: 8px auto 0;
+    cursor: pointer;
+}
+
+.pbp-ctp-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 16px 0;
+}
+
+.pbp-ctp-cancel {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: none;
+    background: #f3f4f6;
+    color: #555;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s;
+}
+
+.pbp-ctp-cancel:hover {
+    background: #e5e7eb;
+}
+
+.pbp-ctp-ok {
+    padding: 6px 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--color-red, #e74c3c);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.15s;
+}
+
+.pbp-ctp-ok:hover {
+    opacity: 0.88;
+}
+
+/* ══ ITEMS / ORDER ══ */
 .pbp-items {
     display: flex;
     flex-direction: column;
@@ -97,94 +729,273 @@
 .pbp-item-size {
     font-size: 11px;
     color: #6b7280;
-    margin-left: 6px;
 }
 
 .pbp-item-price {
     font-weight: 600;
+    font-size: 14px;
 }
 
-/* TOTAL */
-.pbp-total {
+/* ══ BILL ══ */
+.pbp-bill {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.pbp-bill-row {
     display: flex;
     justify-content: space-between;
-    margin-top: 14px;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
+    font-size: 14px;
+    color: #374151;
 }
 
-/* EMPTY */
+.pbp-bill-discount {
+    color: #065f46;
+    font-weight: 600;
+}
+
+.pbp-bill-total {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111;
+    padding-top: 7px;
+    border-top: 1px dashed #e5e7eb;
+    margin-top: 2px;
+}
+
+/* ══ EMPTY ══ */
 .pbp-empty {
     text-align: center;
     padding: 20px 0;
     color: #6b7280;
-    border: 1px solid #e5e7eb;
-    border-radius: 20px;
+    border: 1px dashed #e5e7eb;
+    border-radius: 14px;
+}
+
+.pbp-empty p {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .pbp-empty span {
     font-size: 12px;
 }
 
-/* =========================
-   BUTTON
-========================= */
-.pbp-submit-container {
-    text-align: center;
+/* ══ NOTES ══ */
+.pbp-notes {
+    width: 100%;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    padding: 10px 12px;
+    font-size: 14px;
+    resize: none;
+    font-family: inherit;
+    color: #111;
+    background: #f9fafb;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s;
 }
 
-.pbp-submit {
-    padding: 14px;
+.pbp-notes:focus {
+    border-color: #111;
+    background: #fff;
+}
+
+/* ══ ACTIONS ══ */
+.pbp-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.pbp-cancel-btn {
+    flex: 1;
+    height: 50px;
     border-radius: 14px;
-    border: none;
-    background: var(--color-red);
-    color: var(--bg-main);
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    color: #374151;
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    width: fit-content;
-    box-shadow: var(--shadow-card-red);
+    font-family: inherit;
+    transition: background 0.2s;
 }
 
-.pbp-submit:hover {
-    box-shadow: var(--shadow-card-red-hover);
+.pbp-cancel-btn:hover {
+    background: #f3f4f6;
 }
 
-.pbp-submit.loading {
+.pbp-submit-btn {
+    flex: 2;
+    height: 50px;
+    border-radius: 14px;
+    border: none;
+    background: var(--color-red, #e74c3c);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(231, 76, 60, 0.3);
+    transition: box-shadow 0.2s, opacity 0.2s;
+    width: 100%;
+}
+
+.pbp-submit-btn:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.45);
+}
+
+.pbp-submit-btn.loading,
+.pbp-submit-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
 }
 
-/* =========================
-   ERROR
-========================= */
-
-.pbp-error {
-    font-size: 11px;
-    color: red;
-    margin-top: 6px;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
 @media (max-width: 768px) {
     .pbp-page {
-        padding: 20px;
+        padding: var(--medium-page-padding);
+    }
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 768px) {
+    .pbp-slot-groups {
+        gap: 6px;
     }
 
-    .pbp-row {
-        flex-direction: column;
+    .pbp-slot-group {
+        padding: 10px 6px;
+        min-width: 60px;
+    }
+
+    .pbp-schedule-date,
+    .pbp-schedule-time {
+        width: 100%;
     }
 }
 
 @media (max-width: 578px) {
     .pbp-page {
-        padding: 10px;
+        padding: var(--mobile-page-padding);
     }
 
-    .pbp-container {
-        padding: 12px;
+    .pbp-form-row {
+        flex-direction: column;
     }
+
+    .pbp-actions {
+        flex-direction: column;
+    }
+}
+
+/* ══ SUCCESS SCREEN ══ */
+.pbp-success-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px 60px;
+    gap: 14px;
+    max-width: 480px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.pbp-success-icon {
+    margin-bottom: 4px;
+}
+
+.pbp-success-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+    margin: 0;
+}
+
+.pbp-success-sub {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.pbp-booking-id {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f9fafb;
+    border: 1.5px dashed #d1d5db;
+    border-radius: 14px;
+    padding: 12px 28px;
+    gap: 2px;
+}
+
+.pbp-booking-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.pbp-booking-code {
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+    letter-spacing: 2px;
+}
+
+.pbp-success-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pbp-sc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 8px;
+}
+
+.pbp-sc-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.pbp-sc-label {
+    color: #9ca3af;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.pbp-sc-val {
+    font-weight: 700;
+    color: #111;
+}
+
+/* ══ SUBMIT ERROR ══ */
+.pbp-submit-error {
+    background: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-top: 4px;
 }

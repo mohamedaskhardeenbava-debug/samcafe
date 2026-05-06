@@ -164,7 +164,8 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
   const [quantity, setQuantity] = useState(() => (isEditMode && editQuantity) ? editQuantity : 1);
 
   const [selectedItems, setSelectedItems] = useState(() => {
-    if (isEditMode && location.state?.comboItems) return location.state.comboItems;
+    // Accept pre-selected items from both edit-mode (fromBag) and promo chip navigation
+    if (location.state?.comboItems) return location.state.comboItems;
     return { starter: null, main: null, drink: null };
   });
 

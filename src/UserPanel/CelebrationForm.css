@@ -1,275 +1,1002 @@
 /* =========================
-   PAGE
+   PAGE — User Panel
 ========================= */
-
 .clp-page {
     padding: 36px;
     background: var(--bg-main);
     font-family: "Geom", system-ui, sans-serif;
-}
-
-.clp-header {
+    min-height: 100vh;
     display: flex;
-    align-items: center;
-    gap: 12px;
-    width: fit-content;
-    width: 100%;
+    flex-direction: column;
+    gap: 0;
+    box-sizing: border-box;
 }
 
 /* =========================
    CONTAINER
 ========================= */
-
 .clp-container {
     display: flex;
     gap: 20px;
     margin-top: 10px;
-    height: calc(100vh - 132px);
+    height: calc(100vh - 120px);
 }
 
 .clp-section {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 18px;
-    box-shadow: var(--shadow-primary);
+    background: transparent;
     width: 50%;
-    position: relative;
-    overflow-y: auto;
-}
-
-.clp-card {
-    background: #ffffff;
-    border-radius: 20px;
-    transition: 0.25s ease;
     display: flex;
     flex-direction: column;
     gap: 14px;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd transparent;
 }
 
-.clp-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    margin-bottom: 12px;
+.clp-section::-webkit-scrollbar {
+    width: 4px;
+}
+
+.clp-section::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
 }
 
 /* =========================
-   FORM
+   BLOCK (white card wrapper)
 ========================= */
+.clp-block {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
 
+.clp-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.clp-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary, #555);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.clp-sub-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+/* =========================
+   EVENT TYPE GRID
+========================= */
+.clp-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.clp-type-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    border-radius: 14px;
+    border: 2px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.clp-type-card:hover {
+    border-color: var(--color-red, #e74c3c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.clp-type-card.active {
+    border-color: var(--color-red, #e74c3c);
+    background: rgba(231, 76, 60, 0.05);
+    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.18);
+}
+
+.clp-type-icon {
+    font-size: 26px;
+}
+
+.clp-type-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary, #111);
+    text-align: center;
+}
+
+.clp-type-card.active .clp-type-label {
+    color: var(--color-red, #e74c3c);
+}
+
+/* =========================
+   FORM FIELDS
+========================= */
 .clp-group {
     display: flex;
     flex-direction: column;
+    gap: 6px;
 }
 
-.custom-dropdown {
-    position: relative;
-    width: 100%;
-}
-
-.dropdown-selected {
-  padding: 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  cursor: pointer;
-  background: #fff;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  position: relative;
-}
-
-/* ARROW USING PSEUDO */
-.dropdown-selected::after {
-  content: "";
-  width: 6px;
-  height: 6px;
-
-  border-right: 2px solid #555;
-  border-bottom: 2px solid #555;
-
-  transform: rotate(45deg); /* down arrow */
-  transition: transform 0.25s ease;
-
-  position: absolute;
-  right: 14px;
-}
-
-.dropdown-selected.open::after {
-  transform: rotate(-135deg); /* up arrow */
-}
-
-.dropdown-menu {
-  position: absolute;
-  width: 100%;
-  top: 110%;
-  left: 0;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-  overflow: hidden;
-  z-index: 10;
-
-  /* ANIMATION BASE */
-  opacity: 0;
-  transform: translateY(-8px) scale(0.98);
-  pointer-events: none;
-
-  transition: 
-    opacity 0.25s ease,
-    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* OPEN STATE */
-.dropdown-menu.open {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-  pointer-events: auto;
-}
-
-.dropdown-item {
-  padding: 12px;
-  cursor: pointer;
-  transition: 0.2s;
-  opacity: 0;
-  transform: translateY(-5px);
-}
-
-.dropdown-menu.open .dropdown-item {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* delay per item */
-.dropdown-item:nth-child(1) { transition-delay: 0.05s; }
-.dropdown-item:nth-child(2) { transition-delay: 0.1s; }
-.dropdown-item:nth-child(3) { transition-delay: 0.15s; }
-
-.dropdown-item:hover {
-    background: #f3f4f6;
-}
-
-.clp-group label {
-    font-size: 13px;
-    color: var(--text-secondary);
+.clp-field-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary, #555);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .clp-group input,
-.clp-group select,
-.clp-card textarea {
+.clp-group select {
     border-radius: 12px;
-    border: 1px solid #e5e7eb;
+    border: 1.5px solid #e5e7eb;
     padding: 10px 12px;
     font-size: 14px;
     outline: none;
     transition: 0.2s;
     font-family: inherit;
+    background: #f9fafb;
+    color: var(--text-primary, #111);
 }
 
-.clp-card textarea {
+.clp-group input:focus,
+.clp-group select:focus {
+    border-color: var(--color-red, #e74c3c);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+}
+
+.clp-textarea {
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    padding: 10px 12px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.2s;
+    font-family: inherit;
     min-height: 90px;
     resize: none;
     width: 100%;
     box-sizing: border-box;
+    background: #f9fafb;
 }
 
-/* =========================
-   ROW
-========================= */
+.clp-textarea:focus {
+    border-color: var(--color-red, #e74c3c);
+    background: #fff;
+}
 
 .clp-row {
     display: flex;
-    gap: 14px;
-    height: 100%;
+    flex-direction: column;
+    gap: 12px;
 }
 
 .clp-row .clp-group {
     flex: 1;
-}
-
-.section {
-    margin-bottom: 12px;
+    min-width: 0;
 }
 
 /* =========================
-   CHECKBOX
+   STEPPER
 ========================= */
+.clp-stepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f9fafb;
+    height: 44px;
+    width: fit-content;
+}
 
-.clp-card label {
+.clp-stepper-btn {
+    width: 44px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-primary, #111);
+    font-weight: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.clp-stepper-btn:hover {
+    background: #f0f0f0;
+}
+
+.clp-stepper-val {
+    min-width: 52px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary, #111);
+    border-left: 1px solid #e5e7eb;
+    border-right: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+/* =========================
+   CHECKBOX CARDS
+========================= */
+.clp-check-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.clp-check-card {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
     cursor: pointer;
+    transition: all 0.18s;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary, #555);
 }
 
-.clp-card input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
+.clp-check-card:hover {
+    border-color: var(--color-red, #e74c3c);
+    background: rgba(231, 76, 60, 0.04);
+}
+
+.clp-check-card.active {
+    border-color: var(--color-red, #e74c3c);
+    background: rgba(231, 76, 60, 0.07);
+    color: var(--color-red, #e74c3c);
+    font-weight: 700;
+}
+
+.clp-check-icon {
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.clp-check-label {
+    flex: 1;
+    font-size: 12px;
+}
+
+.clp-check-tick {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--color-red, #e74c3c);
+}
+
+/* =========================
+   DECORATION
+========================= */
+.clp-deco-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+}
+
+.clp-deco-none-btn {
+    padding: 10px 6px;
+    border-radius: 12px;
+    border: 1.5px dashed #d1d5db;
+    background: #f9fafb;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
     cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+}
+
+.clp-deco-none-btn:hover {
+    border-color: #9ca3af;
+    color: #555;
+}
+
+.clp-deco-none-btn.active {
+    border-color: #111;
+    background: #111;
+    color: #fff;
+}
+
+.clp-deco-card {
+    position: relative;
+    padding: 10px 6px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.clp-deco-card:hover {
+    border-color: var(--color-red, #e74c3c);
+    transform: translateY(-2px);
+}
+
+.clp-deco-card.active {
+    border-color: var(--color-red, #e74c3c);
+    background: rgba(231, 76, 60, 0.06);
+}
+
+.clp-deco-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary, #111);
+}
+
+.clp-deco-price {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-red, #e74c3c);
+}
+
+.clp-deco-desc {
+    font-size: 10px;
+    color: #aaa;
+    line-height: 1.3;
+}
+
+/* =========================
+   AV PRICE NOTE
+========================= */
+.clp-av-price {
+    font-size: 12px;
+    color: #888;
+    font-weight: 500;
+    padding: 6px 10px;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #f0f0f0;
+    margin-top: 2px;
+}
+
+/* =========================
+   EVENT MENU
+========================= */
+.clp-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.clp-menu-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.clp-menu-card:hover {
+    border-color: var(--color-red, #e74c3c);
+}
+
+.clp-menu-card.active {
+    border-color: var(--color-red, #e74c3c);
+    background: rgba(231, 76, 60, 0.06);
+    color: var(--color-red, #e74c3c);
+    font-weight: 700;
+}
+
+.clp-menu-label {
+    font-size: 12px;
 }
 
 /* =========================
    ERROR
 ========================= */
-
 .clp-error {
     font-size: 11px;
     color: red;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 /* =========================
-   BUTTON
+   SUBMIT
 ========================= */
 .clp-submit-container {
     text-align: center;
+    padding: 8px 0;
 }
 
 .clp-submit {
-    padding: 14px;
+    padding: 14px 32px;
     border-radius: 14px;
     border: none;
-    background: var(--color-red);
-    color: var(--bg-main);
+    background: var(--color-red, #e74c3c);
+    color: #fff;
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: 0.2s;
-    width: fit-content;
-    text-align: center;
-    box-shadow: var(--shadow-card-red);
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
 }
 
-.clp-submit:hover {
-    box-shadow: var(--shadow-card-red-hover);
+.clp-submit:hover:not(:disabled) {
+    box-shadow: 0 6px 22px rgba(231, 76, 60, 0.45);
+    transform: translateY(-1px);
 }
 
-.clp-submit.loading {
-    opacity: 0.7;
+.clp-submit.loading,
+.clp-submit:disabled {
+    opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* =========================
+   SUCCESS SCREEN
+========================= */
+.clp-success-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 40px 20px;
+    max-width: 420px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.clp-success-icon {
+    animation: clpBounce 0.5s ease;
+}
+
+@keyframes clpBounce {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    70% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.clp-success-title {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text-primary, #111);
+    margin: 0;
+}
+
+.clp-success-sub {
+    font-size: 14px;
+    color: var(--text-secondary, #555);
+    margin: 0;
+}
+
+.clp-booking-id {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border-radius: 14px;
+    border: 1px solid #bbf7d0;
+}
+
+.clp-booking-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #16a34a;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.clp-booking-code {
+    font-size: 20px;
+    font-weight: 800;
+    color: #15803d;
+    letter-spacing: 0.1em;
+}
+
+.clp-success-card {
+    width: 100%;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+.clp-sc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f5f5f5;
+    font-size: 14px;
+}
+
+.clp-sc-row:last-child {
+    border-bottom: none;
+}
+
+.clp-sc-label {
+    color: #888;
+    font-weight: 500;
+}
+
+.clp-sc-val {
+    color: #111;
+    font-weight: 600;
+}
+
+/* =========================
+   CUSTOM DATE PICKER
+========================= */
+.clp-cdp-wrap {
+    position: relative;
+    display: block;
+}
+
+.clp-cdp-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 14px;
+    color: var(--text-primary, #111);
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.clp-cdp-trigger:hover {
+    border-color: var(--color-red, #e74c3c);
+    background: #fff;
+}
+
+.clp-cdp-popup {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 14px;
+    width: 270px;
+    animation: clpFadeIn 0.18s ease;
+}
+
+@keyframes clpFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.clp-cdp-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.clp-cdp-nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 1.5px solid #f0f0f0;
+    background: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+}
+
+.clp-cdp-nav-center {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.clp-cdp-nav-lbl {
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    color: #111;
+    cursor: pointer;
+    padding: 3px 7px;
+    border-radius: 6px;
+    font-family: inherit;
+}
+
+.clp-cdp-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.clp-cdp-weekdays span {
+    font-size: 9px;
+    font-weight: 700;
+    color: #222;
+    text-transform: uppercase;
+    padding: 3px 0;
+}
+
+.clp-cdp-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+}
+
+.clp-cdp-day {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    font-size: 12px;
+    color: #333;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.clp-cdp-day:hover:not(.clp-cdp-dis) {
+    background: #f0f4ff;
+    color: #4361ee;
+}
+
+.clp-cdp-day.clp-cdp-today {
+    font-weight: 700;
+    color: var(--color-red, #e74c3c);
+}
+
+.clp-cdp-day.clp-cdp-sel {
+    background: #111 !important;
+    color: #fff !important;
+    font-weight: 700;
+    border-radius: 10px;
+}
+
+.clp-cdp-day.clp-cdp-dis {
+    color: #b6b6b6;
+    cursor: not-allowed;
+}
+
+.clp-cdp-month-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    padding: 4px 0;
+}
+
+.clp-cdp-month-btn {
+    padding: 9px 4px;
+    border-radius: 9px;
+    border: 1.5px solid #f0f0f0;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.clp-cdp-month-btn.clp-cdp-sel {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+.clp-cdp-year-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 4px 0;
+}
+
+.clp-cdp-year-btn {
+    padding: 9px 4px;
+    border-radius: 9px;
+    border: 1.5px solid #f0f0f0;
+    background: #fff;
+    font-size: 11px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.clp-cdp-year-btn.clp-cdp-sel {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+}
+
+/* CDP value label */
+.clp-cdp-val {
+    font-size: 14px;
+    font-weight: 500;
+    color: #111;
+}
+
+/* =========================
+   SLOT GROUPS (matches ReservationForm)
+========================= */
+.clp-slot-groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.clp-slot-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    border-radius: 14px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    min-width: 80px;
+}
+
+.clp-slot-group:hover {
+    border-color: var(--color-red);
+    transform: translateY(-2px);
+}
+
+.clp-slot-group.active {
+    background: var(--color-red);
+    border-color: var(--color-red);
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.3);
+}
+
+.clp-sg-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #555;
+}
+
+.clp-sg-time {
+    font-size: 10px;
+    color: #888;
+    text-align: center;
+}
+
+.clp-slot-group.active .clp-sg-label,
+.clp-slot-group.active .clp-sg-time {
+    color: #fff;
+}
+
+.clp-slot-disabled {
+    opacity: 0.45;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.clp-slot-past-badge {
+    font-size: 9px;
+    background: rgba(0, 0, 0, 0.12);
+    color: #fff;
+    border-radius: 6px;
+    padding: 1px 5px;
+    font-weight: 600;
+}
+
+/* CTP disabled trigger */
+.clp-ctp-disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+.clp-ctp-placeholder {
+    color: #aaa;
+}
+
+.clp-tp-popup {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    padding: 14px;
+    width: 240px;
+    animation: clpFadeIn 0.18s ease;
+}
+
+.clp-tp-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--color-red, #e74c3c);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+}
+
+.clp-tp-ampm {
+    display: flex;
+    gap: 4px;
+}
+
+.clp-tp-ampm-btn {
+    padding: 3px 9px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.clp-tp-ampm-btn.active {
+    background: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.clp-tp-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+}
+
+.clp-tp-val {
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.clp-tp-grid-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 5px;
+}
+
+.clp-tp-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 4px;
+    margin-bottom: 10px;
+}
+
+.clp-tp-cell {
+    padding: 7px 4px;
+    border-radius: 8px;
+    border: 1.5px solid #f0f0f0;
+    background: #f9f9f9;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.clp-tp-cell:hover {
+    border-color: var(--color-red, #e74c3c);
+    color: var(--color-red, #e74c3c);
+}
+
+.clp-tp-cell.active {
+    background: var(--color-red, #e74c3c);
+    border-color: var(--color-red, #e74c3c);
+    color: #fff;
+}
+
+.clp-tp-ok {
+    padding: 5px 16px;
+    border-radius: 8px;
+    border: none;
+    background: var(--color-red, #e74c3c);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 /* =========================
    RESPONSIVE
 ========================= */
-
 @media (max-width: 768px) {
     .clp-page {
-        padding: 20px;
+        padding: 16px;
     }
 
     .clp-container {
         flex-direction: column;
-        gap: 10px;
-        height: 100%;
+        height: auto;
     }
 
     .clp-section {
         width: 100%;
         box-sizing: border-box;
+        overflow-y: visible;
+    }
+
+    .clp-type-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .clp-deco-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .clp-check-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .clp-row {
@@ -277,12 +1004,222 @@
     }
 }
 
-@media (max-width: 578px) {
+@media (max-width: 400px) {
     .clp-page {
         padding: 10px;
     }
 
-    .clp-section {
-        padding: 12px;
+    .clp-type-grid {
+        grid-template-columns: 1fr 1fr;
     }
+
+    .clp-deco-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .clp-check-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ═══════════════════════════════════════
+   CLOCK TIME PICKER  (matches Reservations style)
+═══════════════════════════════════════ */
+.clp-ctp-wrap {
+    position: relative;
+    display: block;
+}
+
+.clp-ctp-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9f9f9;
+    font-size: 14px;
+    color: #111;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+.clp-ctp-trigger:hover:not(.clp-ctp-disabled) {
+    border-color: #111;
+    background: #fff;
+}
+
+.clp-ctp-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.clp-ctp-val {
+    font-weight: 500;
+}
+
+.clp-ctp-placeholder {
+    color: #aaa;
+}
+
+.clp-ctp-popup {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 9999;
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    padding: 0 0 12px;
+    width: 260px;
+    animation: cdpFadeIn 0.18s ease;
+    overflow: hidden;
+}
+
+.clp-ctp-header {
+    background: var(--color-red);
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.clp-ctp-ampm-col {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.clp-ctp-ampm-btn {
+    padding: 3px 10px;
+    border-radius: 6px;
+    border: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.clp-ctp-ampm-btn.active {
+    background: rgba(255, 255, 255, 0.4);
+    color: #fff;
+}
+
+.clp-ctp-time-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0 auto 0 8px;
+}
+
+.clp-ctp-hm-btn {
+    font-size: 30px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 8px;
+    transition: all 0.15s;
+    line-height: 1;
+}
+
+.clp-ctp-hm-btn.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.clp-ctp-colon {
+    font-size: 28px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1;
+}
+
+.clp-ctp-clock-svg {
+    display: block;
+    margin: 8px auto 0;
+}
+
+.clp-ctp-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 16px 0;
+}
+
+.clp-ctp-cancel-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #f0f0f0;
+    color: #666;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.clp-ctp-ok-btn {
+    padding: 6px 18px;
+    border-radius: 8px;
+    border: none;
+    background: var(--color-red);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ═══════════════════════════════════════
+   SPECIAL MENTION EXPANSION
+═══════════════════════════════════════ */
+.clp-extra-item-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.clp-mention-box {
+    margin-left: 4px;
+    animation: clp-slide-in 0.2s ease;
+}
+
+@keyframes clp-slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.clp-mention-textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    background: #fffbea;
+    font-size: 13px;
+    font-family: inherit;
+    color: #111;
+    resize: vertical;
+    outline: none;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+}
+
+.clp-mention-textarea:focus {
+    border-color: var(--color-red);
+    background: #fff;
+}
+
+.clp-mention-textarea::placeholder {
+    color: #aaa;
 }

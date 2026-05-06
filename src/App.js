@@ -1,4 +1,4 @@
-import "./App.css";
+import "./App.css"; //user panel
 import { useEffect, useState, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
@@ -56,13 +56,15 @@ function App() {
 
   const fetchMenu = async () => {
     try {
-      const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes] = await Promise.all([
+      const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] = await Promise.all([
         api.get("/categories"),
         api.get("/ingredients"),
         api.get("/favourites"),
         api.get("/combo"),
         api.get("/offers"),
-        api.get("/tables")
+        api.get("/tables"),
+        api.get("/events").catch(() => ({ data: [] })),
+        api.get("/orders").catch(() => ({ data: [] })),
       ]);
 
       setFoodData(prev => ({
@@ -71,9 +73,11 @@ function App() {
         ingredients: ingredientsRes.data || [],
         favourites: favouritesRes.data || [],
         combo: comboRes.data || [],
+        comboOffers: comboRes.data || [],   // alias so FoodCategory can read comboOffers
         offers: offersRes.data || [],
-        tables: tablesRes.data?.[0]?.list || []
-
+        tables: tablesRes.data?.[0]?.list || [],
+        events: eventsRes.data || [],
+        orders: ordersRes.data || [],
       }));
     } catch (err) {
       console.error("Failed to load menu", err);
@@ -361,8 +365,11 @@ function App() {
     categories: [],
     favourites: [],
     combo: [],
+    comboOffers: [],
     ingredients: [],
-    orders: []
+    orders: [],
+    offers: [],
+    events: [],
   });
 
   const onToggleFavourite = async (dish) => {
@@ -464,6 +471,49 @@ function App() {
     fetchMenu();
   }, [currentUser]);
 
+  // ── Load saved theme from server on mount ──────────────────────────────
+  useEffect(() => {
+    const applyThemeTokens = (themeData) => {
+      const root = document.documentElement;
+      const isDark = root.getAttribute("data-theme") === "dark";
+      const tokens = isDark ? themeData.dark : themeData.light;
+      if (tokens && Object.keys(tokens).length > 0) {
+        Object.entries(tokens).forEach(([key, val]) => {
+          root.style.setProperty(key, val);
+        });
+      }
+    };
+
+    const loadTheme = async () => {
+      try {
+        const res = await api.get("/theme");
+        const saved = Array.isArray(res.data) ? res.data[0] : res.data;
+        if (saved) applyThemeTokens(saved);
+      } catch (err) {
+        console.warn("Could not load theme:", err);
+      }
+    };
+
+    loadTheme();
+  }, []);
+
+  // ── Listen for live theme broadcasts from admin panel ──────────────────
+  useEffect(() => {
+    const handleThemeUpdate = (themeData) => {
+      const root = document.documentElement;
+      const isDark = root.getAttribute("data-theme") === "dark";
+      const tokens = isDark ? themeData.dark : themeData.light;
+      if (tokens && Object.keys(tokens).length > 0) {
+        Object.entries(tokens).forEach(([key, val]) => {
+          root.style.setProperty(key, val);
+        });
+      }
+    };
+
+    socket.on("theme-update", handleThemeUpdate);
+    return () => socket.off("theme-update", handleThemeUpdate);
+  }, []);
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const table = params.get("table");
@@ -494,7 +544,9 @@ function App() {
         resource === "ingredients" ||
         resource === "categories" ||
         resource === "favourites" ||
-        resource === "combo"
+        resource === "combo" ||
+        resource === "offers" ||
+        resource === "events"
       ) {
         fetchMenu();
       }
@@ -564,13 +616,22 @@ function App() {
     <ToastProvider>
       <LayoutGroup>
         <div className="App">
-          <FloatingBag
-            bag={bag}
-            isOpen={isBagOpen}
-            setIsOpen={setIsBagOpen}
-            increaseQty={increaseQty}
-            decreaseQty={decreaseQty}
-          />
+          {![
+            "/events/reservation",
+            "/events/celebration",
+            "/events/catering",
+            "/events/hosted",
+            "/events",
+            "/events/home"
+          ].includes(location.pathname) && (
+              <FloatingBag
+                bag={bag}
+                increaseQty={increaseQty}
+                decreaseQty={decreaseQty}
+                isOpen={isBagOpen}
+                setIsOpen={setIsBagOpen}
+              />
+            )}
 
           {isDineIn && (
             <div className="floating-bell-wrapper" onClick={handleRingBell}>

@@ -1,3 +1,4 @@
+//user panel
 import { useState, useEffect, useRef } from "react";
 import api from "../api";
 import homeIcon from "../assets/icons/home.png";
@@ -15,63 +16,56 @@ const SLOT_GROUPS = [
     { label: "Dinner", key: "DI", start: "18:30", end: "22:00" },
 ];
 
-const TABLE_PREFS = [
-    {
-        label: "Window",
-        desc: "Natural light, street view",
-        svg: (
-            <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="2" width="56" height="40" rx="3" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.5" />
-                <line x1="30" y1="2" x2="30" y2="42" stroke="#60a5fa" strokeWidth="1.5" />
-                <line x1="2" y1="22" x2="58" y2="22" stroke="#60a5fa" strokeWidth="1.5" />
-                <rect x="10" y="28" width="16" height="10" rx="2" fill="#93c5fd" opacity=".6" />
-                <rect x="34" y="28" width="16" height="10" rx="2" fill="#93c5fd" opacity=".6" />
-                <path d="M8 6 L14 14 M18 6 L24 14" stroke="#fbbf24" strokeWidth="1.2" strokeLinecap="round" />
-            </svg>
-        ),
-    },
-    {
-        label: "Booth",
-        desc: "Cozy enclosed seating",
-        svg: (
-            <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="4" y="4" width="52" height="36" rx="6" fill="#fde68a" stroke="#f59e0b" strokeWidth="1.5" />
-                <rect x="4" y="4" width="12" height="36" rx="4" fill="#fbbf24" />
-                <rect x="44" y="4" width="12" height="36" rx="4" fill="#fbbf24" />
-                <rect x="16" y="16" width="28" height="12" rx="3" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.2" />
-                <circle cx="30" cy="22" r="4" fill="#fcd34d" />
-            </svg>
-        ),
-    },
-    {
-        label: "Hitter",
-        desc: "High-top bar seating",
-        svg: (
-            <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="16" y="6" width="28" height="6" rx="2" fill="#6b7280" stroke="#4b5563" strokeWidth="1.2" />
-                <line x1="30" y1="12" x2="30" y2="38" stroke="#9ca3af" strokeWidth="3" strokeLinecap="round" />
-                <circle cx="14" cy="18" r="5" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1.2" />
-                <line x1="14" y1="23" x2="14" y2="38" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
-                <circle cx="46" cy="18" r="5" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1.2" />
-                <line x1="46" y1="23" x2="46" y2="38" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-        ),
-    },
-    {
-        label: "Any",
-        desc: "No preference",
-        svg: (
-            <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="14" width="40" height="22" rx="4" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="1.5" />
-                <rect x="18" y="8" width="6" height="10" rx="2" fill="#9ca3af" />
-                <rect x="36" y="8" width="6" height="10" rx="2" fill="#9ca3af" />
-                <rect x="18" y="32" width="6" height="10" rx="2" fill="#9ca3af" />
-                <rect x="36" y="32" width="6" height="10" rx="2" fill="#9ca3af" />
-                <circle cx="30" cy="25" r="5" fill="#d1d5db" />
-                <text x="30" y="29" textAnchor="middle" fontSize="8" fill="#9ca3af" fontWeight="700">ANY</text>
-            </svg>
-        ),
-    },
+/* ─── Default SVG visuals keyed by label (fallback) ─── */
+const DEFAULT_PREF_SVGS = {
+    Window: (
+        <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="2" width="56" height="40" rx="3" fill="#bfdbfe" stroke="#60a5fa" strokeWidth="1.5" />
+            <line x1="30" y1="2" x2="30" y2="42" stroke="#60a5fa" strokeWidth="1.5" />
+            <line x1="2" y1="22" x2="58" y2="22" stroke="#60a5fa" strokeWidth="1.5" />
+            <rect x="10" y="28" width="16" height="10" rx="2" fill="#93c5fd" opacity=".6" />
+            <rect x="34" y="28" width="16" height="10" rx="2" fill="#93c5fd" opacity=".6" />
+            <path d="M8 6 L14 14 M18 6 L24 14" stroke="#fbbf24" strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+    ),
+    Booth: (
+        <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="52" height="36" rx="6" fill="#fde68a" stroke="#f59e0b" strokeWidth="1.5" />
+            <rect x="4" y="4" width="12" height="36" rx="4" fill="#fbbf24" />
+            <rect x="44" y="4" width="12" height="36" rx="4" fill="#fbbf24" />
+            <rect x="16" y="16" width="28" height="12" rx="3" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.2" />
+            <circle cx="30" cy="22" r="4" fill="#fcd34d" />
+        </svg>
+    ),
+    Hitter: (
+        <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="16" y="6" width="28" height="6" rx="2" fill="#6b7280" stroke="#4b5563" strokeWidth="1.2" />
+            <line x1="30" y1="12" x2="30" y2="38" stroke="#9ca3af" strokeWidth="3" strokeLinecap="round" />
+            <circle cx="14" cy="18" r="5" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1.2" />
+            <line x1="14" y1="23" x2="14" y2="38" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="46" cy="18" r="5" fill="#d1d5db" stroke="#9ca3af" strokeWidth="1.2" />
+            <line x1="46" y1="23" x2="46" y2="38" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+    ),
+    Any: (
+        <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="14" width="40" height="22" rx="4" fill="#e5e7eb" stroke="#9ca3af" strokeWidth="1.5" />
+            <rect x="18" y="8" width="6" height="10" rx="2" fill="#9ca3af" />
+            <rect x="36" y="8" width="6" height="10" rx="2" fill="#9ca3af" />
+            <rect x="18" y="32" width="6" height="10" rx="2" fill="#9ca3af" />
+            <rect x="36" y="32" width="6" height="10" rx="2" fill="#9ca3af" />
+            <circle cx="30" cy="25" r="5" fill="#d1d5db" />
+            <text x="30" y="29" textAnchor="middle" fontSize="8" fill="#9ca3af" fontWeight="700">ANY</text>
+        </svg>
+    ),
+};
+
+/* Fallback static list used only if API is unavailable */
+const FALLBACK_TABLE_PREFS = [
+    { label: "Any", desc: "No preference" },
+    { label: "Window", desc: "Natural light, street view" },
+    { label: "Booth", desc: "Cozy enclosed seating" },
+    { label: "Hitter", desc: "High-top bar seating" },
 ];
 
 /* ─── Custom Date Picker ─────────────────────────── */
@@ -256,17 +250,24 @@ const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToda
         emitChange(ns);
     };
 
-    // Drag on clock face
-    const handleSvgDrag = (e) => {
-        if (!svgRef.current) return;
+    // Drag on clock face — full sweep support
+    const isDragging = useRef(false);
+    const modeRef = useRef(mode);
+    useEffect(() => { modeRef.current = mode; }, [mode]);
+
+    const getAngleFromEvent = (e) => {
+        if (!svgRef.current) return null;
         const rect = svgRef.current.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
         const x = clientX - rect.left - CENTER;
         const y = clientY - rect.top - CENTER;
         const angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
-        const norm = ((angle % 360) + 360) % 360;
-        if (mode === "hour") {
+        return ((angle % 360) + 360) % 360;
+    };
+
+    const applyAngle = (norm) => {
+        if (modeRef.current === "hour") {
             const h = Math.round(norm / 30) % 12 || 12;
             if (!isHourDisabled(h, selRef.current.ampm)) {
                 const ns = { ...selRef.current, h };
@@ -285,6 +286,62 @@ const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToda
             }
         }
     };
+
+    const handleSvgMouseDown = (e) => {
+        e.preventDefault();
+        isDragging.current = true;
+        const norm = getAngleFromEvent(e);
+        if (norm !== null) applyAngle(norm);
+    };
+
+    const handleSvgTouchStart = (e) => {
+        isDragging.current = true;
+        const norm = getAngleFromEvent(e);
+        if (norm !== null) applyAngle(norm);
+    };
+
+    useEffect(() => {
+        const onMouseMove = (e) => {
+            if (!isDragging.current) return;
+            const norm = getAngleFromEvent(e);
+            if (norm !== null) applyAngle(norm);
+        };
+        const onMouseUp = () => {
+            if (!isDragging.current) return;
+            isDragging.current = false;
+            // Auto-advance: after sweeping hours, switch to minute mode
+            if (modeRef.current === "hour") {
+                setTimeout(() => setMode("minute"), 150);
+            } else {
+                setTimeout(() => { setOpen(false); setMode("hour"); }, 150);
+            }
+        };
+        const onTouchMove = (e) => {
+            if (!isDragging.current) return;
+            e.preventDefault();
+            const norm = getAngleFromEvent(e);
+            if (norm !== null) applyAngle(norm);
+        };
+        const onTouchEnd = () => {
+            if (!isDragging.current) return;
+            isDragging.current = false;
+            if (modeRef.current === "hour") {
+                setTimeout(() => setMode("minute"), 150);
+            } else {
+                setTimeout(() => { setOpen(false); setMode("hour"); }, 150);
+            }
+        };
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("touchend", onTouchEnd);
+        return () => {
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+            window.removeEventListener("touchmove", onTouchMove);
+            window.removeEventListener("touchend", onTouchEnd);
+        };
+    }, []);
 
     const displayVal = value ? (() => {
         const [hh, mm] = value.split(":").map(Number);
@@ -320,15 +377,15 @@ const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToda
                         ref={svgRef}
                         width={CENTER * 2} height={CENTER * 2}
                         className="ctp-clock-svg"
-                        onMouseMove={(e) => e.buttons === 1 && handleSvgDrag(e)}
-                        onTouchMove={handleSvgDrag}
-                        style={{ touchAction: "none" }}
+                        onMouseDown={handleSvgMouseDown}
+                        onTouchStart={handleSvgTouchStart}
+                        style={{ touchAction: "none", cursor: "crosshair" }}
                     >
                         <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="#f8f9fa" stroke="#e5e7eb" strokeWidth="1.5" />
-                        <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y} stroke="#1dd1a1" strokeWidth="2.5" strokeLinecap="round" />
-                        <circle cx={CENTER} cy={CENTER} r="4" fill="#1dd1a1" />
-                        <circle cx={handTip.x} cy={handTip.y} r="16" fill="#1dd1a1" opacity="0.18" />
-                        <circle cx={handTip.x} cy={handTip.y} r="4" fill="#1dd1a1" />
+                        <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y} stroke="var(--color-red)" strokeWidth="2.5" strokeLinecap="round" />
+                        <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red)" />
+                        <circle cx={handTip.x} cy={handTip.y} r="16" fill="var(--color-red)" opacity="0.18" />
+                        <circle cx={handTip.x} cy={handTip.y} r="4" fill="var(--color-red)" />
                         {mode === "hour" && hours12.map((h) => {
                             const ang = hourAngle(h);
                             const pos = polarToXY(ang, HOUR_R);
@@ -336,7 +393,7 @@ const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToda
                             const isDis = isHourDisabled(h, sel.ampm);
                             return (
                                 <g key={h} onClick={() => selectHour(h)} style={{ cursor: isDis ? "not-allowed" : "pointer" }}>
-                                    <circle cx={pos.x} cy={pos.y} r="16" fill={isSelected ? "#1dd1a1" : "transparent"} />
+                                    <circle cx={pos.x} cy={pos.y} r="16" fill={isSelected ? "var(--color-red)" : "transparent"} />
                                     <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
                                         fontSize="13" fontWeight={isSelected ? "700" : "400"}
                                         fill={isDis ? "#ccc" : isSelected ? "#fff" : "#333"}>{h}</text>
@@ -350,7 +407,7 @@ const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToda
                             const isDis = isMinDisabled(m);
                             return (
                                 <g key={m} onClick={() => selectMinute(m)} style={{ cursor: isDis ? "not-allowed" : "pointer" }}>
-                                    <circle cx={pos.x} cy={pos.y} r="16" fill={isSelected ? "#1dd1a1" : "transparent"} />
+                                    <circle cx={pos.x} cy={pos.y} r="16" fill={isSelected ? "var(--color-red)" : "transparent"} />
                                     <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
                                         fontSize="12" fontWeight={isSelected ? "700" : "400"}
                                         fill={isDis ? "#ccc" : isSelected ? "#fff" : "#333"}>{pad(m)}</text>
@@ -381,6 +438,42 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     const [bookingId, setBookingId] = useState("");
     const [errors, setErrors] = useState({});
     const [showCrossCheck, setShowCrossCheck] = useState(false);
+
+    /* ── Dynamic table preferences fetched from admin-configured /tablePreferences ── */
+    const [tablePrefs, setTablePrefs] = useState(FALLBACK_TABLE_PREFS);
+    const [prefsLoaded, setPrefsLoaded] = useState(false);
+
+    useEffect(() => {
+        let cancelled = false;
+        const loadPrefs = async () => {
+            try {
+                const res = await api.get("/tablePreferences");
+                const records = res.data || [];
+                if (!cancelled && records.length > 0) {
+                    const sorted = [...records].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+                    setTablePrefs(sorted.map(r => ({
+                        label: r.label,
+                        desc: r.desc || "",
+                        image: r.image || null,
+                        // Use uploaded image if present; else use known SVG; else chair emoji
+                        svg: r.image
+                            ? <img src={r.image} alt={r.label} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 6 }} />
+                            : DEFAULT_PREF_SVGS[r.label] || <span style={{ fontSize: 24 }}>🪑</span>,
+                    })));
+                }
+            } catch {
+                // Keep fallback list; it still renders the SVGs
+                setTablePrefs(FALLBACK_TABLE_PREFS.map(p => ({
+                    ...p,
+                    svg: DEFAULT_PREF_SVGS[p.label] || <span style={{ fontSize: 24 }}>🪑</span>,
+                })));
+            } finally {
+                if (!cancelled) setPrefsLoaded(true);
+            }
+        };
+        loadPrefs();
+        return () => { cancelled = true; };
+    }, []);
 
     // Pre-fill user — run once on mount only
     useEffect(() => {
@@ -578,8 +671,11 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         {/* Seating Preference — visual cards */}
                         <div className="rf-section">
                             <div className="rf-section-title">Seating Preference</div>
+                            {!prefsLoaded && (
+                                <div style={{ padding: "12px 0", color: "#aaa", fontSize: 13 }}>Loading options…</div>
+                            )}
                             <div className="rf-table-pref-grid">
-                                {TABLE_PREFS.map(p => (
+                                {tablePrefs.map(p => (
                                     <button type="button" key={p.label}
                                         className={`rf-table-pref-card${form.tablePref === p.label ? " active" : ""}`}
                                         onClick={() => set("tablePref", p.label)}>
