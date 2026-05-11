@@ -598,7 +598,8 @@ function App() {
      🔔 BELL — Socket listeners (mount once)
   ───────────────────────────────────────────────────────────────────── */
   useEffect(() => {
-    
+    // Captured once at mount for handleSync (table is set before mount via URL param)
+    const myTable = localStorage.getItem("tableNo");
 
     // Sync existing state when first connecting
     const handleSync = (activeBells) => {
@@ -610,8 +611,8 @@ function App() {
 
     // Admin turned off the bell for THIS table
     const handleBellOff = ({ tableNo }) => {
-      const myTable = localStorage.getItem("tableNo");
-      if (tableNo === myTable) {
+      const currentTable = localStorage.getItem("tableNo");
+      if (tableNo === currentTable) {
         setIsRinging(false);
         stopBellAudio();
       }
@@ -620,7 +621,8 @@ function App() {
     // Another tab / the same table rung the bell (shouldn't usually
     // happen but keeps state consistent if admin re-rings somehow)
     const handleBellRing = ({ tableNo }) => {
-      if (tableNo === myTable) {
+      const currentTable = localStorage.getItem("tableNo");
+      if (tableNo === currentTable) {
         setIsRinging(true);
         startBellAudio();
       }
@@ -830,7 +832,7 @@ function App() {
                 />
 
                 <Route
-                    path="foods/:categoryId/grid"
+                  path="foods/:categoryId/grid"
                   element={
                     <motion.div {...motionProps}>
                       <FoodGridList
