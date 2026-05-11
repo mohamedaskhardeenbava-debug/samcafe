@@ -598,7 +598,7 @@ function App() {
      🔔 BELL — Socket listeners (mount once)
   ───────────────────────────────────────────────────────────────────── */
   useEffect(() => {
-    const myTable = localStorage.getItem("tableNo");
+    
 
     // Sync existing state when first connecting
     const handleSync = (activeBells) => {
@@ -610,6 +610,7 @@ function App() {
 
     // Admin turned off the bell for THIS table
     const handleBellOff = ({ tableNo }) => {
+      const myTable = localStorage.getItem("tableNo");
       if (tableNo === myTable) {
         setIsRinging(false);
         stopBellAudio();
@@ -640,8 +641,8 @@ function App() {
      🔔 BELL — User taps the floating bell button
   ───────────────────────────────────────────────────────────────────── */
   const handleRingBell = () => {
-    const tableNo = localStorage.getItem("tableNo");
-    if (!tableNo || isRinging) return; // already ringing → ignore extra taps
+    const tableNo = localStorage.getItem("tableNo") || "Guest";
+    if (isRinging) return;
 
     // Tell the server (which will broadcast to admin + echo back)
     socket.emit("bell-ring", { tableNo });
