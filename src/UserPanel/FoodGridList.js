@@ -64,9 +64,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
             <div className="food-grid-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-grid-title">{category.name}</div>
-                <div className="home-btn" onClick={handleHome}>
-                    <img src={homeIcon} alt="" />
-                </div>
+                <div className="home-btn home-btn-icon" onClick={handleHome} />
             </div>
 
             {/* TOOLBAR: search + sort */}

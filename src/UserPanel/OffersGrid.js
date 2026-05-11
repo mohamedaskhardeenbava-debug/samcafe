@@ -48,9 +48,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
 
                 <div className="offers-grid-title">Offers</div>
 
-                <div className="home-btn" onClick={handleHome}>
-                    <img src={homeIcon} alt="" />
-                </div>
+                <div className="home-btn  home-btn-icon" onClick={handleHome} />
             </div>
 
             {/* GRID */}

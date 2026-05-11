@@ -298,14 +298,14 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       <div className="left-panel">
         {/* HEADER */}
         <div className="fooditem-header">
-          <button className="back-button" onClick={() => handleBack()} />
+          <button className="back-button" onClick={ handleBack } />
           <div className="food-item-name">
             {fromBag && bagItem?.name ? bagItem.name
               : fromFavouriteCustomize && favouriteDish ? favouriteDish.name
                 : dish ? dish.name
                   : `Make Your Own ${category.name}`}
           </div>
-          <div className="home-btn" onClick={handleHome}><img src={homeIcon} alt="" /></div>
+          <div className="home-btn  home-btn-icon" onClick={handleHome} />
           {!fromBag && !fromFavouriteCustomize && currentUser && currentUser.id !== "guest" && (
             <div
               className={`wishlist-btn ${isWishlisted ? "active" : ""}`}

@@ -33,9 +33,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           <div className="food-list-title">
             Dish not found
           </div>
-          <div className="home-btn" onClick={handleHome}>
-            <img src={homeIcon} alt="" />
-          </div>
+          <div className="home-btn  home-btn-icon" onClick={handleHome} />
         </div>
       </div>
     );
@@ -50,9 +48,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           onClick={handleBack}
         />
         <h2 className="fav-title">{dish.name}</h2>
-        <div className="home-btn" onClick={handleHome}>
-          <img src={homeIcon} alt="" />
-        </div>
+        <div className="home-btn  home-btn-icon" onClick={handleHome} />
       </div>
 
       <div className="fav-detail-container">

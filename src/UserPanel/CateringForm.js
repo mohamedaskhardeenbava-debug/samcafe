@@ -1,259 +1,297 @@
+// user panel
 import { useState, useEffect } from "react";
 import api from "../api";
-import homeIcon from "../assets/icons/home.png";
+import { UserDatePicker, todayStr } from "./UserDatePicker";
+import { UserTimePicker } from "./UserTimePicker";
 import "./CateringForm.css";
 
+const pad = (n) => String(n).padStart(2, "0");
+
+/* ══════════════════════════════════
+   Main Component — User Catering Form
+══════════════════════════════════ */
 const CateringForm = ({ bag, setBag, handleBack, handleHome }) => {
     const [form, setForm] = useState({
-        name: "",
-        mobile: "",
-        eventDate: "",
-        guests: "",
-        location: "",
-        notes: ""
+        name: "", mobile: "", email: "", guests: 1,
+        eventDate: "", time: "", location: "", notes: ""
     });
-
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [bookingId, setBookingId] = useState("");
 
+    /* Pre-fill from logged-in user */
     useEffect(() => {
         const loadUser = async () => {
             try {
                 const userId = localStorage.getItem("userId");
                 if (!userId) return;
-
                 const res = await api.get(`/users/${userId}`);
-
                 setForm(prev => ({
                     ...prev,
                     name: res.data?.name || "",
                     mobile: res.data?.mobile || ""
                 }));
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         };
-
         loadUser();
     }, []);
 
-    const today = new Date().toISOString().split("T")[0];
+    const safeBag = Array.isArray(bag) ? bag : [];
+    const totalAmount = safeBag.reduce((s, i) => s + Number(i.totalPrice || 0), 0);
 
-    const safeBag = bag || [];
-
-    const totalAmount = safeBag.reduce(
-        (sum, item) => sum + Number(item.totalPrice || 0),
-        0
-    );
-
-    const handleChange = (key, value) => {
-        setForm(prev => ({ ...prev, [key]: value }));
-        setErrors(prev => ({ ...prev, [key]: "" }));
+    const setF = (key, val) => {
+        setForm(p => ({ ...p, [key]: val }));
+        setErrors(p => ({ ...p, [key]: "" }));
     };
 
     const validate = () => {
         const err = {};
-
-        if (!form.name) err.name = "Name is required";
-        if (!form.mobile) err.mobile = "Mobile is required";
-        if (!form.eventDate) err.eventDate = "Event date is required";
-
-        if (form.eventDate && form.eventDate < today) {
-            err.eventDate = "Invalid date";
-        }
-
-        if (form.guests && Number(form.guests) <= 0) {
-            err.guests = "Invalid guest count";
-        }
-
+        if (!form.name.trim() || form.name.trim().length < 2) err.name = true;
+        const mob = form.mobile.replace(/\D/g, "");
+        if (!mob || mob.length !== 10) err.mobile = true;
+        if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) err.email = true;
+        if (!form.guests || form.guests < 1) err.guests = true;
+        if (!form.eventDate) err.eventDate = true;
+        if (!form.time) err.time = true;
         return err;
     };
 
     const handleSubmit = async () => {
-        const validationErrors = validate();
-
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
-            return;
-        }
-
+        const ve = validate();
+        if (Object.keys(ve).length > 0) { setErrors(ve); return; }
         try {
             setLoading(true);
-
+            const newId = `cat_${Date.now()}`;
             await api.post("/cateringOrders", {
-                id: `cat_${Date.now()}`,
-                ...form,
+                id: newId,
+                name: form.name,
+                mobile: form.mobile,
+                email: form.email || "",
+                guests: form.guests,
+                date: form.eventDate,
+                eventDate: form.eventDate,
+                time: form.time,
+                location: form.location || "",
+                notes: form.notes || "",
                 items: safeBag,
                 totalAmount,
                 status: "pending",
-                createdAt: new Date().toISOString()
+                source: "User App",
+                createdAt: new Date().toISOString(),
             });
-
-            alert("Catering request submitted!");
-
-            setForm({
-                name: "",
-                mobile: "",
-                eventDate: "",
-                guests: "",
-                location: "",
-                notes: ""
-            });
-
-        } catch (err) {
-            console.error(err);
-            alert("Failed to submit");
+            setBookingId(newId.slice(-6).toUpperCase());
+            setSubmitted(true);
+            if (typeof setBag === "function") setBag([]);
+        } catch (e) {
+            console.error(e);
+            setErrors(prev => ({ ...prev, _submit: true }));
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <div className="cfp-page">
+    const fmtTime = (t) => {
+        if (!t) return "";
+        const [h, m] = t.split(":").map(Number);
+        return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`;
+    };
 
-            {/* HEADER */}
+    /* ── Success Screen ── */
+    if (submitted) {
+        return (
+            <div style={{ fontFamily: "inherit" }}>
+                <div className="food-header">
+                    <button className="back-button" onClick={handleBack} />
+                    <div className="food-list-title">Catering</div>
+                    <div className="home-btn home-btn-icon" onClick={handleHome} />
+                </div>
+                <div className="ucat-success-screen">
+                    <div className="ucat-success-icon">🍽️</div>
+                    <h2 className="ucat-success-title">Catering Submitted!</h2>
+                    <p className="ucat-success-sub">We'll confirm your catering order shortly.</p>
+                    <div className="ucat-success-id">
+                        Booking ID: <span className="ucat-booking-code">#{bookingId}</span>
+                    </div>
+                    <div className="ucat-success-card">
+                        <div className="ucat-sc-row"><span>Name</span><strong>{form.name}</strong></div>
+                        <div className="ucat-sc-row"><span>Mobile</span><strong>{form.mobile}</strong></div>
+                        <div className="ucat-sc-row"><span>Date</span><strong>{form.eventDate}</strong></div>
+                        <div className="ucat-sc-row"><span>Time</span><strong>{fmtTime(form.time)}</strong></div>
+                        <div className="ucat-sc-row"><span>Guests</span><strong>{form.guests}</strong></div>
+                        {form.location && <div className="ucat-sc-row"><span>Location</span><strong>{form.location}</strong></div>}
+                        {totalAmount > 0 && <div className="ucat-sc-row"><span>Order Total</span><strong>₹{totalAmount}</strong></div>}
+                    </div>
+                    <button className="ucat-back-home-btn" onClick={handleHome}>Back to Home</button>
+                </div>
+            </div>
+        );
+    }
+
+    /* ── Main Form ── */
+    return (
+        <div className="ucat-page">
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
-                <div className="food-list-title">Catering Order</div>
-                <div className="home-btn" onClick={handleHome}>
-                    <img src={homeIcon} alt="" />
-                </div>
+                <div className="food-list-title">Catering</div>
+                <div className="home-btn home-btn-icon" onClick={handleHome} />
             </div>
 
-            <div className="cfp-container">
+            <div className="ucat-form-shell">
+                <div className="ucat-form-grid">
 
-                <div className="cfp-section">
-                    {/* CUSTOMER */}
-                    <div className="cfp-card">
-                        <div className="cfp-title">Customer Details</div>
-                        <div className="cfp-group">
-                            <div className="floating-field">
-                                <input
-                                    placeholder=" "
-                                    value={form.name}
-                                    onChange={(e) => handleChange("name", e.target.value)}
-                                />
-                                <label>Enter Name</label>
-                                {errors.name && <span className="cfp-error">{errors.name}</span>}
+                    {/* ════ LEFT COLUMN ════ */}
+                    <div className="ucat-col">
+
+                        {/* GUEST DETAILS */}
+                        <div className="ucat-section-label">Your Details</div>
+                        <div className="ucat-card">
+                            <div className="ucat-form-row">
+                                <div className="ucat-form-group" style={{ flex: 1.4 }}>
+                                    <label>Name <span className="ucat-req">*</span></label>
+                                    <input
+                                        className={`ucat-input${errors.name ? " error" : ""}`}
+                                        placeholder="Your full name"
+                                        value={form.name}
+                                        onChange={e => setF("name", e.target.value)}
+                                    />
+                                </div>
+                                <div className="ucat-form-group" style={{ flex: 1 }}>
+                                    <label>Guests <span className="ucat-req">*</span></label>
+                                    <div className={`ucat-stepper${errors.guests ? " error" : ""}`}>
+                                        <button type="button" onClick={() => setF("guests", Math.max(1, form.guests - 1))}>−</button>
+                                        <span>{form.guests}</span>
+                                        <button type="button" onClick={() => setF("guests", Math.min(1000, form.guests + 1))}>+</button>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="floating-field">
-                                <input
-                                    placeholder=" "
-                                    type="tel"
-                                    value={form.mobile}
-                                    onChange={(e) => handleChange("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                                />
-                                <label>Enter Mobile</label>
-                                {errors.mobile && <span className="cfp-error">{errors.mobile}</span>}
+                            <div className="ucat-form-row">
+                                <div className="ucat-form-group">
+                                    <label>Mobile <span className="ucat-req">*</span></label>
+                                    <input
+                                        className={`ucat-input${errors.mobile ? " error" : ""}`}
+                                        placeholder="10-digit number"
+                                        type="tel"
+                                        value={form.mobile}
+                                        onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                                    />
+                                </div>
+                                <div className="ucat-form-group">
+                                    <label>Email <span className="ucat-opt">(optional)</span></label>
+                                    <input
+                                        className={`ucat-input${errors.email ? " error" : ""}`}
+                                        placeholder="email@example.com"
+                                        type="email"
+                                        value={form.email}
+                                        onChange={e => setF("email", e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* EVENT */}
-                    <div className="cfp-card">
-                        <div className="cfp-title">Event Details</div>
-                        <div className="cfp-group">
-                            <div className={`floating-field ${form.eventDate ? "has-value" : ""}`}>
-                                <label>Enter Event Date</label>
-                                <input
-                                    type="date"
-                                    min={today}
+                        {/* EVENT DETAILS */}
+                        <div className="ucat-section-label">Event Details</div>
+                        <div className="ucat-card">
+                            {/* Date */}
+                            <div className="ucat-form-group">
+                                <label>Event Date <span className="ucat-req">*</span></label>
+                                <UserDatePicker
                                     value={form.eventDate}
-                                    onChange={(e) => handleChange("eventDate", e.target.value)}
+                                    min={todayStr()}
+                                    hasError={!!errors.eventDate}
+                                    onChange={v => { setF("eventDate", v); setF("time", ""); }}
                                 />
-                                {errors.eventDate && <span className="cfp-error">{errors.eventDate}</span>}
                             </div>
 
-                            <div className="floating-field">
+                            {/* Time */}
+                            <div className="ucat-form-group">
+                                <label>Preferred Time <span className="ucat-req">*</span></label>
+                                <UserTimePicker
+                                    value={form.time}
+                                    hasError={!!errors.time}
+                                    onChange={v => setF("time", v)}
+                                />
+                            </div>
+
+                            {/* Location */}
+                            <div className="ucat-form-group">
+                                <label>Event Location <span className="ucat-opt">(optional)</span></label>
                                 <input
-                                    placeholder=" "
-                                    type="number"
-                                    value={form.guests}
-                                    onChange={(e) => handleChange("guests", e.target.value)}
-                                />
-                                <label>Enter Guests</label>
-                                {errors.guests && <span className="cfp-error">{errors.guests}</span>}
-                            </div>
-
-                            <div className="floating-field">
-                                <textarea
-                                    placeholder=" "
+                                    className="ucat-input"
+                                    placeholder="Venue or address"
                                     value={form.location}
-                                    onChange={(e) => handleChange("location", e.target.value)}
+                                    onChange={e => setF("location", e.target.value)}
                                 />
-                                <label>Enter Location</label>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <div className="cfp-section">
-
-                    {/* ORDERS */}
-                    <div className="cfp-card">
-                        <div className="cfp-title">Your Order</div>
-
-                        {!safeBag.length ? (
-                            <div className="cfp-empty">
-                                <p>No items selected</p>
-                                <span>Add items from menu</span>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="cfp-items">
-                                    {safeBag.map((item, i) => (
-                                        <div key={i} className="cfp-item">
-                                            <div className="cfp-item-left">
-                                                <span className="cfp-item-name">{item.name}</span>
-                                                {item.selectedSize && (
-                                                    <span className="cfp-item-size">
-                                                        {item.selectedSize} X {item.quantity}
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="cfp-item-price">
-                                                ₹{item.totalPrice}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="cfp-total">
-                                    <span>Total</span>
-                                    <strong>₹{totalAmount}</strong>
-                                </div>
-                            </>
-                        )}
-                    </div>
-
-                    {/* NOTES */}
-                    <div className="cfp-card">
-                        <div className="cfp-title">Additional Notes</div>
-
-                        <div className="cfp-group floating-field">
+                        {/* NOTES */}
+                        <div className="ucat-section-label">Note <span className="ucat-opt">(optional)</span></div>
+                        <div className="ucat-card">
                             <textarea
-                                placeholder=" "
+                                className="ucat-notes"
+                                rows={3}
+                                placeholder="Special requests, dietary requirements, menu preferences..."
                                 value={form.notes}
-                                onChange={(e) => handleChange("notes", e.target.value)}
+                                onChange={e => setF("notes", e.target.value)}
                             />
-                            <label htmlFor="">Special Requirements(if any)</label>
                         </div>
-                    </div>
 
-                    {/* SUBMIT */}
-                    <div className="cfp-submit-container">
-                        <button
-                            className={`cfp-submit ${loading ? "loading" : ""}`}
-                            onClick={handleSubmit}
-                        >
-                            {loading ? "Submitting..." : "Submit Catering Request"}
-                        </button>
-                    </div>
-                </div>
+                    </div>{/* end left col */}
 
+                    {/* ════ RIGHT COLUMN ════ */}
+                    <div className="ucat-col">
+
+                        {/* SELECTED ITEMS from bag */}
+                        <div className="ucat-section-label">Selected Items</div>
+                        <div className={`ucat-card${errors.bag ? " ucat-card-error" : ""}`}>
+                            {!safeBag.length ? (
+                                <div className="ucat-empty">
+                                    <p>No items in your order</p>
+                                    <span>Add catering items from the menu</span>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="ucat-items">
+                                        {safeBag.map((item, i) => (
+                                            <div key={i} className="ucat-item">
+                                                <div>
+                                                    <span className="ucat-item-name">{item.name}</span>
+                                                    {item.selectedSize && <span className="ucat-item-size"> {item.selectedSize} × {item.quantity}</span>}
+                                                </div>
+                                                <div className="ucat-item-price">₹{item.totalPrice}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="ucat-bill">
+                                        <div className="ucat-bill-row ucat-bill-total">
+                                            <span>Total</span>
+                                            <strong>₹{totalAmount}</strong>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* SUBMIT ERROR */}
+                        {errors._submit && (
+                            <div className="ucat-submit-error">Something went wrong. Please try again.</div>
+                        )}
+                            <button
+                                className={`ucat-submit-btn${loading ? " loading" : ""}`}
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={loading}
+                            >
+                                {loading ? "Submitting..." : "Submit Catering"}
+                            </button>
+
+                    </div>{/* end right col */}
+
+                </div>{/* end grid */}
             </div>
+
         </div>
     );
 };

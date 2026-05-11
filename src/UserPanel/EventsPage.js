@@ -607,7 +607,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                 <div className="ep-hero-content">
                     <div className="ep-hero-topbar">
                         <button className="events-back-button" onClick={handleBack} />
-                        <div className="home-btn" onClick={handleHome} style={{ cursor: "pointer" }} />
+                        <div className="home-btn  home-btn-icon" onClick={handleHome} />
                     </div>
                     <div className="ep-hero-text">
                         <h1 className="ep-hero-title">Experiences &<br />Special Events</h1>

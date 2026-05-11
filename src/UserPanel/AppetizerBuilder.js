@@ -44,9 +44,7 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
             <div className="builder-header">
                 <button className="back-button" onClick={handleBack} />
                 <h2>Build Your Appetizer</h2>
-                <div className="home-btn" onClick={handleHome}>
-                    <img src={homeIcon} alt="" />
-                </div>
+                <div className="home-btn  home-btn-icon" onClick={handleHome} />
             </div>
 
             <div className="builder-grid">

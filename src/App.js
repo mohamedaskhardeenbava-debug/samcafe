@@ -51,6 +51,8 @@ function App() {
 
   const isExpandedPage = location.pathname.includes("/expanded");
   const bellAudioRef = useRef(new Audio(bellSound));
+  // Keep a ref to the looping interval so we can clear it
+  const bellLoopRef = useRef(null);
 
   const isAuthenticatedUser = Boolean(currentUser?.id);
 
@@ -393,11 +395,8 @@ function App() {
       }
 
       /* =========================
-         2️⃣ UPDATE MENU.FAVOURITES
+         2️⃣ UPDATE /favourites
          ========================= */
-      /* =========================
-   2️⃣ UPDATE /favourites
-   ========================= */
       const favsRes = await api.get("/favourites");
       const menuFavourites = Array.isArray(favsRes.data) ? favsRes.data : [];
 
@@ -557,6 +556,104 @@ function App() {
 
   }, []);
 
+  /* ─────────────────────────────────────────────────────────────────────
+     🔔 BELL — Helpers
+  ───────────────────────────────────────────────────────────────────── */
+
+  /**
+   * Start looping the bell audio until stopBellAudio() is called.
+   * Uses an ended-listener pattern so the loop works even on mobile,
+   * where audio.loop is sometimes unreliable.
+   */
+  const startBellAudio = () => {
+    const audio = bellAudioRef.current;
+    if (!audio) return;
+
+    const loop = () => {
+      audio.currentTime = 0;
+      audio.play().catch(() => { });
+    };
+
+    audio.addEventListener("ended", loop);
+    bellLoopRef.current = loop; // save reference to remove later
+
+    audio.currentTime = 0;
+    audio.play().catch(() => { });
+  };
+
+  const stopBellAudio = () => {
+    const audio = bellAudioRef.current;
+    if (!audio) return;
+
+    if (bellLoopRef.current) {
+      audio.removeEventListener("ended", bellLoopRef.current);
+      bellLoopRef.current = null;
+    }
+
+    audio.pause();
+    audio.currentTime = 0;
+  };
+
+  /* ─────────────────────────────────────────────────────────────────────
+     🔔 BELL — Socket listeners (mount once)
+  ───────────────────────────────────────────────────────────────────── */
+  useEffect(() => {
+    const myTable = localStorage.getItem("tableNo");
+
+    // Sync existing state when first connecting
+    const handleSync = (activeBells) => {
+      if (myTable && activeBells[myTable]) {
+        setIsRinging(true);
+        startBellAudio();
+      }
+    };
+
+    // Admin turned off the bell for THIS table
+    const handleBellOff = ({ tableNo }) => {
+      if (tableNo === myTable) {
+        setIsRinging(false);
+        stopBellAudio();
+      }
+    };
+
+    // Another tab / the same table rung the bell (shouldn't usually
+    // happen but keeps state consistent if admin re-rings somehow)
+    const handleBellRing = ({ tableNo }) => {
+      if (tableNo === myTable) {
+        setIsRinging(true);
+        startBellAudio();
+      }
+    };
+
+    socket.on("bell-sync", handleSync);
+    socket.on("bell-off", handleBellOff);
+    socket.on("bell-ring", handleBellRing);
+
+    return () => {
+      socket.off("bell-sync", handleSync);
+      socket.off("bell-off", handleBellOff);
+      socket.off("bell-ring", handleBellRing);
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ─────────────────────────────────────────────────────────────────────
+     🔔 BELL — User taps the floating bell button
+  ───────────────────────────────────────────────────────────────────── */
+  const handleRingBell = () => {
+    const tableNo = localStorage.getItem("tableNo");
+    if (!tableNo || isRinging) return; // already ringing → ignore extra taps
+
+    // Tell the server (which will broadcast to admin + echo back)
+    socket.emit("bell-ring", { tableNo });
+
+    // Start local audio immediately (don't wait for socket echo)
+    setIsRinging(true);
+    startBellAudio();
+  };
+
+  // if (loading) return <div className="app-loading">Loading menu...</div>;
+  // if (error) return <div className="app-error">Failed to load menu</div>;
+
   const pageVariants = {
     initial: (direction) => ({
       x: direction > 0 ? 100 : -100,
@@ -593,24 +690,6 @@ function App() {
       )
     );
   };
-  const handleRingBell = () => {
-    const audio = bellAudioRef.current;
-
-    audio.pause();
-    audio.currentTime = 0;
-    audio.play().catch(err => console.error(err));
-
-    setIsRinging(true);
-
-    setTimeout(() => {
-      audio.pause();
-      audio.currentTime = 0;
-      setIsRinging(false);
-    }, 2000);
-  };
-
-  // if (loading) return <div className="app-loading">Loading menu...</div>;
-  // if (error) return <div className="app-error">Failed to load menu</div>;
 
   return (
     <ToastProvider>
@@ -619,7 +698,6 @@ function App() {
           {![
             "/events/reservation",
             "/events/celebration",
-            "/events/catering",
             "/events/hosted",
             "/events",
             "/events/home"
@@ -634,9 +712,15 @@ function App() {
             )}
 
           {isDineIn && (
-            <div className="floating-bell-wrapper" onClick={handleRingBell}>
+            <div
+              className="floating-bell-wrapper"
+              onClick={handleRingBell}
+              title={isRinging ? "Attender called – waiting for response" : "Call the attender"}
+            >
               <button
                 className={`floating-bell ${isRinging ? "ringing" : ""}`}
+                disabled={isRinging}
+                aria-label="Call attender"
               >
                 <img
                   key={isRinging ? "animated" : "static"}
@@ -647,7 +731,7 @@ function App() {
               </button>
 
               <div className="bell-tooltip">
-                Click to call the attender
+                {isRinging ? "Attender is on the way!" : "Click to call the attender"}
               </div>
             </div>
           )}
@@ -714,34 +798,29 @@ function App() {
                 />
 
                 <Route
-                  path="/subcategory/:categoryId"
-                  element={
-                    <SubCategoryPage
-                      foodData={foodData}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  }
-                />
-
-                <Route
-                  path="/subcategory/:categoryId"
-                  element={
-                    <SubCategoryPage
-                      foodData={foodData}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                    />
-                  }
-                />
-
-                <Route
-                  path="/foods/:categoryId/grid"
+                  path="/foods/:categoryId"
                   element={
                     <motion.div {...motionProps}>
-                      <FoodGridList
+                      <FoodList
                         foodData={foodData}
+                        handleNavigate={handleNavigate}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
                         addToBag={addToBag}
+                        currentUser={currentUser}
+                        setCurrentUser={setCurrentUser}
+                      />
+                    </motion.div>
+                  }
+                />
+
+                <Route
+                  path="/subcategory/:categoryId"
+                  element={
+                    <motion.div {...motionProps}>
+                      <SubCategoryPage
+                        foodData={foodData}
+                        handleNavigate={handleNavigate}
                         handleBack={handleBack}
                         handleHome={handleHome}
                       />
@@ -750,15 +829,19 @@ function App() {
                 />
 
                 <Route
-                  path="/foods/:categoryId"
+                    path="foods/:categoryId/grid"
                   element={
-                    <FoodList
-                      handleBack={handleBack}
-                      foodData={foodData}
-                      handleNavigate={handleNavigate}
-                      addToBag={addToBag}
-                      handleHome={handleHome}
-                    />
+                    <motion.div {...motionProps}>
+                      <FoodGridList
+                        foodData={foodData}
+                        handleNavigate={handleNavigate}
+                        handleBack={handleBack}
+                        handleHome={handleHome}
+                        addToBag={addToBag}
+                        currentUser={currentUser}
+                        setCurrentUser={setCurrentUser}
+                      />
+                    </motion.div>
                   }
                 />
 
@@ -767,9 +850,7 @@ function App() {
                   element={
                     <motion.div {...motionProps}>
                       <FoodItem
-                        handleBack={handleBack}
                         foodData={foodData}
-                        handleNavigate={handleNavigate}
                         onToggleFavourite={onToggleFavourite}
                         addToBag={addToBag}
                         updateBagItem={updateBagItem}
@@ -777,6 +858,7 @@ function App() {
                         setLastAction={setLastAction}
                         toCamelCase={toCamelCase}
                         handleHome={handleHome}
+                        handleBack={handleBack}
                         currentUser={currentUser}
                       />
                     </motion.div>
@@ -816,15 +898,6 @@ function App() {
                   }
                 />
 
-                {/* <Route
-                path="/scan-table"
-                element={
-                  <motion.div {...motionProps}>
-                    <TableScanner />
-                  </motion.div>
-                }
-              /> */}
-
                 {/* FAV CATEGORY PAGE */}
                 <Route
                   path="/favourites/:source"
@@ -855,8 +928,6 @@ function App() {
                     </motion.div>
                   }
                 />
-
-
 
                 <Route
                   path="/favourites/:source/dish/:dishId"

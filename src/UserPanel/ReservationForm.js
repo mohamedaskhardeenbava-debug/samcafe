@@ -1,12 +1,12 @@
 //user panel
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import api from "../api";
-import homeIcon from "../assets/icons/home.png";
+import { UserDatePicker, todayStr } from "./UserDatePicker";
+import { UserTimePicker } from "./UserTimePicker";
 import "./ReservationForm.css";
 import { useToast } from "./Usetoast";
 
 const pad = (n) => String(n).padStart(2, "0");
-const todayStr = () => new Date().toISOString().split("T")[0];
 
 const SLOT_GROUPS = [
     { label: "Breakfast", key: "BF", start: "07:00", end: "10:00" },
@@ -16,7 +16,7 @@ const SLOT_GROUPS = [
     { label: "Dinner", key: "DI", start: "18:30", end: "22:00" },
 ];
 
-/* ─── Default SVG visuals keyed by label (fallback) ─── */
+/* ─── Default SVG visuals keyed by label ─── */
 const DEFAULT_PREF_SVGS = {
     Window: (
         <svg viewBox="0 0 60 44" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -60,7 +60,6 @@ const DEFAULT_PREF_SVGS = {
     ),
 };
 
-/* Fallback static list used only if API is unavailable */
 const FALLBACK_TABLE_PREFS = [
     { label: "Any", desc: "No preference" },
     { label: "Window", desc: "Natural light, street view" },
@@ -68,364 +67,7 @@ const FALLBACK_TABLE_PREFS = [
     { label: "Hitter", desc: "High-top bar seating" },
 ];
 
-/* ─── Custom Date Picker ─────────────────────────── */
-const MONTHS_CDP = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-const CustomDatePicker = ({ value, onChange, min }) => {
-    const [open, setOpen] = useState(false);
-    const ref = useRef(null);
-    const parsed = value ? new Date(value) : new Date();
-    const [view, setView] = useState("day");
-    const [calYear, setCalYear] = useState(parsed.getFullYear());
-    const [calMonth, setCalMonth] = useState(parsed.getMonth());
-
-    useEffect(() => {
-        const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-        document.addEventListener("mousedown", h);
-        return () => document.removeEventListener("mousedown", h);
-    }, []);
-
-    const minD = min ? new Date(min) : null;
-    const firstDay = new Date(calYear, calMonth, 1).getDay();
-    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-    const cells = [];
-    for (let i = 0; i < firstDay; i++) cells.push(null);
-    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-
-    const select = (d) => {
-        const s = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
-        onChange(s); setOpen(false);
-    };
-    const isDisabled = (d) => {
-        if (!minD) return false;
-        const ds = new Date(`${calYear}-${pad(calMonth + 1)}-${pad(d)}T00:00:00`);
-        return ds < minD;
-    };
-    const displayVal = value
-        ? new Date(value).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-        : "Select date";
-    const yearRange = Array.from({ length: 20 }, (_, i) => calYear - 5 + i);
-
-    return (
-        <div className="cdp-wrap" ref={ref} style={{ display: "inline-block", position: "relative" }}>
-            <button type="button" className="cdp-trigger rf-cdp-trigger" onClick={() => { setOpen(o => !o); setView("day"); if (value) { const p = new Date(value); setCalYear(p.getFullYear()); setCalMonth(p.getMonth()); } }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                <span className="rf-cdp-val">{displayVal}</span>
-                <span style={{ marginLeft: "auto", opacity: .4, fontSize: 12 }}>▾</span>
-            </button>
-            {open && (
-                <div className="cdp-popup" style={{ zIndex: 9999 }}>
-                    <div className="cdp-nav">
-                        <button type="button" className="cdp-nav-btn" onClick={() => { if (view === "day") { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); } else if (view === "year") setCalYear(y => y - 20); }}>‹</button>
-                        <div className="cdp-nav-center">
-                            {view === "day" && <><button type="button" className="cdp-nav-lbl" onClick={() => setView("month")}>{MONTHS_CDP[calMonth]}</button><button type="button" className="cdp-nav-lbl" onClick={() => setView("year")}>{calYear}</button></>}
-                            {view === "month" && <button type="button" className="cdp-nav-lbl" onClick={() => setView("year")}>{calYear}</button>}
-                            {view === "year" && <span className="cdp-nav-lbl">{calYear - 5} – {calYear + 14}</span>}
-                        </div>
-                        <button type="button" className="cdp-nav-btn" onClick={() => { if (view === "day") { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); } else if (view === "year") setCalYear(y => y + 20); }}>›</button>
-                    </div>
-                    {view === "day" && (<>
-                        <div className="cdp-weekdays">{["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => <span key={d}>{d}</span>)}</div>
-                        <div className="cdp-grid">
-                            {cells.map((d, i) => {
-                                if (!d) return <span key={i} />;
-                                const ds = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
-                                const sel = ds === value, dis = isDisabled(d), tod = ds === todayStr();
-                                return <button type="button" key={i} className={`cdp-day${sel ? " cdp-sel" : ""}${dis ? " cdp-dis" : ""}${tod && !sel ? " cdp-today" : ""}`} disabled={dis} onClick={() => select(d)}>{d}</button>;
-                            })}
-                        </div>
-                    </>)}
-                    {view === "month" && (
-                        <div className="cdp-month-grid">
-                            {MONTHS_CDP.map((m, i) => <button type="button" key={i} className={`cdp-month-btn${i === calMonth ? " cdp-sel" : ""}`} onClick={() => { setCalMonth(i); setView("day"); }}>{m.slice(0, 3)}</button>)}
-                        </div>
-                    )}
-                    {view === "year" && (
-                        <div className="cdp-year-grid">
-                            {yearRange.map(y => <button type="button" key={y} className={`cdp-year-btn${y === calYear ? " cdp-sel" : ""}`} onClick={() => { setCalYear(y); setView("month"); }}>{y}</button>)}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
-};
-
-/* ─── Clock Time Picker ─────────────────────────── */
-const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToday }) => {
-    const [open, setOpen] = useState(false);
-    const [mode, setMode] = useState("hour");
-    const ref = useRef(null);
-    const svgRef = useRef(null);
-
-    const parseTime = (v) => {
-        if (!v) return { h: 12, m: 0, ampm: "PM" };
-        const [hh, mm] = v.split(":").map(Number);
-        return { h: hh % 12 || 12, m: mm, ampm: hh >= 12 ? "PM" : "AM" };
-    };
-
-    // Use a ref for internal state to avoid re-render loops
-    const selRef = useRef(parseTime(value));
-    const [sel, setSel] = useState(parseTime(value));
-
-    // Sync only when value changes externally (not from our own onChange)
-    const lastEmitted = useRef(value);
-    useEffect(() => {
-        if (value && value !== lastEmitted.current) {
-            const p = parseTime(value);
-            selRef.current = p;
-            setSel(p);
-        }
-    }, [value]);
-
-    const to24 = (h, m, ampm) => {
-        let hh = ampm === "PM" ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h);
-        return `${pad(hh)}:${pad(m)}`;
-    };
-
-    const slotH24Start = slotStart ? parseInt(slotStart.split(":")[0]) : 0;
-    const slotH24End = slotEnd ? parseInt(slotEnd.split(":")[0]) : 24;
-    const nowH = new Date().getHours();
-    const nowM = new Date().getMinutes();
-
-    const isHourDisabled = (h, ampm) => {
-        if (disabled) return true;
-        const h24 = ampm === "PM" ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h);
-        if (slotStart && slotEnd && (h24 < slotH24Start || h24 >= slotH24End)) return true;
-        if (isToday && h24 < nowH) return true;
-        return false;
-    };
-
-    const isMinDisabled = (m) => {
-        if (disabled) return true;
-        const cur = selRef.current;
-        const h24 = parseInt(to24(cur.h, m, cur.ampm).split(":")[0]);
-        if (isToday && h24 === nowH && m < nowM) return true;
-        return false;
-    };
-
-    useEffect(() => {
-        const h = (e) => { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setMode("hour"); } };
-        document.addEventListener("mousedown", h);
-        return () => document.removeEventListener("mousedown", h);
-    }, []);
-
-    const CLOCK_R = 100; const CENTER = 110; const HOUR_R = 78; const MIN_R = 78;
-    const hours12 = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-    const hourAngle = (h) => ((h % 12) / 12) * 360 - 90;
-    const minAngle = (m) => (m / 60) * 360 - 90;
-    const polarToXY = (angle, r) => ({
-        x: CENTER + r * Math.cos((angle * Math.PI) / 180),
-        y: CENTER + r * Math.sin((angle * Math.PI) / 180),
-    });
-
-    const emitChange = (ns) => {
-        const v = to24(ns.h, ns.m, ns.ampm);
-        lastEmitted.current = v;
-        onChange(v);
-    };
-
-    const selectHour = (h) => {
-        if (isHourDisabled(h, selRef.current.ampm)) return;
-        const ns = { ...selRef.current, h };
-        selRef.current = ns;
-        setSel({ ...ns });
-        emitChange(ns);
-        setTimeout(() => setMode("minute"), 200);
-    };
-
-    const selectMinute = (m) => {
-        if (isMinDisabled(m)) return;
-        const ns = { ...selRef.current, m };
-        selRef.current = ns;
-        setSel({ ...ns });
-        emitChange(ns);
-        setTimeout(() => { setOpen(false); setMode("hour"); }, 200);
-    };
-
-    const toggleAmpm = (ap) => {
-        const ns = { ...selRef.current, ampm: ap };
-        selRef.current = ns;
-        setSel({ ...ns });
-        emitChange(ns);
-    };
-
-    // Drag on clock face — full sweep support
-    const isDragging = useRef(false);
-    const modeRef = useRef(mode);
-    useEffect(() => { modeRef.current = mode; }, [mode]);
-
-    const getAngleFromEvent = (e) => {
-        if (!svgRef.current) return null;
-        const rect = svgRef.current.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const x = clientX - rect.left - CENTER;
-        const y = clientY - rect.top - CENTER;
-        const angle = Math.atan2(y, x) * (180 / Math.PI) + 90;
-        return ((angle % 360) + 360) % 360;
-    };
-
-    const applyAngle = (norm) => {
-        if (modeRef.current === "hour") {
-            const h = Math.round(norm / 30) % 12 || 12;
-            if (!isHourDisabled(h, selRef.current.ampm)) {
-                const ns = { ...selRef.current, h };
-                selRef.current = ns;
-                setSel({ ...ns });
-                emitChange(ns);
-            }
-        } else {
-            const rawM = Math.round(norm / 6) % 60;
-            const snapped = Math.round(rawM / 5) * 5 % 60;
-            if (!isMinDisabled(snapped)) {
-                const ns = { ...selRef.current, m: snapped };
-                selRef.current = ns;
-                setSel({ ...ns });
-                emitChange(ns);
-            }
-        }
-    };
-
-    const handleSvgMouseDown = (e) => {
-        e.preventDefault();
-        isDragging.current = true;
-        const norm = getAngleFromEvent(e);
-        if (norm !== null) applyAngle(norm);
-    };
-
-    const handleSvgTouchStart = (e) => {
-        isDragging.current = true;
-        const norm = getAngleFromEvent(e);
-        if (norm !== null) applyAngle(norm);
-    };
-
-    useEffect(() => {
-        const onMouseMove = (e) => {
-            if (!isDragging.current) return;
-            const norm = getAngleFromEvent(e);
-            if (norm !== null) applyAngle(norm);
-        };
-        const onMouseUp = () => {
-            if (!isDragging.current) return;
-            isDragging.current = false;
-            // Auto-advance: after sweeping hours, switch to minute mode
-            if (modeRef.current === "hour") {
-                setTimeout(() => setMode("minute"), 150);
-            } else {
-                setTimeout(() => { setOpen(false); setMode("hour"); }, 150);
-            }
-        };
-        const onTouchMove = (e) => {
-            if (!isDragging.current) return;
-            e.preventDefault();
-            const norm = getAngleFromEvent(e);
-            if (norm !== null) applyAngle(norm);
-        };
-        const onTouchEnd = () => {
-            if (!isDragging.current) return;
-            isDragging.current = false;
-            if (modeRef.current === "hour") {
-                setTimeout(() => setMode("minute"), 150);
-            } else {
-                setTimeout(() => { setOpen(false); setMode("hour"); }, 150);
-            }
-        };
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-        window.addEventListener("touchmove", onTouchMove, { passive: false });
-        window.addEventListener("touchend", onTouchEnd);
-        return () => {
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("mouseup", onMouseUp);
-            window.removeEventListener("touchmove", onTouchMove);
-            window.removeEventListener("touchend", onTouchEnd);
-        };
-    }, []);
-
-    const displayVal = value ? (() => {
-        const [hh, mm] = value.split(":").map(Number);
-        const ap = hh >= 12 ? "PM" : "AM";
-        return `${hh % 12 || 12}:${pad(mm)} ${ap}`;
-    })() : "Select time";
-
-    const handAngle = mode === "hour" ? hourAngle(sel.h) : minAngle(sel.m);
-    const handR = mode === "hour" ? HOUR_R - 14 : MIN_R - 14;
-    const handTip = polarToXY(handAngle, handR);
-
-    return (
-        <div className="ctp-wrap" ref={ref}>
-            <button type="button" className={`ctp-trigger${disabled ? " ctp-disabled" : ""}`} onClick={() => !disabled && setOpen(o => !o)}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                <span className={`ctp-val${!value ? " ctp-placeholder" : ""}`}>{displayVal}</span>
-                <span style={{ marginLeft: "auto", opacity: .4, fontSize: 12 }}>▾</span>
-            </button>
-            {open && !disabled && (
-                <div className="ctp-popup">
-                    <div className="ctp-header">
-                        <div className="ctp-ampm-col">
-                            <button type="button" className={`ctp-ampm-btn${sel.ampm === "AM" ? " active" : ""}`} onClick={() => toggleAmpm("AM")}>AM</button>
-                            <button type="button" className={`ctp-ampm-btn${sel.ampm === "PM" ? " active" : ""}`} onClick={() => toggleAmpm("PM")}>PM</button>
-                        </div>
-                        <div className="ctp-time-display">
-                            <span className={`ctp-hm-btn${mode === "hour" ? " active" : ""}`} onClick={() => setMode("hour")}>{pad(sel.h)}</span>
-                            <span className="ctp-colon">:</span>
-                            <span className={`ctp-hm-btn${mode === "minute" ? " active" : ""}`} onClick={() => setMode("minute")}>{pad(sel.m)}</span>
-                        </div>
-                    </div>
-                    <svg
-                        ref={svgRef}
-                        width={CENTER * 2} height={CENTER * 2}
-                        className="ctp-clock-svg"
-                        onMouseDown={handleSvgMouseDown}
-                        onTouchStart={handleSvgTouchStart}
-                        style={{ touchAction: "none", cursor: "crosshair" }}
-                    >
-                        <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="#f8f9fa" stroke="#e5e7eb" strokeWidth="1.5" />
-                        <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y} stroke="var(--color-red)" strokeWidth="2.5" strokeLinecap="round" />
-                        <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red)" />
-                        <circle cx={handTip.x} cy={handTip.y} r="16" fill="var(--color-red)" opacity="0.18" />
-                        <circle cx={handTip.x} cy={handTip.y} r="4" fill="var(--color-red)" />
-                        {mode === "hour" && hours12.map((h) => {
-                            const ang = hourAngle(h);
-                            const pos = polarToXY(ang, HOUR_R);
-                            const isSelected = sel.h === h;
-                            const isDis = isHourDisabled(h, sel.ampm);
-                            return (
-                                <g key={h} onClick={() => selectHour(h)} style={{ cursor: isDis ? "not-allowed" : "pointer" }}>
-                                    <circle cx={pos.x} cy={pos.y} r="16" fill={isSelected ? "var(--color-red)" : "transparent"} />
-                                    <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
-                                        fontSize="13" fontWeight={isSelected ? "700" : "400"}
-                                        fill={isDis ? "#ccc" : isSelected ? "#fff" : "#333"}>{h}</text>
-                                </g>
-                            );
-                        })}
-                        {mode === "minute" && minutes.map((m) => {
-                            const ang = minAngle(m);
-                            const pos = polarToXY(ang, MIN_R);
-                            const isSelected = sel.m === m;
-                            const isDis = isMinDisabled(m);
-                            return (
-                                <g key={m} onClick={() => selectMinute(m)} style={{ cursor: isDis ? "not-allowed" : "pointer" }}>
-                                    <circle cx={pos.x} cy={pos.y} r="16" fill={isSelected ? "var(--color-red)" : "transparent"} />
-                                    <text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central"
-                                        fontSize="12" fontWeight={isSelected ? "700" : "400"}
-                                        fill={isDis ? "#ccc" : isSelected ? "#fff" : "#333"}>{pad(m)}</text>
-                                </g>
-                            );
-                        })}
-                    </svg>
-                    <div className="ctp-footer">
-                        <button type="button" className="ctp-cancel-btn" onClick={() => { setOpen(false); setMode("hour"); }}>Cancel</button>
-                        <button type="button" className="ctp-ok-btn" onClick={() => { emitChange(selRef.current); setOpen(false); setMode("hour"); }}>OK</button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-/* ─── Main Form Component ────────────────────────── */
+/* ─── Main Form Component ─── */
 const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     const { toast } = useToast();
     const [form, setForm] = useState({
@@ -439,7 +81,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     const [errors, setErrors] = useState({});
     const [showCrossCheck, setShowCrossCheck] = useState(false);
 
-    /* ── Dynamic table preferences fetched from admin-configured /tablePreferences ── */
+    /* ── Dynamic table preferences from /tablePreferences ── */
     const [tablePrefs, setTablePrefs] = useState(FALLBACK_TABLE_PREFS);
     const [prefsLoaded, setPrefsLoaded] = useState(false);
 
@@ -455,14 +97,12 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         label: r.label,
                         desc: r.desc || "",
                         image: r.image || null,
-                        // Use uploaded image if present; else use known SVG; else chair emoji
                         svg: r.image
                             ? <img src={r.image} alt={r.label} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 6 }} />
                             : DEFAULT_PREF_SVGS[r.label] || <span style={{ fontSize: 24 }}>🪑</span>,
                     })));
                 }
             } catch {
-                // Keep fallback list; it still renders the SVGs
                 setTablePrefs(FALLBACK_TABLE_PREFS.map(p => ({
                     ...p,
                     svg: DEFAULT_PREF_SVGS[p.label] || <span style={{ fontSize: 24 }}>🪑</span>,
@@ -475,7 +115,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         return () => { cancelled = true; };
     }, []);
 
-    // Pre-fill user — run once on mount only
+    /* Pre-fill user */
     useEffect(() => {
         let cancelled = false;
         const load = async () => {
@@ -490,7 +130,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         };
         load();
         return () => { cancelled = true; };
-    }, []); // empty deps — runs once
+    }, []);
 
     const set = (key, val) => {
         setForm(p => ({ ...p, [key]: val }));
@@ -506,15 +146,8 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     const currentSlot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
     const isToday = form.date === todayStr();
 
-    const handleSlotChange = (key) => {
-        set("slotGroup", key);
-        set("time", "");
-    };
-
-    const handleDateChange = (d) => {
-        set("date", d);
-        set("time", "");
-    };
+    const handleSlotChange = (key) => { set("slotGroup", key); set("time", ""); };
+    const handleDateChange = (d) => { set("date", d); set("time", ""); };
 
     const validate = () => {
         const e = {};
@@ -545,7 +178,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         }
     };
 
-    // Success screen
+    /* ── Success Screen ── */
     if (submitted) {
         const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
         return (
@@ -573,14 +206,17 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         {form.notes && <div className="rf-sc-row rf-sc-notes"><span className="rf-sc-label">Notes</span><span className="rf-sc-val">{form.notes}</span></div>}
                     </div>
                     <p className="rf-success-policy">Please arrive 10 min early. Reservation held for 15 min.</p>
-                    <button className="rf-cta-btn" onClick={() => { setSubmitted(false); setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" }); }}>Make Another Reservation</button>
+                    <button className="rf-cta-btn" onClick={() => {
+                        setSubmitted(false);
+                        setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" });
+                    }}>Make Another Reservation</button>
                     <button className="rf-ghost-btn" onClick={handleHome}>Back to Home</button>
                 </div>
             </div>
         );
     }
 
-    // Cross-check modal
+    /* ── Cross-check Modal ── */
     const CrossCheckModal = () => (
         <div className="rf-modal-overlay" onClick={() => setShowCrossCheck(false)}>
             <div className="rf-modal" onClick={e => e.stopPropagation()}>
@@ -623,7 +259,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                     <div className="rf-page-title">Table Reservation</div>
                     <div className="rf-page-sub">Reserve your perfect dining experience</div>
                 </div>
-                <div className="home-btn" onClick={handleHome}><img src={homeIcon} alt="home" /></div>
+                <div className="home-btn home-btn-icon" onClick={handleHome} />
             </div>
 
             <div className="rf-single-form">
@@ -668,7 +304,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                             </div>
                         </div>
 
-                        {/* Seating Preference — visual cards */}
+                        {/* Seating Preference */}
                         <div className="rf-section">
                             <div className="rf-section-title">Seating Preference</div>
                             {!prefsLoaded && (
@@ -695,12 +331,19 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                             <div className="rf-section-title">Date &amp; Dining Slot</div>
 
                             <div className="rf-row rf-row-inline">
+                                {/* Date */}
                                 <div className="rf-field-group" style={{ flex: "0 0 auto" }}>
                                     <label>Date <span className="rf-req">*</span></label>
-                                    <CustomDatePicker value={form.date} min={todayStr()} onChange={handleDateChange} />
+                                    <UserDatePicker
+                                        value={form.date}
+                                        min={todayStr()}
+                                        hasError={!!errors.date}
+                                        onChange={handleDateChange}
+                                    />
                                     {errors.date && <span className="rf-error">{errors.date}</span>}
                                 </div>
 
+                                {/* Dining Slot */}
                                 <div className="rf-field-group">
                                     <label>Dining Slot <span className="rf-req">*</span></label>
                                     <div className="rf-slot-groups">
@@ -722,9 +365,10 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                     {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
                                 </div>
 
+                                {/* Preferred Time (optional) */}
                                 <div className="rf-field-group" style={{ flex: "0 0 auto" }}>
                                     <label>Preferred Time <span className="rf-optional">(optional)</span></label>
-                                    <ClockTimePicker
+                                    <UserTimePicker
                                         value={form.time}
                                         onChange={v => set("time", v)}
                                         slotStart={currentSlot?.start}
@@ -736,9 +380,8 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                     {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
                                 </div>
                             </div>
-
-
                         </div>
+
                         {/* Notes */}
                         <div className="rf-section">
                             <div className="rf-section-title">Special Requests</div>

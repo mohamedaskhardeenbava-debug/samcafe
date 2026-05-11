@@ -16,4 +16,4 @@ const api = axios.create({
 
 export default api;
 
-    // "db": "json-server \"E:\\Askhar\\Sam Cafe\\data\\db.json\" --port 5000 --max-body-size 50mb"
+// "db": "json-server \"E:\\Askhar\\Sam Cafe\\data\\db.json\" --port 5000 --max-body-size 50mb"

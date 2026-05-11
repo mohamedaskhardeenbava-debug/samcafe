@@ -84,9 +84,7 @@ const FavouriteDishList = ({
         <div className="food-list-title">
           {category?.name || "Favourites"}
         </div>
-        <div className="home-btn" onClick={handleHome}>
-          <img src={homeIcon} alt="" />
-        </div>
+        <div className="home-btn  home-btn-icon" onClick={handleHome} />
       </div>
 
       {/* LIST */}

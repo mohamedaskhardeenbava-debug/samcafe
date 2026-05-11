@@ -122,8 +122,11 @@
 /* ===== ITEMS ===== */
 .bag-items {
   flex: 1;
-  /* ✅ TAKE REMAINING SPACE */
+  min-height: 0;
+  /* ✅ critical: lets flex child shrink below content size so scroll works */
   overflow-y: auto;
+  overflow-x: hidden;
+  /* ✅ clips images that poke out horizontally too */
 }
 
 .bag-item-row {

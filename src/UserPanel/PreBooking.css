@@ -11,7 +11,6 @@
 
 /* ── FORM SHELL — two-column on wide screens ── */
 .pbp-form-shell {
-    padding: 0 20px 32px;
     box-sizing: border-box;
 }
 
@@ -26,16 +25,6 @@
     display: flex;
     flex-direction: column;
     gap: 6px;
-}
-
-@media (max-width: 860px) {
-    .pbp-form-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .pbp-form-shell {
-        padding: 0 12px 32px;
-    }
 }
 
 /* SECTION LABEL */
@@ -54,7 +43,6 @@
 .pbp-card {
     background: #fff;
     border-radius: 16px;
-    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
@@ -809,8 +797,7 @@
 
 /* ══ ACTIONS ══ */
 .pbp-actions {
-    display: flex;
-    gap: 12px;
+    text-align: center;
     margin-top: 8px;
 }
 
@@ -833,32 +820,36 @@
 }
 
 .pbp-submit-btn {
-    flex: 2;
-    height: 50px;
+    width: 300px !important;
+    padding: 16px 20px !important;
     border-radius: 14px;
     border: none;
-    background: var(--color-red, #e74c3c);
+    background: var(--color-red);
     color: #fff;
     font-size: 15px;
     font-weight: 700;
     cursor: pointer;
-    font-family: inherit;
-    box-shadow: 0 4px 14px rgba(231, 76, 60, 0.3);
-    transition: box-shadow 0.2s, opacity 0.2s;
-    width: 100%;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
+    align-self: center;
 }
 
 .pbp-submit-btn:hover:not(:disabled) {
-    box-shadow: 0 6px 20px rgba(231, 76, 60, 0.45);
+    scale: 1.3;
+    box-shadow: 0 6px 22px rgba(231, 76, 60, 0.4);
 }
 
 .pbp-submit-btn.loading,
 .pbp-submit-btn:disabled {
-    opacity: 0.7;
+    opacity: 0.6;
     cursor: not-allowed;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
     .pbp-page {
         padding: var(--medium-page-padding);
     }
@@ -870,6 +861,11 @@
         gap: 6px;
     }
 
+    .pbp-form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
     .pbp-slot-group {
         padding: 10px 6px;
         min-width: 60px;
@@ -878,6 +874,10 @@
     .pbp-schedule-date,
     .pbp-schedule-time {
         width: 100%;
+    }
+
+    .pbp-submit-btn {
+        width: 100% !important;
     }
 }
 
@@ -888,6 +888,10 @@
 
     .pbp-form-row {
         flex-direction: column;
+    }
+
+    .pbp-form-grid {
+        gap: 10px;
     }
 
     .pbp-actions {

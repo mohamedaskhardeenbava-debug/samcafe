@@ -42,7 +42,7 @@
 }
 
 .view-btn.active {
-  background: var(--color-red-secondary);
+  background: var(--color-red);
   color: #fff;
 }
 

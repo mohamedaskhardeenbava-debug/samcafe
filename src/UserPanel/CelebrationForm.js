@@ -1,11 +1,11 @@
 /* user panel */
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import api from "../api";
-import homeIcon from "../assets/icons/home.png";
+import { UserDatePicker, todayStr } from "./UserDatePicker";
+import { UserTimePicker } from "./UserTimePicker";
 import "./CelebrationForm.css";
 
 const pad = (n) => String(n).padStart(2, "0");
-const todayStr = () => new Date().toISOString().split("T")[0];
 
 /* Tomorrow — disables today AND all past dates */
 const tomorrowStr = () => {
@@ -22,7 +22,6 @@ const SLOT_GROUPS = [
     { label: "Dinner", key: "DI", start: "18:30", end: "22:00" },
 ];
 
-/* ─── Celebration Types (no inline emoji icons) ─── */
 const CELEBRATION_TYPES = [
     { label: "Birthday", value: "birthday" },
     { label: "Anniversary", value: "anniversary" },
@@ -30,333 +29,18 @@ const CELEBRATION_TYPES = [
     { label: "Get Together", value: "gettogether" },
 ];
 
-/* ─── Decoration tiers ─── */
 const DECORATION_TIERS = [
     { label: "Normal", value: "normal", price: 1500, desc: "Balloons & basic setup" },
     { label: "Elegant", value: "elegant", price: 3000, desc: "Flowers, drapes & lighting" },
     { label: "Luxury", value: "luxury", price: 5000, desc: "Premium full decor" },
 ];
 
-/* ─── Birthday extras ─── */
-const BIRTHDAY_EXTRAS = [
-    { key: "cake", label: "Cake" },
-    { key: "specialMention", label: "Special Mentions" },
-];
-
-/* ─── Meeting extras ─── */
-const MEETING_SEATING = [
-    { key: "standingBrochures", label: "Standing Brochures" },
-    { key: "placeHolders", label: "Place Holders" },
-    { key: "pens", label: "Pens" },
-];
-const MEETING_AV = [
-    { key: "mic", label: "Microphone" },
-    { key: "projector", label: "Projector" },
-];
-
-/* ─── Anniversary extras ─── */
-const ANNIVERSARY_EXTRAS = [
-    { key: "candleLight", label: "Candle Light Dinner" },
-    { key: "liveMusic", label: "Live Music" },
-    { key: "surpriseGift", label: "Surprise Gift Revealing" },
-    { key: "cake", label: "Cake" },
-    { key: "specialMention", label: "Special Mentions" },
-];
-
-/* ─── Get Together extras ─── */
-const GETTOGETHER_EXTRAS = [
-    { key: "liveMusic", label: "Live Music" },
-    { key: "mic", label: "Microphone" },
-    { key: "projector", label: "Projector" },
-    { key: "cake", label: "Cake" },
-    { key: "specialMention", label: "Special Mentions" },
-];
-
-/* ─── Event Menu ─── */
-const EVENT_MENUS = [
-    { value: "veg", label: "Veg Menu" },
-    { value: "nonveg", label: "Non-Veg Menu" },
-    { value: "vegan", label: "Vegan Menu" },
-    { value: "custom", label: "Custom Menu" },
-];
-
-/* ═══════════════════════════════
-   Custom Date Picker (matches ReservationForm)
-═══════════════════════════════ */
-const MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-const CustomDatePicker = ({ value, onChange, min }) => {
-    const [open, setOpen] = useState(false);
-    const ref = useRef(null);
-    const parsed = value ? new Date(value) : new Date();
-    const [view, setView] = useState("day");
-    const [calYear, setCalYear] = useState(parsed.getFullYear());
-    const [calMonth, setCalMonth] = useState(parsed.getMonth());
-
-    useEffect(() => {
-        const h = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
-        document.addEventListener("mousedown", h);
-        return () => document.removeEventListener("mousedown", h);
-    }, []);
-
-    const minD = min ? new Date(min) : null;
-    const firstDay = new Date(calYear, calMonth, 1).getDay();
-    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-    const cells = [];
-    for (let i = 0; i < firstDay; i++) cells.push(null);
-    for (let d = 1; d <= daysInMonth; d++) cells.push(d);
-
-    const select = (d) => {
-        const s = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
-        onChange(s); setOpen(false);
-    };
-    const isDisabled = (d) => {
-        if (!minD) return false;
-        const ds = new Date(`${calYear}-${pad(calMonth + 1)}-${pad(d)}T00:00:00`);
-        return ds < minD;
-    };
-    const displayVal = value
-        ? new Date(value).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })
-        : "Select date";
-    const yearRange = Array.from({ length: 20 }, (_, i) => calYear - 5 + i);
-
-    return (
-        <div className="clp-cdp-wrap" ref={ref} style={{ display: "inline-block", position: "relative" }}>
-            <button type="button" className="clp-cdp-trigger" onClick={() => { setOpen(o => !o); setView("day"); if (value) { const p = new Date(value); setCalYear(p.getFullYear()); setCalMonth(p.getMonth()); } }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-                <span className="clp-cdp-val">{displayVal}</span>
-                <span style={{ marginLeft: "auto", opacity: .4, fontSize: 12 }}>▾</span>
-            </button>
-            {open && (
-                <div className="clp-cdp-popup" style={{ zIndex: 9999 }}>
-                    <div className="clp-cdp-nav">
-                        <button type="button" className="clp-cdp-nav-btn" onClick={() => { if (view === "day") { if (calMonth === 0) { setCalMonth(11); setCalYear(y => y - 1); } else setCalMonth(m => m - 1); } else if (view === "year") setCalYear(y => y - 20); }}>‹</button>
-                        <div className="clp-cdp-nav-center">
-                            {view === "day" && <><button type="button" className="clp-cdp-nav-lbl" onClick={() => setView("month")}>{MONTHS[calMonth]}</button><button type="button" className="clp-cdp-nav-lbl" onClick={() => setView("year")}>{calYear}</button></>}
-                            {view === "month" && <button type="button" className="clp-cdp-nav-lbl" onClick={() => setView("year")}>{calYear}</button>}
-                            {view === "year" && <span className="clp-cdp-nav-lbl">{calYear - 5} – {calYear + 14}</span>}
-                        </div>
-                        <button type="button" className="clp-cdp-nav-btn" onClick={() => { if (view === "day") { if (calMonth === 11) { setCalMonth(0); setCalYear(y => y + 1); } else setCalMonth(m => m + 1); } else if (view === "year") setCalYear(y => y + 20); }}>›</button>
-                    </div>
-                    {view === "day" && (<>
-                        <div className="clp-cdp-weekdays">{["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => <span key={d}>{d}</span>)}</div>
-                        <div className="clp-cdp-grid">
-                            {cells.map((d, i) => {
-                                if (!d) return <span key={i} />;
-                                const ds = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
-                                const sel = ds === value, dis = isDisabled(d), tod = ds === todayStr();
-                                return <button type="button" key={i} className={`clp-cdp-day${sel ? " clp-cdp-sel" : ""}${dis ? " clp-cdp-dis" : ""}${tod && !sel ? " clp-cdp-today" : ""}`} disabled={dis} onClick={() => select(d)}>{d}</button>;
-                            })}
-                        </div>
-                    </>)}
-                    {view === "month" && (
-                        <div className="clp-cdp-month-grid">
-                            {MONTHS.map((m, i) => <button type="button" key={i} className={`clp-cdp-month-btn${i === calMonth ? " clp-cdp-sel" : ""}`} onClick={() => { setCalMonth(i); setView("day"); }}>{m.slice(0, 3)}</button>)}
-                        </div>
-                    )}
-                    {view === "year" && (
-                        <div className="clp-cdp-year-grid">
-                            {yearRange.map(y => <button type="button" key={y} className={`clp-cdp-year-btn${y === calYear ? " clp-cdp-sel" : ""}`} onClick={() => { setCalYear(y); setView("month"); }}>{y}</button>)}
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
-};
-
-/* ═══════════════════════════════
-   Clock Time Picker (matches ReservationForm — slot-aware)
-═══════════════════════════════ */
-const ClockTimePicker = ({ value, onChange, slotStart, slotEnd, disabled, isToday }) => {
-    const [open, setOpen] = useState(false);
-    const [mode, setMode] = useState("hour");
-    const ref = useRef(null);
-    const svgRef = useRef(null);
-
-    const parseTime = (v) => {
-        if (!v) return { h: 12, m: 0, ampm: "PM" };
-        const [hh, mm] = v.split(":").map(Number);
-        return { h: hh % 12 || 12, m: mm, ampm: hh >= 12 ? "PM" : "AM" };
-    };
-
-    const selRef = useRef(parseTime(value));
-    const [sel, setSel] = useState(parseTime(value));
-    const lastEmitted = useRef(value);
-
-    useEffect(() => {
-        if (value && value !== lastEmitted.current) {
-            const p = parseTime(value);
-            selRef.current = p;
-            setSel(p);
-        }
-    }, [value]);
-
-    const to24 = (h, m, ampm) => {
-        let hh = ampm === "PM" ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h);
-        return `${pad(hh)}:${pad(m)}`;
-    };
-
-    const slotH24Start = slotStart ? parseInt(slotStart.split(":")[0]) : 0;
-    const slotH24End = slotEnd ? parseInt(slotEnd.split(":")[0]) : 24;
-    const nowH = new Date().getHours();
-    const nowM = new Date().getMinutes();
-
-    const isHourDisabled = (h, ampm) => {
-        if (disabled) return true;
-        const h24 = ampm === "PM" ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h);
-        if (slotStart && slotEnd && (h24 < slotH24Start || h24 >= slotH24End)) return true;
-        if (isToday && h24 < nowH) return true;
-        return false;
-    };
-
-    const isMinDisabled = (m) => {
-        if (disabled) return true;
-        const cur = selRef.current;
-        const h24 = parseInt(to24(cur.h, m, cur.ampm).split(":")[0]);
-        if (isToday && h24 === nowH && m < nowM) return true;
-        return false;
-    };
-
-    useEffect(() => {
-        const h = (e) => { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setMode("hour"); } };
-        document.addEventListener("mousedown", h);
-        return () => document.removeEventListener("mousedown", h);
-    }, []);
-
-    const CLOCK_R = 100; const CENTER = 110; const HOUR_R = 78; const MIN_R = 78;
-    const hours12 = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-    const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
-    const hourAngle = (h) => ((h % 12) / 12) * 360 - 90;
-    const minAngle = (m) => (m / 60) * 360 - 90;
-    const polarToXY = (angle, r) => ({
-        x: CENTER + r * Math.cos((angle * Math.PI) / 180),
-        y: CENTER + r * Math.sin((angle * Math.PI) / 180),
-    });
-
-    const emitChange = (ns) => {
-        const v = to24(ns.h, ns.m, ns.ampm);
-        lastEmitted.current = v;
-        onChange(v);
-    };
-
-    const selectHour = (h) => {
-        if (isHourDisabled(h, selRef.current.ampm)) return;
-        const ns = { ...selRef.current, h };
-        selRef.current = ns; setSel({ ...ns }); emitChange(ns);
-        setTimeout(() => setMode("minute"), 200);
-    };
-
-    const selectMinute = (m) => {
-        if (isMinDisabled(m)) return;
-        const ns = { ...selRef.current, m };
-        selRef.current = ns; setSel({ ...ns }); emitChange(ns);
-        setTimeout(() => { setOpen(false); setMode("hour"); }, 200);
-    };
-
-    const toggleAmpm = (ap) => {
-        const ns = { ...selRef.current, ampm: ap };
-        selRef.current = ns; setSel({ ...ns }); emitChange(ns);
-    };
-
-    const isDragging = useRef(false);
-    const modeRef = useRef(mode);
-    useEffect(() => { modeRef.current = mode; }, [mode]);
-
-    const getAngleFromEvent = (e) => {
-        if (!svgRef.current) return null;
-        const rect = svgRef.current.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const angle = Math.atan2(clientY - rect.top - CENTER, clientX - rect.left - CENTER) * (180 / Math.PI) + 90;
-        return ((angle % 360) + 360) % 360;
-    };
-
-    const applyAngle = (norm) => {
-        if (modeRef.current === "hour") {
-            const h = Math.round(norm / 30) % 12 || 12;
-            if (!isHourDisabled(h, selRef.current.ampm)) {
-                const ns = { ...selRef.current, h }; selRef.current = ns; setSel({ ...ns }); emitChange(ns);
-            }
-        } else {
-            const snapped = Math.round(Math.round(norm / 6) % 60 / 5) * 5 % 60;
-            if (!isMinDisabled(snapped)) {
-                const ns = { ...selRef.current, m: snapped }; selRef.current = ns; setSel({ ...ns }); emitChange(ns);
-            }
-        }
-    };
-
-    const handleSvgMouseDown = (e) => { e.preventDefault(); isDragging.current = true; const n = getAngleFromEvent(e); if (n !== null) applyAngle(n); };
-    const handleSvgTouchStart = (e) => { isDragging.current = true; const n = getAngleFromEvent(e); if (n !== null) applyAngle(n); };
-
-    useEffect(() => {
-        const onMM = (e) => { if (!isDragging.current) return; const n = getAngleFromEvent(e); if (n !== null) applyAngle(n); };
-        const onMU = () => { if (!isDragging.current) return; isDragging.current = false; if (modeRef.current === "hour") setTimeout(() => setMode("minute"), 150); else setTimeout(() => { setOpen(false); setMode("hour"); }, 150); };
-        const onTM = (e) => { if (!isDragging.current) return; e.preventDefault(); const n = getAngleFromEvent(e); if (n !== null) applyAngle(n); };
-        const onTE = () => { if (!isDragging.current) return; isDragging.current = false; if (modeRef.current === "hour") setTimeout(() => setMode("minute"), 150); else setTimeout(() => { setOpen(false); setMode("hour"); }, 150); };
-        window.addEventListener("mousemove", onMM);
-        window.addEventListener("mouseup", onMU);
-        window.addEventListener("touchmove", onTM, { passive: false });
-        window.addEventListener("touchend", onTE);
-        return () => { window.removeEventListener("mousemove", onMM); window.removeEventListener("mouseup", onMU); window.removeEventListener("touchmove", onTM); window.removeEventListener("touchend", onTE); };
-    }, []);
-
-    const displayVal = value ? (() => {
-        const [hh, mm] = value.split(":").map(Number);
-        return `${hh % 12 || 12}:${pad(mm)} ${hh >= 12 ? "PM" : "AM"}`;
-    })() : "Select time";
-
-    const handAngle = mode === "hour" ? hourAngle(sel.h) : minAngle(sel.m);
-    const handTip = polarToXY(handAngle, mode === "hour" ? HOUR_R - 14 : MIN_R - 14);
-
-    return (
-        <div className="clp-ctp-wrap" ref={ref}>
-            <button type="button" className={`clp-cdp-trigger${disabled ? " clp-ctp-disabled" : ""}`} onClick={() => !disabled && setOpen(o => !o)}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                <span className={`clp-cdp-val${!value ? " clp-ctp-placeholder" : ""}`}>{displayVal}</span>
-                <span style={{ marginLeft: "auto", opacity: .4, fontSize: 12 }}>▾</span>
-            </button>
-            {open && !disabled && (
-                <div className="clp-ctp-popup">
-                    <div className="clp-ctp-header">
-                        <div className="clp-ctp-ampm-col">
-                            <button type="button" className={`clp-ctp-ampm-btn${sel.ampm === "AM" ? " active" : ""}`} onClick={() => toggleAmpm("AM")}>AM</button>
-                            <button type="button" className={`clp-ctp-ampm-btn${sel.ampm === "PM" ? " active" : ""}`} onClick={() => toggleAmpm("PM")}>PM</button>
-                        </div>
-                        <div className="clp-ctp-time-display">
-                            <span className={`clp-ctp-hm-btn${mode === "hour" ? " active" : ""}`} onClick={() => setMode("hour")}>{pad(sel.h)}</span>
-                            <span className="clp-ctp-colon">:</span>
-                            <span className={`clp-ctp-hm-btn${mode === "minute" ? " active" : ""}`} onClick={() => setMode("minute")}>{pad(sel.m)}</span>
-                        </div>
-                    </div>
-                    <svg ref={svgRef} width={CENTER * 2} height={CENTER * 2} className="clp-ctp-clock-svg"
-                        onMouseDown={handleSvgMouseDown} onTouchStart={handleSvgTouchStart}
-                        style={{ touchAction: "none" }}>
-                        <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="#f8f9fa" stroke="#e5e7eb" strokeWidth="1.5" />
-                        <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y} stroke="var(--color-red)" strokeWidth="2.5" strokeLinecap="round" />
-                        <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red)" />
-                        <circle cx={handTip.x} cy={handTip.y} r="16" fill="var(--color-red)" opacity="0.18" />
-                        <circle cx={handTip.x} cy={handTip.y} r="4" fill="var(--color-red)" />
-                        {mode === "hour" && hours12.map((h) => {
-                            const ang = hourAngle(h); const pos = polarToXY(ang, HOUR_R);
-                            const isSel = sel.h === h; const isDis = isHourDisabled(h, sel.ampm);
-                            return (<g key={h} onClick={() => selectHour(h)} style={{ cursor: isDis ? "not-allowed" : "pointer" }}><circle cx={pos.x} cy={pos.y} r="16" fill={isSel ? "var(--color-red)" : "transparent"} /><text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central" fontSize="13" fontWeight={isSel ? "700" : "400"} fill={isDis ? "#ccc" : isSel ? "#fff" : "#333"}>{h}</text></g>);
-                        })}
-                        {mode === "minute" && minutes.map((m) => {
-                            const ang = minAngle(m); const pos = polarToXY(ang, MIN_R);
-                            const isSel = sel.m === m; const isDis = isMinDisabled(m);
-                            return (<g key={m} onClick={() => selectMinute(m)} style={{ cursor: isDis ? "not-allowed" : "pointer" }}><circle cx={pos.x} cy={pos.y} r="16" fill={isSel ? "var(--color-red)" : "transparent"} /><text x={pos.x} y={pos.y} textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight={isSel ? "700" : "400"} fill={isDis ? "#ccc" : isSel ? "#fff" : "#333"}>{pad(m)}</text></g>);
-                        })}
-                    </svg>
-                    <div className="clp-ctp-footer">
-                        <button type="button" className="clp-ctp-cancel-btn" onClick={() => { setOpen(false); setMode("hour"); }}>Cancel</button>
-                        <button type="button" className="clp-ctp-ok-btn" onClick={() => { emitChange(selRef.current); setOpen(false); setMode("hour"); }}>OK</button>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
+const BIRTHDAY_EXTRAS = [{ key: "cake", label: "Cake" }, { key: "specialMention", label: "Special Mentions" }];
+const MEETING_SEATING = [{ key: "standingBrochures", label: "Standing Brochures" }, { key: "placeHolders", label: "Place Holders" }, { key: "pens", label: "Pens" }];
+const MEETING_AV = [{ key: "mic", label: "Microphone" }, { key: "projector", label: "Projector" }];
+const ANNIVERSARY_EXTRAS = [{ key: "candleLight", label: "Candle Light Dinner" }, { key: "liveMusic", label: "Live Music" }, { key: "surpriseGift", label: "Surprise Gift Revealing" }, { key: "cake", label: "Cake" }, { key: "specialMention", label: "Special Mentions" }];
+const GETTOGETHER_EXTRAS = [{ key: "liveMusic", label: "Live Music" }, { key: "mic", label: "Microphone" }, { key: "projector", label: "Projector" }, { key: "cake", label: "Cake" }, { key: "specialMention", label: "Special Mentions" }];
+const EVENT_MENUS = [{ value: "veg", label: "Veg Menu" }, { value: "nonveg", label: "Non-Veg Menu" }, { value: "vegan", label: "Vegan Menu" }, { value: "custom", label: "Custom Menu" }];
 
 /* ─── Checkbox Card ─── */
 const CheckCard = ({ label, checked, onChange }) => (
@@ -430,15 +114,8 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
     const currentSlot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
     const isToday = form.date === todayStr();
 
-    const handleSlotChange = (key) => {
-        set("slotGroup", key);
-        set("time", "");
-    };
-
-    const handleDateChange = (d) => {
-        set("date", d);
-        set("time", "");
-    };
+    const handleSlotChange = (key) => { set("slotGroup", key); set("time", ""); };
+    const handleDateChange = (d) => { set("date", d); set("time", ""); };
 
     const validate = () => {
         const err = {};
@@ -475,6 +152,14 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
         }
     };
 
+    const resetForm = () => setForm({
+        type: "birthday", name: "", mobile: "", email: "", date: "", time: "", slotGroup: "",
+        guests: 2, birthdayPersonName: "", birthdayPersonAge: "", cake: false,
+        specialMention: false, specialMentionText: "", standingBrochures: false,
+        placeHolders: false, pens: false, mic: false, projector: false, candleLight: false,
+        liveMusic: false, surpriseGift: false, decoration: null, eventMenu: "", audioVideo: false, specialNote: "",
+    });
+
     /* ─── Special Mention expansion helper ─── */
     const renderExtrasWithMention = (extras) => extras.map(ex => (
         <div key={ex.key} className="clp-extra-item-wrap">
@@ -501,7 +186,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                 <div className="food-header">
                     <button className="back-button" onClick={handleBack} />
                     <div className="food-list-title">Celebration</div>
-                    <div className="home-btn" onClick={handleHome}><img src={homeIcon} alt="" /></div>
+                    <div className="home-btn home-btn-icon" onClick={handleHome} />
                 </div>
                 <div className="clp-success-screen">
                     <div className="clp-success-icon">
@@ -531,12 +216,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                             </div>
                         ))}
                     </div>
-                    <button className="clp-submit" onClick={() => {
-                        setSubmitted(false);
-                        setForm({ type: "birthday", name: "", mobile: "", email: "", date: "", time: "", slotGroup: "", guests: 2, birthdayPersonName: "", birthdayPersonAge: "", cake: false, specialMention: false, specialMentionText: "", standingBrochures: false, placeHolders: false, pens: false, mic: false, projector: false, candleLight: false, liveMusic: false, surpriseGift: false, decoration: null, eventMenu: "", audioVideo: false, specialNote: "" });
-                    }}>
-                        Book Another
-                    </button>
+                    <button className="clp-submit" onClick={resetForm}>Book Another</button>
                 </div>
             </div>
         );
@@ -547,7 +227,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-list-title">Celebration</div>
-                <div className="home-btn" onClick={handleHome}><img src={homeIcon} alt="" /></div>
+                <div className="home-btn home-btn-icon" onClick={handleHome} />
             </div>
 
             <div className="clp-container">
@@ -589,10 +269,17 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                                     <label>Email (optional)</label>
                                 </div>
                             </div>
+
+                            {/* Date, Slot & Time */}
                             <div className="clp-row">
                                 <div className="clp-group" style={{ flex: "0 0 auto" }}>
                                     <label className="clp-field-label">Date *</label>
-                                    <CustomDatePicker value={form.date} min={tomorrowStr()} onChange={handleDateChange} />
+                                    <UserDatePicker
+                                        value={form.date}
+                                        min={tomorrowStr()}
+                                        hasError={!!errors.date}
+                                        onChange={handleDateChange}
+                                    />
                                     {errors.date && <span className="clp-error">{errors.date}</span>}
                                 </div>
                                 <div className="clp-group">
@@ -617,8 +304,9 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                                 </div>
                                 <div className="clp-group" style={{ flex: "0 0 auto" }}>
                                     <label className="clp-field-label">Preferred Time *</label>
-                                    <ClockTimePicker
+                                    <UserTimePicker
                                         value={form.time}
+                                        hasError={!!errors.time}
                                         onChange={v => set("time", v)}
                                         slotStart={currentSlot?.start}
                                         slotEnd={currentSlot?.end}
@@ -630,6 +318,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                                     {errors.time && <span className="clp-error">{errors.time}</span>}
                                 </div>
                             </div>
+
                             <div className="clp-group">
                                 <label className="clp-field-label">Number of Guests *</label>
                                 <div className="clp-stepper">
@@ -662,9 +351,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                                     </div>
                                 </div>
                                 <div className="clp-title" style={{ marginBottom: 8 }}>Add-ons</div>
-                                <div className="clp-check-grid">
-                                    {renderExtrasWithMention(BIRTHDAY_EXTRAS)}
-                                </div>
+                                <div className="clp-check-grid">{renderExtrasWithMention(BIRTHDAY_EXTRAS)}</div>
                             </div>
                         </div>
                     )}
@@ -675,15 +362,11 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                             <div className="clp-card">
                                 <div className="clp-sub-title">Table Decoration</div>
                                 <div className="clp-check-grid">
-                                    {MEETING_SEATING.map(ex => (
-                                        <CheckCard key={ex.key} label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />
-                                    ))}
+                                    {MEETING_SEATING.map(ex => <CheckCard key={ex.key} label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
                                 </div>
                                 <div className="clp-sub-title" style={{ marginTop: 10 }}>Audio / Video</div>
                                 <div className="clp-check-grid">
-                                    {MEETING_AV.map(ex => (
-                                        <CheckCard key={ex.key} label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />
-                                    ))}
+                                    {MEETING_AV.map(ex => <CheckCard key={ex.key} label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
                                 </div>
                             </div>
                         </div>
@@ -693,9 +376,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                         <div className="clp-block">
                             <div className="clp-title">Anniversary Extras</div>
                             <div className="clp-card">
-                                <div className="clp-check-grid">
-                                    {renderExtrasWithMention(ANNIVERSARY_EXTRAS)}
-                                </div>
+                                <div className="clp-check-grid">{renderExtrasWithMention(ANNIVERSARY_EXTRAS)}</div>
                             </div>
                         </div>
                     )}
@@ -704,9 +385,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                         <div className="clp-block">
                             <div className="clp-title">Get Together Setup</div>
                             <div className="clp-card">
-                                <div className="clp-check-grid">
-                                    {renderExtrasWithMention(GETTOGETHER_EXTRAS)}
-                                </div>
+                                <div className="clp-check-grid">{renderExtrasWithMention(GETTOGETHER_EXTRAS)}</div>
                             </div>
                         </div>
                     )}
@@ -757,11 +436,11 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                         </div>
                     </div>
 
-                    <div className="clp-submit-container">
+                    
                         <button className={`clp-submit${loading ? " loading" : ""}`} onClick={handleSubmit} disabled={loading}>
                             {loading ? "Processing..." : "Book Celebration"}
                         </button>
-                    </div>
+                    
                 </div>
             </div>
         </div>

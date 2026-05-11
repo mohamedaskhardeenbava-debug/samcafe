@@ -3,91 +3,90 @@
 :root {
   /* Light theme (default) */
   --bg-main: #ffffff;
-  --bg-surface: #fafafa;
+  --bg-surface: #f2f2f2;
   --bg-image: url("../src/assets/bg-image1.png");
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --border-light: rgba(0, 0, 0, 0.08);
-  --shadow-primary: rgba(17, 17, 26, 0.1) 0px 2px 8px, rgba(17, 17, 26, 0.05) 0px 4px 16px;
-  --shadow-image: 0 18px 40px rgba(0, 0, 0, 0.12),
+  --text-primary: #000000;
+  --text-secondary: #3a3a3a;
+  --border-light: rgba(0, 0, 0, 0.18);
+  --shadow-primary: rgba(17, 17, 26, 0.16) 0px 3px 12px, rgba(17, 17, 26, 0.10) 0px 6px 24px;
+  --shadow-image: 0 18px 40px rgba(0, 0, 0, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  --shadow-list: 0 3px 10px rgba(0, 0, 0, 0.10);
-  --shadow-left: 0 6px 20px rgba(0, 0, 0, 0.08);
-  --color-green: rgb(0, 174, 29);
+  --shadow-list: 0 3px 12px rgba(0, 0, 0, 0.16);
+  --shadow-left: 0 6px 20px rgba(0, 0, 0, 0.14);
+  --color-green: #10a845;
   --color-red: #f33716;
-  --color-pale-red: #fff2f1;
-  --color-pale-yellow: #ffffc3;
-  --color-pale-green: rgb(208, 255, 205);
-  --color-red-secondary: rgb(255, 80, 50);
+  --color-pale-red: #ffe8e3;
+  --color-pale-yellow: #fff9b0;
+  --color-pale-green: #b8ffc0;
+  --color-red-secondary: rgb(230, 55, 25);
   --shadow: 0 3px 10px rgba(64, 255, 0, 0);
-  --shadow-bottom: 0 3px 6px rgba(0, 0, 0, 0.12);
-  --thankyou-shadow: 0 10px 30px rgba(161, 161, 161, 0.18),
-    0 2px 10px rgba(149, 149, 149, 0.12);
-  --btn-color: rgb(225, 225, 225);
-  --foodlist-arrow: rgba(0, 0, 0, 0.1);
-  --hot-selector-shadow: rgba(99, 99, 99, 0.3) 0px 0px 8px 0px;
-  --light-border: 1px solid rgba(17, 17, 17, 0.1);
-  --text-tertiary: rgb(207, 207, 207);
-  --fav-ingredient-color: #FFF9F2;
-  --fav-nutrition-color: #EEF6FF;
+  --shadow-bottom: 0 3px 8px rgba(0, 0, 0, 0.16);
+  --thankyou-shadow: 0 10px 30px rgba(130, 130, 130, 0.22),
+    0 2px 10px rgba(100, 100, 100, 0.14);
+  --btn-color: rgb(210, 210, 210);
+  --foodlist-arrow: rgba(0, 0, 0, 0.30);
+  --hot-selector-shadow: rgba(80, 80, 80, 0.4) 0px 0px 10px 0px;
+  --light-border: 1px solid rgba(17, 17, 17, 0.18);
+  --text-tertiary: rgb(170, 170, 170);
+  --fav-ingredient-color: #FFF5EC;
+  --fav-nutrition-color: #E6F2FF;
   --nutrition-icon-filter: brightness(0) saturate(100%);
-  --shadow-card-normal: 0 10px 25px rgba(0, 0, 0, 0.08);
-  --shadow-card-hover: 0 16px 40px rgba(0, 0, 0, 0.12);
+  --shadow-card-normal: 0 10px 28px rgba(0, 0, 0, 0.13);
+  --shadow-card-hover: 0 18px 44px rgba(0, 0, 0, 0.20);
   --shadow-card-red:
-    0 12px 28px rgba(220, 38, 38, 0.28),
-    /* main depth */
-    0 6px 14px rgba(239, 68, 68, 0.22),
-    /* warm glow */
-    inset 0 0 0 rgba(0, 0, 0, 0);
+    0 12px 30px rgba(243, 55, 22, 0.36),
+    0 6px 16px rgba(243, 55, 22, 0.24);
   --shadow-card-red-hover:
-    0 18px 45px rgba(220, 38, 38, 0.38),
-    0 10px 22px rgba(239, 68, 68, 0.28);
+    0 20px 50px rgba(243, 55, 22, 0.50),
+    0 10px 24px rgba(243, 55, 22, 0.36);
   --filter: none;
   --mobile-page-padding: 10px;
   --medium-page-padding: 24px;
-  --floating-btn-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
-  --bg-hover: #ffd563;
+  --floating-btn-shadow: 0 10px 26px rgba(243, 55, 22, 0.40);
+  --bg-hover: #ffc800;
+  --home-btn-filter: brightness(0) saturate(100%) invert(24%) sepia(97%) saturate(7462%) hue-rotate(6deg) brightness(98%) contrast(107%);
 }
 
 [data-theme="dark"] {
-  --bg-main: #121212;
-  --bg-surface: #020617;
+  --bg-main: #080808;
+  --bg-surface: #111111;
   --bg-image: none;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5f5;
-  --border-light: rgba(255, 255, 255, 0.12);
-  --shadow-primary: rgba(208, 208, 208, 0.1) 0px 2px 8px, rgba(255, 255, 255, 0.05) 0px 4px 16px;
+  --text-primary: #ffffff;
+  --text-secondary: #c0c0c0;
+  --border-light: rgba(255, 255, 255, 0.18);
+  --shadow-primary: rgba(230, 230, 230, 0.12) 0px 3px 12px, rgba(255, 255, 255, 0.06) 0px 6px 24px;
   --shadow-image: 0 18px 40px rgba(255, 255, 255, 0.0);
-  --shadow-list: 0 3px 10px rgba(255, 255, 255, 0.08);
-  --shadow-left: 0 6px 20px rgba(255, 255, 255, 0.08);
-  --color-green: rgb(22, 243, 59);
-  --color-red: rgb(243, 51, 18);
-  --color-pale-red: #2e2e2e;
+  --shadow-list: 0 3px 12px rgba(255, 255, 255, 0.10);
+  --shadow-left: 0 6px 20px rgba(255, 255, 255, 0.10);
+  --color-green: #00f050;
+  --color-red: #ff3a18;
+  --color-pale-red: #2e0e08;
   --color-pale-yellow: #00000000;
-  --color-pale-green: #16202B;
-  --shadow: rgba(255, 255, 195, 0.2) 2px 2px 6px;
-  --shadow-bottom: 0 3px 8px rgba(255, 255, 255, 0.1);
-  --thankyou-shadow: 0 12px 24px rgba(178, 178, 178, 0.35),
-    0 2px 6px rgba(163, 163, 163, 0.18);
-  --btn-color: rgb(74, 74, 74);
-  --foodlist-arrow: rgb(255, 255, 255, 0.2);
-  --hot-selector-shadow: rgba(255, 255, 255, 0.3) 0px 0px 12px 0px;
-  --light-border: 1px solid rgba(255, 255, 255, 0.2);
-  --fav-ingredient-color: #1E1A16;
-  --fav-nutrition-color: #16202B;
+  --color-pale-green: #082014;
+  --shadow: rgba(255, 255, 195, 0.25) 2px 2px 6px;
+  --shadow-bottom: 0 3px 10px rgba(255, 255, 255, 0.12);
+  --thankyou-shadow: 0 12px 24px rgba(200, 200, 200, 0.40),
+    0 2px 6px rgba(180, 180, 180, 0.22);
+  --btn-color: rgb(45, 45, 45);
+  --foodlist-arrow: rgba(255, 255, 255, 0.35);
+  --hot-selector-shadow: rgba(255, 255, 255, 0.35) 0px 0px 14px 0px;
+  --light-border: 1px solid rgba(255, 255, 255, 0.24);
+  --fav-ingredient-color: #1C1510;
+  --fav-nutrition-color: #101820;
   --nutrition-icon-filter: brightness(0) invert(1);
-  --text-tertiary: rgba(131, 131, 131);
-  --shadow-card-normal: 0 12px 30px rgba(0, 0, 0, 0.55);
-  --shadow-card-hover: 0 18px 45px rgba(0, 0, 0, 0.7);
+  --text-tertiary: rgba(100, 100, 100);
+  --shadow-card-normal: 0 12px 32px rgba(0, 0, 0, 0.70);
+  --shadow-card-hover: 0 20px 50px rgba(0, 0, 0, 0.85);
   --shadow-card-red:
-    0 14px 34px rgba(239, 68, 68, 0.35),
-    0 8px 18px rgba(248, 113, 113, 0.28);
+    0 14px 36px rgba(255, 58, 24, 0.45),
+    0 8px 20px rgba(255, 58, 24, 0.32);
   --shadow-card-red-hover:
-    0 20px 50px rgba(239, 68, 68, 0.45),
-    0 12px 26px rgba(248, 113, 113, 0.35);
+    0 22px 56px rgba(255, 58, 24, 0.60),
+    0 12px 28px rgba(255, 58, 24, 0.42);
   --filter: brightness(0) invert(1);
-  --floating-btn-shadow: 0 4px 18px rgba(212, 212, 212, 0.25);
-  --bg-hover: #ffd563;
+  --floating-btn-shadow: 0 4px 20px rgba(255, 58, 24, 0.40);
+  --bg-hover: #ffc800;
+  --home-btn-filter: brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1200%) hue-rotate(346deg) brightness(105%) contrast(110%);
 }
 
 .theme-toggle {
@@ -115,7 +114,6 @@
 
 body {
   background: var(--bg-main);
-  /* background-image: var(--bg-image); */
   object-fit: fill;
   color: var(--text-primary);
   background-repeat: no-repeat;
@@ -134,46 +132,53 @@ button {
   font-family: "Geom", system-ui, sans-serif;
 }
 
+/* AFTER */
 .home-btn img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: brightness(0) saturate(100%) invert(24%) sepia(97%) saturate(7462%) hue-rotate(6deg) brightness(98%) contrast(107%);
+  filter: var(--home-btn-filter, brightness(0) saturate(100%) invert(24%) sepia(97%) saturate(7462%) hue-rotate(6deg) brightness(98%) contrast(107%));
 }
 
-/* Disable text selection everywhere */
-/* * {
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-} */
+[data-theme="dark"] .home-btn img {
+  filter: var(--home-btn-filter, brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1200%) hue-rotate(346deg) brightness(105%) contrast(110%));
+}
 
-/* Disable image dragging */
-img {
+.home-btn-icon {
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  margin-right: 20px;
+  background-color: var(--color-red);
+  -webkit-mask: url('../src/assets/icons/home.png') no-repeat center / contain;
+  mask: url('../src/assets/icons/home.png') no-repeat center / contain;
+  cursor: pointer;
+}
+
+/* img {
   pointer-events: none;
   -webkit-user-drag: none;
   user-drag: none;
   will-change: transform;
   backface-visibility: hidden;
-}
+} */
 
-input, textarea {
+input,
+textarea {
   font-family: "Geom", system-ui, sans-serif;
 }
 
 textarea:focus {
   border: 1px solid var(--color-red) !important;
-  box-shadow: 0 0 0 2px rgba(246, 72, 72, 0.15) !important;
+  box-shadow: 0 0 0 3px rgba(243, 55, 22, 0.20) !important;
 }
 
 button {
-  transition: ease-in 0.2s;
+  transition: ease-in 0.15s !important;
 }
 
 button:hover {
-  scale: 1.05 !important;
+  scale: 1.01 !important;
   cursor: pointer !important;
 }
 
@@ -202,14 +207,11 @@ button:hover {
   z-index: 9999;
 }
 
-/* EXPAND ENTIRE CONTAINER */
 .floating-bell-wrapper:hover {
   width: 220px;
-  /* expanded width */
   box-shadow: var(--shadow-card-red);
 }
 
-/* Bell Button */
 .floating-bell {
   width: 42px;
   height: 42px;
@@ -229,12 +231,10 @@ button:hover {
   scale: 1 !important;
 }
 
-/* Tooltip text INSIDE container */
 .bell-tooltip {
   white-space: nowrap;
   font-size: 14px;
   color: var(--text-primary);
-
   opacity: 0;
   transform: translateX(-10px);
   transition:
@@ -242,7 +242,6 @@ button:hover {
     transform 0.3s ease;
 }
 
-/* Show text when expanded */
 .floating-bell-wrapper:hover .bell-tooltip {
   opacity: 1;
   transform: translateX(0);
@@ -255,13 +254,10 @@ button:hover {
   filter: var(--filter);
 }
 
-/* Disable text selection globally */
 * {
   user-select: none;
   -webkit-user-select: none;
-  /* Safari */
   -ms-user-select: none;
-  /* IE/Edge */
 }
 
 /* ===============================
@@ -276,33 +272,30 @@ button:hover {
   width: 100%;
   padding: 14px 14px;
   border-radius: 12px;
-  border: 1px solid #ccc;
+  border: 1.5px solid #bbb;
   font-size: 15px;
   background: transparent;
   outline: none;
   box-sizing: border-box;
 }
 
-/* Hide placeholder text */
 .floating-field input::placeholder {
   color: transparent;
 }
 
-/* Label inside border */
 .floating-field label {
   position: absolute;
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 14px;
-  color: #999;
+  color: #777;
   background: var(--bg-main);
   padding: 0 14px 0 6px;
   pointer-events: none;
   transition: 0.2s ease;
 }
 
-/* Float label on focus or value */
 .floating-field:focus-within label,
 .floating-field input:not(:placeholder-shown)~label {
   top: -6px;
@@ -310,7 +303,6 @@ button:hover {
   color: var(--color-red);
 }
 
-/* Fix Chrome autofill breaking floating label */
 .floating-field input:-webkit-autofill~label {
   top: -6px;
   font-size: 12px;
@@ -322,20 +314,17 @@ button:hover {
   font-size: 12px;
 }
 
-/* Focus border */
 .floating-field:focus-within input {
   border-color: var(--color-red);
-  box-shadow: 0 0 0 2px rgba(246, 72, 72, 0.15);
+  box-shadow: 0 0 0 3px rgba(243, 55, 22, 0.20);
 }
 
-/* FLOAT FIX FOR DATE/TIME */
 .floating-field.has-value label {
   top: -6px;
   font-size: 12px;
   color: var(--color-red);
 }
 
-/* Also fix for focus */
 .floating-field:focus-within label {
   top: -6px;
   font-size: 12px;
@@ -362,7 +351,6 @@ button:hover {
     width: 28px;
     height: 28px;
   }
-
 }
 
 /* https://dashboard-ecommerce-react.netlify.app/ */
