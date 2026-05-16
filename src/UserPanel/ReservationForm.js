@@ -157,6 +157,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = "Invalid email";
         if (!form.guests || Number(form.guests) < 1) e.guests = "At least 1 guest required";
         if (!form.date) e.date = "Pick a date";
+        if (!form.time) e.time = "Pick a time";
         else if (form.date < todayStr()) e.date = "Date cannot be in the past";
         if (!form.slotGroup) e.slotGroup = "Pick a dining slot";
         setErrors(e);
@@ -271,26 +272,42 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         {/* Guest Details */}
                         <div className="rf-section">
                             <div className="rf-section-title">Guest Details</div>
+
+                            {/* Full Name */}
                             <div className="rf-field-group">
-                                <label>Full Name <span className="rf-req">*</span></label>
-                                <input className={`rf-input${errors.name ? " error" : ""}`} value={form.name} onChange={e => set("name", e.target.value)} placeholder="Enter your name" />
-                                {errors.name && <span className="rf-error">{errors.name}</span>}
-                            </div>
-                            <div className="rf-row">
-                                <div className="rf-field-group" style={{ flex: 1.4 }}>
-                                    <label>Mobile <span className="rf-req">*</span></label>
-                                    <div className="rf-input-prefix-wrap">
-                                        <span className="rf-prefix">+91</span>
-                                        <input className={`rf-input rf-input-with-prefix${errors.mobile ? " error" : ""}`} type="tel" value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder="10-digit number" />
-                                    </div>
-                                    {errors.mobile && <span className="rf-error">{errors.mobile}</span>}
+                                <div className="rf-mat">
+                                    <input className={`rf-input${errors.name ? " error" : ""}`} value={form.name} onChange={e => set("name", e.target.value)} placeholder=" " autoComplete="name" />
+                                    <label className="rf-mat-label">Full Name <span className="rf-req">*</span></label>
+                                    <span className="rf-mat-bar" />
                                 </div>
+                            </div>
+
+                            <div className="rf-row">
+                                {/* Mobile */}
+                                <div className="rf-field-group" style={{ flex: 1.4 }}>
+
+                                    <div className={"rf-input-prefix-wrap"}>
+                                        <span className={`rf-prefix${errors.mobile ? " error" : ""}`}>+91</span>
+                                        <div className="rf-mat">
+                                            <input className={`rf-input${errors.mobile ? " error" : ""}`} type="tel" value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder=" " autoComplete="tel" />
+                                            <label className="rf-mat-label">Mobile <span className="rf-req">*</span></label>
+                                            <span className="rf-mat-bar" />
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {/* Email */}
                                 <div className="rf-field-group" style={{ flex: 1 }}>
-                                    <label>Email <span className="rf-optional">(optional)</span></label>
-                                    <input className={`rf-input${errors.email ? " error" : ""}`} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder="your@email.com" />
+                                    <div className="rf-mat">
+                                        <input className={`rf-input${errors.email ? " error" : ""}`} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder=" " autoComplete="email" />
+                                        <label className="rf-mat-label">Email <span className="rf-optional">(optional)</span></label>
+                                        <span className="rf-mat-bar" />
+                                    </div>
                                     {errors.email && <span className="rf-error">{errors.email}</span>}
                                 </div>
                             </div>
+
                             <div className="rf-row rf-row-inline">
                                 <div className="rf-field-group" style={{ flex: "0 0 auto" }}>
                                     <label>Guests <span className="rf-req">*</span></label>
@@ -375,6 +392,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                         slotEnd={currentSlot?.end}
                                         disabled={!form.slotGroup}
                                         isToday={isToday}
+                                        hasError={!!errors.time}
                                     />
                                     {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
                                     {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
@@ -385,13 +403,22 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         {/* Notes */}
                         <div className="rf-section">
                             <div className="rf-section-title">Special Requests</div>
-                            <textarea className="rf-textarea rf-textarea-grow" rows={3}
-                                placeholder="Dietary restrictions, occasion, special setup..."
-                                value={form.notes} onChange={e => set("notes", e.target.value)} />
+                            <div className="rf-field-group">
+                                <textarea
+                                    className="rf-textarea"
+                                    rows={3}
+                                    placeholder=" "
+                                    value={form.notes}
+                                    onChange={e => set("notes", e.target.value)}
+                                    maxLength={300}
+                                />
+                            </div>
                         </div>
 
                         <button type="button" className="rf-cta-btn rf-submit-btn" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
-                            Review &amp; Confirm
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front text">Review &amp; Confirm</span>
                         </button>
                     </div>
                 </div>

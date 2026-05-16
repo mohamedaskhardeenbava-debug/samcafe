@@ -4,22 +4,42 @@
 ══════════════════════════════════════════════════════ */
 .ucat-page {
     padding: 36px;
-    box-sizing: border-box;
+    background: var(--bg-main);
     font-family: "Geom", system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-sizing: border-box;
 }
 
 /* TWO-COLUMN GRID */
 .ucat-form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 20px;
-    align-items: start;
+    margin-top: 10px;
+    height: calc(100vh - 135px);
 }
 
 .ucat-col {
+    background: transparent;
+    width: 50%;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 14px;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd transparent;
+}
+
+.ucat-col::-webkit-scrollbar {
+    width: 4px;
+}
+
+.ucat-col::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
 }
 
 /* SECTION LABEL */
@@ -40,15 +60,14 @@
 /* CARD */
 .ucat-card {
     background: #fff;
-    border: 1px solid #f0f0f0;
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
-.ucat-card-error {
-    border-color: #fca5a5;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.08);
+.ucat-empty.ucat-card-error {
+    border-color: #e74c3c !important;
+    background: #fff8f8 !important;
 }
 
 /* FORM ROW */
@@ -240,6 +259,8 @@
     text-align: center;
     padding: 20px 0;
     color: #aaa;
+    border: 1px solid var(--color-pale-red);
+    border-radius: 16px;
 }
 
 .ucat-empty p {
@@ -856,8 +877,15 @@
 
 @media (max-width: 768px) {
     .ucat-form-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        height: auto;
         gap: 16px;
+    }
+
+    .ucat-col {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-y: visible;
     }
 
     .ucat-submit-btn {
@@ -879,5 +907,490 @@
 
     .ucat-form-row {
         flex-direction: column;
+    }
+}
+
+/* ══════════════════════════════════════
+   ADD DISH POPUP
+══════════════════════════════════════ */
+.ucat-dish-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.ucat-dish-popup {
+    background: #fff;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.ucat-dish-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.ucat-dish-popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+}
+
+.ucat-dish-popup-close {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    transition: background 0.2s;
+}
+
+.ucat-dish-popup-close:hover {
+    background: #e5e7eb;
+}
+
+.ucat-dish-popup-search-wrap {
+    padding: 10px 16px 0;
+    flex-shrink: 0;
+}
+
+.ucat-dish-popup-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.ucat-dish-popup-search:focus {
+    border-color: #111;
+    background: #fff;
+}
+
+/* Category tabs */
+.ucat-dish-popup-cats {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 10px 16px 4px;
+    flex-shrink: 0;
+    scrollbar-width: thin;
+}
+
+.ucat-dish-popup-cats::-webkit-scrollbar {
+    height: 3px;
+}
+
+.ucat-dish-cat-btn {
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.ucat-dish-cat-btn:hover {
+    border-color: #bbb;
+}
+
+.ucat-dish-cat-btn.active {
+    background: #111;
+    border-color: #111;
+    color: #fff;
+}
+
+/* Veg filter */
+.ucat-dish-popup-veg-row {
+    display: flex;
+    gap: 8px;
+    padding: 6px 16px 8px;
+    flex-shrink: 0;
+}
+
+.ucat-veg-filter-btn {
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    color: #555;
+}
+
+.ucat-veg-filter-btn.active-all {
+    background: #111;
+    border-color: #111;
+    color: #fff;
+}
+
+.ucat-veg-filter-btn.active-veg {
+    background: #e6f9ec;
+    border-color: #27ae60;
+    color: #1a7a38;
+}
+
+.ucat-veg-filter-btn.active-nonveg {
+    background: #fff0ee;
+    border-color: #e74c3c;
+    color: #c0392b;
+}
+
+/* Dish list body */
+.ucat-dish-popup-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 16px;
+}
+
+.ucat-dish-popup-loading,
+.ucat-dish-popup-empty {
+    text-align: center;
+    padding: 32px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+/* Dish grid — compact 2-column list */
+.ucat-dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+}
+
+/* Horizontal compact card */
+.ucat-dish-card {
+    border: 1.5px solid #ebebeb;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+    background: #fff;
+    min-height: 64px;
+    position: relative;
+}
+
+.ucat-dish-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
+}
+
+.ucat-dish-card.added {
+    border-color: #fca5a5;
+    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+}
+
+/* Thumbnail */
+.ucat-dish-card-img {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    object-fit: cover;
+    background: #f3f4f6;
+    border-radius: 10px;
+    margin: 6px 0 6px 6px;
+}
+
+.ucat-dish-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: linear-gradient(135deg, #f8f9fa, #ebebeb);
+}
+
+/* Info area */
+.ucat-dish-card-body {
+    padding: 8px 8px 8px 10px;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ucat-dish-card-name {
+    font-size: 12.5px;
+    font-weight: 650;
+    color: #111;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.ucat-dish-card-cat {
+    font-size: 10px;
+    color: #bbb;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.ucat-dish-card-price {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #e74c3c;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.ucat-dish-card-total {
+    font-size: 10px;
+    color: #999;
+    font-weight: 400;
+}
+
+/* Action button — icon style, right edge */
+.ucat-dish-card-btn {
+    flex-shrink: 0;
+    margin: 0 8px 0 4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid #e74c3c;
+    background: transparent;
+    color: #e74c3c;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.ucat-dish-card-btn:hover {
+    background: #e74c3c;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.ucat-dish-card-btn.remove {
+    border-color: #dc2626;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+.ucat-dish-card-btn.remove:hover {
+    background: #dc2626;
+    color: #fff;
+}
+
+/* Add Dish button in label row */
+.ucat-section-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.ucat-add-dish-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #111;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.ucat-add-dish-btn:hover {
+    background: #333;
+}
+
+.ucat-addmore-dish-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #111;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    width: fit-content;
+    align-self: flex-end;
+}
+
+.ucat-addmore-dish-btn:hover {
+    background: #333;
+}
+
+/* Address grid */
+.ucat-addr-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Decoration grid */
+.ucat-deco-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+}
+
+.ucat-deco-btn {
+    position: relative;
+    padding: 10px 6px;
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ucat-deco-btn:hover {
+    border-color: var(--color-red);
+    transform: translateY(-2px);
+    scale: 1 !important;
+}
+
+.ucat-deco-btn.active {
+    border-color: var(--color-red);
+    background: rgba(231, 76, 60, 0.06);
+}
+
+.ucat-deco-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #111;
+}
+
+.ucat-deco-price {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e74c3c;
+}
+
+.ucat-deco-desc {
+    font-size: 10px;
+    color: #888;
+}
+
+.ucat-deco-tick {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    font-size: 12px;
+    color: var(--color-red);
+}
+
+/* Check cards */
+.ucat-check-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 8px;
+}
+
+.ucat-check-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    transition: all 0.15s;
+    background: #f9fafb;
+}
+
+.ucat-check-card.active {
+    border-color: var(--color-red);
+    background: rgba(231, 76, 60, 0.06);
+}
+
+.ucat-check-card-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ucat-check-tick {
+    font-size: 11px;
+    color: var(--color-red);
+    font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .ucat-dish-popup {
+        max-height: 95vh;
+        border-radius: 14px 14px 0 0;
+        align-self: flex-end;
+    }
+
+    .ucat-dish-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ucat-addr-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ucat-deco-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .ucat-check-grid {
+        grid-template-columns: 1fr 1fr;
     }
 }

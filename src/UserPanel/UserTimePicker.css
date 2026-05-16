@@ -30,6 +30,12 @@
     text-align: left;
 }
 
+.utp-trigger:hover {
+    scale: 1 !important;
+    border: 1px solid var(--color-red) !important;
+    box-shadow: 0 0 0 3px rgba(243, 55, 22, 0.20) !important;
+}
+
 .utp-trigger:hover:not(.utp-disabled) {
     border-color: #111;
     background: #fff;
@@ -43,13 +49,13 @@
 }
 
 .utp-trigger.utp-error {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+    border-color: #e74c3c !important;
+    background: #fff5f5 !important;
 }
 
 .utp-trigger.utp-disabled {
     opacity: 0.5;
-    cursor: not-allowed;
+    cursor: not-allowed !important;
     background: #f3f4f6;
 }
 
@@ -92,8 +98,15 @@
 }
 
 @keyframes utpFadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* ── Header — red accent ── */

@@ -38,14 +38,6 @@
     margin-top: 2px;
 }
 
-/* ── Stepper ── */
-.rf-stepper {
-    display: flex;
-    align-items: center;
-    margin-bottom: 22px;
-    padding: 0 4px;
-}
-
 .rf-step {
     display: flex;
     align-items: center;
@@ -182,14 +174,13 @@
 .rf-input {
     height: 46px;
     border-radius: 12px;
-    border: 1.5px solid #e5e7eb;
     padding: 0 14px;
     font-size: 14px;
     font-family: inherit;
     color: var(--text-primary);
     background: #f9fafb;
     outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.9s, box-shadow 0.2s;
     box-sizing: border-box;
 }
 
@@ -200,14 +191,12 @@
 }
 
 .rf-input.error {
-    border-color: #e74c3c;
-    background: #fff5f5;
+    border-color: #e74c3c !important;
 }
 
 .rf-input-prefix-wrap {
     display: flex;
     align-items: center;
-    border: 1.5px solid #e5e7eb;
     border-radius: 12px;
     overflow: hidden;
     background: #f9fafb;
@@ -313,12 +302,13 @@
     display: flex;
     align-items: center;
     border: 1.5px solid #e5e7eb;
-    border-radius: 12px;
-    overflow: hidden;
+    border-radius: 999px;
     background: #f9fafb;
-    height: 46px;
     width: fit-content;
+    padding: 8px;
 }
+
+/* 
 
 .rf-stepper-btn {
     width: 46px;
@@ -337,6 +327,24 @@
 
 .rf-stepper-btn:hover {
     background: #f0f0f0;
+} */
+
+.rf-stepper-btn {
+    color: #090909;
+    height: 32px;
+    width: 32px;
+    font-size: 18px;
+    border-radius: 999px;
+    background: #e8e8e8;
+    cursor: pointer;
+    border: 1px solid #e8e8e8;
+    transition: all 0.3s;
+    box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.rf-stepper-btn:active {
+    color: #666;
+    box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
 }
 
 .rf-stepper-val {
@@ -640,7 +648,7 @@
 }
 
 /* ── Buttons ── */
-.rf-cta-btn {
+/* .rf-cta-btn {
     width: 300px !important;
     padding: 16px 20px !important;
     border-radius: 14px;
@@ -667,7 +675,7 @@
 .rf-cta-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
-}
+} */
 
 .rf-cta-crosscheck {
     background: var(--color-red) !important;
@@ -1412,24 +1420,11 @@
     border-radius: 4px;
 }
 
-/* Submit button not stretched full width */
-.rf-submit-btn {
-    width: 200px !important;
-    padding: 16px !important;
-}
-
 /* inline row — items side by side, no stretching */
 .rf-row-inline {
     flex-wrap: wrap;
     align-items: flex-start;
     gap: 12px;
-}
-
-/* textarea fills column height nicely */
-.rf-textarea-grow {
-    flex: 1;
-    min-height: 80px;
-    resize: none;
 }
 
 .rf-section {
@@ -1464,7 +1459,6 @@
 .rf-slot-disabled {
     opacity: 0.5;
     cursor: not-allowed !important;
-    pointer-events: none;
 }
 
 .rf-slot-past-badge {
@@ -2028,4 +2022,392 @@
     .rf-time-grid {
         grid-template-columns: repeat(2, 1fr);
     }
+}
+
+.rf-submit-btn {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    outline-offset: 4px;
+    transition: filter 250ms;
+    user-select: none;
+    touch-action: manipulation;
+    width: fit-content;
+    align-self: center;
+}
+
+.shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: hsl(0deg 0% 0% / 0.25);
+    will-change: transform;
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(to left,
+            hsl(340deg 100% 16%) 0%,
+            hsl(340deg 100% 32%) 8%,
+            hsl(340deg 100% 32%) 92%,
+            hsl(340deg 100% 16%) 100%);
+}
+
+.front {
+    display: block;
+    position: relative;
+    padding: 12px 27px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: white;
+    background: var(--color-red);
+    will-change: transform;
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.rf-submit-btn:hover {
+    filter: brightness(110%);
+}
+
+.rf-submit-btn:hover .front {
+    transform: translateY(-6px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.rf-submit-btn:active .front {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+}
+
+.rf-submit-btn:hover .shadow {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.rf-submit-btn:active .shadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+}
+
+.rf-submit-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ══════════════════════════════════════════════════════
+   ✦ INPUT DESIGN v5 — Material Underline + Float Label
+   Matches the reference: dark bg, blue underline draw,
+   label floats up on focus/fill. Adapted to red accent.
+══════════════════════════════════════════════════════ */
+
+:root {
+    --m-accent: var(--color-red, #e74c3c);
+    --m-accent-rgb: 231, 76, 60;
+    --m-underline: rgba(255, 255, 255, 0.15);
+    --m-text: var(--text-primary, #1a1d26);
+    --m-placeholder: rgba(150, 155, 170, 0.7);
+    --m-label-idle: #94a0b4;
+    --m-ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --m-spring: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ══════════════════════════════
+   MATERIAL CONTAINER
+══════════════════════════════ */
+.rf-mat {
+    position: relative;
+    width: 100%;
+    padding-top: 20px;
+    /* room for floated label */
+}
+
+/* ══════════════════════════════
+   INPUT — no box, only underline
+══════════════════════════════ */
+.rf-input {
+    display: block !important;
+    width: 100% !important;
+    padding: 8px 0 9px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    font-family: inherit !important;
+    color: var(--m-text) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid var(--m-underline) !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    box-sizing: border-box !important;
+    caret-color: var(--m-accent) !important;
+    transition: border-color 0.7s var(--m-ease) !important;
+    border-bottom-color: var(--text-tertiary) !important;
+}
+
+.rf-input::placeholder {
+    color: transparent !important;
+}
+
+.rf-input:hover {
+    border: none !important;
+    box-shadow: none !important;
+    border-bottom: 1px solid var(--text-tertiary) !important;
+}
+
+.rf-input.error,
+.rf-input-prefix-wrap.error {
+    border-bottom: 2px solid var(--m-accent) !important;
+}
+
+/* ══════════════════════════════
+   FLOATING LABEL
+══════════════════════════════ */
+.rf-mat-label {
+    position: absolute;
+    top: 38px;
+    /* sits on the baseline when idle */
+    left: 0;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--m-label-idle);
+    pointer-events: none;
+    transition:
+        top 0.25s var(--m-ease),
+        font-size 0.25s var(--m-ease),
+        font-weight 0.25s var(--m-ease),
+        color 0.25s var(--m-ease),
+        letter-spacing 0.25s var(--m-ease);
+    line-height: 1;
+    white-space: nowrap;
+}
+
+/* Floated state — focus OR has value */
+.rf-input:focus~.rf-mat-label,
+.rf-input:not(:placeholder-shown)~.rf-mat-label {
+    top: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--m-accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.rf-input.error~.rf-mat-label {
+    color: var(--m-accent);
+}
+
+/* ══════════════════════════════
+   HIGHLIGHT BAR — draws left→right
+══════════════════════════════ */
+.rf-mat-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--m-accent);
+    border-radius: 1px;
+    transition: width 0.3s var(--m-spring);
+    pointer-events: none;
+}
+
+.rf-input:focus~.rf-mat-label~.rf-mat-bar,
+.rf-input:focus~.rf-mat-bar {
+    width: 100%;
+}
+
+.rf-input.error~.rf-mat-bar {
+    width: 100%;
+}
+
+/* ══════════════════════════════
+   PREFIX WRAP — phone field
+══════════════════════════════ */
+.rf-input-prefix-wrap {
+    display: flex !important;
+    align-items: flex-end !important;
+    border: none !important;
+    border-bottom: 2px solid var(--m-underline) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transition: border-color 0.25s var(--m-ease) !important;
+}
+
+/* The bar for prefix fields lives on rf-mat via :focus-within */
+.rf-mat:focus-within .rf-input-prefix-wrap {
+    border-bottom-color: transparent !important;
+    /* bar covers it */
+}
+
+.rf-mat:focus-within .rf-mat-bar {
+    width: 100%;
+}
+
+.rf-mat:focus-within .rf-mat-label {
+    top: 2px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--m-accent);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.rf-prefix {
+    padding: 15px 8px 15px 8px !important;
+    font-size: 15px !important;
+    font-weight: 600 !important;
+    color: var(--text-primary);
+    background: transparent !important;
+    border: none !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+    letter-spacing: 0.02em !important;
+    line-height: 1 !important;
+}
+
+.rf-prefix.error {
+    color: var(--m-accent) !important;
+}
+
+.rf-input-with-prefix {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    flex: 1 !important;
+    padding-left: 4px !important;
+    transition: border-color 0.7s var(--m-ease) !important;
+    border-bottom: 1px solid var(--text-tertiary) !important;
+}
+
+/* ══════════════════════════════
+   TEXTAREA
+══════════════════════════════ */
+.rf-mat-area {
+    position: relative;
+    width: 100%;
+    padding-top: 20px;
+}
+
+.rf-mat-area-label {
+    position: absolute;
+    top: 28px;
+    left: 0;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--m-label-idle);
+    pointer-events: none;
+    transition: top 0.25s var(--m-ease), font-size 0.25s var(--m-ease),
+        font-weight 0.25s var(--m-ease), color 0.25s var(--m-ease),
+        letter-spacing 0.25s var(--m-ease);
+    line-height: 1;
+}
+
+.rf-mat-area-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--m-accent);
+    border-radius: 1px;
+    transition: width 0.3s var(--m-spring);
+    pointer-events: none;
+}
+
+/* Char counter */
+.rf-mat-char {
+    position: absolute;
+    bottom: 6px;
+    right: 0;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--m-label-idle);
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    letter-spacing: 0.04em;
+}
+
+/* ══════════════════════════════
+   ERROR
+══════════════════════════════ */
+.rf-error {
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: var(--m-accent) !important;
+    margin-top: 5px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    animation: m-err 0.22s var(--m-ease) both !important;
+    padding-left: 0 !important;
+}
+
+@keyframes m-err {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ══════════════════════════════
+   FIELD ENTRY STAGGER
+══════════════════════════════ */
+@keyframes m-in {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rf-mat,
+.rf-mat-area {
+    animation: m-in 0.3s var(--m-ease) both;
+}
+
+.rf-field-group:nth-child(1) .rf-mat {
+    animation-delay: 0.04s;
+}
+
+.rf-field-group:nth-child(2) .rf-mat {
+    animation-delay: 0.08s;
+}
+
+.rf-field-group:nth-child(3) .rf-mat {
+    animation-delay: 0.12s;
+}
+
+.rf-row .rf-field-group:nth-child(1) .rf-mat {
+    animation-delay: 0.1s;
+}
+
+.rf-row .rf-field-group:nth-child(2) .rf-mat {
+    animation-delay: 0.15s;
 }

@@ -168,7 +168,8 @@ textarea {
   font-family: "Geom", system-ui, sans-serif;
 }
 
-textarea:focus {
+textarea:focus, input:focus 
+textarea:hover, input:hover {
   border: 1px solid var(--color-red) !important;
   box-shadow: 0 0 0 3px rgba(243, 55, 22, 0.20) !important;
 }
@@ -352,5 +353,7 @@ button:hover {
     height: 28px;
   }
 }
+
+
 
 /* https://dashboard-ecommerce-react.netlify.app/ */

@@ -7,6 +7,10 @@
     background: var(--bg-main);
     font-family: "Geom", system-ui, sans-serif;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    box-sizing: border-box;
 }
 
 /* ── FORM SHELL — two-column on wide screens ── */
@@ -15,16 +19,31 @@
 }
 
 .pbp-form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 20px;
-    align-items: start;
+    margin-top: 10px;
+    height: calc(100vh - 135px);
 }
 
 .pbp-col {
+    background: transparent;
+    width: 50%;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 14px;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: #ddd transparent;
+}
+
+.pbp-col::-webkit-scrollbar {
+    width: 4px;
+}
+
+.pbp-col::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
 }
 
 /* SECTION LABEL */
@@ -48,6 +67,7 @@
     gap: 12px;
     border: 1.5px solid transparent;
     transition: border-color 0.2s;
+    overflow: visible;
 }
 
 /* Card-level error (empty bag) */
@@ -862,8 +882,15 @@
     }
 
     .pbp-form-grid {
-        grid-template-columns: 1fr;
+        flex-direction: column;
+        height: auto;
         gap: 16px;
+    }
+
+    .pbp-col {
+        width: 100%;
+        box-sizing: border-box;
+        overflow-y: visible;
     }
 
     .pbp-slot-group {
@@ -1002,4 +1029,353 @@
     padding: 10px 14px;
     border-radius: 10px;
     margin-top: 4px;
+}
+
+/* ══════════════════════════════════════
+   ADD DISH POPUP (PreBooking)
+══════════════════════════════════════ */
+.pbp-dish-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.pbp-dish-popup {
+    background: #fff;
+    border-radius: 18px;
+    width: 100%;
+    max-width: 720px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.pbp-dish-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
+}
+
+.pbp-dish-popup-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: #111;
+}
+
+.pbp-dish-popup-close {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 8px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    transition: background 0.2s;
+}
+
+.pbp-dish-popup-close:hover {
+    background: #e5e7eb;
+}
+
+.pbp-dish-popup-search-wrap {
+    padding: 10px 16px 0;
+    flex-shrink: 0;
+}
+
+.pbp-dish-popup-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    transition: border-color 0.2s;
+}
+
+.pbp-dish-popup-search:focus {
+    border-color: #111;
+    background: #fff;
+}
+
+.pbp-dish-popup-cats {
+    display: flex;
+    gap: 6px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 10px 16px 4px;
+    flex-shrink: 0;
+    scrollbar-width: thin;
+}
+
+.pbp-dish-cat-btn {
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    color: #555;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.pbp-dish-cat-btn.active {
+    background: #111;
+    border-color: #111;
+    color: #fff;
+}
+
+.pbp-dish-popup-veg-row {
+    display: flex;
+    gap: 8px;
+    padding: 6px 16px 8px;
+    flex-shrink: 0;
+}
+
+.pbp-veg-filter-btn {
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #e5e7eb;
+    background: #f9fafb;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    color: #555;
+}
+
+.pbp-veg-filter-btn.active-all {
+    background: #111;
+    border-color: #111;
+    color: #fff;
+}
+
+.pbp-veg-filter-btn.active-veg {
+    background: #e6f9ec;
+    border-color: #27ae60;
+    color: #1a7a38;
+}
+
+.pbp-veg-filter-btn.active-nonveg {
+    background: #fff0ee;
+    border-color: #e74c3c;
+    color: #c0392b;
+}
+
+.pbp-dish-popup-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 16px 16px;
+}
+
+.pbp-dish-popup-empty {
+    text-align: center;
+    padding: 32px;
+    color: #aaa;
+    font-size: 14px;
+}
+
+/* Dish grid — compact horizontal cards */
+.pbp-dish-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 8px;
+}
+
+/* Horizontal compact card */
+.pbp-dish-card {
+    border: 1.5px solid #ebebeb;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0;
+    transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+    background: #fff;
+    min-height: 64px;
+    position: relative;
+}
+
+.pbp-dish-card:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    transform: translateY(-1px);
+}
+
+.pbp-dish-card.added {
+    border-color: #fca5a5;
+    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+}
+
+/* Thumbnail */
+.pbp-dish-card-img {
+    width: 64px;
+    height: 64px;
+    min-width: 64px;
+    object-fit: cover;
+    background: #f3f4f6;
+    border-radius: 10px;
+    margin: 6px 0 6px 6px;
+}
+
+.pbp-dish-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: linear-gradient(135deg, #f8f9fa, #ebebeb);
+}
+
+/* Info area */
+.pbp-dish-card-body {
+    padding: 8px 8px 8px 10px;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.pbp-dish-card-name {
+    font-size: 12.5px;
+    font-weight: 650;
+    color: #111;
+    text-transform: capitalize;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.3;
+}
+
+.pbp-dish-card-cat {
+    font-size: 10px;
+    color: #bbb;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.pbp-dish-card-price {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #e74c3c;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+.pbp-dish-card-total {
+    font-size: 10px;
+    color: #999;
+    font-weight: 400;
+}
+
+/* Action button — circular icon */
+.pbp-dish-card-btn {
+    flex-shrink: 0;
+    margin: 0 8px 0 4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid #e74c3c;
+    background: transparent;
+    color: #e74c3c;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.pbp-dish-card-btn:hover {
+    background: #e74c3c;
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.pbp-dish-card-btn.remove {
+    border-color: #dc2626;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+.pbp-dish-card-btn.remove:hover {
+    background: #dc2626;
+    color: #fff;
+}
+
+.pbp-add-dish-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #111;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+}
+
+.pbp-add-dish-btn:hover {
+    background: #333;
+}
+
+.pbp-addmore-dish-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid #111;
+    background: #111;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+    width: fit-content;
+    align-self: flex-end;
+}
+
+.pbp-addmore-dish-btn:hover {
+    background: #333;
+}
+
+@media (max-width: 600px) {
+    .pbp-dish-popup {
+        max-height: 95vh;
+        border-radius: 14px 14px 0 0;
+        align-self: flex-end;
+    }
+
+    .pbp-dish-grid {
+        grid-template-columns: 1fr;
+    }
 }

@@ -7,7 +7,6 @@ import "./CelebrationForm.css";
 
 const pad = (n) => String(n).padStart(2, "0");
 
-/* Tomorrow — disables today AND all past dates */
 const tomorrowStr = () => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -22,56 +21,113 @@ const SLOT_GROUPS = [
     { label: "Dinner", key: "DI", start: "18:30", end: "22:00" },
 ];
 
+/* ── "Get Together" removed, "Meeting" kept ── */
 const CELEBRATION_TYPES = [
     { label: "Birthday", value: "birthday" },
     { label: "Anniversary", value: "anniversary" },
     { label: "Meeting", value: "meeting" },
-    { label: "Get Together", value: "gettogether" },
+    { label: "Candle Light Dinner", value: "candlelightdinner" },
 ];
 
+/* Luxury only available for Candle Light Dinner */
 const DECORATION_TIERS = [
     { label: "Normal", value: "normal", price: 1500, desc: "Balloons & basic setup" },
     { label: "Elegant", value: "elegant", price: 3000, desc: "Flowers, drapes & lighting" },
-    { label: "Luxury", value: "luxury", price: 5000, desc: "Premium full decor" },
+    { label: "Luxury", value: "luxury", price: 5000, desc: "Premium full decor", onlyCandleLight: true },
 ];
 
-const BIRTHDAY_EXTRAS = [{ key: "cake", label: "Cake" }, { key: "specialMention", label: "Special Mentions" }];
-const MEETING_SEATING = [{ key: "standingBrochures", label: "Standing Brochures" }, { key: "placeHolders", label: "Place Holders" }, { key: "pens", label: "Pens" }];
-const MEETING_AV = [{ key: "mic", label: "Microphone" }, { key: "projector", label: "Projector" }];
-const ANNIVERSARY_EXTRAS = [{ key: "candleLight", label: "Candle Light Dinner" }, { key: "liveMusic", label: "Live Music" }, { key: "surpriseGift", label: "Surprise Gift Revealing" }, { key: "cake", label: "Cake" }, { key: "specialMention", label: "Special Mentions" }];
-const GETTOGETHER_EXTRAS = [{ key: "liveMusic", label: "Live Music" }, { key: "mic", label: "Microphone" }, { key: "projector", label: "Projector" }, { key: "cake", label: "Cake" }, { key: "specialMention", label: "Special Mentions" }];
-const EVENT_MENUS = [{ value: "veg", label: "Veg Menu" }, { value: "nonveg", label: "Non-Veg Menu" }, { value: "vegan", label: "Vegan Menu" }, { value: "custom", label: "Custom Menu" }];
+const BIRTHDAY_EXTRAS = [
+    { key: "cake", label: "Cake", price: 500 },
+    { key: "specialMention", label: "Special Mentions", price: 0 },
+];
+const MEETING_SEATING = [
+    { key: "standingBrochures", label: "Standing Brochures", price: 200 },
+    { key: "placeHolders", label: "Place Holders", price: 150 },
+    { key: "pens", label: "Pens", price: 100 },
+];
+const MEETING_AV = [
+    { key: "mic", label: "Microphone", price: 500 },
+    { key: "projector", label: "Projector", price: 800 },
+];
+const ANNIVERSARY_EXTRAS = [
+    { key: "candleLight", label: "Candle Light Setup", price: 800 },
+    { key: "liveMusic", label: "Live Music", price: 2000 },
+    { key: "surpriseGift", label: "Surprise Gift Revealing", price: 300 },
+    { key: "cake", label: "Cake", price: 500 },
+    { key: "specialMention", label: "Special Mentions", price: 0 },
+];
+const CANDLELIGHT_EXTRAS = [
+    { key: "liveMusic", label: "Live Music", price: 2000 },
+    { key: "cake", label: "Cake", price: 500 },
+    { key: "specialMention", label: "Special Mentions", price: 0 },
+];
+
+/* ─── extra prices lookup ─── */
+const EXTRA_PRICES = {
+    cake: 500, specialMention: 0, standingBrochures: 200, placeHolders: 150, pens: 100,
+    mic: 500, projector: 800, candleLight: 800, liveMusic: 2000, surpriseGift: 300,
+};
+const AV_PRICE = 500; /* mic or projector base pack */
 
 /* ─── Checkbox Card ─── */
-const CheckCard = ({ label, checked, onChange }) => (
+const CheckCard = ({ label, checked, onChange, price }) => (
     <label className={`clp-check-card${checked ? " active" : ""}`}>
         <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ display: "none" }} />
-        <span className="clp-check-label">{label}</span>
+        <span className="clp-check-label">{label}{price ? <span style={{ fontSize: 10, color: "#999", marginLeft: 4 }}>+₹{price}</span> : null}</span>
         {checked && <span className="clp-check-tick">✓</span>}
     </label>
 );
 
 /* ─── Decoration Picker ─── */
-const DecorationPicker = ({ value, onChange }) => (
+const DecorationPicker = ({ value, onChange, allowLuxury }) => (
     <div className="clp-deco-grid">
         <button type="button" className={`clp-deco-none-btn${!value ? " active" : ""}`} onClick={() => onChange(null)}>
             No Decoration
         </button>
-        {DECORATION_TIERS.map(t => (
-            <button key={t.value} type="button" className={`clp-deco-card${value === t.value ? " active" : ""}`} onClick={() => onChange(t.value)}>
-                <div className="clp-deco-label">{t.label}</div>
-                <div className="clp-deco-price">₹{t.price.toLocaleString()}</div>
-                <div className="clp-deco-desc">{t.desc}</div>
-                {value === t.value && <span className="clp-check-tick">✓</span>}
-            </button>
-        ))}
+        {DECORATION_TIERS.map(t => {
+            const disabled = t.onlyCandleLight && !allowLuxury;
+            return (
+                <button key={t.value} type="button"
+                    className={`clp-deco-card${value === t.value ? " active" : ""}${disabled ? " clp-deco-disabled" : ""}`}
+                    onClick={() => !disabled && onChange(t.value)}
+                    title={disabled ? "Luxury decoration is only available for Candle Light Dinner" : ""}
+                >
+                    <div className="clp-deco-label">{t.label}</div>
+                    <div className="clp-deco-price">₹{t.price.toLocaleString()}</div>
+                    <div className="clp-deco-desc">{t.desc}</div>
+                    {disabled && <div className="clp-deco-lock-msg">Candle Light Dinner only</div>}
+                    {value === t.value && <span className="clp-check-tick">✓</span>}
+                </button>
+            );
+        })}
     </div>
 );
 
 /* ═══════════════════════════════
+   Price Calculator
+═══════════════════════════════ */
+const calcTotal = (form) => {
+    let total = 0;
+    /* Decoration */
+    if (form.decoration) {
+        const tier = DECORATION_TIERS.find(t => t.value === form.decoration);
+        if (tier) total += tier.price;
+    }
+    /* Per-extra prices */
+    Object.keys(EXTRA_PRICES).forEach(key => {
+        if (form[key]) total += EXTRA_PRICES[key];
+    });
+    /* AV base if mic/projector and not meeting (meeting handles separately) */
+    if (form.type !== "meeting" && (form.mic || form.projector)) {
+        total += AV_PRICE;
+    }
+    return total;
+};
+
+/* ═══════════════════════════════
    Main Component
 ═══════════════════════════════ */
-const CelebrationForm = ({ handleBack, handleHome }) => {
+const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
     const [form, setForm] = useState({
         type: "birthday",
         name: "", mobile: "", email: "",
@@ -84,7 +140,6 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
         mic: false, projector: false,
         candleLight: false, liveMusic: false, surpriseGift: false,
         decoration: null,
-        eventMenu: "",
         audioVideo: false,
         specialNote: "",
     });
@@ -111,11 +166,49 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
         setErrors(prev => ({ ...prev, [key]: "" }));
     };
 
+    /* If type changes away from candlelightdinner, remove luxury decoration */
+    const setType = (val) => {
+        setForm(prev => ({
+            ...prev,
+            type: val,
+
+            // reset event-specific add-ons
+            cake: false,
+            specialMention: false,
+            specialMentionText: "",
+            standingBrochures: false,
+            placeHolders: false,
+            pens: false,
+            candleLight: false,
+            liveMusic: false,
+            surpriseGift: false,
+
+            // reset decoration if luxury not allowed
+            decoration:
+                val !== "candlelightdinner" && prev.decoration === "luxury"
+                    ? null
+                    : prev.decoration,
+        }));
+
+        setErrors(prev => ({
+            ...prev,
+            type: "",
+            birthdayPersonName: "",
+        }));
+    };
+
     const currentSlot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
     const isToday = form.date === todayStr();
+    const isCandleLight = form.type === "candlelightdinner";
+    const estimatedTotal = calcTotal(form);
 
     const handleSlotChange = (key) => { set("slotGroup", key); set("time", ""); };
     const handleDateChange = (d) => { set("date", d); set("time", ""); };
+
+    /* Guest cap: max 20 for celebrations */
+    const setGuests = (n) => {
+        set("guests", Math.max(1, Math.min(20, n)));
+    };
 
     const validate = () => {
         const err = {};
@@ -126,6 +219,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
         if (!form.slotGroup) err.slotGroup = "Please select a dining slot";
         if (!form.time) err.time = "Time required";
         if (!form.guests || Number(form.guests) < 1) err.guests = "At least 1 guest required";
+        if (Number(form.guests) > 20) err.guests = "Maximum 20 guests allowed for celebration";
         if (form.type === "birthday" && !form.birthdayPersonName.trim()) err.birthdayPersonName = "Birthday person name required";
         return err;
     };
@@ -138,6 +232,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
             const id = `cele_${Date.now()}`;
             await api.post("/celebrations", {
                 id, ...form,
+                totalAmount: estimatedTotal,
                 status: "pending",
                 source: "User App",
                 createdAt: new Date().toISOString(),
@@ -157,13 +252,13 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
         guests: 2, birthdayPersonName: "", birthdayPersonAge: "", cake: false,
         specialMention: false, specialMentionText: "", standingBrochures: false,
         placeHolders: false, pens: false, mic: false, projector: false, candleLight: false,
-        liveMusic: false, surpriseGift: false, decoration: null, eventMenu: "", audioVideo: false, specialNote: "",
+        liveMusic: false, surpriseGift: false, decoration: null, audioVideo: false, specialNote: "",
     });
 
     /* ─── Special Mention expansion helper ─── */
     const renderExtrasWithMention = (extras) => extras.map(ex => (
         <div key={ex.key} className="clp-extra-item-wrap">
-            <CheckCard label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />
+            <CheckCard label={ex.label} price={ex.price || 0} checked={form[ex.key]} onChange={v => set(ex.key, v)} />
             {ex.key === "specialMention" && form.specialMention && (
                 <div className="clp-mention-box">
                     <textarea
@@ -209,6 +304,7 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                             ["Time", form.time ? (() => { const [h, m] = form.time.split(":").map(Number); return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; })() : ""],
                             ["Guests", form.guests],
                             ["Decoration", form.decoration ? DECORATION_TIERS.find(t => t.value === form.decoration)?.label : "None"],
+                            ["Estimated Total", `₹${estimatedTotal.toLocaleString()}`],
                         ].map(([k, v]) => (
                             <div key={k} className="clp-sc-row">
                                 <span className="clp-sc-label">{k}</span>
@@ -234,14 +330,14 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                 {/* ── LEFT COLUMN ── */}
                 <div className="clp-section">
 
-                    {/* Event Type */}
+                    {/* Event Type — Get Together removed */}
                     <div className="clp-block">
                         <div className="clp-title">Event Type</div>
                         <div className="clp-type-grid">
                             {CELEBRATION_TYPES.map(t => (
                                 <button key={t.value} type="button"
                                     className={`clp-type-card${form.type === t.value ? " active" : ""}`}
-                                    onClick={() => set("type", t.value)}>
+                                    onClick={() => setType(t.value)}>
                                     <span className="clp-type-label">{t.label}</span>
                                     {form.type === t.value && <span className="clp-check-tick">✓</span>}
                                 </button>
@@ -253,18 +349,16 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                     <div className="clp-block">
                         <div className="clp-title">Your Details</div>
                         <div className="clp-card">
-                            <div className="clp-group floating-field">
+                            <div className={`clp-group${errors.name ? " error" : ""} floating-field`}>
                                 <input placeholder=" " value={form.name} onChange={e => set("name", e.target.value)} />
                                 <label>Full Name *</label>
-                                {errors.name && <span className="clp-error">{errors.name}</span>}
                             </div>
                             <div className="clp-row">
-                                <div className="clp-group floating-field" style={{ flex: 1.4 }}>
+                                <div className={`clp-group${errors.mobile ? " error" : ""} floating-field`} style={{ flex: 1.4 }}>
                                     <input placeholder=" " value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} type="tel" />
                                     <label>Mobile *</label>
-                                    {errors.mobile && <span className="clp-error">{errors.mobile}</span>}
                                 </div>
-                                <div className="clp-group floating-field" style={{ flex: 1 }}>
+                                <div className={`clp-group${errors.email ? " error" : ""} floating-field`} style={{ flex: 1 }}>
                                     <input placeholder=" " value={form.email} onChange={e => set("email", e.target.value)} type="email" />
                                     <label>Email (optional)</label>
                                 </div>
@@ -280,7 +374,6 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                                         hasError={!!errors.date}
                                         onChange={handleDateChange}
                                     />
-                                    {errors.date && <span className="clp-error">{errors.date}</span>}
                                 </div>
                                 <div className="clp-group">
                                     <label className="clp-field-label">Dining Slot *</label>
@@ -315,17 +408,27 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                                     />
                                     {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
                                     {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
-                                    {errors.time && <span className="clp-error">{errors.time}</span>}
                                 </div>
                             </div>
 
+                            {/* Guests — max 20 */}
                             <div className="clp-group">
                                 <label className="clp-field-label">Number of Guests *</label>
                                 <div className="clp-stepper">
-                                    <button type="button" className="clp-stepper-btn" onClick={() => set("guests", Math.max(1, form.guests - 1))}>−</button>
+                                    <button type="button" className="clp-stepper-btn" onClick={() => setGuests(form.guests - 1)}>−</button>
                                     <span className="clp-stepper-val">{form.guests}</span>
-                                    <button type="button" className="clp-stepper-btn" onClick={() => set("guests", Math.min(500, form.guests + 1))}>+</button>
+                                    <button type="button" className="clp-stepper-btn" onClick={() => setGuests(form.guests + 1)}>+</button>
                                 </div>
+                                {form.guests >= 20 && (
+                                    <div className="clp-guest-limit-msg">
+                                        ⚠️ Maximum 20 guests for celebration.{" "}
+                                        <span>For larger groups,{" "}
+                                            <button type="button" className="clp-catering-link" onClick={navigateToCatering}>
+                                                use our Catering service →
+                                            </button>
+                                        </span>
+                                    </div>
+                                )}
                                 {errors.guests && <span className="clp-error">{errors.guests}</span>}
                             </div>
                         </div>
@@ -335,15 +438,15 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                 {/* ── RIGHT COLUMN ── */}
                 <div className="clp-section">
 
+                    {/* Birthday Details */}
                     {form.type === "birthday" && (
                         <div className="clp-block">
                             <div className="clp-title">Birthday Details</div>
                             <div className="clp-card">
                                 <div className="clp-row">
-                                    <div className="clp-group floating-field" style={{ flex: 1.5 }}>
+                                    <div className={`clp-group${errors.birthdayPersonName ? " error" : ""} floating-field`} style={{ flex: 1.5 }}>
                                         <input placeholder=" " value={form.birthdayPersonName} onChange={e => set("birthdayPersonName", e.target.value)} />
                                         <label>Birthday Person's Name *</label>
-                                        {errors.birthdayPersonName && <span className="clp-error">{errors.birthdayPersonName}</span>}
                                     </div>
                                     <div className="clp-group floating-field" style={{ flex: 1 }}>
                                         <input placeholder=" " type="number" min="1" max="120" value={form.birthdayPersonAge} onChange={e => set("birthdayPersonAge", e.target.value)} />
@@ -356,22 +459,24 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                         </div>
                     )}
 
+                    {/* Meeting Setup */}
                     {form.type === "meeting" && (
                         <div className="clp-block">
                             <div className="clp-title">Meeting Setup</div>
                             <div className="clp-card">
                                 <div className="clp-sub-title">Table Decoration</div>
                                 <div className="clp-check-grid">
-                                    {MEETING_SEATING.map(ex => <CheckCard key={ex.key} label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
+                                    {MEETING_SEATING.map(ex => <CheckCard key={ex.key} label={ex.label} price={ex.price} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
                                 </div>
                                 <div className="clp-sub-title" style={{ marginTop: 10 }}>Audio / Video</div>
                                 <div className="clp-check-grid">
-                                    {MEETING_AV.map(ex => <CheckCard key={ex.key} label={ex.label} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
+                                    {MEETING_AV.map(ex => <CheckCard key={ex.key} label={ex.label} price={ex.price} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
                                 </div>
                             </div>
                         </div>
                     )}
 
+                    {/* Anniversary Extras */}
                     {form.type === "anniversary" && (
                         <div className="clp-block">
                             <div className="clp-title">Anniversary Extras</div>
@@ -381,19 +486,20 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                         </div>
                     )}
 
-                    {form.type === "gettogether" && (
+                    {/* Candle Light Dinner Extras */}
+                    {form.type === "candlelightdinner" && (
                         <div className="clp-block">
-                            <div className="clp-title">Get Together Setup</div>
+                            <div className="clp-title">Candle Light Dinner Add-ons</div>
                             <div className="clp-card">
-                                <div className="clp-check-grid">{renderExtrasWithMention(GETTOGETHER_EXTRAS)}</div>
+                                <div className="clp-check-grid">{renderExtrasWithMention(CANDLELIGHT_EXTRAS)}</div>
                             </div>
                         </div>
                     )}
 
-                    {/* Decoration */}
+                    {/* Decoration — Luxury only for Candle Light Dinner */}
                     <div className="clp-block">
                         <div className="clp-title">Decoration</div>
-                        <DecorationPicker value={form.decoration} onChange={v => set("decoration", v)} />
+                        <DecorationPicker value={form.decoration} onChange={v => set("decoration", v)} allowLuxury={isCandleLight} />
                     </div>
 
                     {/* Audio & Video (skip if meeting — already there) */}
@@ -402,28 +508,15 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                             <div className="clp-title">Audio & Video</div>
                             <div className="clp-card">
                                 <div className="clp-check-grid">
-                                    <CheckCard label="Microphone" checked={form.mic} onChange={v => set("mic", v)} />
-                                    <CheckCard label="Projector" checked={form.projector} onChange={v => set("projector", v)} />
+                                    <CheckCard label="Microphone" price={500} checked={form.mic} onChange={v => set("mic", v)} />
+                                    <CheckCard label="Projector" price={800} checked={form.projector} onChange={v => set("projector", v)} />
                                 </div>
-                                <div className="clp-av-price">Audio & Video Setup — ₹1,500</div>
+                                {(form.mic || form.projector) && (
+                                    <div className="clp-av-price">Audio & Video Setup — ₹{AV_PRICE.toLocaleString()}</div>
+                                )}
                             </div>
                         </div>
                     )}
-
-                    {/* Event Menu */}
-                    <div className="clp-block">
-                        <div className="clp-title">Event Menu</div>
-                        <div className="clp-menu-grid">
-                            {EVENT_MENUS.map(m => (
-                                <button key={m.value} type="button"
-                                    className={`clp-menu-card${form.eventMenu === m.value ? " active" : ""}`}
-                                    onClick={() => set("eventMenu", form.eventMenu === m.value ? "" : m.value)}>
-                                    <span className="clp-menu-label">{m.label}</span>
-                                    {form.eventMenu === m.value && <span className="clp-check-tick">✓</span>}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
 
                     {/* Special Note */}
                     <div className="clp-block">
@@ -436,11 +529,41 @@ const CelebrationForm = ({ handleBack, handleHome }) => {
                         </div>
                     </div>
 
-                    
-                        <button className={`clp-submit${loading ? " loading" : ""}`} onClick={handleSubmit} disabled={loading}>
-                            {loading ? "Processing..." : "Book Celebration"}
-                        </button>
-                    
+                    {/* Price Summary */}
+                    {estimatedTotal > 0 && (
+                        <div className="clp-block clp-price-summary">
+                            <div className="clp-title">Estimated Cost</div>
+                            <div className="clp-card">
+                                {form.decoration && (
+                                    <div className="clp-price-row">
+                                        <span>Decoration ({DECORATION_TIERS.find(t => t.value === form.decoration)?.label})</span>
+                                        <span>₹{DECORATION_TIERS.find(t => t.value === form.decoration)?.price.toLocaleString()}</span>
+                                    </div>
+                                )}
+                                {Object.keys(EXTRA_PRICES).filter(k => form[k] && EXTRA_PRICES[k] > 0).map(k => (
+                                    <div key={k} className="clp-price-row">
+                                        <span style={{ textTransform: "capitalize" }}>{k.replace(/([A-Z])/g, " $1")}</span>
+                                        <span>₹{EXTRA_PRICES[k]}</span>
+                                    </div>
+                                ))}
+                                {form.type !== "meeting" && (form.mic || form.projector) && (
+                                    <div className="clp-price-row">
+                                        <span>A/V Setup</span>
+                                        <span>₹{AV_PRICE}</span>
+                                    </div>
+                                )}
+                                <div className="clp-price-row clp-price-total">
+                                    <span>Estimated Total</span>
+                                    <strong>₹{estimatedTotal.toLocaleString()}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <button className={`clp-submit${loading ? " loading" : ""}`} onClick={handleSubmit} disabled={loading}>
+                        {loading ? "Processing..." : "Book Celebration"}
+                    </button>
+
                 </div>
             </div>
         </div>

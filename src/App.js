@@ -701,6 +701,9 @@ function App() {
           {![
             "/events/reservation",
             "/events/celebration",
+            "/events/events",
+            "/events/prebooking",
+            "/events/catering",
             "/events/hosted",
             "/events",
             "/events/home"
