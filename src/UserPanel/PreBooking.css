@@ -46,18 +46,6 @@
     border-radius: 4px;
 }
 
-/* SECTION LABEL */
-.pbp-section-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #888;
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    margin: 10px 0 4px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid #f0f0f0;
-}
-
 /* CARD */
 .pbp-card {
     background: #fff;
@@ -99,39 +87,6 @@
     letter-spacing: 0.05em;
 }
 
-/* INPUT */
-.pbp-input {
-    height: 42px;
-    border-radius: 10px;
-    border: 1.5px solid #e5e7eb;
-    padding: 0 12px;
-    font-size: 13px;
-    font-family: inherit;
-    color: #111;
-    background: #f9fafb;
-    outline: none;
-    width: 100%;
-    box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.pbp-input:focus {
-    border-color: #111;
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
-}
-
-.pbp-input.error {
-    border-color: #e74c3c;
-    background: #fff5f5;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
-}
-
-.pbp-input.error:focus {
-    border-color: #e74c3c;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.14);
-}
-
 /* REQ / OPTIONAL */
 .pbp-req {
     color: #e74c3c;
@@ -144,56 +99,6 @@
     text-transform: none;
     letter-spacing: 0;
     margin-left: 4px;
-}
-
-/* ── STEPPER ── */
-.pbp-stepper {
-    display: flex;
-    align-items: center;
-    border: 1.5px solid #e5e7eb;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #f9fafb;
-    height: 42px;
-    width: fit-content;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.pbp-stepper.error {
-    border-color: #e74c3c;
-    background: #fff5f5;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
-}
-
-.pbp-stepper button {
-    width: 40px;
-    height: 100%;
-    border: none;
-    background: transparent;
-    font-size: 18px;
-    cursor: pointer;
-    color: #333;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s;
-}
-
-.pbp-stepper button:hover {
-    background: #f0f0f0;
-}
-
-.pbp-stepper span {
-    min-width: 42px;
-    text-align: center;
-    font-size: 15px;
-    font-weight: 700;
-    border-left: 1px solid #e5e7eb;
-    border-right: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
 }
 
 /* ── DISCOUNT NOTE ── */
@@ -796,23 +701,24 @@
 
 /* ══ NOTES ══ */
 .pbp-notes {
-    width: 100%;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 1.5px solid #e5e7eb;
-    padding: 10px 12px;
+    padding: 12px 14px;
     font-size: 14px;
-    resize: none;
     font-family: inherit;
-    color: #111;
+    color: var(--text-primary);
     background: #f9fafb;
-    box-sizing: border-box;
     outline: none;
+    resize: none;
     transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .pbp-notes:focus {
-    border-color: #111;
+    border-color: var(--color-red);
     background: #fff;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }
 
 /* ══ ACTIONS ══ */
@@ -1378,4 +1284,47 @@
     .pbp-dish-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* ══════════════════════════════════════════════════════
+   MATERIAL UNDERLINE INPUTS — matches ReservationForm
+══════════════════════════════════════════════════════ */
+
+/* ── Field group ── */
+.pbp-form-group {
+    gap: 0 !important;
+    position: relative;
+}
+
+.pbp-form-group>label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--color-red, #e74c3c) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    margin-bottom: 4px !important;
+    line-height: 1 !important;
+    display: block;
+}
+
+/* ── Notes textarea ── */
+.pbp-notes {
+    border-radius: 12px;
+    border: 1.5px solid #e5e7eb;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--text-primary);
+    background: #f9fafb;
+    outline: none;
+    resize: none;
+    transition: border-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pbp-notes:focus {
+    border-color: var(--color-red);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }

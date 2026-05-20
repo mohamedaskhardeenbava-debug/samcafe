@@ -271,59 +271,56 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
 
                         {/* Guest Details */}
                         <div className="rf-section">
-                            <div className="rf-section-title">Guest Details</div>
+                            <div className="section-title">Guest Details</div>
 
                             {/* Full Name */}
-                            <div className="rf-field-group">
-                                <div className="rf-mat">
-                                    <input className={`rf-input${errors.name ? " error" : ""}`} value={form.name} onChange={e => set("name", e.target.value)} placeholder=" " autoComplete="name" />
-                                    <label className="rf-mat-label">Full Name <span className="rf-req">*</span></label>
-                                    <span className="rf-mat-bar" />
+                            <div className="field-group">
+                                <div className="mat">
+                                    <input className={`mat-input${errors.name ? " error" : ""}`} value={form.name} onChange={e => set("name", e.target.value)} placeholder=" " autoComplete="name" />
+                                    <label className="mat-label">Full Name <span className="rf-req">*</span></label>
+                                    <span className="mat-bar" />
                                 </div>
                             </div>
 
-                            <div className="rf-row">
+                            <div className="mat-row">
                                 {/* Mobile */}
-                                <div className="rf-field-group" style={{ flex: 1.4 }}>
+                                <div className="field-group" style={{ flex: 1.4 }}>
 
-                                    <div className={"rf-input-prefix-wrap"}>
-                                        <span className={`rf-prefix${errors.mobile ? " error" : ""}`}>+91</span>
-                                        <div className="rf-mat">
-                                            <input className={`rf-input${errors.mobile ? " error" : ""}`} type="tel" value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder=" " autoComplete="tel" />
-                                            <label className="rf-mat-label">Mobile <span className="rf-req">*</span></label>
-                                            <span className="rf-mat-bar" />
+                                    <div className={"mat-input-prefix-wrap"}>
+                                        <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
+                                        <div className="mat">
+                                            <input className={`mat-input${errors.mobile ? " error" : ""}`} type="tel" value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} placeholder=" " autoComplete="tel" />
+                                            <label className="mat-label">Mobile <span className="rf-req">*</span></label>
+                                            <span className="mat-bar" />
                                         </div>
 
                                     </div>
                                 </div>
 
                                 {/* Email */}
-                                <div className="rf-field-group" style={{ flex: 1 }}>
-                                    <div className="rf-mat">
-                                        <input className={`rf-input${errors.email ? " error" : ""}`} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder=" " autoComplete="email" />
-                                        <label className="rf-mat-label">Email <span className="rf-optional">(optional)</span></label>
-                                        <span className="rf-mat-bar" />
+                                <div className="field-group" style={{ flex: 1 }}>
+                                    <div className="mat">
+                                        <input className={`mat-input${errors.email ? " error" : ""}`} type="email" value={form.email} onChange={e => set("email", e.target.value)} placeholder=" " autoComplete="email" />
+                                        <label className="mat-label">Email <span className="rf-optional">(optional)</span></label>
+                                        <span className="mat-bar" />
                                     </div>
-                                    {errors.email && <span className="rf-error">{errors.email}</span>}
                                 </div>
                             </div>
 
-                            <div className="rf-row rf-row-inline">
-                                <div className="rf-field-group" style={{ flex: "0 0 auto" }}>
+                                <div className="field-group" style={{ flex: "0 0 auto" }}>
                                     <label>Guests <span className="rf-req">*</span></label>
-                                    <div className="rf-stepper-ctrl">
-                                        <button type="button" className="rf-stepper-btn" onClick={() => set("guests", Math.max(1, form.guests - 1))}>−</button>
-                                        <span className="rf-stepper-val">{form.guests}</span>
-                                        <button type="button" className="rf-stepper-btn" onClick={() => set("guests", Math.min(30, form.guests + 1))}>+</button>
+                                    <div className="stepper-ctrl">
+                                        <button type="button" className="stepper-btn" onClick={() => set("guests", Math.max(1, form.guests - 1))}>−</button>
+                                        <span className="stepper-val">{form.guests}</span>
+                                        <button type="button" className="stepper-btn" onClick={() => set("guests", Math.min(30, form.guests + 1))}>+</button>
                                     </div>
                                     {errors.guests && <span className="rf-error">{errors.guests}</span>}
                                 </div>
-                            </div>
                         </div>
 
                         {/* Seating Preference */}
                         <div className="rf-section">
-                            <div className="rf-section-title">Seating Preference</div>
+                            <div className="section-title">Seating Preference</div>
                             {!prefsLoaded && (
                                 <div style={{ padding: "12px 0", color: "#aaa", fontSize: 13 }}>Loading options…</div>
                             )}
@@ -345,11 +342,10 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                     {/* RIGHT COLUMN */}
                     <div className="rf-col rf-col-right">
                         <div className="rf-section">
-                            <div className="rf-section-title">Date &amp; Dining Slot</div>
+                            <div className="section-title">Date &amp; Dining Slot</div>
 
-                            <div className="rf-row rf-row-inline">
                                 {/* Date */}
-                                <div className="rf-field-group" style={{ flex: "0 0 auto" }}>
+                                <div className="field-group" style={{ flex: "0 0 auto" }}>
                                     <label>Date <span className="rf-req">*</span></label>
                                     <UserDatePicker
                                         value={form.date}
@@ -361,7 +357,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                 </div>
 
                                 {/* Dining Slot */}
-                                <div className="rf-field-group">
+                                <div className="field-group">
                                     <label>Dining Slot <span className="rf-req">*</span></label>
                                     <div className="rf-slot-groups">
                                         {SLOT_GROUPS.map(sg => {
@@ -383,7 +379,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                 </div>
 
                                 {/* Preferred Time (optional) */}
-                                <div className="rf-field-group" style={{ flex: "0 0 auto" }}>
+                                <div className="field-group" style={{ flex: "0 0 auto" }}>
                                     <label>Preferred Time <span className="rf-optional">(optional)</span></label>
                                     <UserTimePicker
                                         value={form.time}
@@ -397,13 +393,12 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                     {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
                                     {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
                                 </div>
-                            </div>
                         </div>
 
                         {/* Notes */}
                         <div className="rf-section">
-                            <div className="rf-section-title">Special Requests</div>
-                            <div className="rf-field-group">
+                            <div className="section-title">Special Requests</div>
+                            <div className="field-group">
                                 <textarea
                                     className="rf-textarea"
                                     rows={3}

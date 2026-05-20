@@ -120,21 +120,30 @@ const randomCoupon = () => COUPON_POOL[Math.floor(Math.random() * COUPON_POOL.le
 
 // ─── Countdown Hook ───────────────────────────────────────────────────────────
 const useCountdown = (targetMs) => {
-    const [remaining, setRemaining] = useState(targetMs);
+    // Round to the nearest second so floating-point noise doesn't cause
+    // a new targetMs on every render and trigger an infinite loop.
+    const stableMs = targetMs === null ? null : Math.round(targetMs / 1000) * 1000;
+    const [remaining, setRemaining] = useState(stableMs);
+
     useEffect(() => {
-        if (targetMs === null) return;
-        setRemaining(targetMs);
+        if (stableMs === null) return;
+        // Only reset the counter when the rounded target actually changes
+        // (e.g. a different event was selected), not on every re-render.
+        setRemaining(stableMs);
         const id = setInterval(() => {
             setRemaining(prev => Math.max(0, prev - 1000));
         }, 1000);
         return () => clearInterval(id);
-    }, [targetMs]);
+    }, [stableMs]); // eslint-disable-line react-hooks/exhaustive-deps
+
     return remaining;
 };
 
 // ─── Badges ──────────────────────────────────────────────────────────────────
 const CountdownBadge = ({ evt, variant = "card" }) => {
-    const ms = msUntilClose(evt);
+    // useMemo prevents a fresh Date() on every render from producing a new
+    // millisecond value that re-triggers useCountdown's effect each render.
+    const ms = useMemo(() => msUntilClose(evt), [evt]);
     const remaining = useCountdown(ms);
     if (ms === null || ms <= 0) return null;
     const isUrgent = remaining < 24 * 3600 * 1000;
@@ -148,7 +157,7 @@ const CountdownBadge = ({ evt, variant = "card" }) => {
 };
 
 const EventStartCountdown = ({ evt, variant = "card" }) => {
-    const ms = msUntilStart(evt);
+    const ms = useMemo(() => msUntilStart(evt), [evt]);
     const remaining = useCountdown(ms);
     if (ms === null || ms <= 0) return null;
     const label = formatCountdown(remaining);
@@ -958,22 +967,25 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                         </div>
                                     )}
                                     <div className="ep-form-field">
-                                        <label>Full Name *</label>
-                                        <input type="text" value={form.name} placeholder="Your name"
+                                        <input type="text" value={form.name} placeholder=" "
                                             onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+                                        <label>Full Name *</label>
+                                        <span className="ep-mat-bar" />
                                     </div>
                                     <div className="ep-form-field">
-                                        <label>Email *</label>
-                                        <input type="email" value={form.email} placeholder="your@email.com"
+                                        <input type="email" value={form.email} placeholder=" "
                                             onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
+                                        <label>Email *</label>
+                                        <span className="ep-mat-bar" />
                                     </div>
                                     <div className="ep-form-field">
-                                        <label>Phone * <span style={{ fontSize: 10, color: "#aaa", fontWeight: 400 }}>(10 digits)</span></label>
-                                        <input type="tel" value={form.phone} placeholder="98765 43210"
+                                        <input type="tel" value={form.phone} placeholder=" "
                                             maxLength={10}
                                             onChange={e => setForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))} />
+                                        <label>Phone * <span style={{ fontSize: 10, color: "#aaa", fontWeight: 400 }}>(10 digits)</span></label>
+                                        <span className="ep-mat-bar" />
                                     </div>
-                                    <div className="ep-form-field">
+                                    <div className="ep-form-field-guest">
                                         <label>Number of Guests</label>
                                         <div className="ep-guests-row">
                                             <button type="button" className="ep-qty-btn" onClick={() => setForm(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))}>−</button>
@@ -982,10 +994,10 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                         </div>
                                     </div>
                                     <div className="ep-form-field">
+                                        <textarea rows={3} value={form.specialRequests} placeholder=" "
+                                            onChange={e => setForm(p => ({ ...p, specialRequests: e.target.value }))} />
                                         <label>Special Requests (optional)</label>
-                                        <textarea rows={3} value={form.specialRequests}
-                                            onChange={e => setForm(p => ({ ...p, specialRequests: e.target.value }))}
-                                            placeholder="Dietary restrictions, seating preferences…" />
+                                        <span className="ep-mat-bar" />
                                     </div>
                                     {errorMsg && <p className="ep-error-msg">{errorMsg}</p>}
                                 </div>
@@ -1053,7 +1065,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                         ) : null;
                                     })()}
 
-                                    <div className="ep-form-field">
+                                    <div className="ep-form-field-guest">
                                         <label>How many guests to add?</label>
                                         <div className="ep-guests-row">
                                             <button type="button" className="ep-qty-btn" onClick={() => setAddGuestForm(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))}>−</button>

@@ -261,13 +261,16 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
             <CheckCard label={ex.label} price={ex.price || 0} checked={form[ex.key]} onChange={v => set(ex.key, v)} />
             {ex.key === "specialMention" && form.specialMention && (
                 <div className="clp-mention-box">
-                    <textarea
-                        className="clp-mention-textarea"
-                        placeholder="Describe what you'd like announced or mentioned during the event..."
-                        value={form.specialMentionText}
-                        onChange={e => set("specialMentionText", e.target.value)}
-                        rows={3}
-                    />
+                    <div className="clp-mat-area">
+                        <textarea
+                            className="clp-mention-textarea"
+                            placeholder="Describe what you'd like announced or mentioned during the event..."
+                            value={form.specialMentionText}
+                            onChange={e => set("specialMentionText", e.target.value)}
+                            rows={3}
+                        />
+                        <span className="clp-mat-area-bar" />
+                    </div>
                 </div>
             )}
         </div>
@@ -332,7 +335,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
                     {/* Event Type — Get Together removed */}
                     <div className="clp-block">
-                        <div className="clp-title">Event Type</div>
+                        <div className="section-title">Event Type</div>
                         <div className="clp-type-grid">
                             {CELEBRATION_TYPES.map(t => (
                                 <button key={t.value} type="button"
@@ -347,27 +350,47 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
                     {/* Guest Details */}
                     <div className="clp-block">
-                        <div className="clp-title">Your Details</div>
+                        <div className="section-title">Your Details</div>
                         <div className="clp-card">
-                            <div className={`clp-group${errors.name ? " error" : ""} floating-field`}>
-                                <input placeholder=" " value={form.name} onChange={e => set("name", e.target.value)} />
-                                <label>Full Name *</label>
-                            </div>
-                            <div className="clp-row">
-                                <div className={`clp-group${errors.mobile ? " error" : ""} floating-field`} style={{ flex: 1.4 }}>
-                                    <input placeholder=" " value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} type="tel" />
-                                    <label>Mobile *</label>
+                            {/* Full Name */}
+                            <div className="field-group">
+                                <div className="mat">
+                                    <input className={`mat-input${errors.name ? " error" : ""}`} placeholder=" " value={form.name} onChange={e => set("name", e.target.value)} autoComplete="name" />
+                                    <label className="mat-label">Full Name <span className="rf-req">*</span></label>
+                                    <span className="mat-bar" />
                                 </div>
-                                <div className={`clp-group${errors.email ? " error" : ""} floating-field`} style={{ flex: 1 }}>
-                                    <input placeholder=" " value={form.email} onChange={e => set("email", e.target.value)} type="email" />
-                                    <label>Email (optional)</label>
+                                {errors.name && <span className="rf-error">{errors.name}</span>}
+                            </div>
+
+                            <div className="mat-row">
+                                {/* Mobile */}
+                                <div className="field-group" style={{ flex: 1.4 }}>
+                                    <div className="mat-input-prefix-wrap">
+                                        <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
+                                        <div className="mat">
+                                            <input className={`mat-input${errors.mobile ? " error" : ""}`} placeholder=" " value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} type="tel" autoComplete="tel" />
+                                            <label className="mat-label">Mobile <span className="rf-req">*</span></label>
+                                            <span className="mat-bar" />
+                                        </div>
+                                    </div>
+                                    {errors.mobile && <span className="rf-error">{errors.mobile}</span>}
+                                </div>
+
+                                {/* Email */}
+                                <div className="field-group" style={{ flex: 1 }}>
+                                    <div className="mat">
+                                        <input className={`mat-input${errors.email ? " error" : ""}`} placeholder=" " value={form.email} onChange={e => set("email", e.target.value)} type="email" autoComplete="email" />
+                                        <label className="mat-label">Email <span className="rf-optional">(optional)</span></label>
+                                        <span className="mat-bar" />
+                                    </div>
+                                    {errors.email && <span className="rf-error">{errors.email}</span>}
                                 </div>
                             </div>
 
                             {/* Date, Slot & Time */}
-                            <div className="clp-row">
-                                <div className="clp-group" style={{ flex: "0 0 auto" }}>
-                                    <label className="clp-field-label">Date *</label>
+                            <div className="mat-row">
+                                <div className="field-group" style={{ flex: "0 0 auto" }}>
+                                    <label>Date <span className="rf-req">*</span></label>
                                     <UserDatePicker
                                         value={form.date}
                                         min={tomorrowStr()}
@@ -375,8 +398,8 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                                         onChange={handleDateChange}
                                     />
                                 </div>
-                                <div className="clp-group">
-                                    <label className="clp-field-label">Dining Slot *</label>
+                                <div className="field-group">
+                                    <label>Dining Slot <span className="rf-req">*</span></label>
                                     <div className="clp-slot-groups">
                                         {SLOT_GROUPS.map(sg => {
                                             const nowH = new Date().getHours();
@@ -393,10 +416,10 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                                             );
                                         })}
                                     </div>
-                                    {errors.slotGroup && <span className="clp-error">{errors.slotGroup}</span>}
+                                    {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
                                 </div>
-                                <div className="clp-group" style={{ flex: "0 0 auto" }}>
-                                    <label className="clp-field-label">Preferred Time *</label>
+                                <div className="field-group" style={{ flex: "0 0 auto" }}>
+                                    <label>Preferred Time <span className="rf-req">*</span></label>
                                     <UserTimePicker
                                         value={form.time}
                                         hasError={!!errors.time}
@@ -412,12 +435,12 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                             </div>
 
                             {/* Guests — max 20 */}
-                            <div className="clp-group">
-                                <label className="clp-field-label">Number of Guests *</label>
-                                <div className="clp-stepper">
-                                    <button type="button" className="clp-stepper-btn" onClick={() => setGuests(form.guests - 1)}>−</button>
-                                    <span className="clp-stepper-val">{form.guests}</span>
-                                    <button type="button" className="clp-stepper-btn" onClick={() => setGuests(form.guests + 1)}>+</button>
+                            <div className="field-group">
+                                <label>Number of Guests <span className="rf-req">*</span></label>
+                                <div className="stepper-ctrl">
+                                    <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests - 1)}>−</button>
+                                    <span className="stepper-val">{form.guests}</span>
+                                    <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests + 1)}>+</button>
                                 </div>
                                 {form.guests >= 20 && (
                                     <div className="clp-guest-limit-msg">
@@ -429,7 +452,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                                         </span>
                                     </div>
                                 )}
-                                {errors.guests && <span className="clp-error">{errors.guests}</span>}
+                                {errors.guests && <span className="rf-error">{errors.guests}</span>}
                             </div>
                         </div>
                     </div>
@@ -441,19 +464,26 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                     {/* Birthday Details */}
                     {form.type === "birthday" && (
                         <div className="clp-block">
-                            <div className="clp-title">Birthday Details</div>
+                            <div className="section-title">Birthday Details</div>
                             <div className="clp-card">
-                                <div className="clp-row">
-                                    <div className={`clp-group${errors.birthdayPersonName ? " error" : ""} floating-field`} style={{ flex: 1.5 }}>
-                                        <input placeholder=" " value={form.birthdayPersonName} onChange={e => set("birthdayPersonName", e.target.value)} />
-                                        <label>Birthday Person's Name *</label>
+                                <div className="mat-row">
+                                    <div className="field-group" style={{ flex: 1.5 }}>
+                                        <div className="mat">
+                                            <input className={`mat-input${errors.birthdayPersonName ? " error" : ""}`} placeholder=" " value={form.birthdayPersonName} onChange={e => set("birthdayPersonName", e.target.value)} />
+                                            <label className="mat-label">Birthday Person's Name <span className="rf-req">*</span></label>
+                                            <span className="mat-bar" />
+                                        </div>
+                                        {errors.birthdayPersonName && <span className="rf-error">{errors.birthdayPersonName}</span>}
                                     </div>
-                                    <div className="clp-group floating-field" style={{ flex: 1 }}>
-                                        <input placeholder=" " type="number" min="1" max="120" value={form.birthdayPersonAge} onChange={e => set("birthdayPersonAge", e.target.value)} />
-                                        <label>Age (optional)</label>
+                                    <div className="field-group" style={{ flex: 1 }}>
+                                        <div className="mat">
+                                            <input className="mat-input" placeholder=" " type="number" min="1" max="120" value={form.birthdayPersonAge} onChange={e => set("birthdayPersonAge", e.target.value)} />
+                                            <label className="mat-label">Age <span className="rf-optional">(optional)</span></label>
+                                            <span className="mat-bar" />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="clp-title" style={{ marginBottom: 8 }}>Add-ons</div>
+                                <div className="section-title" style={{ marginBottom: 8 }}>Add-ons</div>
                                 <div className="clp-check-grid">{renderExtrasWithMention(BIRTHDAY_EXTRAS)}</div>
                             </div>
                         </div>
@@ -462,7 +492,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                     {/* Meeting Setup */}
                     {form.type === "meeting" && (
                         <div className="clp-block">
-                            <div className="clp-title">Meeting Setup</div>
+                            <div className="section-title">Meeting Setup</div>
                             <div className="clp-card">
                                 <div className="clp-sub-title">Table Decoration</div>
                                 <div className="clp-check-grid">
@@ -479,7 +509,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                     {/* Anniversary Extras */}
                     {form.type === "anniversary" && (
                         <div className="clp-block">
-                            <div className="clp-title">Anniversary Extras</div>
+                            <div className="section-title">Anniversary Extras</div>
                             <div className="clp-card">
                                 <div className="clp-check-grid">{renderExtrasWithMention(ANNIVERSARY_EXTRAS)}</div>
                             </div>
@@ -489,7 +519,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                     {/* Candle Light Dinner Extras */}
                     {form.type === "candlelightdinner" && (
                         <div className="clp-block">
-                            <div className="clp-title">Candle Light Dinner Add-ons</div>
+                            <div className="section-title">Candle Light Dinner Add-ons</div>
                             <div className="clp-card">
                                 <div className="clp-check-grid">{renderExtrasWithMention(CANDLELIGHT_EXTRAS)}</div>
                             </div>
@@ -498,14 +528,14 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
                     {/* Decoration — Luxury only for Candle Light Dinner */}
                     <div className="clp-block">
-                        <div className="clp-title">Decoration</div>
+                        <div className="section-title">Decoration</div>
                         <DecorationPicker value={form.decoration} onChange={v => set("decoration", v)} allowLuxury={isCandleLight} />
                     </div>
 
                     {/* Audio & Video (skip if meeting — already there) */}
                     {form.type !== "meeting" && (
                         <div className="clp-block">
-                            <div className="clp-title">Audio & Video</div>
+                            <div className="section-title">Audio &amp; Video</div>
                             <div className="clp-card">
                                 <div className="clp-check-grid">
                                     <CheckCard label="Microphone" price={500} checked={form.mic} onChange={v => set("mic", v)} />
@@ -520,11 +550,17 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
                     {/* Special Note */}
                     <div className="clp-block">
-                        <div className="clp-title">Special Notes</div>
+                        <div className="section-title">Special Notes</div>
                         <div className="clp-card">
-                            <div className="floating-field">
-                                <label htmlFor="clp-note">Any special requests?</label>
-                                <textarea id="clp-note" value={form.specialNote} onChange={e => set("specialNote", e.target.value)} className="clp-textarea" />
+                            <div className="field-group">
+                                <textarea
+                                    id="clp-note"
+                                    className="rf-textarea"
+                                    placeholder=" "
+                                    value={form.specialNote}
+                                    onChange={e => set("specialNote", e.target.value)}
+                                    rows={3}
+                                />
                             </div>
                         </div>
                     </div>
@@ -532,7 +568,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                     {/* Price Summary */}
                     {estimatedTotal > 0 && (
                         <div className="clp-block clp-price-summary">
-                            <div className="clp-title">Estimated Cost</div>
+                            <div className="section-title">Estimated Cost</div>
                             <div className="clp-card">
                                 {form.decoration && (
                                     <div className="clp-price-row">

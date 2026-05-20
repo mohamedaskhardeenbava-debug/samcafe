@@ -30,15 +30,15 @@ const to24 = (h, m, ampm) => {
 
 // ── Clock geometry ────────────────────────────────────
 const CLOCK_R = 100;
-const CENTER  = 110;
-const HOUR_R  = 78;
-const MIN_R   = 78;
+const CENTER = 110;
+const HOUR_R = 78;
+const MIN_R = 78;
 
-const hours12  = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+const hours12 = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
 const minutes5 = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
 
 const hourAngle = (h) => ((h % 12) / 12) * 360 - 90;
-const minAngle  = (m) => (m / 60) * 360 - 90;
+const minAngle = (m) => (m / 60) * 360 - 90;
 const toXY = (angle, r) => ({
     x: CENTER + r * Math.cos((angle * Math.PI) / 180),
     y: CENTER + r * Math.sin((angle * Math.PI) / 180),
@@ -57,21 +57,21 @@ export const UserTimePicker = ({
     onChange,
     slotStart,
     slotEnd,
-    disabled  = false,
-    isToday   = false,
-    hasError  = false,
+    disabled = false,
+    isToday = false,
+    hasError = false,
     placeholder,
 }) => {
     const [open, setOpen] = useState(false);
     const [mode, setMode] = useState("hour");
-    const ref    = useRef(null);
+    const ref = useRef(null);
     const svgRef = useRef(null);
 
-    const selRef      = useRef(parseTime(value));
+    const selRef = useRef(parseTime(value));
     const [sel, setSel] = useState(parseTime(value));
     const lastEmitted = useRef(value);
-    const isDragging  = useRef(false);
-    const modeRef     = useRef(mode);
+    const isDragging = useRef(false);
+    const modeRef = useRef(mode);
 
     // Sync external value
     useEffect(() => {
@@ -98,7 +98,7 @@ export const UserTimePicker = ({
 
     // ── Slot / today constraint helpers ──────────────
     const slotH24Start = slotStart ? parseInt(slotStart.split(":")[0], 10) : null;
-    const slotH24End   = slotEnd   ? parseInt(slotEnd.split(":")[0],   10) : null;
+    const slotH24End = slotEnd ? parseInt(slotEnd.split(":")[0], 10) : null;
     const nowH = new Date().getHours();
     const nowM = new Date().getMinutes();
 
@@ -130,9 +130,9 @@ export const UserTimePicker = ({
         const svg = svgRef.current;
         if (!svg) return null;
         const rect = svg.getBoundingClientRect();
-        const src  = e.touches?.[0] ?? e.changedTouches?.[0] ?? e;
-        const x    = src.clientX - rect.left - CENTER;
-        const y    = src.clientY - rect.top  - CENTER;
+        const src = e.touches?.[0] ?? e.changedTouches?.[0] ?? e;
+        const x = src.clientX - rect.left - CENTER;
+        const y = src.clientY - rect.top - CENTER;
         const norm = ((Math.atan2(y, x) * 180 / Math.PI + 90) % 360 + 360) % 360;
 
         if (modeRef.current === "hour") {
@@ -163,7 +163,7 @@ export const UserTimePicker = ({
         applyVal(valueFromEvent(e));
     };
     const onPointerMove = (e) => { if (!isDragging.current) return; applyVal(valueFromEvent(e)); };
-    const onPointerUp   = (e) => {
+    const onPointerUp = (e) => {
         if (!isDragging.current) return;
         isDragging.current = false;
         applyVal(valueFromEvent(e));
@@ -204,21 +204,35 @@ export const UserTimePicker = ({
         : (placeholder ?? defaultPlaceholder);
 
     const handAngle = mode === "hour" ? hourAngle(sel.h) : minAngle(sel.m);
-    const handTip   = toXY(handAngle, (mode === "hour" ? HOUR_R : MIN_R) - 14);
-    const slotHint  = slotStart && slotEnd ? `Slot: ${slotStart} – ${slotEnd}` : null;
+    const handTip = toXY(handAngle, (mode === "hour" ? HOUR_R : MIN_R) - 14);
+    const slotHint = slotStart && slotEnd ? `Slot: ${slotStart} – ${slotEnd}` : null;
+
+    const wrapClass = [
+        "utp-wrap",
+        open ? "utp-open" : "",
+        value ? "utp-has-value" : "",
+        hasError ? "utp-error-state" : "",
+    ].filter(Boolean).join(" ");
 
     return (
-        <div className="utp-wrap" ref={ref}>
+        <div className={wrapClass} ref={ref}>
+            {/* Floating label */}
+            <span className={`utp-label${(open || value) ? " utp-label-float" : ""}${hasError ? " utp-label-error" : ""}`}>
+                {placeholder ?? defaultPlaceholder}
+            </span>
+
             {/* Trigger */}
             <button
                 type="button"
                 className={`utp-trigger${hasError ? " utp-error" : ""}${disabled ? " utp-disabled" : ""}`}
                 onClick={() => { if (!disabled) setOpen(o => !o); }}
             >
-                {CLOCK_ICON}
-                <span className={`utp-val${!value ? " utp-ph" : ""}`}>{displayVal}</span>
+                <span className={`utp-val${!value ? " utp-ph" : ""}`}>{value ? displayVal : ""}</span>
                 <span className="utp-arrow">▾</span>
             </button>
+
+            {/* Highlight bar */}
+            <span className="utp-bar" />
 
             {/* Popup */}
             {open && !disabled && (
@@ -258,14 +272,14 @@ export const UserTimePicker = ({
                         {/* Hand */}
                         <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y}
                             stroke="var(--color-red, #e74c3c)" strokeWidth="2.5" strokeLinecap="round" />
-                        <circle cx={CENTER}      cy={CENTER}      r="4"  fill="var(--color-red, #e74c3c)" />
-                        <circle cx={handTip.x}   cy={handTip.y}   r="18" fill="var(--color-red, #e74c3c)" opacity="0.15" />
-                        <circle cx={handTip.x}   cy={handTip.y}   r="5"  fill="#fff" />
+                        <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red, #e74c3c)" />
+                        <circle cx={handTip.x} cy={handTip.y} r="18" fill="var(--color-red, #e74c3c)" opacity="0.15" />
+                        <circle cx={handTip.x} cy={handTip.y} r="5" fill="#fff" />
 
                         {/* Hour numbers */}
                         {mode === "hour" && hours12.map((h) => {
-                            const ang   = hourAngle(h);
-                            const pos   = toXY(ang, HOUR_R);
+                            const ang = hourAngle(h);
+                            const pos = toXY(ang, HOUR_R);
                             const isSel = sel.h === h;
                             const isDis = isHourDis(h, sel.ampm);
                             return (
@@ -286,8 +300,8 @@ export const UserTimePicker = ({
 
                         {/* Minute marks */}
                         {mode === "minute" && minutes5.map((m) => {
-                            const ang   = minAngle(m);
-                            const pos   = toXY(ang, MIN_R);
+                            const ang = minAngle(m);
+                            const pos = toXY(ang, MIN_R);
                             const isSel = sel.m === m;
                             const isDis = isMinDis(m);
                             return (

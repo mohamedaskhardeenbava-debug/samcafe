@@ -1326,3 +1326,256 @@
     padding-top: 10px;
     border-top: 2px solid #e5e7eb;
 }
+
+/* ══════════════════════════════════════════════════════
+   MATERIAL UNDERLINE INPUTS — matches ReservationForm
+══════════════════════════════════════════════════════ */
+
+/* ── clp-group: material container ── */
+.clp-group.floating-field {
+    position: relative !important;
+    padding-top: 10px !important;
+    gap: 0 !important;
+}
+
+/* Static field label (used for pickers, stepper) */
+.clp-field-label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--color-red, #e74c3c) !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    line-height: 1 !important;
+    margin-bottom: 4px !important;
+    display: block !important;
+}
+
+/* ── Input: flat underline ── */
+.clp-group.floating-field input {
+    display: block !important;
+    width: 100% !important;
+    height: 36px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    font-family: inherit !important;
+    color: var(--text-primary, #1a1d26) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid rgba(150, 155, 170, 0.4) !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    caret-color: var(--color-red, #e74c3c) !important;
+    transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.clp-group.floating-field input:hover {
+    border: none !important;
+    border-bottom: 1px solid #94a0b4 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.clp-group.floating-field input:focus {
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.clp-group.error input {
+    border-bottom: 2px solid var(--color-red, #e74c3c) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* ── Floating label ── */
+.clp-group.floating-field label {
+    position: absolute !important;
+    top: 24px !important;
+    left: 0 !important;
+    font-size: 15px !important;
+    font-weight: 400 !important;
+    color: #94a0b4 !important;
+    pointer-events: none !important;
+    transition:
+        top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        font-size 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        font-weight 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        letter-spacing 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+}
+
+.clp-group.floating-field input:focus~label,
+.clp-group.floating-field input:not(:placeholder-shown)~label {
+    top: 2px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--color-red, #e74c3c) !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+.clp-group.error input~label {
+    color: var(--color-red, #e74c3c) !important;
+    top: 2px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Animated bar ── */
+.clp-mat-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--color-red, #e74c3c);
+    border-radius: 1px;
+    transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.clp-group.floating-field:focus-within .clp-mat-bar {
+    width: 100%;
+}
+
+.clp-group.floating-field.error .clp-mat-bar {
+    width: 100%;
+}
+
+/* ── Mention textarea ── */
+.clp-mention-textarea {
+    display: block !important;
+    width: 100% !important;
+    font-size: 14px !important;
+    font-family: inherit !important;
+    color: var(--text-primary, #1a1d26) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid rgba(150, 155, 170, 0.4) !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 6px 0 !important;
+    box-sizing: border-box !important;
+    resize: none !important;
+    caret-color: var(--color-red, #e74c3c) !important;
+    transition: border-color 0.3s !important;
+    line-height: 1.5 !important;
+}
+
+.clp-mention-textarea:focus {
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.clp-mention-textarea:hover {
+    border: none !important;
+    border-bottom: 1px solid #94a0b4 !important;
+    background: transparent !important;
+}
+
+.clp-mat-area {
+    position: relative;
+    width: 100%;
+    padding-top: 20px;
+}
+
+/* Floating label for textarea */
+.clp-mat-area-label {
+    position: absolute;
+    top: 28px;
+    left: 0;
+    font-size: 15px;
+    font-weight: 400;
+    color: #94a0b4;
+    pointer-events: none;
+    transition:
+        top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        font-size 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        font-weight 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        letter-spacing 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.clp-mention-textarea:focus~.clp-mat-area-label,
+.clp-mention-textarea:not(:placeholder-shown)~.clp-mat-area-label {
+    top: 2px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--color-red, #e74c3c) !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+.clp-mat-area-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--color-red, #e74c3c);
+    border-radius: 1px;
+    transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.clp-mat-area:focus-within .clp-mat-area-bar {
+    width: 100%;
+}
+
+/* ── Stepper ── */
+.clp-stepper {
+    display: flex !important;
+    align-items: center !important;
+    border: none !important;
+    border-bottom: 2px solid rgba(150, 155, 170, 0.4) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    height: 36px !important;
+    width: 100% !important;
+    overflow: visible !important;
+}
+
+.clp-stepper-btn {
+    width: 28px !important;
+    height: 28px !important;
+    border: none !important;
+    background: #f0f0f0 !important;
+    border-radius: 50% !important;
+    font-size: 16px !important;
+    cursor: pointer !important;
+    color: #333 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff !important;
+}
+
+.clp-stepper-btn:active {
+    box-shadow: inset 2px 2px 6px #ccc, inset -2px -2px 6px #fff !important;
+}
+
+.clp-stepper-val {
+    flex: 1 !important;
+    text-align: center !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--text-primary, #111) !important;
+    border: none !important;
+}

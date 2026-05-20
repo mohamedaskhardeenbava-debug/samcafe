@@ -339,63 +339,74 @@ const PreBooking = ({ handleBack, handleHome }) => {
                     <div className="pbp-col">
 
                         {/* GUEST DETAILS */}
-                        <div className="pbp-section-label">Guest Details</div>
+                        <div className="section-title">Guest Details</div>
                         <div className="pbp-card">
-                            <div className="pbp-form-row">
-                                <div className="pbp-form-group" style={{ flex: 1.4 }}>
-                                    <label>Name <span className="pbp-req">*</span></label>
+                            <div className="field-group">
+                                <div className="mat">
                                     <input
-                                        className={`pbp-input${errors.name ? " error" : ""}`}
-                                        placeholder="Your name"
+                                        className={`mat-input${errors.name ? " error" : ""}`}
+                                        placeholder=" "
                                         value={form.name}
                                         onChange={e => setF("name", e.target.value)}
                                     />
-                                </div>
-                                <div className="pbp-form-group" style={{ flex: 1 }}>
-                                    <label>Guests <span className="pbp-req">*</span></label>
-                                    <div className={`pbp-stepper${errors.guests ? " error" : ""}`}>
-                                        <button type="button" onClick={() => setF("guests", Math.max(1, form.guests - 1))}>−</button>
-                                        <span>{form.guests}</span>
-                                        <button type="button" onClick={() => setF("guests", Math.min(500, form.guests + 1))}>+</button>
-                                    </div>
-                                    {isGroupDiscount && <span className="pbp-discount-note">🎉 Group &gt;8 — 10% off!</span>}
+                                    <label className="mat-label">Name <span className="pbp-req">*</span></label>
+                                    <span className="mat-bar" />
                                 </div>
                             </div>
-                            <div className="pbp-form-row">
-                                <div className="pbp-form-group">
-                                    <label>Mobile <span className="pbp-req">*</span></label>
-                                    <input
-                                        className={`pbp-input${errors.mobile ? " error" : ""}`}
-                                        placeholder="10-digit number"
-                                        type="tel"
-                                        value={form.mobile}
-                                        onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                                    />
+                            <div className="mat-row">
+                                <div className="field-group" style={{ flex: 1.4 }}>
+                                    <div className="mat-input-prefix-wrap">
+                                        <div className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</div>
+                                        <div className="mat">
+                                            <input
+                                                className={`mat-input${errors.mobile ? " error" : ""}`}
+                                                placeholder=" "
+                                                type="tel"
+                                                value={form.mobile}
+                                                onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                                            />
+                                            <label className="mat-label">Mobile <span className="pbp-req">*</span></label>
+                                            <span className="mat-bar" />
+                                        </div>
+                                    </div>
+
                                 </div>
-                                <div className="pbp-form-group">
-                                    <label>Email <span className="pbp-opt">(optional)</span></label>
-                                    <input
-                                        className={`pbp-input${errors.email ? " error" : ""}`}
-                                        placeholder="email@example.com"
-                                        type="email"
-                                        value={form.email}
-                                        onChange={e => setF("email", e.target.value)}
-                                    />
+                                <div className="field-group" style={{ flex: 1 }}>
+                                    <div className="mat">
+                                        <input
+                                            className={`mat-input${errors.email ? " error" : ""}`}
+                                            placeholder=" "
+                                            type="email"
+                                            value={form.email}
+                                            onChange={e => setF("email", e.target.value)}
+                                        />
+                                        <label className="mat-label">Email <span className="pbp-opt">(optional)</span></label>
+                                        <span className="mat-bar" />
+                                    </div>
                                 </div>
+                            </div>
+
+                            <div className="field-group">
+                                <label>Guests <span className="pbp-req">*</span></label>
+                                <div className={`stepper-ctrl${errors.guests ? " error" : ""}`}>
+                                    <button className="stepper-btn" type="button" onClick={() => setF("guests", Math.max(1, form.guests - 1))}>−</button>
+                                    <span className="stepper-val">{form.guests}</span>
+                                    <button className="stepper-btn" type="button" onClick={() => setF("guests", Math.min(500, form.guests + 1))}>+</button>
+                                </div>
+                                {isGroupDiscount && <span className="pbp-discount-note">🎉 Group &gt;8 — 10% off!</span>}
                             </div>
                         </div>
 
                         {/* NOTES */}
-                        <div className="pbp-section-label">Note <span className="pbp-opt">(optional)</span></div>
-                        <div className="pbp-card">
-                            <textarea
-                                className="pbp-notes"
-                                rows={3}
-                                placeholder="Special requests, dietary restrictions..."
-                                value={form.notes}
-                                onChange={e => setF("notes", e.target.value)}
-                            />
-                        </div>
+                        <div className="section-title">Note <span className="pbp-opt">(optional)</span></div>
+
+                        <textarea
+                            className="pbp-notes"
+                            rows={3}
+                            placeholder="Special requests, dietary restrictions..."
+                            value={form.notes}
+                            onChange={e => setF("notes", e.target.value)}
+                        />
 
                     </div>{/* end left col */}
 
@@ -403,9 +414,9 @@ const PreBooking = ({ handleBack, handleHome }) => {
                     <div className="pbp-col">
 
                         {/* SCHEDULE */}
-                        <div className="pbp-section-label">Date &amp; Dining Slot</div>
+                        <div className="section-title">Date &amp; Dining Slot</div>
                         <div className="pbp-card">
-                            <div className="pbp-form-group pbp-schedule-date">
+                            <div className="field-group pbp-schedule-date">
                                 <label>Date <span className="pbp-req">*</span></label>
                                 <UserDatePicker
                                     value={form.date}
@@ -414,7 +425,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                                     onChange={v => { setF("date", v); setF("time", ""); }}
                                 />
                             </div>
-                            <div className="pbp-form-group pbp-schedule-slots">
+                            <div className="field-group pbp-schedule-slots">
                                 <label>Dining Slot <span className="pbp-req">*</span></label>
                                 <div className="pbp-slot-groups">
                                     {SLOT_GROUPS.map(sg => {
@@ -434,7 +445,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                                 </div>
                                 {errors.slotGroup && <span className="pbp-field-error">Pick a dining slot</span>}
                             </div>
-                            <div className="pbp-form-group pbp-schedule-time">
+                            <div className="field-group pbp-schedule-time">
                                 <label>Preferred Time <span className="pbp-req">*</span></label>
                                 <UserTimePicker
                                     value={form.time}
@@ -451,7 +462,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                         </div>
 
                         {/* PRE-ORDER FOODS */}
-                        <div className="pbp-section-label" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <div className="section-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span>Pre-Order Foods</span>
                             <button type="button" className="pbp-add-dish-btn" onClick={() => setShowDishPopup(true)}>
                                 + Add Dish

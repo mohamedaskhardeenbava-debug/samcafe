@@ -1126,7 +1126,7 @@
     cursor: not-allowed;
 }
 
-.ep-cta-booked-stack{
+.ep-cta-booked-stack {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1271,7 +1271,7 @@
     border: 1px solid var(--border-light);
     font-size: 13px;
     color: var(--text-secondary);
-} 
+}
 
 .ep-price-total {
     font-size: 15px;
@@ -1286,11 +1286,22 @@
 }
 
 .ep-form-field label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    position: absolute;
+    top: 24px;
+    /* sits on the baseline when idle */
+    left: 0;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--m-label-idle);
+    pointer-events: none;
+    transition:
+        top 0.25s var(--m-ease),
+        font-size 0.25s var(--m-ease),
+        font-weight 0.25s var(--m-ease),
+        color 0.25s var(--m-ease),
+        letter-spacing 0.25s var(--m-ease);
+    line-height: 1;
+    white-space: nowrap;
 }
 
 .ep-form-field input,
@@ -1312,6 +1323,24 @@
     box-shadow: 0 0 0 3px rgba(243, 55, 22, 0.1);
 }
 
+.ep-form-field-guest {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.ep-form-field-guest label {
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: var(--text-secondary) !important;
+        pointer-events: none !important;
+        line-height: 1 !important;
+        white-space: nowrap !important;
+        text-transform: none !important;
+        letter-spacing: 0 !important;
+        text-transform: uppercase !important;
+}
+
 .ep-guests-row {
     display: flex;
     align-items: center;
@@ -1320,6 +1349,7 @@
     border-radius: 10px;
     overflow: hidden;
     width: fit-content;
+    padding: 4px;
 }
 
 .ep-qty-btn {
@@ -1342,7 +1372,6 @@
 }
 
 .ep-qty-val {
-    min-width: 40px;
     text-align: center;
     font-size: 16px;
     font-weight: 700;
@@ -2040,4 +2069,165 @@
     .ep-events-grid {
         padding: 10px var(--mobile-page-padding);
     }
+}
+
+/* ══════════════════════════════════════════════════════
+   MATERIAL UNDERLINE INPUTS — matches ReservationForm
+   Targets enrollment form fields
+══════════════════════════════════════════════════════ */
+
+/* ── ep-form-field: material container ── */
+.ep-form-field {
+    position: relative !important;
+    padding-top: 10px !important;
+    gap: 0 !important;
+}
+
+.ep-form-field label {
+    position: absolute;
+        top: 24px;
+        /* sits on the baseline when idle */
+        left: 0;
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        pointer-events: none;
+        transition:
+            top 0.25s var(--m-ease),
+            font-size 0.25s var(--m-ease),
+            font-weight 0.25s var(--m-ease),
+            color 0.25s var(--m-ease),
+            letter-spacing 0.25s var(--m-ease);
+        line-height: 1;
+        white-space: nowrap;
+        text-transform: uppercase;
+}
+
+/* Label floated when input is focused or filled */
+.ep-form-field:focus-within label,
+.ep-form-field input:not(:placeholder-shown)~label,
+.ep-form-field textarea:not(:placeholder-shown)~label {
+    top: 0 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--color-red, #e74c3c) !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+/* ── Input/Textarea: flat underline ── */
+.ep-form-field input,
+.ep-form-field textarea {
+    display: block !important;
+    width: 100% !important;
+    min-height: 36px !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    font-family: inherit !important;
+    color: var(--text-primary, #1a1d26) !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid rgba(150, 155, 170, 0.4) !important;
+    border-radius: 0 !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 4px 0 !important;
+    box-sizing: border-box !important;
+    caret-color: var(--color-red, #e74c3c) !important;
+    transition: border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ep-form-field textarea {
+    resize: none !important;
+    line-height: 1.5 !important;
+}
+
+.ep-form-field input::placeholder,
+.ep-form-field textarea::placeholder {
+    color: transparent !important;
+}
+
+.ep-form-field input:hover,
+.ep-form-field textarea:hover {
+    border: none !important;
+    border-bottom: 1px solid #94a0b4 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+.ep-form-field input:focus,
+.ep-form-field textarea:focus {
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* ── Animated bar ── */
+.ep-mat-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--color-red, #e74c3c);
+    border-radius: 1px;
+    transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+
+.ep-form-field:focus-within .ep-mat-bar {
+    width: 100%;
+}
+
+/* ── Guest stepper: underline style ── */
+.ep-guests-row {
+    display: flex !important;
+    align-items: center !important;
+    border: none !important;
+    border: 2px solid rgba(150, 155, 170, 0.4) !important;
+    border-radius: 999px !important;
+    background: transparent !important;
+    padding: 6px !important;
+    width: 100px;
+    overflow: visible !important;
+}
+
+.ep-qty-btn {
+    width: 28px !important;
+    height: 28px !important;
+    border: none !important;
+    background: #f0f0f0 !important;
+    border-radius: 50% !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    cursor: pointer !important;
+    color: var(--text-primary) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: background 0.15s !important;
+    box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff !important;
+}
+
+.ep-qty-btn:hover {
+    background: #e5e5e5 !important;
+}
+
+.ep-qty-btn:active {
+    box-shadow: inset 2px 2px 6px #ccc, inset -2px -2px 6px #fff !important;
+}
+
+.ep-qty-val {
+    flex: 1 !important;
+    text-align: center !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--text-primary) !important;
+    border: none !important;
+    height: auto !important;
+    min-width: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }

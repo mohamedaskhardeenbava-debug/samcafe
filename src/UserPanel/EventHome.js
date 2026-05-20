@@ -81,9 +81,6 @@ const EventHome = ({ handleBack, handleHome }) => {
               onClick={() => navigate(opt.path)}
               style={{ "--accent": opt.accent, "--accentLight": opt.accentLight, animationDelay: `${index * 0.06}s` }}
             >
-              <div className="ehome-option-icon" style={{ background: opt.accentLight }}>
-                <span className="ehome-option-emoji">{opt.emoji}</span>
-              </div>
               <div className="ehome-option-text">
                 <h3 className="ehome-option-name">{opt.name}</h3>
                 <p className="ehome-option-desc">{opt.description}</p>

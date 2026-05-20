@@ -6,6 +6,15 @@ import { UserTimePicker } from "./UserTimePicker";
 import "./CateringForm.css";
 
 const pad = (n) => String(n).padStart(2, "0");
+const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
+
+const SLOT_GROUPS = [
+    { label: "Breakfast", key: "BF", start: "07:00", end: "10:00", icon: "🌅" },
+    { label: "Brunch", key: "BR", start: "10:00", end: "12:00", icon: "☀️" },
+    { label: "Lunch", key: "LU", start: "12:00", end: "15:00", icon: "🍱" },
+    { label: "Hi-Tea", key: "HT", start: "15:00", end: "18:00", icon: "🫖" },
+    { label: "Dinner", key: "DI", start: "18:30", end: "22:00", icon: "🌙" },
+];
 
 const DECORATION_TIERS = [
     { label: "Normal", value: "normal", price: 1500, desc: "Balloons & basic setup" },
@@ -213,7 +222,7 @@ const CheckCard = ({ label, price, checked, onChange }) => (
 const CateringForm = ({ handleBack, handleHome }) => {
     const [form, setForm] = useState({
         name: "", mobile: "", email: "", guests: 20,
-        eventDate: "", time: "",
+        eventDate: "", time: "", slotGroup: "",
         /* Address */
         addrDoorNo: "", addrStreet: "", addrArea: "",
         addrLandmark: "", addrCity: "", addrDistrict: "", addrState: "", addrPincode: "",
@@ -296,6 +305,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
         if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) err.email = true;
         if (!form.guests || guestCount < 1) err.guests = true;
         if (!form.eventDate) err.eventDate = true;
+        if (!form.slotGroup) err.slotGroup = true;
         if (!form.time) err.time = true;
         /* Address — all mandatory */
         if (!form.addrDoorNo.trim()) err.addrDoorNo = true;
@@ -324,6 +334,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
                 date: form.eventDate,
                 eventDate: form.eventDate,
                 time: form.time,
+                slotGroup: form.slotGroup || "",
                 location: address,
                 addrDoorNo: form.addrDoorNo,
                 addrStreet: form.addrStreet,
@@ -385,6 +396,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
                         <div className="ucat-sc-row"><span>Name</span><strong>{form.name}</strong></div>
                         <div className="ucat-sc-row"><span>Mobile</span><strong>{form.mobile}</strong></div>
                         <div className="ucat-sc-row"><span>Date</span><strong>{form.eventDate}</strong></div>
+                        {form.slotGroup && <div className="ucat-sc-row"><span>Slot</span><strong>{SLOT_GROUPS.find(s => s.key === form.slotGroup)?.label}</strong></div>}
                         <div className="ucat-sc-row"><span>Time</span><strong>{fmtTime(form.time)}</strong></div>
                         <div className="ucat-sc-row"><span>Guests</span><strong>{guestCount}</strong></div>
                         <div className="ucat-sc-row"><span>Dishes Total</span><strong>₹{dishTotal.toLocaleString()}</strong></div>
@@ -413,76 +425,127 @@ const CateringForm = ({ handleBack, handleHome }) => {
                     <div className="ucat-col">
 
                         {/* GUEST DETAILS */}
-                        <div className="ucat-section-label">Your Details</div>
+                        <div className="section-title">Your Details</div>
                         <div className="ucat-card">
-                            <div className="ucat-form-row">
-                                <div className="ucat-form-group" style={{ flex: 1.4 }}>
-                                    <label>Name <span className="ucat-req">*</span></label>
+                            <div className="field-group" style={{ flex: 1.4 }}>
+                                <div className="mat">
                                     <input
-                                        className={`ucat-input${errors.name ? " error" : ""}`}
-                                        placeholder="Your full name"
+                                        className={`mat-input${errors.name ? " error" : ""}`}
+                                        placeholder=" "
                                         value={form.name}
                                         onChange={e => setF("name", e.target.value)}
                                     />
+                                    <label className="mat-label">Name <span className="ucat-req">*</span></label>
+                                    <span className="mat-bar" />
                                 </div>
-                                <div className="ucat-form-group" style={{ flex: 1 }}>
-                                    <label>Guests <span className="ucat-req">*</span></label>
-                                    <div className={`ucat-stepper${errors.guests ? " error" : ""}`}>
-                                        <button type="button" onClick={() => setF("guests", Math.max(1, form.guests - 1))}>−</button>
-                                        <span>{form.guests}</span>
-                                        <button type="button" onClick={() => setF("guests", Math.min(10000, form.guests + 1))}>+</button>
+                            </div>
+
+
+                            <div className="mat-row">
+                                <div className="field-group" style={{ flex: 1.4 }}>
+                                    <div className="mat-input-prefix-wrap">
+                                        <div className="mat-prefix">+91</div>
+                                        <div className="mat">
+                                            <input
+                                                className={`mat-input${errors.mobile ? " error" : ""}`}
+                                                placeholder=" "
+                                                type="tel"
+                                                value={form.mobile}
+                                                onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                                            />
+                                            <label className="mat-label">Mobile <span className="ucat-req">*</span></label>
+                                            <span className="mat-bar" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="field-group" style={{ flex: 1 }}>
+                                    <div className="mat">
+                                        <input
+                                            className={`mat-input${errors.email ? " error" : ""}`}
+                                            placeholder=" "
+                                            type="email"
+                                            value={form.email}
+                                            onChange={e => setF("email", e.target.value)}
+                                        />
+                                        <label className="mat-label">Email <span className="ucat-opt">(optional)</span></label>
+                                        <span className="mat-bar" />
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="ucat-form-row">
-                                <div className="ucat-form-group">
-                                    <label>Mobile <span className="ucat-req">*</span></label>
-                                    <input
-                                        className={`ucat-input${errors.mobile ? " error" : ""}`}
-                                        placeholder="10-digit number"
-                                        type="tel"
-                                        value={form.mobile}
-                                        onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                                    />
-                                </div>
-                                <div className="ucat-form-group">
-                                    <label>Email <span className="ucat-opt">(optional)</span></label>
-                                    <input
-                                        className={`ucat-input${errors.email ? " error" : ""}`}
-                                        placeholder="email@example.com"
-                                        type="email"
-                                        value={form.email}
-                                        onChange={e => setF("email", e.target.value)}
-                                    />
+                            <div className="field-group" style={{ flex: 1 }}>
+                                <label>Guests <span className="ucat-req">*</span></label>
+                                <div className={`stepper-ctrl${errors.guests ? " error" : ""}`}>
+                                    <button className="stepper-btn" type="button" onClick={() => setF("guests", Math.max(1, form.guests - 1))}>−</button>
+                                    <span className="stepper-val" >{form.guests}</span>
+                                    <button className="stepper-btn" type="button" onClick={() => setF("guests", Math.min(10000, form.guests + 1))}>+</button>
                                 </div>
                             </div>
                         </div>
 
                         {/* EVENT DETAILS */}
-                        <div className="ucat-section-label">Event Details</div>
+                        <div className="section-title">Event Details</div>
                         <div className="ucat-card">
-                            <div className="ucat-form-group">
+                            <div className="field-group">
                                 <label>Event Date <span className="ucat-req">*</span></label>
                                 <UserDatePicker
                                     value={form.eventDate}
-                                    min={todayStr()}
+                                    min={tomorrowStr()}
                                     hasError={!!errors.eventDate}
-                                    onChange={v => { setF("eventDate", v); setF("time", ""); }}
+                                    onChange={v => { setF("eventDate", v); setF("time", ""); setF("slotGroup", ""); }}
                                 />
                             </div>
-                            <div className="ucat-form-group">
-                                <label>Preferred Time <span className="ucat-req">*</span></label>
+
+                            <div className="field-group">
+                                <label>Dining Slot <span className="ucat-req">*</span></label>
+                                <div className="ucat-slot-grid">
+                                    {SLOT_GROUPS.map(sg => (
+                                        <button
+                                            key={sg.key}
+                                            type="button"
+                                            className={`ucat-slot-chip${form.slotGroup === sg.key ? " active" : ""}`}
+                                            onClick={() => {
+                                                const next = form.slotGroup === sg.key ? "" : sg.key;
+                                                setF("slotGroup", next);
+                                                setF("time", "");
+                                            }}
+                                        >
+                                            <span className="ucat-slot-icon">{sg.icon}</span>
+                                            <span className="ucat-slot-label">{sg.label}</span>
+                                            <span className="ucat-slot-time">{sg.start}–{sg.end}</span>
+                                            {form.slotGroup === sg.key && <span className="ucat-slot-tick">✓</span>}
+                                        </button>
+                                    ))}
+                                </div>
+                                {errors.slotGroup && <span className="ucat-field-error">Please select a dining slot</span>}
+                            </div>
+
+                            <div className="field-group">
+                                <label>
+                                    Preferred Time <span className="ucat-req">*</span>
+                                    {form.slotGroup && (() => {
+                                        const sg = SLOT_GROUPS.find(s => s.key === form.slotGroup);
+                                        return sg ? <span className="ucat-slot-hint-inline">{sg.start} – {sg.end}</span> : null;
+                                    })()}
+                                </label>
                                 <UserTimePicker
                                     value={form.time}
                                     hasError={!!errors.time}
                                     onChange={v => setF("time", v)}
+                                    slotStart={SLOT_GROUPS.find(s => s.key === form.slotGroup)?.start}
+                                    slotEnd={SLOT_GROUPS.find(s => s.key === form.slotGroup)?.end}
+                                    disabled={!form.slotGroup}
+                                    isToday={false}
+                                    placeholder={!form.slotGroup ? "Select a slot first" : undefined}
                                 />
+                                {!form.slotGroup && (
+                                    <span className="ucat-hint">Select a dining slot above to enable time picker</span>
+                                )}
                             </div>
                         </div>
 
                         {/* ADDRESS */}
-                        <div className="ucat-section-label">Event Address <span className="ucat-req">*</span></div>
+                        <div className="section-title">Event Address <span className="ucat-req">*</span></div>
                         <div className="ucat-card">
                             <div className="ucat-addr-grid">
                                 {[
@@ -495,40 +558,46 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                     { key: "addrState", label: "State", placeholder: "State" },
                                     { key: "addrPincode", label: "Pincode", placeholder: "6-digit pincode" },
                                 ].map(field => (
-                                    <div key={field.key} className="ucat-form-group">
-                                        <label>
-                                            {field.label}
-                                            {!field.optional
-                                                ? <span className="ucat-req"> *</span>
-                                                : <span className="ucat-opt"> (optional)</span>}
-                                        </label>
-                                        <input
-                                            className={`ucat-input${errors[field.key] ? " error" : ""}`}
-                                            placeholder={field.placeholder}
-                                            value={form[field.key]}
-                                            maxLength={field.key === "addrPincode" ? 6 : undefined}
-                                            onChange={e => {
-                                                const v = field.key === "addrPincode"
-                                                    ? e.target.value.replace(/\D/g, "").slice(0, 6)
-                                                    : e.target.value;
-                                                setF(field.key, v);
-                                            }}
-                                        />
+                                    <div key={field.key} className="field-group">
+                                        <div className="mat">
+                                            <input
+                                                className={`mat-input${errors[field.key] ? " error" : ""}`}
+                                                placeholder=" "
+                                                value={form[field.key]}
+                                                maxLength={field.key === "addrPincode" ? 6 : undefined}
+                                                onChange={e => {
+                                                    const v = field.key === "addrPincode"
+                                                        ? e.target.value.replace(/\D/g, "").slice(0, 6)
+                                                        : e.target.value;
+                                                    setF(field.key, v);
+                                                }}
+                                            />
+                                            <label className="mat-label">
+                                                {field.label}
+                                                {!field.optional
+                                                    ? <span className="ucat-req"> *</span>
+                                                    : <span className="ucat-opt"> (optional)</span>}
+                                            </label>
+                                            <span className="mat-bar" />
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
 
                         {/* NOTES */}
-                        <div className="ucat-section-label">Note <span className="ucat-opt">(optional)</span></div>
+                        <div className="section-title">Note <span className="ucat-opt">(optional)</span></div>
                         <div className="ucat-card">
-                            <textarea
-                                className="ucat-notes"
-                                rows={3}
-                                placeholder="Special requests, dietary requirements, additional info..."
-                                value={form.notes}
-                                onChange={e => setF("notes", e.target.value)}
-                            />
+                            <div className="mat-area">
+                                <textarea
+                                    className="ucat-notes"
+                                    rows={3}
+                                    placeholder="Special requests, dietary requirements, additional info..."
+                                    value={form.notes}
+                                    onChange={e => setF("notes", e.target.value)}
+                                />
+                                <span className="mat-area-bar" />
+                            </div>
                         </div>
 
                     </div>{/* end left col */}
@@ -537,7 +606,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
                     <div className="ucat-col">
 
                         {/* DECORATION */}
-                        <div className="ucat-section-label">Decoration</div>
+                        <div className="section-title">Decoration</div>
                         <div className="ucat-card">
                             <div className="ucat-deco-grid">
                                 <button type="button"
@@ -559,7 +628,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
                         </div>
 
                         {/* ADD-ONS */}
-                        <div className="ucat-section-label">Add-ons & Services</div>
+                        <div className="section-title">Add-ons & Services</div>
                         <div className="ucat-card">
                             <div className="ucat-check-grid">
                                 {[
@@ -578,19 +647,21 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                 ))}
                             </div>
                             {form.specialMention && (
-                                <textarea
-                                    className="ucat-notes"
-                                    style={{ marginTop: 8 }}
-                                    rows={2}
-                                    placeholder="Describe what to announce / mention..."
-                                    value={form.specialMentionText}
-                                    onChange={e => setF("specialMentionText", e.target.value)}
-                                />
+                                <div className="mat-area" style={{ marginTop: 8 }}>
+                                    <textarea
+                                        className="ucat-notes"
+                                        rows={2}
+                                        placeholder="Describe what to announce / mention..."
+                                        value={form.specialMentionText}
+                                        onChange={e => setF("specialMentionText", e.target.value)}
+                                    />
+                                    <span className="mat-area-bar" />
+                                </div>
                             )}
                         </div>
 
                         {/* DISHES */}
-                        <div className="ucat-section-label">
+                        <div className="section-title">
                             Selected Dishes
                             <button type="button" className="ucat-add-dish-btn" onClick={() => setShowDishPopup(true)}>
                                 + Add Dish
