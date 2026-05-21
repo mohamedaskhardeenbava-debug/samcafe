@@ -1282,78 +1282,9 @@
     --m-spring: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ══════════════════════════════════════
-   DINING SLOT GRID
-══════════════════════════════════════ */
-.ucat-slot-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-}
-
-.ucat-slot-chip {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    padding: 10px 6px 9px;
-    border-radius: 12px;
-    border: 1.5px solid #e5e7eb;
-    background: #f9fafb;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
-    text-align: center;
-}
-
-.ucat-slot-chip:hover {
-    border-color: var(--color-red, #e74c3c);
-    background: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.12);
-}
-
-.ucat-slot-chip.active {
-    border-color: var(--color-red, #e74c3c);
-    background: rgba(231, 76, 60, 0.06);
-    box-shadow: 0 2px 10px rgba(231, 76, 60, 0.15);
-}
-
 .ucat-slot-icon {
     font-size: 18px;
     line-height: 1;
-}
-
-.ucat-slot-label {
-    font-size: 11px;
-    font-weight: 700;
-    color: #333;
-    letter-spacing: 0.01em;
-}
-
-.ucat-slot-chip.active .ucat-slot-label {
-    color: var(--color-red, #e74c3c);
-}
-
-.ucat-slot-time {
-    font-size: 9px;
-    color: #aaa;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.ucat-slot-chip.active .ucat-slot-time {
-    color: rgba(231, 76, 60, 0.65);
-}
-
-.ucat-slot-tick {
-    position: absolute;
-    top: 5px;
-    right: 7px;
-    font-size: 9px;
-    font-weight: 800;
-    color: var(--color-red, #e74c3c);
 }
 
 /* Inline hint next to the Time label */
@@ -1382,11 +1313,4 @@
     color: var(--color-red, #e74c3c);
     margin-top: 4px;
     font-weight: 500;
-}
-
-/* Responsive — collapse to 3+2 on narrow screens */
-@media (max-width: 480px) {
-    .ucat-slot-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
 }

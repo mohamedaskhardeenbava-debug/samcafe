@@ -4,6 +4,7 @@ import api from "../api";
 import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./CelebrationForm.css";
+import "./ReservationForm.css";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -400,18 +401,18 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                                 </div>
                                 <div className="field-group">
                                     <label>Dining Slot <span className="rf-req">*</span></label>
-                                    <div className="clp-slot-groups">
+                                    <div className="slot-groups">
                                         {SLOT_GROUPS.map(sg => {
                                             const nowH = new Date().getHours();
                                             const slotEndH = parseInt(sg.end.split(":")[0]);
                                             const isPastSlot = isToday && nowH >= slotEndH;
                                             return (
                                                 <div key={sg.key}
-                                                    className={`clp-slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " clp-slot-disabled" : ""}`}
+                                                    className={`slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " slot-group-disabled" : ""}`}
                                                     onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
-                                                    <span className="clp-sg-label">{sg.label}</span>
-                                                    <span className="clp-sg-time">{sg.start} – {sg.end}</span>
-                                                    {isPastSlot && <span className="clp-slot-past-badge">Passed</span>}
+                                                    <span className="slot-group-label">{sg.label}</span>
+                                                    <span className="slot-group-time">{sg.start} – {sg.end}</span>
+                                                    {isPastSlot && <span className="slot-group-passed-badge">Passed</span>}
                                                 </div>
                                             );
                                         })}
@@ -596,9 +597,41 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                         </div>
                     )}
 
-                    <button className={`clp-submit${loading ? " loading" : ""}`} onClick={handleSubmit} disabled={loading}>
-                        {loading ? "Processing..." : "Book Celebration"}
-                    </button>
+                    <div className="form-btn-row">
+                        <button className={`form-action-btn submit${loading ? " loading" : ""}`} onClick={handleSubmit} disabled={loading}>
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">{loading ? "Processing..." : "Book Celebration"}</span>
+                        </button>
+                        <button
+                            className="form-action-btn cancel"
+                            type="button"
+                            disabled={loading}
+                            onClick={() => {
+                                setForm({
+                                    type: "birthday",
+                                    name: "", mobile: "", email: "",
+                                    date: "", time: "", slotGroup: "",
+                                    guests: 2,
+                                    birthdayPersonName: "", birthdayPersonAge: "",
+                                    cake: false,
+                                    specialMention: false, specialMentionText: "",
+                                    standingBrochures: false, placeHolders: false, pens: false,
+                                    mic: false, projector: false,
+                                    candleLight: false, liveMusic: false, surpriseGift: false,
+                                    decoration: null,
+                                    audioVideo: false,
+                                    specialNote: "",
+                                });
+                                setErrors({});
+                                handleBack();
+                            }}
+                        >
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">Cancel</span>
+                        </button>
+                    </div>
 
                 </div>
             </div>

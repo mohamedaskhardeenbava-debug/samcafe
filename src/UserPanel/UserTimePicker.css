@@ -15,20 +15,27 @@
 /* Floating label */
 .utp-label {
     position: absolute;
-    top: 24px;
-    left: 0;
-    font-size: 15px;
-    font-weight: 400;
-    color: #94a0b4;
-    pointer-events: none;
-    transition:
-        top 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-        font-size 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-        font-weight 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-        color 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-        letter-spacing 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-    line-height: 1;
-    white-space: nowrap;
+        top: 24px;
+        /* sits on the baseline when idle */
+        left: 0;
+        pointer-events: none;
+        transition:
+            top 0.25s var(--m-ease),
+            font-size 0.25s var(--m-ease),
+            font-weight 0.25s var(--m-ease),
+            color 0.25s var(--m-ease),
+            letter-spacing 0.25s var(--m-ease);
+        line-height: 1;
+        white-space: nowrap;
+    
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
 }
 
 .utp-label.utp-label-float {

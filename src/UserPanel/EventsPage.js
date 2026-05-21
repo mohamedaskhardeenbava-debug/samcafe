@@ -1003,10 +1003,16 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                 </div>
 
                                 <div className="ep-enroll-footer">
-                                    <button className="ep-cta-btn" onClick={handleEnroll} disabled={submitState === "loading"}>
-                                        {submitState === "loading" ? "Submitting…" : "Confirm & Win Coupon"}
+                                    <button className="ep-action-btn submit" onClick={handleEnroll} disabled={submitState === "loading"}>
+                                        <span className="ep-btn-shadow"></span>
+                                        <span className="ep-btn-edge"></span>
+                                        <span className="ep-btn-front">{submitState === "loading" ? "Submitting…" : "Confirm & Win Coupon"}</span>
                                     </button>
-                                    <button className="ep-cancel-btn" onClick={closeEnroll}>Cancel</button>
+                                    <button className="ep-action-btn cancel" onClick={closeEnroll}>
+                                        <span className="ep-btn-shadow"></span>
+                                        <span className="ep-btn-edge"></span>
+                                        <span className="ep-btn-front">Cancel</span>
+                                    </button>
                                 </div>
                             </>
                         )}
@@ -1088,10 +1094,16 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                 </div>
 
                                 <div className="ep-enroll-footer">
-                                    <button className="ep-cta-btn" disabled={addGuestState === "loading"} onClick={handleAddGuests}>
-                                        {addGuestState === "loading" ? "Updating…" : `Confirm Add ${addGuestForm.guests} Guest${addGuestForm.guests !== 1 ? "s" : ""}`}
+                                    <button className="ep-action-btn submit" disabled={addGuestState === "loading"} onClick={handleAddGuests}>
+                                        <span className="ep-btn-shadow"></span>
+                                        <span className="ep-btn-edge"></span>
+                                        <span className="ep-btn-front">{addGuestState === "loading" ? "Updating…" : `Confirm Add ${addGuestForm.guests} Guest${addGuestForm.guests !== 1 ? "s" : ""}`}</span>
                                     </button>
-                                    <button className="ep-cancel-btn" onClick={closeAddGuest}>Cancel</button>
+                                    <button className="ep-action-btn cancel" onClick={closeAddGuest}>
+                                        <span className="ep-btn-shadow"></span>
+                                        <span className="ep-btn-edge"></span>
+                                        <span className="ep-btn-front">Cancel</span>
+                                    </button>
                                 </div>
                             </>
                         )}

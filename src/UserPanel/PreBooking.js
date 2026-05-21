@@ -4,6 +4,7 @@ import api from "../api";
 import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./PreBooking.css";
+import "./ReservationForm.css";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -427,18 +428,18 @@ const PreBooking = ({ handleBack, handleHome }) => {
                             </div>
                             <div className="field-group pbp-schedule-slots">
                                 <label>Dining Slot <span className="pbp-req">*</span></label>
-                                <div className="pbp-slot-groups">
+                                <div className="slot-groups">
                                     {SLOT_GROUPS.map(sg => {
                                         const nowH = new Date().getHours();
                                         const slotEndH = parseInt(sg.end.split(":")[0]);
                                         const isPast = form.date === todayStr() && nowH >= slotEndH;
                                         return (
                                             <div key={sg.key}
-                                                className={`pbp-slot-group${form.slotGroup === sg.key ? " active" : ""}${isPast ? " pbp-slot-disabled" : ""}`}
+                                                className={`slot-group${form.slotGroup === sg.key ? " active" : ""}${isPast ? " pbp-slot-disabled" : ""}`}
                                                 onClick={() => { if (!isPast) { setF("slotGroup", sg.key); setF("time", ""); } }}>
-                                                <span className="pbp-sg-label">{sg.label}</span>
-                                                <span className="pbp-sg-time">{sg.start} – {sg.end}</span>
-                                                {isPast && <span className="pbp-slot-past-badge">Passed</span>}
+                                                <span className="slot-group-label">{sg.label}</span>
+                                                <span className="slot-group-time">{sg.start} – {sg.end}</span>
+                                                {isPast && <span className="slot-group-passed-badge">Passed</span>}
                                             </div>
                                         );
                                     })}
@@ -520,14 +521,33 @@ const PreBooking = ({ handleBack, handleHome }) => {
                             <div className="pbp-submit-error">Something went wrong. Please try again.</div>
                         )}
 
-                        <button
-                            className={`pbp-submit-btn${loading ? " loading" : ""}`}
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={loading}
-                        >
-                            {loading ? "Processing..." : "Confirm Pre Booking"}
-                        </button>
+                        <div className="form-btn-row">
+                            <button
+                                className={`form-action-btn submit${loading ? " loading" : ""}`}
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={loading}
+                            >
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">{loading ? "Processing..." : "Confirm Pre Booking"}</span>
+                            </button>
+                            <button
+                                className="form-action-btn cancel"
+                                type="button"
+                                disabled={loading}
+                                onClick={() => {
+                                    setForm({ name: "", mobile: "", email: "", guests: 1, date: tomorrowStr(), time: "", slotGroup: "", notes: "" });
+                                    setSelectedDishes([]);
+                                    setErrors({});
+                                    handleBack();
+                                }}
+                            >
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">Cancel</span>
+                            </button>
+                        </div>
 
                     </div>{/* end right col */}
 

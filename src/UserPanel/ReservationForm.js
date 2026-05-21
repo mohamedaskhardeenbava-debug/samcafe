@@ -307,15 +307,15 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                 </div>
                             </div>
 
-                                <div className="field-group" style={{ flex: "0 0 auto" }}>
-                                    <label>Guests <span className="rf-req">*</span></label>
-                                    <div className="stepper-ctrl">
-                                        <button type="button" className="stepper-btn" onClick={() => set("guests", Math.max(1, form.guests - 1))}>−</button>
-                                        <span className="stepper-val">{form.guests}</span>
-                                        <button type="button" className="stepper-btn" onClick={() => set("guests", Math.min(30, form.guests + 1))}>+</button>
-                                    </div>
-                                    {errors.guests && <span className="rf-error">{errors.guests}</span>}
+                            <div className="field-group" style={{ flex: "0 0 auto" }}>
+                                <label>Guests <span className="rf-req">*</span></label>
+                                <div className="stepper-ctrl">
+                                    <button type="button" className="stepper-btn" onClick={() => set("guests", Math.max(1, form.guests - 1))}>−</button>
+                                    <span className="stepper-val">{form.guests}</span>
+                                    <button type="button" className="stepper-btn" onClick={() => set("guests", Math.min(30, form.guests + 1))}>+</button>
                                 </div>
+                                {errors.guests && <span className="rf-error">{errors.guests}</span>}
+                            </div>
                         </div>
 
                         {/* Seating Preference */}
@@ -344,55 +344,55 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         <div className="rf-section">
                             <div className="section-title">Date &amp; Dining Slot</div>
 
-                                {/* Date */}
-                                <div className="field-group" style={{ flex: "0 0 auto" }}>
-                                    <label>Date <span className="rf-req">*</span></label>
-                                    <UserDatePicker
-                                        value={form.date}
-                                        min={todayStr()}
-                                        hasError={!!errors.date}
-                                        onChange={handleDateChange}
-                                    />
-                                    {errors.date && <span className="rf-error">{errors.date}</span>}
-                                </div>
+                            {/* Date */}
+                            <div className="field-group" style={{ flex: "0 0 auto" }}>
+                                <label>Date <span className="rf-req">*</span></label>
+                                <UserDatePicker
+                                    value={form.date}
+                                    min={todayStr()}
+                                    hasError={!!errors.date}
+                                    onChange={handleDateChange}
+                                />
+                                {errors.date && <span className="rf-error">{errors.date}</span>}
+                            </div>
 
-                                {/* Dining Slot */}
-                                <div className="field-group">
-                                    <label>Dining Slot <span className="rf-req">*</span></label>
-                                    <div className="rf-slot-groups">
-                                        {SLOT_GROUPS.map(sg => {
-                                            const nowH = new Date().getHours();
-                                            const slotEndH = parseInt(sg.end.split(":")[0]);
-                                            const isPastSlot = isToday && nowH >= slotEndH;
-                                            return (
-                                                <div key={sg.key}
-                                                    className={`rf-slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " rf-slot-disabled" : ""}`}
-                                                    onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
-                                                    <span className="rf-sg-label">{sg.label}</span>
-                                                    <span className="rf-sg-time">{sg.start} – {sg.end}</span>
-                                                    {isPastSlot && <span className="rf-slot-past-badge">Passed</span>}
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                    {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
+                            {/* Dining Slot */}
+                            <div className="field-group">
+                                <label>Dining Slot <span className="rf-req">*</span></label>
+                                <div className="rf-slot-groups">
+                                    {SLOT_GROUPS.map(sg => {
+                                        const nowH = new Date().getHours();
+                                        const slotEndH = parseInt(sg.end.split(":")[0]);
+                                        const isPastSlot = isToday && nowH >= slotEndH;
+                                        return (
+                                            <div key={sg.key}
+                                                className={`rf-slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " rf-slot-disabled" : ""}`}
+                                                onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
+                                                <span className="rf-sg-label">{sg.label}</span>
+                                                <span className="rf-sg-time">{sg.start} – {sg.end}</span>
+                                                {isPastSlot && <span className="rf-slot-past-badge">Passed</span>}
+                                            </div>
+                                        );
+                                    })}
                                 </div>
+                                {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
+                            </div>
 
-                                {/* Preferred Time (optional) */}
-                                <div className="field-group" style={{ flex: "0 0 auto" }}>
-                                    <label>Preferred Time <span className="rf-optional">(optional)</span></label>
-                                    <UserTimePicker
-                                        value={form.time}
-                                        onChange={v => set("time", v)}
-                                        slotStart={currentSlot?.start}
-                                        slotEnd={currentSlot?.end}
-                                        disabled={!form.slotGroup}
-                                        isToday={isToday}
-                                        hasError={!!errors.time}
-                                    />
-                                    {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
-                                    {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
-                                </div>
+                            {/* Preferred Time (optional) */}
+                            <div className="field-group" style={{ flex: "0 0 auto" }}>
+                                <label>Preferred Time <span className="rf-optional">(optional)</span></label>
+                                <UserTimePicker
+                                    value={form.time}
+                                    onChange={v => set("time", v)}
+                                    slotStart={currentSlot?.start}
+                                    slotEnd={currentSlot?.end}
+                                    disabled={!form.slotGroup}
+                                    isToday={isToday}
+                                    hasError={!!errors.time}
+                                />
+                                {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
+                                {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
+                            </div>
                         </div>
 
                         {/* Notes */}
@@ -410,11 +410,22 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                             </div>
                         </div>
 
-                        <button type="button" className="rf-cta-btn rf-submit-btn" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
-                            <span className="shadow"></span>
-                            <span className="edge"></span>
-                            <span className="front text">Review &amp; Confirm</span>
-                        </button>
+                        <div className="form-btn-row">
+                            <button type="button" className="form-action-btn submit" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">Review &amp; Confirm</span>
+                            </button>
+                            <button type="button" className="form-action-btn cancel" onClick={() => {
+                                setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" });
+                                setErrors({});
+                                handleBack();
+                            }}>
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">Cancel</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

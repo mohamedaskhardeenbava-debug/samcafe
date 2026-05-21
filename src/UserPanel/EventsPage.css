@@ -1101,29 +1101,91 @@
     align-items: center;
 }
 
+/* ── ep-cta-btn: standalone 3-D red button (event sheet / success screen) ── */
 .ep-cta-btn {
-    width: 100%;
-    height: 50px;
-    border-radius: 14px;
+    position: relative;
     border: none;
-    background: var(--color-red);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
+    background: transparent;
+    padding: 0;
     cursor: pointer;
-    transition: all 0.2s;
+    outline-offset: 4px;
+    transition: filter 250ms;
+    user-select: none;
+    touch-action: manipulation;
+    width: 100%;
+    display: block;
+}
+
+.ep-cta-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: hsl(0deg 0% 0% / 0.25);
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+    pointer-events: none;
+}
+
+.ep-cta-btn::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(to left,
+            hsl(340deg 100% 16%) 0%,
+            hsl(340deg 100% 32%) 8%,
+            hsl(340deg 100% 32%) 92%,
+            hsl(340deg 100% 16%) 100%);
+    pointer-events: none;
+}
+
+.ep-cta-btn span,
+.ep-cta-btn:not(:has(span)) {
+    display: block;
+    position: relative;
+    z-index: 1;
+    padding: 13px 24px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    font-weight: 700;
+    color: #fff;
+    background: var(--color-red);
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
     letter-spacing: 0.01em;
 }
 
 .ep-cta-btn:hover:not(:disabled) {
-    transform: scale(1.02);
-    box-shadow: var(--floating-btn-shadow);
+    filter: brightness(108%);
 }
 
+.ep-cta-btn:hover:not(:disabled)::before {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.ep-cta-btn:active:not(:disabled)::before {
+    transform: translateY(1px);
+    transition: transform 34ms;
+}
+
+.ep-cta-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.ep-cta-btn:disabled,
 .ep-cta-disabled {
-    background: var(--btn-color) !important;
-    color: var(--text-secondary) !important;
+    opacity: 0.55;
     cursor: not-allowed;
+    pointer-events: none;
 }
 
 .ep-cta-booked-stack {
@@ -1330,15 +1392,15 @@
 }
 
 .ep-form-field-guest label {
-        font-size: 15px !important;
-        font-weight: 700 !important;
-        color: var(--text-secondary) !important;
-        pointer-events: none !important;
-        line-height: 1 !important;
-        white-space: nowrap !important;
-        text-transform: none !important;
-        letter-spacing: 0 !important;
-        text-transform: uppercase !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    color: var(--text-secondary) !important;
+    pointer-events: none !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    text-transform: uppercase !important;
 }
 
 .ep-guests-row {
@@ -1393,32 +1455,141 @@
     border-radius: 8px;
 }
 
+/* ── Enroll footer: row layout for side-by-side buttons ── */
 .ep-enroll-footer {
     padding: 14px 20px;
     border-top: 1px solid var(--border-light);
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
     background: var(--bg-main);
     flex-shrink: 0;
 }
 
-.ep-cancel-btn {
-    width: 100%;
-    height: 42px;
-    border-radius: 10px;
-    border: 1.5px solid var(--border-light);
+/* ── 3-D push button base (shared: submit = red, cancel = white) ── */
+.ep-action-btn {
+    position: relative;
+    border: none;
     background: transparent;
-    color: var(--text-secondary);
-    font-size: 14px;
-    font-weight: 500;
+    padding: 0;
     cursor: pointer;
-    transition: all 0.2s;
+    outline-offset: 4px;
+    transition: filter 250ms;
+    user-select: none;
+    touch-action: manipulation;
+    flex-shrink: 0;
 }
 
-.ep-cancel-btn:hover {
-    border-color: var(--color-red);
-    color: var(--color-red);
+.ep-action-btn .ep-btn-shadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: hsl(0deg 0% 0% / 0.25);
+    will-change: transform;
+    transform: translateY(2px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.ep-action-btn:hover .ep-btn-shadow {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.ep-action-btn:active .ep-btn-shadow {
+    transform: translateY(1px);
+    transition: transform 34ms;
+}
+
+/* Submit variant — red */
+.ep-action-btn.submit .ep-btn-edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(to left,
+            hsl(340deg 100% 16%) 0%,
+            hsl(340deg 100% 32%) 8%,
+            hsl(340deg 100% 32%) 92%,
+            hsl(340deg 100% 16%) 100%);
+}
+
+.ep-action-btn.submit .ep-btn-front {
+    display: block;
+    position: relative;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    color: #fff;
+    background: var(--color-red);
+    will-change: transform;
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+    white-space: nowrap;
+}
+
+/* Cancel variant — white */
+.ep-action-btn.cancel .ep-btn-edge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    background: linear-gradient(to left,
+            hsl(0deg 0% 60%) 0%,
+            hsl(0deg 0% 78%) 8%,
+            hsl(0deg 0% 78%) 92%,
+            hsl(0deg 0% 60%) 100%);
+}
+
+.ep-action-btn.cancel .ep-btn-front {
+    display: block;
+    position: relative;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    color: var(--text-secondary, #555);
+    background: #fff;
+    border: 1.5px solid #e5e7eb;
+    will-change: transform;
+    transform: translateY(-4px);
+    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+    white-space: nowrap;
+}
+
+/* Shared hover / active push animation */
+.ep-action-btn:hover {
+    filter: brightness(108%);
+}
+
+.ep-action-btn:hover .ep-btn-front {
+    transform: translateY(-6px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.ep-action-btn:active .ep-btn-front {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+}
+
+.ep-action-btn:focus:not(:focus-visible) {
+    outline: none;
+}
+
+.ep-action-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
 /* ── Success Screen ────────────────────────────────────── */
@@ -2085,22 +2256,22 @@
 
 .ep-form-field label {
     position: absolute;
-        top: 24px;
-        /* sits on the baseline when idle */
-        left: 0;
-        font-size: 14px;
-        font-weight: 700;
-        color: var(--text-secondary);
-        pointer-events: none;
-        transition:
-            top 0.25s var(--m-ease),
-            font-size 0.25s var(--m-ease),
-            font-weight 0.25s var(--m-ease),
-            color 0.25s var(--m-ease),
-            letter-spacing 0.25s var(--m-ease);
-        line-height: 1;
-        white-space: nowrap;
-        text-transform: uppercase;
+    top: 24px;
+    /* sits on the baseline when idle */
+    left: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    pointer-events: none;
+    transition:
+        top 0.25s var(--m-ease),
+        font-size 0.25s var(--m-ease),
+        font-weight 0.25s var(--m-ease),
+        color 0.25s var(--m-ease),
+        letter-spacing 0.25s var(--m-ease);
+    line-height: 1;
+    white-space: nowrap;
+    text-transform: uppercase;
 }
 
 /* Label floated when input is focused or filled */

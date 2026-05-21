@@ -4,6 +4,7 @@ import api from "../api";
 import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./CateringForm.css";
+import "./ReservationForm.css";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -498,22 +499,20 @@ const CateringForm = ({ handleBack, handleHome }) => {
 
                             <div className="field-group">
                                 <label>Dining Slot <span className="ucat-req">*</span></label>
-                                <div className="ucat-slot-grid">
+                                <div className="slot-groups">
                                     {SLOT_GROUPS.map(sg => (
                                         <button
                                             key={sg.key}
                                             type="button"
-                                            className={`ucat-slot-chip${form.slotGroup === sg.key ? " active" : ""}`}
+                                            className={`slot-group${form.slotGroup === sg.key ? " active" : ""}`}
                                             onClick={() => {
                                                 const next = form.slotGroup === sg.key ? "" : sg.key;
                                                 setF("slotGroup", next);
                                                 setF("time", "");
                                             }}
                                         >
-                                            <span className="ucat-slot-icon">{sg.icon}</span>
-                                            <span className="ucat-slot-label">{sg.label}</span>
-                                            <span className="ucat-slot-time">{sg.start}–{sg.end}</span>
-                                            {form.slotGroup === sg.key && <span className="ucat-slot-tick">✓</span>}
+                                            <span className="slot-group-label">{sg.label}</span>
+                                            <span className="slot-group-time">{sg.start}–{sg.end}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -737,14 +736,43 @@ const CateringForm = ({ handleBack, handleHome }) => {
                             <div className="ucat-submit-error">Something went wrong. Please try again.</div>
                         )}
 
-                        <button
-                            className={`ucat-submit-btn${loading ? " loading" : ""}`}
-                            type="button"
-                            onClick={handleSubmit}
-                            disabled={loading}
-                        >
-                            {loading ? "Submitting..." : "Submit Catering"}
-                        </button>
+                        <div className="form-btn-row">
+                            <button
+                                className={`form-action-btn submit${loading ? " loading" : ""}`}
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={loading}
+                            >
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">{loading ? "Submitting..." : "Submit Catering"}</span>
+                            </button>
+                            <button
+                                className="form-action-btn cancel"
+                                type="button"
+                                disabled={loading}
+                                onClick={() => {
+                                    setForm({
+                                        name: "", mobile: "", email: "", guests: 20,
+                                        eventDate: "", time: "", slotGroup: "",
+                                        addrDoorNo: "", addrStreet: "", addrArea: "",
+                                        addrLandmark: "", addrCity: "", addrDistrict: "", addrState: "", addrPincode: "",
+                                        notes: "",
+                                        decoration: null,
+                                        cake: false, specialMention: false, specialMentionText: "",
+                                        mic: false, projector: false, music: false, speaker: false,
+                                        liveMusic: false, surpriseGift: false, candleLight: false,
+                                    });
+                                    setSelectedDishes([]);
+                                    setErrors({});
+                                    handleBack();
+                                }}
+                            >
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">Cancel</span>
+                            </button>
+                        </div>
 
                     </div>{/* end right col */}
 

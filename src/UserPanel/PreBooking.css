@@ -128,13 +128,13 @@
 }
 
 /* ══ SLOT GROUPS (matches ReservationForm) ══ */
-.pbp-slot-groups {
+.slot-groups {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-.pbp-slot-group {
+.slot-group {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -150,32 +150,32 @@
     user-select: none;
 }
 
-.pbp-slot-group:hover:not(.pbp-slot-disabled) {
+.slot-group:hover:not(.pbp-slot-disabled) {
     border-color: var(--color-red, #e74c3c);
     transform: translateY(-2px);
 }
 
-.pbp-slot-group.active {
+.slot-group.active {
     background: var(--color-red, #e74c3c);
     border-color: var(--color-red, #e74c3c);
     box-shadow: 0 6px 18px rgba(231, 76, 60, 0.3);
     transform: translateY(-2px);
 }
 
-.pbp-sg-label {
+.slot-group-label {
     font-size: 12px;
     font-weight: 700;
     color: #555;
 }
 
-.pbp-sg-time {
+.slot-group-time {
     font-size: 10px;
     color: #888;
     text-align: center;
 }
 
-.pbp-slot-group.active .pbp-sg-label,
-.pbp-slot-group.active .pbp-sg-time {
+.slot-group.active .slot-group-label,
+.slot-group.active .slot-group-time {
     color: #fff;
 }
 
@@ -185,7 +185,7 @@
     pointer-events: none;
 }
 
-.pbp-slot-past-badge {
+.slot-group-passed-badge {
     font-size: 9px;
     font-weight: 700;
     background: rgba(0, 0, 0, 0.13);
@@ -783,7 +783,7 @@
 
 /* ══ RESPONSIVE ══ */
 @media (max-width: 768px) {
-    .pbp-slot-groups {
+    .slot-groups {
         gap: 6px;
     }
 
@@ -799,7 +799,7 @@
         overflow-y: visible;
     }
 
-    .pbp-slot-group {
+    .slot-group {
         padding: 10px 6px;
         min-width: 60px;
     }
