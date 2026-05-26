@@ -92,10 +92,12 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                     ].map(opt => (
                         <button
                             key={opt.val}
-                            className={`food-grid-sort-btn ${sortBy === opt.val ? "active" : ""}`}
+                            className={`fgl-sort-btn ${sortBy === opt.val ? "active" : ""}`}
                             onClick={() => setSortBy(opt.val)}
                         >
-                            {opt.label}
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">{opt.label}</span>
                         </button>
                     ))}
                 </div>

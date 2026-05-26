@@ -3,7 +3,6 @@
 ========================= */
 .clp-page {
     padding: 36px;
-    background: var(--bg-main);
     font-family: "Geom", system-ui, sans-serif;
     min-height: 100vh;
     display: flex;
@@ -47,7 +46,6 @@
    BLOCK (white card wrapper)
 ========================= */
 .clp-block {
-    background: #ffffff;
     border-radius: 18px;
     display: flex;
     flex-direction: column;

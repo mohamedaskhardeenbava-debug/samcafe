@@ -254,7 +254,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         <div className="rf-page">
             {showCrossCheck && <CrossCheckModal />}
 
-            <div className="rf-header">
+            <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div>
                     <div className="rf-page-title">Table Reservation</div>

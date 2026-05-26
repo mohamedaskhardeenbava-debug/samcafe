@@ -25,11 +25,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  background: var(--bg-main);
-  padding: 10px 0 12px;
   margin-bottom: 6px;
 }
 
@@ -112,28 +107,107 @@
   flex-wrap: wrap;
 }
 
-.food-grid-sort-btn {
-  padding: 7px 14px;
-  border-radius: 20px;
-  border: 1.5px solid var(--text-tertiary);
-  background: var(--bg-main);
-  font-size: 12px;
-  font-weight: 600;
+/* Sort pills — 3D push */
+.fgl-sort-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
   cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.18s ease;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.food-grid-sort-btn:hover {
-  border-color: var(--color-red);
+.fgl-sort-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: hsl(0deg 0% 0% / 0.22);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.fgl-sort-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.fgl-sort-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* edge — inactive (neutral grey) */
+.fgl-sort-btn .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to left,
+      hsl(0, 0%, 42%) 0%,
+      hsl(0, 0%, 52%) 8%,
+      hsl(0, 0%, 52%) 92%,
+      hsl(0, 0%, 42%) 100%);
+}
+
+/* front — inactive */
+.fgl-sort-btn .front {
+  display: block;
+  position: relative;
+  padding: 7px 15px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.fgl-sort-btn:hover {
+  filter: brightness(108%);
+}
+
+.fgl-sort-btn:hover .front {
   color: var(--color-red);
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
 }
 
-.food-grid-sort-btn.active {
-  background: var(--color-red);
+.fgl-sort-btn:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.fgl-sort-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* edge — active (red) */
+.fgl-sort-btn.active .edge {
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+/* front — active */
+.fgl-sort-btn.active .front {
   color: #fff;
-  border-color: var(--color-red);
+  background: var(--color-red);
 }
 
 /* Count */
@@ -390,7 +464,7 @@
     gap: 4px;
   }
 
-  .food-grid-sort-btn {
+  .fgl-sort-btn .front {
     padding: 5px 10px;
     font-size: 11px;
   }

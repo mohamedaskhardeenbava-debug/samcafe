@@ -194,33 +194,154 @@
   gap: 12px;
 }
 
+/* ── 3-layer base (shared) ── */
+.btn-primary,
+.btn-danger,
+.fav-combo-quantity-section button {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+}
+
+.btn-primary .shadow,
+.btn-danger .shadow,
+.fav-combo-quantity-section button .shadow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: inherit;
+  transform: translateY(2px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.btn-primary .edge,
+.btn-danger .edge,
+.fav-combo-quantity-section button .edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: inherit;
+}
+
+.btn-primary .front,
+.btn-danger .front,
+.fav-combo-quantity-section button .front {
+  display: block;
+  position: relative;
+  transform: translateY(-4px);
+  transition:
+    transform 250ms cubic-bezier(.3, .7, .4, 1),
+    filter 250ms ease;
+}
+
+/* ── Add to Bag (green) ── */
 .btn-primary {
+  border-radius: 12px;
+}
+
+.btn-primary .shadow {
+  background: rgba(0, 80, 25, 0.45);
+}
+
+.btn-primary .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.btn-primary .front {
+  padding: 10px 16px;
+  border-radius: 12px;
   background: var(--color-green);
   color: var(--bg-main);
-  border: none;
-  border-radius: 12px;
-  padding: 8px 14px;
   font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-weight: 700;
 }
 
-.btn-primary:hover,
-.btn-ghost:hover {
-  scale: 1.05;
+/* ── Delete (red) ── */
+.btn-danger {
+  border-radius: 12px;
 }
 
-.btn-ghost {
+.btn-danger .shadow {
+  background: rgba(120, 10, 10, 0.45);
+}
+
+.btn-danger .edge {
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.btn-danger .front {
+  padding: 10px 16px;
+  border-radius: 12px;
   background: var(--color-red);
-  border: none;
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 10px;
-  border-radius: 12px;
-  cursor: pointer;
   color: #fff;
-  transition: all 0.2s ease;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.fav-combo-quantity-section button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.fav-combo-quantity-section button .shadow {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.fav-combo-quantity-section button .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 48%) 0%,
+      hsl(0deg 0% 56%) 8%,
+      hsl(0deg 0% 56%) 92%,
+      hsl(0deg 0% 48%) 100%);
+}
+
+.fav-combo-quantity-section button .front {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.btn-primary:hover .front,
+.btn-danger:hover .front,
+.fav-combo-quantity-section button:hover .front {
+  transform: translateY(-6px);
+  filter: brightness(108%);
+}
+
+.btn-primary:active .front,
+.btn-danger:active .front,
+.fav-combo-quantity-section button:active .front {
+  transform: translateY(-2px);
+}
+
+.btn-primary:hover .shadow,
+.btn-danger:hover .shadow,
+.fav-combo-quantity-section button:hover .shadow {
+  transform: translateY(4px);
+}
+
+.btn-primary:active .shadow,
+.btn-danger:active .shadow,
+.fav-combo-quantity-section button:active .shadow {
+  transform: translateY(1px);
 }
 
 /* RESPONSIVE */

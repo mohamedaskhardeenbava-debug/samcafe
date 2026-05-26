@@ -218,7 +218,9 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                   flyToBag({ imgEl: img, dishId: visible[1].id });
                 }}
               >
-                Add to Bag
+                <span className="shadow"></span>
+                <span className="edge"></span>
+                <span className="front">Add to Bag</span>
               </button>
 
               <button
@@ -239,7 +241,9 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                   }, FOODLIST_EXIT_DURATION);
                 }}
               >
-                Show more
+                <span className="shadow"></span>
+                <span className="edge"></span>
+                <span className="front">Show more</span>
               </button>
             </div>
           </motion.div>

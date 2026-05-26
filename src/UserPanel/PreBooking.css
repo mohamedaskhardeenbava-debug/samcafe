@@ -4,7 +4,6 @@
 
 .pbp-page {
     padding: 36px;
-    background: var(--bg-main);
     font-family: "Geom", system-ui, sans-serif;
     min-height: 100vh;
     display: flex;
@@ -48,7 +47,6 @@
 
 /* CARD */
 .pbp-card {
-    background: #fff;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -707,7 +705,7 @@
     font-size: 14px;
     font-family: inherit;
     color: var(--text-primary);
-    background: #f9fafb;
+    background-color: transparent;
     outline: none;
     resize: none;
     transition: border-color 0.2s;
@@ -1315,7 +1313,7 @@
     font-size: 14px;
     font-family: inherit;
     color: var(--text-primary);
-    background: #f9fafb;
+    background: transparent;
     outline: none;
     resize: none;
     transition: border-color 0.2s;
@@ -1325,6 +1323,6 @@
 
 .pbp-notes:focus {
     border-color: var(--color-red);
-    background: #fff;
+    background: var(--bg-main);
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }

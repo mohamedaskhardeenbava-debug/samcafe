@@ -140,10 +140,12 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
               </p>
 
               <button
-                className="order-again-btn"
+                className="ty-add-dish-btn"
                 onClick={() => navigate("/categories")}
               >
-                Add Dish
+                <span className="shadow"></span>
+                <span className="edge"></span>
+                <span className="front">Add Dish</span>
               </button>
             </motion.div>
           )}
@@ -254,12 +256,16 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
 
         {orderPlaced && (
           <>
-            <button className="order-again-btn" onClick={handleOrderAnother}>
-              Order Another
+            <button className="ty-order-btn" onClick={handleOrderAnother}>
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Order Another</span>
             </button>
 
-            <button className="done-btn" onClick={handleLogout}>
-              Back to Home
+            <button className="ty-done-btn" onClick={handleLogout}>
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Back to Home</span>
             </button>
           </>
         )}
@@ -267,10 +273,12 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
         {!isBagEmpty && !orderPlaced && (
           <>
             <button
-              className="order-again-btn"
+              className="ty-order-btn"
               onClick={() => navigate("/categories")}
             >
-              Order Another
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Order Another</span>
             </button>
           </>
         )}

@@ -136,12 +136,6 @@
   cursor: pointer;
 }
 
-.signup-modal .primary {
-  font-family: "Geom", system-ui, sans-serif;
-  background: var(--color-red);
-  color: #fff;
-}
-
 /* Remove number input arrows (Chrome, Edge, Safari) */
 .signup-modal input[type="number"]::-webkit-inner-spin-button,
 .signup-modal input[type="number"]::-webkit-outer-spin-button {
@@ -370,17 +364,77 @@
   box-shadow: 0 0 0 2px rgba(246, 72, 72, 0.15);
 }
 
-.signup-modal .primary {
-  background-color: var(--color-red-secondary);
-  box-shadow: rgb(246, 72, 72, 0.2) 0px 10px 20px, rgba(246, 72, 72, 0.3) 0px 6px 6px;
-  color: #fff;
-  font-weight: 500;
-  transition: transform 0.2s ease;
-  width: 100px;
+.wc-login-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0 !important;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  flex-shrink: 0;
 }
 
-.signup-modal .primary:hover {
-  transform: translateY(-1px);
+.wc-login-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.wc-login-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.wc-login-btn .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 12px;
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.wc-login-btn .front {
+  display: block;
+  position: relative;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--bg-main);
+  background: var(--color-red);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.wc-login-btn:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.wc-login-btn:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.wc-login-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
 }
 
 /* =========================================

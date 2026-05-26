@@ -155,7 +155,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           {/* ACTIONS */}
           <div className="fav-actions">
             <button
-              className="fav-customize-btn"
+              className="customize-button"
               onClick={() =>
                 navigate(`/food/${dish.id}`, {
                   state: {
@@ -167,11 +167,13 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
                 })
               }
             >
-              Customize
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Customize</span>
             </button>
 
             <button
-              className="fav-add-btn"
+              className="place-order-button"
               onClick={() => {
                 const img = document.querySelector(
                   `.fav-image[data-fav-dish-id="${dish.id}"]`
@@ -193,7 +195,9 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
                 });
               }}
             >
-              Add to Bag
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Add to Bag</span>
             </button>
           </div>
         </div>

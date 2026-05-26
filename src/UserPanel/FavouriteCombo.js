@@ -171,14 +171,18 @@ const FavouriteCombo = ({
                                         className="btn-primary"
                                         onClick={() => handleAddToBag(combo)}
                                     >
-                                        Add to Bag
+                                        <span className="shadow" />
+                                        <span className="edge" />
+                                        <span className="front">Add to Bag</span>
                                     </button>
 
                                     <button
-                                        className="btn-ghost danger"
+                                        className="btn-danger"
                                         onClick={() => handleDelete(combo.id)}
                                     >
-                                        Delete
+                                        <span className="shadow" />
+                                        <span className="edge" />
+                                        <span className="front">Delete</span>
                                     </button>
                                 </div>
                             </motion.article>

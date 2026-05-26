@@ -2,6 +2,7 @@
 
 :root {
   /* Light theme (default) */
+  --bg-theme: linear-gradient(0deg, rgba(217, 215, 215, 1) 0%, rgba(207, 202, 202, 1) 50%, rgba(252, 252, 252, 1) 100%);
   --bg-main: #ffffff;
   --bg-surface: #f2f2f2;
   --bg-image: url("../src/assets/bg-image1.png");
@@ -113,7 +114,7 @@
 }
 
 body {
-  background: var(--bg-main);
+  background: var(--bg-theme);
   object-fit: fill;
   color: var(--text-primary);
   background-repeat: no-repeat;
@@ -168,8 +169,9 @@ textarea {
   font-family: "Geom", system-ui, sans-serif;
 }
 
-textarea:focus, input:focus 
-textarea:hover, input:hover {
+textarea:focus,
+input:focus textarea:hover,
+input:hover {
   border: 1px solid var(--color-red) !important;
   box-shadow: 0 0 0 3px rgba(243, 55, 22, 0.20) !important;
 }
@@ -179,7 +181,6 @@ button {
 }
 
 button:hover {
-  scale: 1.01 !important;
   cursor: pointer !important;
 }
 
@@ -354,6 +355,365 @@ button:hover {
   }
 }
 
+.shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.22) !important;
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
 
+.edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+.front {
+  display: block;
+  position: relative;
+  padding: 12px 27px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  color: white;
+  background: var(--color-red);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* ── Shared 3-D push button base (submit = red, cancel = white) ── */
+.form-action-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.form-action-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.form-action-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.form-action-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* ── Submit variant — red ── */
+.form-action-btn.submit .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.form-action-btn.submit .front {
+  display: block;
+  position: relative;
+  padding: 12px 27px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--bg-main);
+  background: var(--color-red);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* ── Done variant — green ── */
+.form-action-btn.done .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.form-action-btn.done .front {
+  display: block;
+  position: relative;
+  padding: 12px 27px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--bg-main);
+  background: var(--color-green);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* ── Cancel variant — white ── */
+.form-action-btn.cancel .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to left,
+      hsl(0, 0%, 48%) 0%,
+      hsl(0deg 0% 56%) 8%,
+      hsl(0deg 0% 56%) 92%,
+      hsl(0deg 0% 48%) 100%);
+}
+
+.form-action-btn.cancel .front {
+  display: block;
+  position: relative;
+  padding: 12px 27px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* ── Shared hover / active push animation ── */
+.form-action-btn:hover {
+  filter: brightness(108%);
+}
+
+.form-action-btn:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.form-action-btn:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.form-action-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.form-action-btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Chip — 3-D push pill (mirrors form-action-btn structure) ── */
+.chip {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* shadow layer */
+.chip .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: hsl(0deg 0% 0% / 0.22);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.chip:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.chip:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* edge layer — inactive (neutral) */
+.chip .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to left,
+      hsl(0, 0%, 42%) 0%,
+      hsl(0, 0%, 52%) 8%,
+      hsl(0, 0%, 52%) 92%,
+      hsl(0, 0%, 42%) 100%);
+}
+
+/* front layer — inactive */
+.chip .front {
+  display: block;
+  position: relative;
+  padding: 7px 15px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-family: inherit;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* hover brightens, text turns red */
+.chip:hover {
+  filter: brightness(108%);
+}
+
+.chip:hover .front {
+  color: var(--color-red);
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.chip:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+/* ── Active (selected) chip — red ── */
+.chip.active .edge {
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.chip.active .front {
+  color: var(--bg-main);
+  background: var(--color-red);
+}
+
+.chip:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Shared 3-D push button base (submit = red, cancel = white) ── */
+.action-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  flex-shrink: 0;
+}
+
+.action-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.action-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.action-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* ── Submit variant — red ── */
+.action-btn .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.action-btn .front {
+  display: block;
+  position: relative;
+  padding: 6px 16px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--bg-main);
+  background: var(--color-red);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
 
 /* https://dashboard-ecommerce-react.netlify.app/ */

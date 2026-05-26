@@ -298,7 +298,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       <div className="left-panel">
         {/* HEADER */}
         <div className="fooditem-header">
-          <button className="back-button" onClick={ handleBack } />
+          <button className="back-button" onClick={handleBack} />
           <div className="food-item-name">
             {fromBag && bagItem?.name ? bagItem.name
               : fromFavouriteCustomize && favouriteDish ? favouriteDish.name
@@ -483,7 +483,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           </div>
 
           <div className="quantity-section">
-            <div className="quantity-label">Quantity</div>
+            <div className="qty-label">Quantity</div>
             <div className="quantity-controls">
               <button className="qty-btn" onClick={decreaseQty} disabled={quantity === 1}>−</button>
               <div className="qty-value">{quantity}x</div>
@@ -505,7 +505,11 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
               });
             }}
           >
-            {isEditMode ? "Update Bag" : "Add to Bag"}
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <span className="front">
+              {isEditMode ? "Update Bag" : "Add to Bag"}
+            </span>
           </button>
         </div>
       </div>

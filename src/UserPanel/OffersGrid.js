@@ -87,7 +87,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
 
                         {/* ADD BUTTON */}
                         <button
-                            className="offers-card-add-btn"
+                            className="offers-add-btn"
                             onClick={(e) => {
                                 e.stopPropagation();
 
@@ -115,7 +115,9 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
                                 });
                             }}
                         >
-                            Add to Bag
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">Add to Bag</span>
                         </button>
                     </div>
                 ))}

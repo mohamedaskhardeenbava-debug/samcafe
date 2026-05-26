@@ -7,7 +7,6 @@
 .ehome-page {
   width: 100%;
   min-height: 100vh;
-  background: var(--bg-main);
   color: var(--text-primary);
   font-family: "Geom", system-ui, sans-serif;
   display: flex;

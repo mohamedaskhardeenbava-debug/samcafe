@@ -183,7 +183,11 @@ const FloatingBag = ({
                             }
                         }}
                     >
-                        Place Order
+                        <span className="shadow" />
+                        <span className="edge" />
+                        <span className="front">
+                            Place Order
+                        </span>
                     </button>
                 </div>
             )}

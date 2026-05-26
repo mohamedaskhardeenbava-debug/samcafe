@@ -8,7 +8,6 @@
 .combo-page {
   display: flex;
   height: 100vh;
-  background: var(--bg-primary);
   font-family: "Geom", system-ui, sans-serif;
   color: var(--text-primary);
   overflow: hidden;
@@ -41,7 +40,6 @@
 .combo-right {
   width: 280px;
   flex-shrink: 0;
-  background: var(--bg-main);
   border-left: 1px solid var(--text-tertiary);
   padding: 24px 20px;
   display: flex;
@@ -160,18 +158,15 @@
 
 .combo-category-card {
   flex: 1;
-  padding: 12px 8px;
   text-align: center;
-  border-radius: 12px;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
-  background: var(--bg-main);
-  border: 1.5px solid var(--text-tertiary);
-  transition: all 0.22s ease;
   color: var(--text-primary);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
+  background: transparent;
+  border: none;
 }
 
 .combo-category-card::before {
@@ -212,28 +207,6 @@
   gap: 8px;
   margin-bottom: 16px;
   flex-wrap: wrap;
-}
-
-.combo-subcategory-btn {
-  padding: 6px 14px;
-  border-radius: 20px;
-  border: 1px solid var(--text-tertiary);
-  background: var(--bg-main);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--text-primary);
-}
-
-.combo-subcategory-btn.active {
-  background: var(--color-green);
-  color: var(--bg-main);
-  border-color: var(--color-green);
-}
-
-.combo-subcategory-btn:hover:not(.active) {
-  border-color: var(--color-green);
 }
 
 /* ── Items grid ──────────────────────────────────────────── */
@@ -302,63 +275,6 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--color-green);
-}
-
-.combo-item-card button {
-  width: 100%;
-  padding: 8px 0;
-  border-radius: 10px;
-  border: none;
-  background: var(--color-green);
-  color: var(--bg-main);
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: auto;
-  transition: opacity 0.15s ease, transform 0.15s ease;
-}
-
-.combo-item-card button:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-.combo-item-card button:active {
-  transform: translateY(0);
-}
-
-/* ── Favourite views ─────────────────────────────────────── */
-.combo-add-fav-btn,
-.combo-my-fav-btn {
-  padding: 8px 14px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  border: none;
-}
-
-.combo-add-fav-btn {
-  background: var(--color-green);
-  color: var(--bg-main);
-}
-
-.combo-add-fav-btn:disabled {
-  background: var(--text-tertiary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
-
-.combo-my-fav-btn {
-  background: transparent;
-  border: 1.5px solid var(--color-green);
-  color: var(--color-green);
-}
-
-.combo-my-fav-btn:hover {
-  background: color-mix(in srgb, var(--color-green) 8%, var(--bg-main));
 }
 
 .fav-combo-header {
@@ -541,52 +457,6 @@
   color: var(--text-primary);
 }
 
-.quantity-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--bg-primary);
-  border-radius: 10px;
-  padding: 4px 10px;
-}
-
-.qty-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  border: none;
-  background: var(--bg-main);
-  font-size: 18px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-primary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.15s ease;
-  line-height: 1;
-}
-
-.qty-btn:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-}
-
-.qty-btn:not(:disabled):hover {
-  transform: scale(1.12);
-  background: var(--color-green);
-  color: #fff;
-}
-
-.qty-value {
-  font-size: 14px;
-  font-weight: 700;
-  min-width: 20px;
-  text-align: center;
-  color: var(--text-primary);
-}
-
 /* Price block */
 .combo-price-block {
   display: flex;
@@ -663,35 +533,7 @@
   border-radius: 1px;
 }
 
-/* Add to bag */
-.combo-add-btn {
-  width: 100%;
-  padding: 14px 0;
-  border-radius: 14px;
-  border: none;
-  background: var(--color-red);
-  color: #fff;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  letter-spacing: 0.01em;
-  transition: opacity 0.2s ease, transform 0.15s ease;
-}
-
-.combo-add-btn:not(:disabled):hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-.combo-add-btn:not(:disabled):active {
-  transform: translateY(0);
-}
-
-.combo-add-btn:disabled {
-  background: var(--text-tertiary);
-  color: var(--text-secondary);
-  cursor: not-allowed;
-}
+/* Add to bag — 3D push button (defined in 3D PUSH BUTTON SYSTEM section below) */
 
 /* ── Offer hint overlay ──────────────────────────────────── */
 .offer-hint-backdrop {
@@ -746,39 +588,7 @@
   gap: 10px;
 }
 
-.offer-hint-add {
-  flex: 1;
-  background: var(--color-green);
-  color: var(--bg-main);
-  border: none;
-  padding: 11px 0;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s;
-}
-
-.offer-hint-add:hover {
-  opacity: 0.88;
-}
-
-.offer-hint-skip {
-  flex: 1;
-  background: transparent;
-  border: 1.5px solid var(--text-tertiary);
-  color: var(--text-secondary);
-  padding: 11px 0;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.offer-hint-skip:hover {
-  border-color: var(--text-primary);
-  color: var(--text-primary);
-}
+/* offer-hint-add / offer-hint-skip — 3D push buttons (defined in 3D PUSH BUTTON SYSTEM section below) */
 
 /* ── Fav overlays ────────────────────────────────────────── */
 .combo-add-fav-overlay {
@@ -826,38 +636,431 @@
   gap: 10px;
 }
 
-.combo-add-fav-cancel {
+/* ── Fav modal buttons — 3D push ── */
+.combo-add-fav-cancel,
+.combo-add-fav-confirm {
+  position: relative;
   flex: 1;
+  border: none;
   background: transparent;
-  border: 1.5px solid var(--text-tertiary);
-  border-radius: 12px;
-  padding: 11px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  font-weight: 600;
+  padding: 0;
   cursor: pointer;
+  outline-offset: 4px;
+  border-radius: 12px;
+  overflow: visible;
 }
 
-.combo-add-fav-confirm {
-  flex: 1;
+.combo-add-fav-cancel .shadow,
+.combo-add-fav-confirm .shadow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: 12px;
+  transform: translateY(2px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.combo-add-fav-cancel .edge,
+.combo-add-fav-confirm .edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: 12px;
+}
+
+.combo-add-fav-cancel .front,
+.combo-add-fav-confirm .front {
+  display: block;
+  position: relative;
+  padding: 11px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 700;
+  transform: translateY(-4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* Cancel — neutral grey */
+.combo-add-fav-cancel .shadow {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.combo-add-fav-cancel .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 48%) 0%,
+      hsl(0deg 0% 56%) 8%,
+      hsl(0deg 0% 56%) 92%,
+      hsl(0deg 0% 48%) 100%);
+}
+
+.combo-add-fav-cancel .front {
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  border: 1px solid var(--text-tertiary);
+}
+
+/* Confirm — green */
+.combo-add-fav-confirm .shadow {
+  background: rgba(0, 80, 25, 0.4);
+}
+
+.combo-add-fav-confirm .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.combo-add-fav-confirm .front {
   background: var(--color-green);
   color: var(--bg-main);
-  border: none;
-  border-radius: 12px;
-  padding: 11px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s;
 }
 
+/* Confirm disabled */
 .combo-add-fav-confirm:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
-.combo-add-fav-confirm:not(:disabled):hover {
-  opacity: 0.88;
+/* Hover / active animations */
+.combo-add-fav-cancel:hover .front,
+.combo-add-fav-confirm:not(:disabled):hover .front {
+  transform: translateY(-6px);
+  filter: brightness(108%);
+}
+
+.combo-add-fav-cancel:active .front,
+.combo-add-fav-confirm:not(:disabled):active .front {
+  transform: translateY(-2px);
+}
+
+.combo-add-fav-cancel:hover .shadow,
+.combo-add-fav-confirm:not(:disabled):hover .shadow {
+  transform: translateY(4px);
+}
+
+.combo-add-fav-cancel:active .shadow,
+.combo-add-fav-confirm:not(:disabled):active .shadow {
+  transform: translateY(1px);
+}
+
+/* =========================================
+   3D PUSH BUTTON SYSTEM
+========================================= */
+
+.combo-action-btn,
+.combo-add-fav-btn,
+.combo-my-fav-btn,
+.combo-subcategory-btn,
+.combo-add-btn,
+.offer-hint-add,
+.offer-hint-skip,
+.combo-category-card {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  overflow: visible;
+}
+
+.combo-action-btn .shadow,
+.combo-add-fav-btn .shadow,
+.combo-my-fav-btn .shadow,
+.combo-subcategory-btn .shadow,
+.combo-add-btn .shadow,
+.offer-hint-add .shadow,
+.offer-hint-skip .shadow,
+.combo-category-card .shadow {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: inherit;
+  transform: translateY(2px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.combo-action-btn .edge,
+.combo-add-fav-btn .edge,
+.combo-my-fav-btn .edge,
+.combo-subcategory-btn .edge,
+.combo-add-btn .edge,
+.offer-hint-add .edge,
+.offer-hint-skip .edge,
+.combo-category-card .edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  border-radius: inherit;
+}
+
+.combo-action-btn .front,
+.combo-add-fav-btn .front,
+.combo-my-fav-btn .front,
+.combo-subcategory-btn .front,
+.combo-add-btn .front,
+.offer-hint-add .front,
+.offer-hint-skip .front,
+.combo-category-card .front {
+  display: block;
+  position: relative;
+  transform: translateY(-4px);
+  transition:
+    transform 250ms cubic-bezier(.3, .7, .4, 1),
+    filter 250ms ease;
+  font-weight: 700;
+}
+
+.combo-action-btn,
+.combo-add-fav-btn {
+  border-radius: 12px;
+}
+
+.combo-action-btn .shadow,
+.combo-add-fav-btn .shadow {
+  background: rgba(0, 80, 25, 0.45);
+}
+
+.combo-action-btn .edge,
+.combo-add-fav-btn .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.combo-action-btn .front,
+.combo-add-fav-btn .front {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--color-green);
+  color: var(--bg-main);
+}
+
+.combo-my-fav-btn {
+  border-radius: 12px;
+}
+
+.combo-my-fav-btn .shadow {
+  background: rgba(0, 80, 25, 0.2);
+}
+
+.combo-my-fav-btn .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.combo-my-fav-btn .front {
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: var(--bg-main);
+  color: var(--color-green);
+  border: 2px solid var(--color-green);
+}
+
+.combo-subcategory-btn {
+  border-radius: 999px;
+}
+
+.combo-subcategory-btn .shadow {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.combo-subcategory-btn .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 54%) 0%,
+      hsl(0, 0%, 68%) 8%,
+      hsl(0, 0%, 68%) 92%,
+      hsl(0, 0%, 43%) 100%);
+}
+
+.combo-subcategory-btn .front {
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  border: 1px solid var(--text-tertiary);
+}
+
+.combo-subcategory-btn.active .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.combo-subcategory-btn.active .front {
+  background: var(--color-green);
+  color: var(--bg-main);
+  border: none;
+}
+
+.combo-action-btn:hover .front,
+.combo-add-fav-btn:hover .front,
+.combo-my-fav-btn:hover .front,
+.combo-subcategory-btn:hover .front,
+.combo-add-btn:hover .front,
+.offer-hint-add:hover .front,
+.offer-hint-skip:hover .front {
+  transform: translateY(-6px);
+  filter: brightness(108%);
+}
+
+.combo-action-btn:hover .shadow,
+.combo-add-fav-btn:hover .shadow,
+.combo-my-fav-btn:hover .shadow,
+.combo-subcategory-btn:hover .shadow,
+.combo-add-btn:hover .shadow,
+.offer-hint-add:hover .shadow,
+.offer-hint-skip:hover .shadow {
+  transform: translateY(4px);
+}
+
+.combo-action-btn {
+  width: 100%;
+  margin-top: auto;
+}
+
+.combo-add-btn {
+  width: 100%;
+  border-radius: 14px;
+}
+
+.combo-add-btn .shadow {
+  background: rgba(120, 0, 0, 0.4);
+}
+
+.combo-add-btn .edge {
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.combo-add-btn .front {
+  padding: 14px 0;
+  border-radius: 14px;
+  background: var(--color-red);
+  color: white;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.offer-hint-add {
+  flex: 1;
+  border-radius: 12px;
+}
+
+.offer-hint-add .shadow {
+  background: rgba(0, 80, 25, 0.4);
+}
+
+.offer-hint-add .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.offer-hint-add .front {
+  padding: 11px 0;
+  border-radius: 12px;
+  background: var(--color-green);
+  color: white;
+}
+
+.offer-hint-skip {
+  flex: 1;
+  border-radius: 12px;
+}
+
+.offer-hint-skip .shadow {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.offer-hint-skip .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 48%) 0%,
+      hsl(0deg 0% 56%) 8%,
+      hsl(0deg 0% 56%) 92%,
+      hsl(0deg 0% 48%) 100%);
+}
+
+.offer-hint-skip .front {
+  padding: 11px 0;
+  border-radius: 12px;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  border: 1px solid var(--text-tertiary);
+}
+
+.combo-category-card {
+  flex: 1;
+  border-radius: 12px;
+  padding: 0;
+}
+
+.combo-category-card .shadow {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.combo-category-card .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 48%) 0%,
+      hsl(0deg 0% 56%) 8%,
+      hsl(0deg 0% 56%) 92%,
+      hsl(0deg 0% 48%) 100%);
+}
+
+.combo-category-card .front {
+  padding: 12px 8px;
+  border-radius: 12px;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  border: 1px solid var(--text-tertiary);
+}
+
+.combo-category-card.active .edge,
+.combo-category-card.selected .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.combo-category-card.active .front,
+.combo-category-card.selected .front {
+  background: color-mix(in srgb, var(--color-green) 10%, var(--bg-main));
+  color: var(--color-green);
+}
+
+.combo-category-card:hover .front {
+  transform: translateY(-6px);
+  filter: brightness(108%);
+}
+
+.combo-category-card:hover .shadow {
+  transform: translateY(4px);
+}
+
+.combo-category-card:active .front {
+  transform: translateY(-2px);
+}
+
+.combo-category-card:active .shadow {
+  transform: translateY(1px);
 }
 
 /* ── Responsive ──────────────────────────────────────────── */

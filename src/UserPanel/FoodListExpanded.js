@@ -104,9 +104,6 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
     return true;
   });
 
-  console.log("Dish Ingredients:", dish.ingredients);
-  console.log("Master Ingredients:", foodData.ingredients);
-
   return (
     <div className="food-list">
       {/* HEADER */}
@@ -218,7 +215,9 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
                 });
               }}
             >
-              Customize
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Customize</span>
             </button>
 
             <button
@@ -242,7 +241,9 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
                 flyToBag({ imgEl: img, dishId: dish.id });
               }}
             >
-              Add to Bag
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Add to Bag</span>
             </button>
           </motion.div>
         </div>

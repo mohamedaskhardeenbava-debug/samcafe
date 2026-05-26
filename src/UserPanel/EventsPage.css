@@ -168,33 +168,6 @@
     padding-bottom: 4px;
 }
 
-.ep-filter-chip {
-    padding: 8px 16px;
-    border-radius: 999px;
-    border: 1.5px solid var(--border-light);
-    background: var(--bg-surface);
-    color: var(--text-secondary);
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.2s;
-    box-shadow: var(--shadow-list);
-}
-
-.ep-filter-chip:hover {
-    border-color: var(--color-red);
-    color: var(--color-red);
-    transform: translateY(-1px);
-}
-
-.ep-filter-chip.active {
-    background: var(--color-red);
-    color: var(--bg-main);
-    border-color: var(--color-red);
-}
-
 /* ── Events Grid ───────────────────────────────────────── */
 .ep-events-grid {
     display: grid;
@@ -617,23 +590,6 @@
 .ep-price-per {
     font-size: 12px;
     color: var(--text-secondary);
-}
-
-.ep-enroll-btn {
-    padding: 8px 18px;
-    border-radius: 999px;
-    border: none;
-    background: var(--color-red);
-    color: #fff;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.ep-enroll-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 14px rgba(243, 55, 22, 0.35);
 }
 
 .ep-booked-btn {
@@ -1099,86 +1055,6 @@
     flex-direction: column;
     gap: 10px;
     align-items: center;
-}
-
-/* ── ep-cta-btn: standalone 3-D red button (event sheet / success screen) ── */
-.ep-cta-btn {
-    position: relative;
-    border: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    outline-offset: 4px;
-    transition: filter 250ms;
-    user-select: none;
-    touch-action: manipulation;
-    width: 100%;
-    display: block;
-}
-
-.ep-cta-btn::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: hsl(0deg 0% 0% / 0.25);
-    transform: translateY(2px);
-    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-    pointer-events: none;
-}
-
-.ep-cta-btn::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
-    pointer-events: none;
-}
-
-.ep-cta-btn span,
-.ep-cta-btn:not(:has(span)) {
-    display: block;
-    position: relative;
-    z-index: 1;
-    padding: 13px 24px;
-    border-radius: 12px;
-    font-size: 15px;
-    font-family: inherit;
-    font-weight: 700;
-    color: #fff;
-    background: var(--color-red);
-    transform: translateY(-4px);
-    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-    letter-spacing: 0.01em;
-}
-
-.ep-cta-btn:hover:not(:disabled) {
-    filter: brightness(108%);
-}
-
-.ep-cta-btn:hover:not(:disabled)::before {
-    transform: translateY(4px);
-    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
-}
-
-.ep-cta-btn:active:not(:disabled)::before {
-    transform: translateY(1px);
-    transition: transform 34ms;
-}
-
-.ep-cta-btn:focus:not(:focus-visible) {
-    outline: none;
 }
 
 .ep-cta-btn:disabled,

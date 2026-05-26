@@ -6,7 +6,6 @@
 
 .rf-page {
     padding: 36px;
-    background: var(--bg-main);
     min-height: 100vh;
     height: 100vh;
     font-family: "Geom", system-ui, sans-serif;
@@ -15,14 +14,6 @@
     gap: 0;
     overflow: hidden;
     box-sizing: border-box;
-}
-
-/* ── Header ── */
-.rf-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 8px;
 }
 
 .rf-page-title {
@@ -255,11 +246,11 @@
     transition: border-color 0.2s;
     width: 100%;
     box-sizing: border-box;
+    background-color: transparent;
 }
 
 .rf-textarea:focus {
     border-color: var(--color-red);
-    background: #fff;
     box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
 }
 
@@ -1427,7 +1418,6 @@
 }
 
 .rf-section {
-    background: #fff;
     border-radius: 16px;
     display: flex;
     flex-direction: column;
@@ -2040,41 +2030,6 @@
     align-self: center;
 }
 
-.shadow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: hsl(0deg 0% 0% / 0.25);
-    will-change: transform;
-    transform: translateY(2px);
-    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
-.edge {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-}
-
-.front {
-    display: block;
-    position: relative;
-    padding: 12px 27px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    color: white;
-    background: var(--color-red);
-    will-change: transform;
-    transform: translateY(-4px);
-    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
 .rf-submit-btn:hover {
     filter: brightness(110%);
 }
@@ -2423,127 +2378,4 @@
     gap: 14px;
     flex-wrap: wrap;
     margin-top: 4px;
-}
-
-/* ── Shared 3-D push button base (submit = red, cancel = white) ── */
-.form-action-btn {
-    position: relative;
-    border: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    outline-offset: 4px;
-    transition: filter 250ms;
-    user-select: none;
-    touch-action: manipulation;
-    width: fit-content;
-    flex-shrink: 0;
-}
-
-.form-action-btn .shadow {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: hsl(0deg 0% 0% / 0.25);
-    will-change: transform;
-    transform: translateY(2px);
-    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
-.form-action-btn:hover .shadow {
-    transform: translateY(4px);
-    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
-}
-
-.form-action-btn:active .shadow {
-    transform: translateY(1px);
-    transition: transform 34ms;
-}
-
-/* ── Submit variant — red ── */
-.form-action-btn.submit .edge {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
-}
-
-.form-action-btn.submit .front {
-    display: block;
-    position: relative;
-    padding: 12px 27px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-family: inherit;
-    font-weight: 700;
-    color: var(--bg-main);
-    background: var(--color-red);
-    will-change: transform;
-    transform: translateY(-4px);
-    transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
-/* ── Cancel variant — white ── */
-.form-action-btn.cancel .edge {
-    position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        border-radius: 12px;
-    background: linear-gradient(to left,
-            hsl(0, 0%, 48%) 0%,
-            hsl(0deg 0% 56%) 8%,
-            hsl(0deg 0% 56%) 92%,
-            hsl(0deg 0% 48%) 100%);
-}
-
-.form-action-btn.cancel .front {
-    display: block;
-        position: relative;
-        padding: 12px 27px;
-        border-radius: 12px;
-        font-size: 1.1rem;
-        font-family: inherit;
-        font-weight: 700;
-        color: var(--text-secondary);
-        background: var(--bg-surface);
-        will-change: transform;
-        transform: translateY(-4px);
-        transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-}
-
-/* ── Shared hover / active push animation ── */
-.form-action-btn:hover {
-    filter: brightness(108%);
-}
-
-.form-action-btn:hover .front {
-    transform: translateY(-6px);
-    transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
-}
-
-.form-action-btn:active .front {
-    transform: translateY(-2px);
-    transition: transform 34ms;
-}
-
-.form-action-btn:focus:not(:focus-visible) {
-    outline: none;
-}
-
-.form-action-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    pointer-events: none;
 }

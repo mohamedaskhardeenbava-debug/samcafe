@@ -628,10 +628,16 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
             {/* Filters */}
             <div className="ep-filter-section">
                 <div className="ep-filter-scroll">
-                    <button className={`ep-filter-chip ${filterType === "all" ? "active" : ""}`} onClick={() => setFilterType("all")}>All Events</button>
+                    <button className={`chip ${filterType === "all" ? "active" : ""}`} onClick={() => setFilterType("all")}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">All Events</span>
+                    </button>
                     {availableTypes.map(t => (
-                        <button key={t} className={`ep-filter-chip ${filterType === t ? "active" : ""}`} onClick={() => setFilterType(t)}>
-                            {TYPE_LABEL[t] || t}
+                        <button key={t} className={`chip ${filterType === t ? "active" : ""}`} onClick={() => setFilterType(t)}>
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">{TYPE_LABEL[t] || t}</span>
                         </button>
                     ))}
                 </div>
@@ -734,8 +740,10 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                             ) : closed ? (
                                                 <button className="ep-booked-btn ep-closed-btn" disabled onClick={e => e.stopPropagation()}>Closed</button>
                                             ) : (
-                                                <button className="ep-enroll-btn" onClick={e => { e.stopPropagation(); openEnroll(evt); }}>
-                                                    Book Ticket
+                                                <button className="form-action-btn submit" onClick={e => { e.stopPropagation(); openEnroll(evt); }}>
+                                                    <span className="shadow"></span>
+                                                    <span className="edge"></span>
+                                                    <span className="front">Book Ticket</span>
                                                 </button>
                                             )
                                         )}
@@ -885,7 +893,11 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
 
                         <div className="ep-sheet-cta">
                             {isPast(selectedEvent.date) ? (
-                                <button className="ep-cta-btn ep-cta-disabled" disabled>Event Ended</button>
+                                <button className="form-action-btn disabled">
+                                    <span className="shadow"></span>
+                                    <span className="edge"></span>
+                                    <span className="front">Event Ended</span>
+                                </button>
                             ) : isBooked(selectedEvent.id) ? (
                                 <div className="ep-cta-booked-stack">
                                     <div className="ep-cta-booked">
@@ -902,10 +914,17 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                     )}
                                 </div>
                             ) : isBookingClosed(selectedEvent) ? (
-                                <button className="ep-cta-btn ep-cta-disabled" disabled>Booking Closed</button>
+                                <button className="form-action-btn disabled" disabled>
+                                    <span className="shadow"></span>
+                                    <span className="edge"></span>
+                                    <span className="front">Booking Closed</span>
+                                </button>
                             ) : (
-                                <button className="ep-cta-btn" onClick={() => openEnroll(selectedEvent)}>
-                                    Book Ticket &amp; Win a Coupon
+                                <button className="form-action-btn done" onClick={() => openEnroll(selectedEvent)}>
+                                    <span></span>
+                                    <span className="shadow"></span>
+                                    <span className="edge"></span>
+                                    <span className="front">Book Ticket &amp; Win a Coupon</span>
                                 </button>
                             )}
                         </div>
@@ -1038,8 +1057,10 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                         New total: <strong>{bookedForEvent(selectedEvent.id)?.guests} guests</strong>
                                     </p>
                                 </div>
-                                <button className="ep-cta-btn" style={{ margin: "20px 24px 0" }} onClick={() => { closeAddGuest(); setSelectedEvent(null); }}>
-                                    Done
+                                <button className="form-action-btn" style={{ margin: "20px 24px 0" }} onClick={() => { closeAddGuest(); setSelectedEvent(null); }}>
+                                    <span className="shadow"></span>
+                                    <span className="edge"></span>
+                                    <span className="front">Done</span>
                                 </button>
                             </div>
                         ) : (

@@ -20,8 +20,8 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const [enableAutocomplete, setEnableAutocomplete] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [activeCard, setActiveCard] = useState(null);
-  
-const { theme } = useTheme();
+
+  const { theme } = useTheme();
 
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -105,7 +105,7 @@ const { theme } = useTheme();
   };
 
   const handleLogin = async () => {
-    
+
     if (mobile.length !== 10) {
       setErrorMsg("Enter a valid 10-digit mobile number.");
       return;
@@ -197,7 +197,7 @@ const { theme } = useTheme();
 
         <div className="welcome-title">
           <img
-            src={theme === "light" ? logoLight : logoDark }
+            src={theme === "light" ? logoLight : logoDark}
             alt="Cafe"
           />
         </div>
@@ -278,13 +278,15 @@ const { theme } = useTheme();
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
-                    className="primary"
+                    className="wc-login-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleLogin();
                     }}
                   >
-                    Login
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front">Login</span>
                   </button>
                 </div>
               </div>
@@ -373,13 +375,15 @@ const { theme } = useTheme();
                   onClick={(e) => e.stopPropagation()}
                 >
                   <button
-                    className="primary"
+                    className="wc-login-btn"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleSignup();
                     }}
                   >
-                    Sign Up
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front">Sign Up</span>
                   </button>
                 </div>
               </div>

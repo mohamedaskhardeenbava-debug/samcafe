@@ -33,12 +33,10 @@
 .builder-column {
     display: flex;
     flex-direction: column;
-    background: #fff;
     border-radius: 16px;
     padding: 16px;
     box-sizing: border-box;
     overflow: hidden;
-    border: 1px #f0f0f0 solid;
     box-shadow: var(--shadow-primary);
 }
 
@@ -46,12 +44,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: #fff;
     border-radius: 16px;
     padding: 16px;
     box-sizing: border-box;
     overflow: hidden;
-    border: 1px #f0f0f0 solid;
     box-shadow: var(--shadow-primary);
 }
 
@@ -60,7 +56,6 @@
     top: 0;
     z-index: 2;
     font-size: 20px;
-    background: #fff;
     padding: 6px 0 12px 0;
     margin: 0 0 16px 0;
     font-weight: 600;
@@ -292,20 +287,120 @@
 
 /* ----------------- */
 
+/* BASE 3D BUTTON */
+.appetizer-add-btn,
+.appetizer-delete-btn,
+.appetizer-qty-btn {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    outline-offset: 4px;
+}
+
+/* shadow */
+.appetizer-add-btn .shadow,
+.appetizer-delete-btn .shadow,
+.appetizer-qty-btn .shadow {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    transform: translateY(2px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
+}
+
+/* edge */
+.appetizer-add-btn .edge,
+.appetizer-delete-btn .edge,
+.appetizer-qty-btn .edge {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    border-radius: inherit;
+}
+
+/* front */
+.appetizer-add-btn .front,
+.appetizer-delete-btn .front,
+.appetizer-qty-btn .front {
+    display: block;
+    position: relative;
+    transform: translateY(-4px);
+    transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
+    font-weight: 700;
+}
+
 .appetizer-add-btn {
+    width: 160px;
+    border-radius: 12px;
+}
+
+.appetizer-add-btn .shadow {
+    background: #145a32;
+}
+
+.appetizer-add-btn .edge {
+    background: linear-gradient(to left,
+            hsl(98, 100%, 16%) 0%,
+            hsl(98, 100%, 20%) 8%,
+            hsl(98, 100%, 20%) 92%,
+            hsl(98, 100%, 16%) 100%);
+}
+
+.appetizer-add-btn .front {
+    padding: 12px 20px;
+    border-radius: 12px;
     background: #27ae60;
     color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 10px;
 }
 
 .appetizer-delete-btn {
+    width: 120px;
+    border-radius: 10px;
+}
+
+.appetizer-delete-btn .shadow {
+    background: #922b21;
+}
+
+.appetizer-delete-btn .edge {
+    background: linear-gradient(to left,
+            hsl(340deg 100% 16%) 0%,
+            hsl(340deg 100% 32%) 8%,
+            hsl(340deg 100% 32%) 92%,
+            hsl(340deg 100% 16%) 100%);
+}
+
+.appetizer-delete-btn .front {
+    padding: 10px 16px;
+    border-radius: 10px;
     background: #e74c3c;
     color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 8px;
+}
+
+.appetizer-add-btn:hover .front,
+.appetizer-delete-btn:hover .front,
+.appetizer-qty-btn:hover .front {
+    transform: translateY(-6px);
+}
+
+.appetizer-add-btn:active .front,
+.appetizer-delete-btn:active .front,
+.appetizer-qty-btn:active .front {
+    transform: translateY(-2px);
+}
+
+.appetizer-add-btn:hover .shadow,
+.appetizer-delete-btn:hover .shadow,
+.appetizer-qty-btn:hover .shadow {
+    transform: translateY(4px);
+}
+
+.appetizer-add-btn:active .shadow,
+.appetizer-delete-btn:active .shadow,
+.appetizer-qty-btn:active .shadow {
+    transform: translateY(1px);
 }
 
 @media screen and (max-width: 992px) {
@@ -379,7 +474,7 @@
 }
 
 @media screen and (max-width: 768px) {
-.builder-column {
+    .builder-column {
         padding: 6px 4px;
         height: stretch;
     }

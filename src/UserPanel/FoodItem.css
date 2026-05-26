@@ -21,7 +21,6 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--bg-main);
 }
 
 .image-header {
@@ -554,6 +553,9 @@
   padding: 20px 30px 12px;
   border-radius: 20px 20px 0 0;
   border-top: 1px solid #c5c5c5;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .price-section,
@@ -593,31 +595,89 @@
 }
 
 .food-place-order-button {
-  width: 80%;
-  margin: 0 auto;
-  margin-top: 20px;
-  padding: 16px 28px;
-  border-radius: 14px;
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.food-place-order-button .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.food-place-order-button:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.food-place-order-button .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+.food-place-order-button .front {
+  display: block;
+  position: relative;
+  padding: 12px 27px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-weight: 700;
   color: var(--bg-main);
   background: var(--color-red);
-  text-align: center;
-  font-weight: 600;
-  cursor: pointer;
-  text-decoration: none;
-  display: block;
-  outline: none;
-  border: none;
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.food-place-order-button:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.food-place-order-button:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.food-place-order-button:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
 }
 
 .quantity-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 14px;
 }
 
 .price-label,
-.quantity-label {
+.qty-label {
   font-size: 18px;
   color: var(--text-primary);
   font-weight: 500;

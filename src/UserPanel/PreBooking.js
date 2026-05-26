@@ -465,8 +465,10 @@ const PreBooking = ({ handleBack, handleHome }) => {
                         {/* PRE-ORDER FOODS */}
                         <div className="section-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                             <span>Pre-Order Foods</span>
-                            <button type="button" className="pbp-add-dish-btn" onClick={() => setShowDishPopup(true)}>
-                                + Add Dish
+                            <button type="button" className="chip" onClick={() => setShowDishPopup(true)}>
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">+ Add Dish</span>
                             </button>
                         </div>
                         <div className={`pbp-card${errors.bag ? " pbp-card-error" : ""}`}>

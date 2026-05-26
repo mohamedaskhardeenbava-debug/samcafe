@@ -662,8 +662,10 @@ const CateringForm = ({ handleBack, handleHome }) => {
                         {/* DISHES */}
                         <div className="section-title">
                             Selected Dishes
-                            <button type="button" className="ucat-add-dish-btn" onClick={() => setShowDishPopup(true)}>
-                                + Add Dish
+                            <button type="button" className="chip" onClick={() => setShowDishPopup(true)}>
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">+ Add Dish</span>
                             </button>
                         </div>
                         <div className="ucat-card">

@@ -124,14 +124,16 @@ const FavouriteDishList = ({
 
               {isMyFavourites && (
                 <button
-                  className="fav-delete-btn"
+                  className="action-btn"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDishToDelete(dish);
                     setShowDeleteConfirm(true);
                   }}
                 >
-                  Delete
+                  <span className="shadow"></span>
+                  <span className="edge"></span>
+                  <span className="front">Delete</span>
                 </button>
               )}
             </div>

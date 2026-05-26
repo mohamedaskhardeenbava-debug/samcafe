@@ -59,8 +59,12 @@ const CategoryCard = ({ title, active, selected, onClick }) => (
     className={`combo-category-card ${active ? "active" : ""} ${selected ? "selected" : ""}`}
     onClick={onClick}
   >
-    {selected && <span className="combo-category-tick">✓</span>}
-    {title}
+    <span className="shadow" />
+    <span className="edge" />
+    <span className="front">
+      {selected && <span className="combo-category-tick">✓</span>}
+      {title}
+    </span>
   </button>
 );
 
@@ -91,7 +95,11 @@ const ComboItemCard = ({ item, onAdd, index }) => (
     </div>
     <div className="combo-item-name">{item.name}</div>
     <div className="combo-item-price">₹{item.price ?? item.basePrice ?? 0}</div>
-    <button onClick={onAdd}>Add</button>
+    <button className="combo-action-btn" onClick={onAdd}>
+      <span className="shadow" />
+      <span className="edge" />
+      <span className="front">Add</span>
+    </button>
   </motion.div>
 );
 
@@ -348,8 +356,17 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
               <div className="offer-hint-emoji">🎉</div>
               <div className="offer-hint-text">{offerHint.message}</div>
               <div className="offer-hint-actions">
-                <button className="offer-hint-add" onClick={handleHintAdd}>Add Item</button>
-                <button className="offer-hint-skip" onClick={() => setOfferHint(null)}>Skip for now</button>
+                <button className="offer-hint-add" onClick={handleHintAdd}>
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">Add Item</span>
+                </button>
+
+                <button className="offer-hint-skip" onClick={() => setOfferHint(null)}>
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">Skip for now</span>
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -365,9 +382,15 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
               <h3>Save to Favourites?</h3>
               <p className="combo-add-fav-title">{comboTitle}</p>
               <div className="combo-add-fav-actions">
-                <button className="combo-add-fav-cancel" onClick={() => setShowAddFavConfirm(false)}>Cancel</button>
+                <button className="combo-add-fav-cancel" onClick={() => setShowAddFavConfirm(false)}>
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">Cancel</span>
+                </button>
                 <button className="combo-add-fav-confirm" disabled={!isComboComplete || isSavingFav} onClick={() => { handleConfirmAddFav(); }}>
-                  {isSavingFav ? "Saving…" : "Confirm"}
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">{isSavingFav ? "Saving…" : "Confirm"}</span>
                 </button>
               </div>
             </motion.div>
@@ -384,7 +407,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
               <h3>Already Saved</h3>
               <p className="combo-add-fav-title">This combo already exists in your favourites.</p>
               <div className="combo-add-fav-actions">
-                <button className="combo-add-fav-confirm" onClick={() => setShowDuplicateOverlay(false)}>Okay</button>
+                <button className="combo-add-fav-confirm" onClick={() => setShowDuplicateOverlay(false)}>
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">Okay</span>
+                </button>
               </div>
             </motion.div>
           </motion.div>
@@ -405,10 +432,14 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             {currentUser && currentUser.id !== "guest" && (
               <div className="combo-header-btn-section">
                 <button className="combo-add-fav-btn" disabled={!isComboComplete} onClick={() => setShowAddFavConfirm(true)}>
-                  ♥ Save
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">♥ Save</span>
                 </button>
                 <button className="combo-my-fav-btn" onClick={() => setActiveLeftView("favourites")}>
-                  My Favs
+                  <span className="shadow" />
+                  <span className="edge" />
+                  <span className="front">My Favs</span>
                 </button>
               </div>
             )}
@@ -505,10 +536,14 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
           {/* Quantity */}
           <div className="quantity-section">
             <div className="quantity-label">Qty</div>
-            <div className="quantity-controls">
-              <button className="qty-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity === 1}>−</button>
-              <div className="qty-value">{quantity}</div>
-              <button className="qty-btn" onClick={() => setQuantity(q => q + 1)}>+</button>
+            <div className="stepper-ctrl">
+              <button className="stepper-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity === 1}>
+               −
+              </button>
+              <div className="stepper-val">{quantity}</div>
+              <button className="stepper-btn" onClick={() => setQuantity(q => q + 1)}>
+                +
+              </button>
             </div>
           </div>
 
@@ -537,8 +572,12 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             )}
           </div>
 
-          <button className="combo-add-btn" disabled={!isComboComplete} onClick={handleAddToBag}>
-            {isEditMode ? "Update Combo" : "Add to Bag"}
+          <button className="combo-add-btn">
+            <span className="shadow" />
+            <span className="edge" />
+            <span className="front">
+              {isEditMode ? "Update Combo" : "Add to Bag"}
+            </span>
           </button>
         </div>
       </div>

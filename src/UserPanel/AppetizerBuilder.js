@@ -130,7 +130,9 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                                         className="appetizer-add-btn"
                                         onClick={addDishToBag}
                                     >
-                                        Add to Bag
+                                        <span className="shadow" />
+                                        <span className="edge" />
+                                        <span className="front">Add to Bag</span>
                                     </button>
                                 </div>
                             ) : (
