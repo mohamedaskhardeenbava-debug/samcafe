@@ -171,10 +171,31 @@
 
 .pc-page {
   display: flex;
-  flex-shrink: 0;
+  flex: 0 0 100%;
   width: 100%;
   height: 100%;
   gap: 8px;
+}
+
+/* Each card fills its share of the page width */
+.pc-page--4 .pc-card {
+  flex: 1 1 calc(25% - 6px);
+  max-width: calc(25% - 6px);
+}
+
+.pc-page--3 .pc-card {
+  flex: 1 1 calc(33.333% - 6px);
+  max-width: calc(33.333% - 6px);
+}
+
+.pc-page--2 .pc-card {
+  flex: 1 1 calc(50% - 4px);
+  max-width: calc(50% - 4px);
+}
+
+.pc-page--1 .pc-card {
+  flex: 1 1 100%;
+  max-width: 100%;
 }
 
 /* ─────────────────────────────────────────
@@ -491,8 +512,8 @@
   background-color: var(--bg-hover);
   color: var(--bg-main);
   box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
-      rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
-      rgba(0, 0, 0, 0.09) 0px 32px 16px;
+    rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
+    rgba(0, 0, 0, 0.09) 0px 32px 16px;
 }
 
 .food-category-items.favourites {
@@ -668,16 +689,7 @@
     gap: 16px;
   }
 
-  /* On mobile: 1 card per page — shrink each card to full width */
-  .pc-page {
-    gap: 0;
-  }
-
-  .pc-card {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-
+  /* On mobile: full-width single card — already handled globally */
   .pc-root {
     height: 80px;
     gap: 6px;

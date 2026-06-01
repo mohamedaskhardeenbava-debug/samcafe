@@ -296,35 +296,142 @@ const PromoCard = ({ item, onClick }) => {
   );
 };
 
+/* ─────────────────────────────────────────────
+   Hook: returns window inner-width, debounced
+───────────────────────────────────────────── */
+function useWindowWidth() {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    let raf;
+    const handler = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => setWidth(window.innerWidth)); };
+    window.addEventListener("resize", handler);
+    return () => { window.removeEventListener("resize", handler); cancelAnimationFrame(raf); };
+  }, []);
+  return width;
+}
+
+/* ─────────────────────────────────────────────
+   Derive pageSize from viewport width:
+     ≥ 1200px → 4 cards per page
+     992–1199px → 3 cards per page
+     768–991px  → 2 cards per page
+     < 768px    → 1 card per page
+───────────────────────────────────────────── */
+function getPageSize(width) {
+  if (width >= 1200) return 4;
+  if (width >= 992) return 3;
+  if (width >= 768) return 2;
+  return 1;
+}
+
 /* ═══════════════════════════════════════════════
-   PROMO CAROUSEL — 3 cards per page
+   PROMO CAROUSEL — responsive infinite page loop
+   Pages are grouped by pageSize (3 / 2 / 1).
+   Track layout: [clone-of-last-page, ...pages, clone-of-first-page]
+   Page index is offset by 1 so index 0 = pages[0].
+   On transitionEnd, landing on a clone silently
+   snaps to its real twin — seamless infinite loop.
 ═══════════════════════════════════════════════ */
 const PromoCarousel = ({ items, onCardClick }) => {
-  const PAGE_SIZE = 3;
-  const pages = [];
-  for (let i = 0; i < items.length; i += PAGE_SIZE) pages.push(items.slice(i, i + PAGE_SIZE));
-  const MAX = pages.length - 1;
+  const width = useWindowWidth();
+  const pageSize = getPageSize(width);
 
-  const [page, setPage] = useState(0);
+  // Build pages from items based on current pageSize.
+  // The last page is circularly filled with items from the start so every
+  // page is always exactly `pageSize` cards — no empty slots, seamless loop.
+  const pages = [];
+  if (items.length > 0) {
+    for (let i = 0; i < items.length; i += pageSize) {
+      const slice = items.slice(i, i + pageSize);
+      if (slice.length < pageSize) {
+        // Fill the remainder by wrapping around from the beginning.
+        // Use a unique key suffix so React doesn't confuse them with the
+        // originals that are already visible on the first page.
+        const needed = pageSize - slice.length;
+        const fillers = items.slice(0, needed).map((item) => ({
+          ...item,
+          id: `${item.id}__fill`,
+        }));
+        pages.push([...slice, ...fillers]);
+      } else {
+        pages.push(slice);
+      }
+    }
+  }
+  const PAGE_COUNT = pages.length;
+
+  // Extended track: [clone-of-last-page, ...pages, clone-of-first-page]
+  const extended = PAGE_COUNT > 0
+    ? [pages[PAGE_COUNT - 1], ...pages, pages[0]]
+    : [];
+
+  // Current index into `extended`; 1 = first real page
+  const [idx, setIdx] = useState(1);
+  const [animated, setAnimated] = useState(true);
+
   const startXRef = useRef(null);
   const autoRef = useRef(null);
+  const isJumping = useRef(false);
 
-  const go = useCallback(
-    (dir) => setPage((p) => Math.max(0, Math.min(MAX, p + dir))), [MAX]
-  );
+  // Dot index: which real page we're on (0-based)
+  const dotIdx = ((idx - 1) % PAGE_COUNT + PAGE_COUNT) % PAGE_COUNT;
 
+  // When pageSize changes (resize), reset to page 1 without animation
+  const prevPageSize = useRef(pageSize);
+  useEffect(() => {
+    if (prevPageSize.current !== pageSize) {
+      prevPageSize.current = pageSize;
+      setAnimated(false);
+      setIdx(1);
+      requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)));
+    }
+  }, [pageSize]);
+
+  const step = useCallback((dir) => {
+    if (isJumping.current) return;
+    setAnimated(true);
+    setIdx((prev) => prev + dir);
+  }, []);
+
+  const goToPage = useCallback((pageIdx) => {
+    setAnimated(true);
+    setIdx(pageIdx + 1);
+  }, []);
+
+  /* Auto-play */
   const resetAuto = useCallback(() => {
     clearInterval(autoRef.current);
-    autoRef.current = setInterval(() => setPage((p) => (p >= MAX ? 0 : p + 1)), 4500);
-  }, [MAX]);
+    autoRef.current = setInterval(() => step(1), 4500);
+  }, [step]);
 
-  useEffect(() => { resetAuto(); return () => clearInterval(autoRef.current); }, [resetAuto]);
+  useEffect(() => {
+    if (PAGE_COUNT < 2) return;
+    resetAuto();
+    return () => clearInterval(autoRef.current);
+  }, [resetAuto, PAGE_COUNT]);
 
+  /* Seamless infinite: snap from clone to real twin after transition */
+  const handleTransitionEnd = useCallback(() => {
+    isJumping.current = true;
+    if (idx === 0) {
+      setAnimated(false);
+      setIdx(PAGE_COUNT);
+    } else if (idx === PAGE_COUNT + 1) {
+      setAnimated(false);
+      setIdx(1);
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      isJumping.current = false;
+      setAnimated(true);
+    }));
+  }, [idx, PAGE_COUNT]);
+
+  /* Swipe support */
   const onTouchStart = (e) => { startXRef.current = e.touches[0].clientX; };
   const onTouchEnd = (e) => {
     if (startXRef.current === null) return;
     const dx = startXRef.current - e.changedTouches[0].clientX;
-    if (Math.abs(dx) > 40) { go(dx > 0 ? 1 : -1); resetAuto(); }
+    if (Math.abs(dx) > 40) { step(dx > 0 ? 1 : -1); resetAuto(); }
     startXRef.current = null;
   };
 
@@ -332,16 +439,23 @@ const PromoCarousel = ({ items, onCardClick }) => {
 
   return (
     <div className="pc-root" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <button className="pc-arrow pc-arrow-left"
-        onClick={() => { go(-1); resetAuto(); }} disabled={page === 0} aria-label="Previous" />
+      <button
+        className="pc-arrow pc-arrow-left"
+        onClick={() => { step(-1); resetAuto(); }}
+        aria-label="Previous"
+      />
 
       <div className="pc-viewport">
         <div
           className="pc-track"
-          style={{ transform: `translateX(-${page * 100}%)` }}
+          style={{
+            transform: `translateX(-${idx * 100}%)`,
+            transition: animated ? "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+          }}
+          onTransitionEnd={handleTransitionEnd}
         >
-          {pages.map((group, gi) => (
-            <div key={gi} className="pc-page">
+          {extended.map((group, gi) => (
+            <div key={gi} className={`pc-page pc-page--${pageSize}`}>
               {group.map((item) => (
                 <PromoCard key={item.id} item={item} onClick={onCardClick} />
               ))}
@@ -350,17 +464,20 @@ const PromoCarousel = ({ items, onCardClick }) => {
         </div>
       </div>
 
-      <button className="pc-arrow pc-arrow-right"
-        onClick={() => { go(1); resetAuto(); }} disabled={page === MAX} aria-label="Next" />
+      <button
+        className="pc-arrow pc-arrow-right"
+        onClick={() => { step(1); resetAuto(); }}
+        aria-label="Next"
+      />
 
-      {/* Dot indicators */}
-      {pages.length > 1 && (
+      {/* Dots — one per page (count changes with pageSize) */}
+      {PAGE_COUNT > 1 && (
         <div className="pc-dots">
           {pages.map((_, i) => (
             <button
               key={i}
-              className={`pc-dot ${i === page ? "active" : ""}`}
-              onClick={() => { setPage(i); resetAuto(); }}
+              className={`pc-dot ${i === dotIdx ? "active" : ""}`}
+              onClick={() => { goToPage(i); resetAuto(); }}
               aria-label={`Page ${i + 1}`}
             />
           ))}

@@ -477,4 +477,16 @@
     height: 260px;
   }
 
+  .view-toggle {
+    margin-bottom: 10px !important;
+  }
+
+  .view-toggle-btns {
+    flex-direction: column;
+  }
+
+  .pc-arrow {
+    display: none !important;
+  }
+
 }
