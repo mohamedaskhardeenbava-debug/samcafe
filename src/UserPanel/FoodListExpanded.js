@@ -43,45 +43,68 @@ const DETAIL_VARIANTS = {
 const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { categoryId, dishId } = state || {};
+  const { dishId } = state || {};
 
-  let category = foodData.categories.find(c => c.id === categoryId);
+  // ── Resolve category + dish ──────────────────────────────────────────────
+  // categoryId is optional in state — we resolve it by searching all categories
+  // so navigation from PromoCard / Popular Dishes only needs to pass dishId.
+  let category = null;
+  let dish = null;
 
-  if (!category) {
-    for (const cat of foodData.categories) {
-      const sub = cat.subCategories?.find(s => s.id === categoryId);
-      if (sub) {
-        category = sub;
-        break;
+  // 1. Try exact categoryId match if provided
+  if (state?.categoryId) {
+    category = foodData.categories.find(c => c.id === state.categoryId);
+    if (!category) {
+      for (const cat of foodData.categories) {
+        const sub = cat.subCategories?.find(s => s.id === state.categoryId);
+        if (sub) { category = sub; break; }
       }
+    }
+    dish = category?.dishes?.find(d => d.id === dishId);
+  }
+
+  // 2. If categoryId not provided or dish not found yet — scan all categories by dishId
+  if (!dish && dishId) {
+    for (const cat of foodData.categories) {
+      const found = cat.dishes?.find(d => d.id === dishId);
+      if (found) { category = cat; dish = found; break; }
+      for (const sub of cat.subCategories || []) {
+        const foundSub = sub.dishes?.find(d => d.id === dishId);
+        if (foundSub) { category = sub; dish = foundSub; break; }
+      }
+      if (dish) break;
     }
   }
 
-  const dish = category?.dishes.find(d => d.id === dishId);
+  // 3. Also check foodData.favourites (crowd picks / my favs may have enriched copies)
+  if (!dish && dishId && foodData.favourites) {
+    dish = foodData.favourites.find(d => d.id === dishId);
+    if (dish && !category) {
+      category = foodData.categories.find(c => c.id === dish.categoryId);
+    }
+  }
+
+  const resolvedCategoryId = category?.id || state?.categoryId || dish?.categoryId;
 
   const [steps, setSteps] = useState(["hidden", "hidden", "hidden", "hidden"]);
 
   /* 🔁 SAME stagger logic */
   useEffect(() => {
     setSteps(["hidden", "hidden", "hidden", "hidden"]);
-
     setTimeout(() => setSteps(["show", "hidden", "hidden", "hidden"]), 180);
     setTimeout(() => setSteps(["show", "show", "hidden", "hidden"]), 360);
     setTimeout(() => setSteps(["show", "show", "show", "hidden"]), 540);
     setTimeout(() => setSteps(["show", "show", "show", "show"]), 720);
-
   }, [dishId]);
 
+  // Redirect only if we genuinely have no dishId at all
   useEffect(() => {
-    if (!state?.categoryId || !state?.dishId) {
+    if (!dishId) {
       navigate("/categories", { replace: true });
     }
-  }, [state, navigate]);
+  }, [dishId, navigate]);
 
   if (!dish) return null;
-  if (!state?.categoryId || !state?.dishId || !dish) {
-    return null;
-  }
 
   const filteredIngredients = (dish.ingredients || []).filter((ing) => {
     const full = foodData.ingredients.find(i =>
@@ -110,7 +133,11 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">{dish.name}</div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+        <div className="home-btn  home-btn-icon" onClick={handleHome} >
+          <span className="shadow"></span>
+          <span className="edge"></span>
+          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+        </div>
       </div>
 
       {/* MAIN */}
@@ -206,10 +233,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
               onClick={() => {
                 navigate("/food/customize", {
                   state: {
-                    categoryId:
-                      category.id === "favourites"
-                        ? dish.categoryId
-                        : category.id,
+                    categoryId: resolvedCategoryId,
                     dishId: dish.id
                   }
                 });
@@ -229,7 +253,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
                   id: dish.id,
                   name: dish.name,
                   image: dish.image,
-                  categoryId,
+                  categoryId: resolvedCategoryId,
                   quantity: 1,
                   unitPrice: dish.basePrice,
                   totalPrice: dish.basePrice,

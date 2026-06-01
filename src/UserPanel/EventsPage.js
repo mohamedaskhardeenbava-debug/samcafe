@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "./EventsPage.css";
+import homeIcon from "../assets/icons/home.png";
 import api from "../api";
 import { useToast } from "./Usetoast";
 import closeIcon from "../assets/icons/close.png";
@@ -480,6 +481,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
     const [filterType, setFilterType] = useState("all");
     const [submitState, setSubmitState] = useState("idle");
     const [errorMsg, setErrorMsg] = useState("");
+    const [formErrors, setFormErrors] = useState({});
     const [coupon, setCoupon] = useState(null);
     const [showAddGuest, setShowAddGuest] = useState(false);
     const [addGuestForm, setAddGuestForm] = useState({ guests: 1 });
@@ -534,19 +536,23 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
     const getEventDishes = (evt) => !evt.dishes?.length ? [] : allDishes.filter(d => evt.dishes.includes(d.id));
 
     const validateEnrollForm = () => {
-        if (!form.name.trim()) return "Please enter your full name.";
+        const errs = {};
+        if (!form.name.trim()) errs.name = "Please enter your full name.";
         const cleanPhone = form.phone.replace(/\D/g, "");
-        if (!cleanPhone || cleanPhone.length !== 10) return "Enter a valid 10-digit phone number.";
-        if (!form.email.trim()) return "Please enter your email address.";
-        const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRe.test(form.email.trim())) return "Enter a valid email address.";
-        return null;
+        if (!cleanPhone || cleanPhone.length !== 10) errs.phone = "Enter a valid 10-digit phone number.";
+        if (!form.email.trim()) {
+            errs.email = "Please enter your email address.";
+        } else {
+            const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRe.test(form.email.trim())) errs.email = "Enter a valid email address.";
+        }
+        return errs;
     };
 
     const handleEnroll = async () => {
-        const validationErr = validateEnrollForm();
-        if (validationErr) { setErrorMsg(validationErr); return; }
-        setErrorMsg(""); setSubmitState("loading");
+        const errs = validateEnrollForm();
+        if (Object.keys(errs).length) { setFormErrors(errs); return; }
+        setFormErrors({}); setErrorMsg(""); setSubmitState("loading");
         try {
             const payload = {
                 id: `bk_${Date.now()}`, eventId: selectedEvent.id,
@@ -572,9 +578,9 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
     const openEnroll = (evt) => {
         setSelectedEvent(evt);
         setForm({ name: currentUser?.name || "", email: currentUser?.email || "", phone: currentUser?.phone || "", guests: 1, specialRequests: "" });
-        setSubmitState("idle"); setErrorMsg(""); setCoupon(null); setShowEnroll(true);
+        setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); setShowEnroll(true);
     };
-    const closeEnroll = () => { setShowEnroll(false); setSubmitState("idle"); setErrorMsg(""); setCoupon(null); };
+    const closeEnroll = () => { setShowEnroll(false); setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); };
     const handleScratchDone = () => { closeEnroll(); setSelectedEvent(null); };
 
     const handleAddGuests = async () => {
@@ -616,7 +622,11 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                 <div className="ep-hero-content">
                     <div className="ep-hero-topbar">
                         <button className="events-back-button" onClick={handleBack} />
-                        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+                        <div className="home-btn  home-btn-icon" onClick={handleHome} >
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                        </div>
                     </div>
                     <div className="ep-hero-text">
                         <h1 className="ep-hero-title">Experiences &<br />Special Events</h1>
@@ -985,22 +995,22 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                             <span className="ep-price-total">= ₹{(Number(form.guests) * Number(selectedEvent.price)).toLocaleString("en-IN")}</span>
                                         </div>
                                     )}
-                                    <div className="ep-form-field">
+                                    <div className={`ep-form-field${formErrors.name ? " error" : ""}`}>
                                         <input type="text" value={form.name} placeholder=" "
-                                            onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
+                                            onChange={e => { setForm(p => ({ ...p, name: e.target.value })); setFormErrors(p => ({ ...p, name: undefined })); }} />
                                         <label>Full Name *</label>
                                         <span className="ep-mat-bar" />
                                     </div>
-                                    <div className="ep-form-field">
+                                    <div className={`ep-form-field${formErrors.email ? " error" : ""}`}>
                                         <input type="email" value={form.email} placeholder=" "
-                                            onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
+                                            onChange={e => { setForm(p => ({ ...p, email: e.target.value })); setFormErrors(p => ({ ...p, email: undefined })); }} />
                                         <label>Email *</label>
                                         <span className="ep-mat-bar" />
                                     </div>
-                                    <div className="ep-form-field">
+                                    <div className={`ep-form-field${formErrors.phone ? " error" : ""}`}>
                                         <input type="tel" value={form.phone} placeholder=" "
                                             maxLength={10}
-                                            onChange={e => setForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))} />
+                                            onChange={e => { setForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })); setFormErrors(p => ({ ...p, phone: undefined })); }} />
                                         <label>Phone * <span style={{ fontSize: 10, color: "#aaa", fontWeight: 400 }}>(10 digits)</span></label>
                                         <span className="ep-mat-bar" />
                                     </div>
@@ -1018,7 +1028,6 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                                         <label>Special Requests (optional)</label>
                                         <span className="ep-mat-bar" />
                                     </div>
-                                    {errorMsg && <p className="ep-error-msg">{errorMsg}</p>}
                                 </div>
 
                                 <div className="ep-enroll-footer">

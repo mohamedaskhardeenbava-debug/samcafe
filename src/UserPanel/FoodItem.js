@@ -305,7 +305,11 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 : dish ? dish.name
                   : `Make Your Own ${category.name}`}
           </div>
-          <div className="home-btn  home-btn-icon" onClick={handleHome} />
+          <div className="home-btn  home-btn-icon" onClick={handleHome} >
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+          </div>
           {!fromBag && !fromFavouriteCustomize && currentUser && currentUser.id !== "guest" && (
             <div
               className={`wishlist-btn ${isWishlisted ? "active" : ""}`}

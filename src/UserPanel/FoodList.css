@@ -15,12 +15,14 @@
   display: flex;
   align-items: center;
   position: relative;
+  gap: 0 !important;
 }
 
 .food-list-title {
   font-size: 20px;
   font-weight: 500;
   color: var(--text-primary);
+  flex: 1 1;
 }
 
 .back-button {
@@ -45,13 +47,6 @@
   transform: translateY(-50%) rotate(45deg);
   border-left-color: #000;
   border-bottom-color: #000;
-}
-
-.home-btn {
-  margin-left: auto;
-  width: 28px;
-  height: 28px;
-  cursor: pointer;
 }
 
 /* =========================
@@ -293,6 +288,7 @@
   pointer-events: none;
   transform-origin: center center;
   opacity: 1 !important;
+  filter: drop-shadow(0px 40px 28px rgba(180, 0, 30, 0.55)) drop-shadow(0px 20px 12px rgba(140, 0, 20, 0.35));
 }
 
 /* =========================
@@ -315,7 +311,36 @@
   will-change: transform, opacity;
 }
 
-/* old css */
+/* =========================
+   DISH SHADOW
+========================= */
+
+.dish-image-wrapper {
+  position: absolute;
+  width: 70%;
+  max-width: 500px;
+  aspect-ratio: 1/1;
+  pointer-events: none;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.dish-image-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: -6%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 70%;
+  height: 12%;
+  border-radius: 100%;
+  filter: blur(10px);
+  z-index: -1;
+}
+
+.dish-image-wrapper:nth-child(2):after {
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72) 0%, rgba(43, 43, 43, 0.38) 50%, transparent 75%);
+}
 
 .food-list {
   padding: 36px;
@@ -757,6 +782,10 @@
 
   .dish-image {
     left: 14%;
+  }
+
+  .dish-image-wrapper:nth-child(2):after {
+    background: none;
   }
 
   .food-details-container {

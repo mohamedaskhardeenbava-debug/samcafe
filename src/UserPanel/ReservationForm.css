@@ -235,7 +235,7 @@
 /* ── Textarea ── */
 .rf-textarea {
     border-radius: 12px;
-    border: 1.5px solid #e5e7eb;
+    border: 1.5px solid var(--text-tertiary);
     padding: 12px 14px;
     font-size: 14px;
     font-family: inherit;
@@ -1056,7 +1056,7 @@
 
 .rf-table-pref-card.active {
     border-color: var(--color-red);
-    background: rgba(231, 76, 60, 0.05);
+    background: var(--color-red);
     box-shadow: 0 6px 18px rgba(231, 76, 60, 0.2);
 }
 
@@ -1080,25 +1080,18 @@
     text-align: center;
 }
 
-.rf-table-pref-card.active .rf-tpref-label {
-    color: var(--color-red);
+.rf-table-pref-card.active .rf-tpref-label, .rf-table-pref-card.active .rf-tpref-desc {
+    color: var(--bg-main);
 }
 
 .rf-tpref-desc {
     font-size: 10px;
-    color: #aaa;
+    color: var(--text-secondary);
     text-align: center;
     line-height: 1.3;
 }
 
-.rf-tpref-tick {
-    position: absolute;
-    top: 6px;
-    right: 8px;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--color-red);
-}
+
 
 @media (max-width: 480px) {
     .rf-table-pref-grid {

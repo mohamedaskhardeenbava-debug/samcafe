@@ -1,5 +1,6 @@
 import "./AppetizerBuilder.css";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { flyToBag } from "./flyToBag.js";
 import homeIcon from "../assets/icons/home.png";
 
 const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
@@ -7,6 +8,8 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
     const [selectedSauce, setSelectedSauce] = useState(null);
     const [selectedMain, setSelectedMain] = useState(null);
     const [qty, setQty] = useState(1);
+
+    const finalImgRef = useRef(null);
 
     const appetizerCategory = foodData.categories.find(
         c => c.id === "appetizer"
@@ -36,15 +39,28 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
             ingredients: finalDish.ingredients,
             isCustomized: false
         });
+
+        // fly the final dish image to the bag
+        if (finalImgRef.current) {
+            flyToBag({
+                imgEl: finalImgRef.current,
+                dishId: finalDish.id,
+                customizationKey: ""
+            });
+        }
     };
 
     return (
         <div className="appetizer-builder">
 
-            <div className="builder-header">
+            <div className="food-grid-header">
                 <button className="back-button" onClick={handleBack} />
-                <h2>Build Your Appetizer</h2>
-                <div className="home-btn  home-btn-icon" onClick={handleHome} />
+                <h2 className="food-grid-title">Build Your Appetizer</h2>
+                <div className="home-btn home-btn-icon" onClick={handleHome}>
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                </div>
             </div>
 
             <div className="builder-grid">
@@ -71,9 +87,7 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                         </div>
                     </div>
 
-
                     {/* MAIN INGREDIENT */}
-
                     <div className="builder-column">
                         <h3 className="builder-column-header">Main Ingredient</h3>
                         <div className="builder-column-scroll">
@@ -95,7 +109,6 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                     </div>
                 </div>
 
-
                 {/* FINAL DISH */}
                 <div className="appetizer-last-grid">
                     <div className="final-column">
@@ -104,16 +117,17 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                             {finalDish ? (
                                 <div className="final-card">
                                     <div className="final-image">
-                                        <img src={finalDish.image} alt={finalDish.name} />
+                                        {/* ← ref attached here so flyToBag can grab the element */}
+                                        <img
+                                            ref={finalImgRef}
+                                            src={finalDish.image}
+                                            alt={finalDish.name}
+                                        />
                                     </div>
 
-                                    <div className="final-name">
-                                        {finalDish.name}
-                                    </div>
+                                    <div className="final-name">{finalDish.name}</div>
 
-                                    <div className="final-price">
-                                        ₹ {finalDish.basePrice}
-                                    </div>
+                                    <div className="final-price">₹ {finalDish.basePrice}</div>
 
                                     <button
                                         className="appetizer-delete-btn"
@@ -123,7 +137,9 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                                             setQty(1);
                                         }}
                                     >
-                                        Delete
+                                        <span className="shadow" />
+                                        <span className="edge" />
+                                        <span className="front">Delete</span>
                                     </button>
 
                                     <button

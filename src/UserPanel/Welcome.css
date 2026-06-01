@@ -8,6 +8,75 @@
   padding: 20px;
 }
 
+/* ===== WAVE BACKGROUND ===== */
+.welcome-page {
+  position: relative;
+}
+
+.welcome-waves {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Each wave is a giant circle that rotates — same trick as the uiverse e-card */
+.welcome-wave {
+  position: absolute;
+  /* 540px wide, 700px tall — same ratio as uiverse, but scaled up */
+  width: 160vmax;
+  height: 200vmax;
+  /* start off-screen bottom-left, same as uiverse margin trick */
+  left: 0;
+  top: 50%;
+  margin-left: -50%;
+  margin-top: -5%;
+  border-radius: 40%;
+  opacity: 0.6;
+  background: linear-gradient(744deg, #e74c3c, #c0392b 60%, #ff6b35);
+  animation: wv-spin 7s infinite linear;
+}
+
+.welcome-wave:nth-child(2) {
+  top: 50%;
+  opacity: 0.5;
+  animation-duration: 10s;
+}
+
+.welcome-wave:nth-child(3) {
+  top: 50%;
+  opacity: 0.4;
+  animation-duration: 13s;
+}
+
+@keyframes wv-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* frosted overlay so content stays readable */
+.welcome-waves::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(0px);
+  pointer-events: none;
+}
+
+/* ensure all direct children of welcome-page sit above waves */
+.welcome-page>*:not(.welcome-waves) {
+  position: relative;
+  z-index: 1;
+}
+
+
+
 .welcome-container {
   text-align: center;
   width: 100%;

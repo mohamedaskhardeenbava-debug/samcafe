@@ -569,13 +569,21 @@ function App() {
     const audio = bellAudioRef.current;
     if (!audio) return;
 
+    // Remove any existing loop listener before adding a new one,
+    // so calling startBellAudio twice (e.g. on reconnect / bell-sync)
+    // never stacks duplicate listeners.
+    if (bellLoopRef.current) {
+      audio.removeEventListener("ended", bellLoopRef.current);
+      bellLoopRef.current = null;
+    }
+
     const loop = () => {
       audio.currentTime = 0;
       audio.play().catch(() => { });
     };
 
     audio.addEventListener("ended", loop);
-    bellLoopRef.current = loop; // save reference to remove later
+    bellLoopRef.current = loop;
 
     audio.currentTime = 0;
     audio.play().catch(() => { });

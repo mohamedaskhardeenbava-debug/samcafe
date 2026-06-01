@@ -17,10 +17,32 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
     return null;
   }
 
-  const dish =
-    source === "my"
-      ? currentUser?.favourites?.find((d) => d.id === dishId)
-      : foodData.favourites?.find((d) => d.id === dishId);
+  // ── Resolve dish ────────────────────────────────────────────────────────
+  // "my"     → look in currentUser.favourites
+  // "others" → look in foodData.favourites first, then scan all categories
+  //            (crowd-picks / promo navigation sends dishes that may only
+  //             exist in the menu, not yet in the favourites collection)
+  let dish = null;
+
+  if (source === "my") {
+    dish = currentUser?.favourites?.find((d) => d.id === dishId) || null;
+  } else {
+    // 1. Check shared favourites list
+    dish = foodData.favourites?.find((d) => d.id === dishId) || null;
+
+    // 2. Fall back: scan all categories + subCategories
+    if (!dish) {
+      for (const cat of foodData.categories || []) {
+        const found = cat.dishes?.find(d => d.id === dishId);
+        if (found) { dish = { ...found, categoryId: cat.id }; break; }
+        for (const sub of cat.subCategories || []) {
+          const foundSub = sub.dishes?.find(d => d.id === dishId);
+          if (foundSub) { dish = { ...foundSub, categoryId: cat.id }; break; }
+        }
+        if (dish) break;
+      }
+    }
+  }
 
   if (!dish) {
     return (
@@ -33,7 +55,11 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           <div className="food-list-title">
             Dish not found
           </div>
-          <div className="home-btn  home-btn-icon" onClick={handleHome} />
+          <div className="home-btn  home-btn-icon" onClick={handleHome} >
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+          </div>
         </div>
       </div>
     );
@@ -48,7 +74,11 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           onClick={handleBack}
         />
         <h2 className="fav-title">{dish.name}</h2>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+        <div className="home-btn  home-btn-icon" onClick={handleHome}>
+          <span className="shadow"></span>
+          <span className="edge"></span>
+          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+        </div>
       </div>
 
       <div className="fav-detail-container">
@@ -67,7 +97,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
             <h2 className="fav-title">{dish.name}</h2>
 
             <div className="fav-price">
-              ₹{Math.round(dish.totalPrice)}
+              ₹{Math.round(dish.totalPrice ?? dish.basePrice ?? 0)}
             </div>
           </div>
 
@@ -179,15 +209,14 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
                   `.fav-image[data-fav-dish-id="${dish.id}"]`
                 );
 
+                const price = dish.totalPrice ?? dish.basePrice ?? 0;
                 addToBag({
-                  ...dish,                 // favourite snapshot
+                  ...dish,
                   quantity: 1,
-                  unitPrice: dish.totalPrice,
-                  totalPrice: dish.totalPrice,
-
-                  // IMPORTANT FLAGS
-                  isCustomized: false,     // favourites are already finalized
-                  isFromFavourite: true    // critical to prevent "Customized" prefix
+                  unitPrice: price,
+                  totalPrice: price,
+                  isCustomized: false,
+                  isFromFavourite: true
                 });
                 flyToBag({
                   imgEl: img,

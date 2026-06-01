@@ -14,6 +14,27 @@
   isolation: isolate;
 }
 
+/* Soft ambient glow blob — sits behind the dish image */
+.food-images-expanded::after {
+  content: "";
+  position: absolute;
+  width: 55%;
+  height: 40%;
+  bottom: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72) 0%, rgba(43, 43, 43, 0.38) 50%, transparent 75%);
+  filter: blur(28px);
+  border-radius: 50%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.food-images-expanded img::after {
+  content: "";
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72) 0%, rgba(43, 43, 43, 0.38) 50%, transparent 75%);
+}
+
 .food-details-expanded {
   position: relative;
   z-index: 10;
@@ -256,6 +277,23 @@
 .button-section {
   gap: 10px;
   margin-top: 10px;
+}
+
+/* ── Shape-aware drop shadow — follows the transparent outline of the PNG ── */
+.food-images-expanded .dish-image.image-main {
+  filter:
+    drop-shadow(0px 18px 22px rgba(0, 0, 0, 0.28)) drop-shadow(0px 6px 8px rgba(0, 0, 0, 0.18));
+  transition: filter 0.4s ease;
+}
+
+.food-images-expanded .dish-image.image-main::after {
+  content: "";
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72) 0%, rgba(43, 43, 43, 0.38) 50%, transparent 75%);
+}
+
+.food-images-expanded:hover .dish-image.image-main {
+  filter:
+    drop-shadow(0px 26px 32px rgba(0, 0, 0, 0.32)) drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.2));
 }
 
 @media screen and (max-width: 1200px) {

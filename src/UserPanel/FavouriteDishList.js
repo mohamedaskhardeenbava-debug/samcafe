@@ -64,9 +64,9 @@ const FavouriteDishList = ({
 
         // force UI refresh safely
         setCurrentUser({
-  ...currentUser,
-  favourites: updatedFavourites
-});
+          ...currentUser,
+          favourites: updatedFavourites
+        });
       }
     } catch (err) {
       console.error("Failed to delete favourite", err);
@@ -84,7 +84,11 @@ const FavouriteDishList = ({
         <div className="food-list-title">
           {category?.name || "Favourites"}
         </div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+        <div className="home-btn  home-btn-icon" onClick={handleHome}>
+          <span className="shadow"></span>
+          <span className="edge"></span>
+          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+        </div>
       </div>
 
       {/* LIST */}
@@ -111,7 +115,7 @@ const FavouriteDishList = ({
               }
             >
               <div className="food-category-image">
-                <img src={dish.image} alt={dish.name} loading="lazy" decoding="async"/>
+                <img src={dish.image} alt={dish.name} loading="lazy" decoding="async" />
               </div>
               <div className="food-category-name">
                 {dish.name}

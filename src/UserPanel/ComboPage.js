@@ -54,10 +54,11 @@ const getOfferHint = (starter, main) => {
 };
 
 /* ─── Sub-components ──────────────────────────────────────── */
-const CategoryCard = ({ title, active, selected, onClick }) => (
+const CategoryCard = ({ title, active, selected, disabled, onClick }) => (
   <button
-    className={`combo-category-card ${active ? "active" : ""} ${selected ? "selected" : ""}`}
+    className={`combo-category-card ${active ? "active" : ""} ${selected ? "selected" : ""} ${disabled ? "disabled" : ""}`}
     onClick={onClick}
+    disabled={disabled}
   >
     <span className="shadow" />
     <span className="edge" />
@@ -76,7 +77,9 @@ const SubCategoryBar = ({ groups, activeGroup, onSelect }) => (
         className={`combo-subcategory-btn ${activeGroup === g.id ? "active" : ""}`}
         onClick={() => onSelect(g.id)}
       >
-        {g.title}
+        <span className="shadow" />
+        <span className="edge" />
+        <span className="front">{g.title}</span>
       </button>
     ))}
   </div>
@@ -172,20 +175,65 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
   const [quantity, setQuantity] = useState(() => (isEditMode && editQuantity) ? editQuantity : 1);
 
   const [selectedItems, setSelectedItems] = useState(() => {
-    // Accept pre-selected items from both edit-mode (fromBag) and promo chip navigation
+    // ── 1. Edit mode (fromBag) — full comboItems already stored ──
     if (location.state?.comboItems) return location.state.comboItems;
+
+    // ── 2. comboOffer navigation (from PromoCard / FoodCategory) ──
+    // comboOffer = { condition: { starter: "Dish Name", main: "Dish Name" }, ... }
+    // We need to look up the actual item objects from the combo sections so
+    // prices, images etc. are all available. Since combo data isn't ready at
+    // useState init time we seed with null here and resolve in a useEffect below.
     return { starter: null, main: null, drink: null };
   });
 
-  /* ── Initialise groups when section activates ── */
+  /* ── Find item by name (bug fix: search groups not section.items) ── */
+  const findComboItemByName = useCallback((type, name) => {
+    const section = type === "starter" ? startersSection : type === "main" ? mainSection : beveragesSection;
+    for (const group of (section.groups || [])) {
+      const found = (group.items || []).find(i => i.name === name);
+      if (found) return found;
+    }
+    return null;
+  }, [startersSection, mainSection, beveragesSection]);
+
+  // Resolve comboOffer → pre-selected items once combo data is available
   useEffect(() => {
-    if (activeSection === "starters" && !activeStarterGroup)
+    const offer = location.state?.comboOffer;
+    if (!offer?.condition) return;
+
+    const { starter: starterName, main: mainName } = offer.condition;
+    let resolved = { starter: null, main: null, drink: null };
+
+    if (starterName) {
+      const item = findComboItemByName("starter", starterName);
+      if (item) resolved.starter = item;
+    }
+    if (mainName) {
+      const item = findComboItemByName("main", mainName);
+      if (item) resolved.main = item;
+    }
+
+    // Only apply if we found at least one item
+    if (resolved.starter || resolved.main) {
+      setSelectedItems(resolved);
+      // Advance the active section to the first incomplete step
+      if (resolved.starter && !resolved.main) setActiveSection("mainCourse");
+      else if (resolved.starter && resolved.main) setActiveSection("beverages");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [findComboItemByName]);
+
+  /* ── Initialise groups when section activates ── */
+  // Always reset to first subcategory whenever the active section changes,
+  // so switching to a section always opens its first subcategory tab.
+  useEffect(() => {
+    if (activeSection === "starters")
       setActiveStarterGroup(startersSection.groups?.[0]?.id || null);
-    if (activeSection === "mainCourse" && !activeMainGroup)
+    if (activeSection === "mainCourse")
       setActiveMainGroup(mainSection.groups?.[0]?.id || null);
-    if (activeSection === "beverages" && !activeDrinkGroup)
+    if (activeSection === "beverages")
       setActiveDrinkGroup(beveragesSection.groups?.[0]?.id || null);
-  }, [activeSection]);
+  }, [activeSection]); // eslint-disable-line react-hooks/exhaustive-deps
 
   /* ── Edit mode auto-advance ── */
   const { starter, main, drink } = selectedItems;
@@ -232,16 +280,6 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
     if (!isComboComplete) return "";
     return [selectedItems.starter.name, selectedItems.main.name, selectedItems.drink.name].join(" + ");
   }, [selectedItems, isComboComplete]);
-
-  /* ── Find item by name (bug fix: search groups not section.items) ── */
-  const findComboItemByName = useCallback((type, name) => {
-    const section = type === "starter" ? startersSection : type === "main" ? mainSection : beveragesSection;
-    for (const group of (section.groups || [])) {
-      const found = (group.items || []).find(i => i.name === name);
-      if (found) return found;
-    }
-    return null;
-  }, [startersSection, mainSection, beveragesSection]);
 
   /* ── Actions ── */
   const handleAddItem = useCallback((type, item) => {
@@ -455,9 +493,27 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
           <>
             {/* Section tabs */}
             <div className="combo-category-row">
-              <CategoryCard title="Starters" active={activeSection === "starters"} selected={!!selectedItems.starter} onClick={() => setActiveSection("starters")} />
-              <CategoryCard title="Main Course" active={activeSection === "mainCourse"} selected={!!selectedItems.main} onClick={() => setActiveSection("mainCourse")} />
-              <CategoryCard title="Beverages" active={activeSection === "beverages"} selected={!!selectedItems.drink} onClick={() => setActiveSection("beverages")} />
+              <CategoryCard
+                title="Starters"
+                active={activeSection === "starters"}
+                selected={!!selectedItems.starter}
+                disabled={activeSection === "starters" && !!selectedItems.starter}
+                onClick={() => setActiveSection("starters")}
+              />
+              <CategoryCard
+                title="Main Course"
+                active={activeSection === "mainCourse"}
+                selected={!!selectedItems.main}
+                disabled={!selectedItems.starter || (activeSection === "mainCourse" && !!selectedItems.main)}
+                onClick={() => setActiveSection("mainCourse")}
+              />
+              <CategoryCard
+                title="Beverages"
+                active={activeSection === "beverages"}
+                selected={!!selectedItems.drink}
+                disabled={!selectedItems.main || (activeSection === "beverages" && !!selectedItems.drink)}
+                onClick={() => setActiveSection("beverages")}
+              />
             </div>
 
             {/* Subcategory bar */}
@@ -538,7 +594,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             <div className="quantity-label">Qty</div>
             <div className="stepper-ctrl">
               <button className="stepper-btn" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity === 1}>
-               −
+                −
               </button>
               <div className="stepper-val">{quantity}</div>
               <button className="stepper-btn" onClick={() => setQuantity(q => q + 1)}>
@@ -572,7 +628,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             )}
           </div>
 
-          <button className="combo-add-btn">
+          <button
+            className="combo-add-btn"
+            onClick={handleAddToBag}
+            disabled={!isComboComplete}
+          >
             <span className="shadow" />
             <span className="edge" />
             <span className="front">

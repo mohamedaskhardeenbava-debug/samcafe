@@ -106,7 +106,11 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
         <div className="food-header">
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">Category not found</div>
-          <div className="home-btn  home-btn-icon" onClick={handleHome} />
+          <div className="home-btn  home-btn-icon" onClick={handleHome}>
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+          </div>
         </div>
       </div>
     );
@@ -133,7 +137,11 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
         <div className="food-list-title">
           {category.name}
         </div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+        <div className="home-btn  home-btn-icon" onClick={handleHome} >
+          <span className="shadow"></span>
+          <span className="edge"></span>
+          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+        </div>
       </div>
 
       {/* MAIN AREA */}
@@ -255,66 +263,61 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
           {visible.map((item, slot) => {
 
             return (
-              <motion.img
-                data-active-dish={slot === 1 ? item.id : undefined}
+              <motion.div
+                key={item.id}
+                className="dish-image-wrapper"
                 initial={
                   slot === 2 || slot === 3
                     ? { x: SLOT_X[slot] + 500 }
                     : false
                 }
-                ref={(el) => {
-                  if (slot === 1 && el) {
-                    imageRefs.current[visible[1].id] = el;
-                  }
-                }}
-                key={item.id}
-                layoutId={slot === 1 ? `dish-${item.id}` : undefined}
-                src={item.image}
-                className="dish-image"
                 animate={
                   isGlidingOut
                     ? slot === 1
-                      ? {
-                        x: SLOT_X[1],
-                        scale: 1,
-                        zIndex: 5
-                      }
+                      ? { x: SLOT_X[1], scale: 1, zIndex: 5 }
                       : slot === 2
-                        ? {
-                          x: SLOT_X[2] + 800,   // 👉 glide right from current pos
-                          scale: 0.7
-                        }
+                        ? { x: SLOT_X[2] + 800, scale: 0.7 }
                         : slot === 3
-                          ? {
-                            x: SLOT_X[3] + 1600, // 👉 glide right from current pos
-                            scale: 0.4
-                          }
-                          : {
-                            x: SLOT_X[slot],
-                            scale: 0.3
-                          }
+                          ? { x: SLOT_X[3] + 1600, scale: 0.4 }
+                          : { x: SLOT_X[slot], scale: 0.3 }
                     : {
                       x: SLOT_X[slot],
                       scale:
                         slot === 1 ? 1 :
                           slot === 2 ? 0.7 :
                             slot === 3 ? 0.4 : 0.3,
-                      filter:
-                        slot === 1 ? "blur(0px)" :
-                          slot === 2 ? "blur(6px)" :
-                            slot === 3 ? "blur(10px)" : "blur(14px)",
                       zIndex:
                         slot === 1 ? 3 :
                           slot === 2 ? 2 :
                             slot === 3 ? 1 : 0
                     }
                 }
-                transition={
-                  isGlidingOut
-                    ? SLOW_SPRING
-                    : SOFT_SPRING
-                }
-              />
+                transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
+              >
+                <motion.img
+                  data-active-dish={slot === 1 ? item.id : undefined}
+                  ref={(el) => {
+                    if (slot === 1 && el) {
+                      imageRefs.current[visible[1].id] = el;
+                    }
+                  }}
+                  layoutId={slot === 1 ? `dish-${item.id}` : undefined}
+                  src={item.image}
+                  className="dish-image"
+                  style={{ position: "relative", width: "100%", height: "100%" }}
+                  animate={{
+                    filter:
+                      slot === 1
+                        ? "blur(0px)"
+                        : slot === 2
+                          ? "blur(6px)"
+                          : slot === 3
+                            ? "blur(10px)"
+                            : "blur(14px)"
+                  }}
+                  transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
+                />
+              </motion.div>
             );
           })}
         </div>

@@ -5,6 +5,7 @@ import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./PreBooking.css";
 import "./ReservationForm.css";
+import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -88,28 +89,47 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
                 {/* Header */}
                 <div className="pbp-dish-popup-header">
                     <h3 className="pbp-dish-popup-title">Add Dish</h3>
-                    <button className="pbp-dish-popup-close" onClick={onClose}>✕</button>
+                    <button className="pbp-dish-popup-close" onClick={onClose}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">✕</span>
+                    </button>
                 </div>
 
                 {/* Search */}
                 <div className="pbp-dish-popup-search-wrap">
-                    <input
-                        className="pbp-dish-popup-search"
-                        placeholder="Search dishes…"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
+                    <div class="field-group">
+                        <div class="mat">
+                            <input
+                                class="mat-input"
+                                placeholder="Search dishes…"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                            <label class="mat-label">
+                                Search dishes…
+                            </label>
+                            <span class="mat-bar">
+                            </span
+                            ></div>
+                    </div>
                 </div>
 
                 {/* Category tabs */}
                 {!loading && (
                     <div className="pbp-dish-popup-cats">
-                        <button className={`pbp-dish-cat-btn${!activeCat ? " active" : ""}`} onClick={() => setActiveCat(null)}>All</button>
+                        <button className={`pbp-dish-cat-btn${!activeCat ? " active" : ""}`} onClick={() => setActiveCat(null)}>
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">All</span>
+                        </button>
                         {categories.map(c => (
                             <button key={c.id}
                                 className={`pbp-dish-cat-btn${activeCat === c.id ? " active" : ""}`}
                                 onClick={() => setActiveCat(activeCat === c.id ? null : c.id)}>
-                                {c.name}
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">{c.name}</span>
                             </button>
                         ))}
                     </div>
@@ -121,7 +141,11 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
                         <button key={v}
                             className={`pbp-veg-filter-btn${vegFilter === v ? " active-" + v : ""}`}
                             onClick={() => setVegFilter(v)}>
-                            {v === "all" ? "All" : v === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">
+                                {v === "all" ? "All" : v === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}
+                            </span>
                         </button>
                     ))}
                 </div>
@@ -282,7 +306,11 @@ const PreBooking = ({ handleBack, handleHome }) => {
                 <div className="food-header">
                     <button className="back-button" onClick={handleBack} />
                     <div className="food-list-title">Pre Booking</div>
-                    <div className="home-btn home-btn-icon" onClick={handleHome} />
+                    <div className="home-btn home-btn-icon" onClick={handleHome}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                    </div>
                 </div>
                 <div className="pbp-success-screen">
                     <div className="pbp-success-icon">
@@ -330,7 +358,11 @@ const PreBooking = ({ handleBack, handleHome }) => {
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-list-title">Pre Booking</div>
-                <div className="home-btn home-btn-icon" onClick={handleHome} />
+                <div className="home-btn home-btn-icon" onClick={handleHome} >
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                </div>
             </div>
 
             <div className="pbp-form-shell">
@@ -489,7 +521,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                                     <div className="pbp-item-price">₹{dish.totalPrice?.toLocaleString()}</div>
                                                     <button type="button"
-                                                        style={{ background: "none", border: "none", cursor: "pointer", color: "#dc2626", fontSize: 16, padding: "0 4px" }}
+                                                        className="pbp-item-delete"
                                                         onClick={() => setSelectedDishes(prev => prev.filter(d => d.id !== dish.id))}>
                                                         ×
                                                     </button>
@@ -499,10 +531,12 @@ const PreBooking = ({ handleBack, handleHome }) => {
                                     </div>
                                     <button
                                         type="button"
-                                        className="pbp-addmore-dish-btn"
+                                        className="chip"
                                         onClick={() => setShowDishPopup(true)}
                                     >
-                                        + Add More
+                                        <span className="shadow"></span>
+                                        <span className="edge"></span>
+                                        <span className="front">+ Add More</span>
                                     </button>
                                     <div className="pbp-bill">
                                         <div className="pbp-bill-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString()}</span></div>

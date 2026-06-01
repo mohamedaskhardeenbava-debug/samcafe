@@ -42,7 +42,11 @@ const FavouriteCategories = ({
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">Favourites</div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+        <div className="home-btn  home-btn-icon" onClick={handleHome} >
+          <span className="shadow"></span>
+          <span className="edge"></span>
+          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+        </div>
       </div>
 
       <div className="food-category">

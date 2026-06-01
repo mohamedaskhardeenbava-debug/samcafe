@@ -883,11 +883,12 @@
 }
 
 .combo-subcategory-btn .front {
-  padding: 8px 16px;
+  padding: 6px 16px;
   border-radius: 999px;
   background: var(--bg-main);
   color: var(--text-primary);
   border: 1px solid var(--text-tertiary);
+  font-size: 13px;
 }
 
 .combo-subcategory-btn.active .edge {
@@ -923,6 +924,27 @@
 .offer-hint-add:hover .shadow,
 .offer-hint-skip:hover .shadow {
   transform: translateY(4px);
+}
+
+.combo-action-btn:active .front,
+.combo-add-fav-btn:active .front,
+.combo-my-fav-btn:active .front,
+.combo-subcategory-btn:active .front,
+.combo-add-btn:active .front,
+.offer-hint-add:active .front,
+.offer-hint-skip:active .front {
+  transform: translateY(-2px);
+  filter: brightness(100%);
+}
+
+.combo-action-btn:active .shadow,
+.combo-add-fav-btn:active .shadow,
+.combo-my-fav-btn:active .shadow,
+.combo-subcategory-btn:active .shadow,
+.combo-add-btn:active .shadow,
+.offer-hint-add:active .shadow,
+.offer-hint-skip:active .shadow {
+  transform: translateY(1px);
 }
 
 .combo-action-btn {
@@ -1044,6 +1066,38 @@
 .combo-category-card.selected .front {
   background: color-mix(in srgb, var(--color-green) 10%, var(--bg-main));
   color: var(--color-green);
+}
+
+/* ── Disabled category card ── */
+.combo-category-card.disabled,
+.combo-category-card:disabled {
+  cursor: not-allowed;
+}
+
+.combo-category-card.disabled .front,
+.combo-category-card:disabled .front {
+  background: var(--bg-primary, #f4f4f4);
+  color: var(--text-tertiary, #bbb);
+  border-color: var(--text-tertiary, #ddd);
+  transform: translateY(-4px);
+  cursor: not-allowed;
+  /* keep same lift, no hover */
+}
+
+.combo-category-card.disabled .edge,
+.combo-category-card:disabled .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 72%) 0%,
+      hsl(0, 0%, 80%) 8%,
+      hsl(0, 0%, 80%) 92%,
+      hsl(0, 0%, 72%) 100%);
+      cursor: not-allowed;
+}
+
+.combo-category-card.disabled .shadow,
+.combo-category-card:disabled .shadow {
+  background: rgba(0, 0, 0, 0.06);
+  cursor: not-allowed;
 }
 
 .combo-category-card:hover .front {

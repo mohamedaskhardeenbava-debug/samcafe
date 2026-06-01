@@ -149,15 +149,20 @@
   }
 }
 
+.fly-img {
+  overflow: visible;
+}
+
 .bag-item-row img {
   width: 46px;
-  height: 46px;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
   border-radius: 8px;
 }
 
 /* hidden during flight */
 .bag-item-row img.pending-img {
+  object-fit: contain;
   opacity: 0;
 }
 

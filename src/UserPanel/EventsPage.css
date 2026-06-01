@@ -2162,6 +2162,50 @@
     text-transform: uppercase !important;
 }
 
+/* ── Error state: label turns red, bar stays fully expanded ── */
+.ep-form-field.error label {
+    top: 0 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: var(--color-red, #e74c3c) !important;
+    letter-spacing: 0.06em !important;
+    text-transform: uppercase !important;
+}
+
+.ep-form-field.error input,
+.ep-form-field.error textarea {
+    border-bottom: 2px solid var(--color-red, #e74c3c) !important;
+}
+
+.ep-form-field.error .ep-mat-bar {
+    width: 100% !important;
+    background: var(--color-red, #e74c3c) !important;
+}
+
+/* ── Inline field error message (matches rf-error in ReservationForm) ── */
+.ep-field-error {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-red, #e74c3c);
+    margin-top: 5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: ep-err-in 0.22s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes ep-err-in {
+    from {
+        opacity: 0;
+        transform: translateY(-3px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* ── Input/Textarea: flat underline ── */
 .ep-form-field input,
 .ep-form-field textarea {

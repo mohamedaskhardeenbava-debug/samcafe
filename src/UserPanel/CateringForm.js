@@ -1,10 +1,11 @@
 // user panel
 import { useState, useEffect, useMemo } from "react";
 import api from "../api";
-import { UserDatePicker, todayStr } from "./UserDatePicker";
+import { UserDatePicker } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./CateringForm.css";
 import "./ReservationForm.css";
+import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -113,17 +114,30 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
                 {/* Header */}
                 <div className="ucat-dish-popup-header">
                     <h3 className="ucat-dish-popup-title">Add Dish</h3>
-                    <button className="ucat-dish-popup-close" onClick={onClose}>✕</button>
+                    <button className="pbp-dish-popup-close" onClick={onClose}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">✕</span>
+                    </button>
                 </div>
 
                 {/* Search */}
                 <div className="ucat-dish-popup-search-wrap">
-                    <input
-                        className="ucat-dish-popup-search"
-                        placeholder="Search dishes…"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
+                    <div class="field-group">
+                        <div class="mat">
+                            <input
+                                class="mat-input"
+                                placeholder="Search dishes…"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                            <label class="mat-label">
+                                Search dishes…
+                            </label>
+                            <span class="mat-bar">
+                            </span
+                            ></div>
+                    </div>
                 </div>
 
                 {/* Category tabs */}
@@ -132,14 +146,18 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
                         <button
                             className={`ucat-dish-cat-btn${!activeCat ? " active" : ""}`}
                             onClick={() => setActiveCat(null)}>
-                            All
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">All</span>
                         </button>
                         {categories.map(c => (
                             <button
                                 key={c.id}
                                 className={`ucat-dish-cat-btn${activeCat === c.id ? " active" : ""}`}
                                 onClick={() => setActiveCat(activeCat === c.id ? null : c.id)}>
-                                {c.name}
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">{c.name}</span>
                             </button>
                         ))}
                     </div>
@@ -151,7 +169,9 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
                         <button key={v}
                             className={`ucat-veg-filter-btn${vegFilter === v ? " active-" + v : ""}`}
                             onClick={() => setVegFilter(v)}>
-                            {v === "all" ? "All" : v === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">{v === "all" ? "All" : v === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}</span>
                         </button>
                     ))}
                 </div>
@@ -187,7 +207,7 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
                                             </div>
                                         </div>
                                         <button
-                                            className={`ucat-dish-card-btn${already ? " remove" : ""}`}
+                                            className={`pbp-dish-card-btn${already ? " remove" : ""}`}
                                             onClick={() => onAdd(dish, already)}
                                             title={already ? "Remove" : "Add"}>
                                             {already ? "✕" : "+"}
@@ -210,10 +230,9 @@ const CheckCard = ({ label, price, checked, onChange }) => (
     <label className={`ucat-check-card${checked ? " active" : ""}`}>
         <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ display: "none" }} />
         <div className="ucat-check-card-title">
-            <div>{label}</div>
-            {price ? <div style={{ fontSize: 10, color: "#aaa" }}>+₹{price}</div> : null}
+            <div className="ucat-addon-label">{label}</div>
+            {price ? <div className="ucat-addon-price">+₹{price}</div> : null}
         </div>
-        {checked && <span className="ucat-check-tick">✓</span>}
     </label>
 );
 
@@ -384,7 +403,11 @@ const CateringForm = ({ handleBack, handleHome }) => {
                 <div className="food-header">
                     <button className="back-button" onClick={handleBack} />
                     <div className="food-list-title">Catering</div>
-                    <div className="home-btn home-btn-icon" onClick={handleHome} />
+                    <div className="home-btn home-btn-icon" onClick={handleHome}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                    </div>
                 </div>
                 <div className="ucat-success-screen">
                     <div className="ucat-success-icon">🍽️</div>
@@ -416,7 +439,11 @@ const CateringForm = ({ handleBack, handleHome }) => {
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-list-title">Catering</div>
-                <div className="home-btn home-btn-icon" onClick={handleHome} />
+                <div className="home-btn home-btn-icon" onClick={handleHome}>
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                </div>
             </div>
 
             <div className="ucat-form-shell">
@@ -620,7 +647,6 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                         <span className="ucat-deco-label">{t.label}</span>
                                         <span className="ucat-deco-price">₹{t.price.toLocaleString()}</span>
                                         <span className="ucat-deco-desc">{t.desc}</span>
-                                        {form.decoration === t.value && <span className="ucat-deco-tick">✓</span>}
                                     </button>
                                 ))}
                             </div>
@@ -686,7 +712,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                                     <div className="ucat-item-price">₹{dish.totalPrice?.toLocaleString()}</div>
                                                     <button type="button"
-                                                        style={{ background: "none", border: "none", cursor: "pointer", color: "#dc2626", fontSize: 16, padding: "0 4px" }}
+                                                        className="ucat-item-delete"
                                                         onClick={() => setSelectedDishes(prev => prev.filter(d => d.id !== dish.id))}>
                                                         ×
                                                     </button>
@@ -696,10 +722,12 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                     </div>
                                     <button
                                         type="button"
-                                        className="ucat-addmore-dish-btn"
+                                        className="chip"
                                         onClick={() => setShowDishPopup(true)}
                                     >
-                                        + Add More
+                                        <span className="shadow"></span>
+                                        <span className="edge"></span>
+                                        <span className="front">+ Add More</span>
                                     </button>
                                 </>
                             )}

@@ -62,6 +62,7 @@
   box-shadow: var(--thankyou-shadow);
   z-index: 10;
   transform: translateZ(0);
+  background: var(--bg-main);
 }
 
 .thankyou-title {

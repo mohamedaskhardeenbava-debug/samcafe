@@ -79,15 +79,15 @@ function derivePromoItems({ categories, orders, offers, comboOffers, events }) {
     if (!dish?.name || !dish?.basePrice || !dish?.image) continue;
     chips.push({
       id: `trending-${id}`,
-      type: "dish",
-      badge: "Trending",
+      type: "popular",
+      badge: `${count} orders`,
       badgeColor: "pop",
-      discount: null,
+      discount: "Most ordered",
       title: dish.name,
       price: `₹${dish.basePrice}`,
       oldPrice: null,
       image: dish.image,
-      cta: "View",
+      cta: "Order now",
       categoryId: dish._catId,
       dishId: dish.id,
       orderCount: count,
@@ -95,28 +95,7 @@ function derivePromoItems({ categories, orders, offers, comboOffers, events }) {
     break;
   }
 
-  /* 3. Best combo offer */
-  const bestCombo = (comboOffers || []).reduce(
-    (best, o) => (!best || o.value > best.value ? o : best), null
-  );
-  if (bestCombo) {
-    const { starter, main } = bestCombo.condition || {};
-    chips.push({
-      id: `combo-${bestCombo.id}`,
-      type: "combo",
-      badge: "Best combo",
-      badgeColor: "combo",
-      discount: bestCombo.label,
-      title: starter && main ? `${starter} + ${main}` : "Combo deal",
-      price: null,
-      oldPrice: null,
-      image: null,
-      cta: "Build combo",
-      comboOffer: bestCombo,
-    });
-  }
-
-  /* 4. Published / upcoming events */
+  /* 3. Published / upcoming events */
   const today = new Date().toISOString().slice(0, 10);
   for (const ev of events || []) {
     if (!ev.isPublished) continue;
@@ -124,15 +103,15 @@ function derivePromoItems({ categories, orders, offers, comboOffers, events }) {
     chips.push({
       id: `event-${ev.id}`,
       type: "event",
+      image: ev.image || null,
       badge: fmtDate(ev.date),
       badgeColor: "event",
       discount: ev.highlights?.[0] || null,
       title: ev.title,
       price: ev.price ? `₹${ev.price}` : null,
       oldPrice: null,
-      image: ev.image || null,
       cta: "Book now",
-      route: "/events",
+      eventId: ev.id,
     });
   }
 
@@ -155,10 +134,10 @@ function derivePromoItems({ categories, orders, offers, comboOffers, events }) {
     for (const dish of allDishes.slice(-(8 - chips.length))) {
       chips.push({
         id: `new-${dish.id}`,
-        type: "dish",
-        badge: "New",
+        type: "new",
+        badge: "New Arrival",
         badgeColor: "pop",
-        discount: null,
+        discount: "Just added",
         title: dish.name,
         price: `₹${dish.basePrice}`,
         oldPrice: null,
@@ -277,34 +256,51 @@ function deriveCrowdPicks({ categories, orders }, limit = 10) {
   }
   return result;
 }
-const ACCENT_MAP = {
-  hot: "#FF6B35",
-  pop: "#1A73E8",
-  combo: "#7B61FF",
-  event: "#0F9D58",
+
+/* ═══════════════════════════════════════════════
+   PROMO CARD
+═══════════════════════════════════════════════ */
+const PromoCard = ({ item, onClick }) => {
+  return (
+    <button
+      className={`pc-card pc-card--${item.type}`}
+      onClick={() => onClick(item)}
+      aria-label={item.title}
+    >
+      {/* Image / icon block */}
+      <div className="pc-card__media">
+        <img src={item.image} alt={item.title} loading="lazy" />
+      </div>
+
+      {/* Info */}
+      <div className="pc-card__body">
+        {/* Top row: type pill + badge */}
+        <div className="pc-card__top">
+          {item.badge && <span className="pc-card__badge">{item.badge}</span>}
+        </div>
+
+        {/* Title */}
+        <p className="pc-card__title">{item.title}</p>
+
+        {/* Bottom row: price + CTA */}
+        <div className="pc-card__bottom">
+          <div className="pc-card__price-group">
+            {item.price && <span className="pc-card__price">{item.price}</span>}
+            {item.oldPrice && <span className="pc-card__old-price">{item.oldPrice}</span>}
+            {item.discount && !item.price && <span className="pc-card__discount">{item.discount}</span>}
+          </div>
+          <span className="pc-card__cta">{item.cta} →</span>
+        </div>
+      </div>
+    </button>
+  );
 };
 
 /* ═══════════════════════════════════════════════
-   PROMO CHIP
-═══════════════════════════════════════════════ */
-const PromoChip = ({ item, onClick }) => (
-  <button
-    className={`pc-chip pc-chip-${item.badgeColor}`}
-    onClick={() => onClick(item)}
-    aria-label={item.title}
-    style={{ "--chip-accent": ACCENT_MAP[item.badgeColor] || "#FF6B35" }}
-  >
-    <span className="pc-chip-badge">{item.badge}</span>
-    <span className="pc-chip-title">{item.title}</span>
-    {item.discount && <span className="pc-chip-discount">{item.discount}</span>}
-  </button>
-);
-
-/* ═══════════════════════════════════════════════
-   PROMO CAROUSEL — 4 chips per page
+   PROMO CAROUSEL — 3 cards per page
 ═══════════════════════════════════════════════ */
 const PromoCarousel = ({ items, onCardClick }) => {
-  const PAGE_SIZE = 4;
+  const PAGE_SIZE = 3;
   const pages = [];
   for (let i = 0; i < items.length; i += PAGE_SIZE) pages.push(items.slice(i, i + PAGE_SIZE));
   const MAX = pages.length - 1;
@@ -319,7 +315,7 @@ const PromoCarousel = ({ items, onCardClick }) => {
 
   const resetAuto = useCallback(() => {
     clearInterval(autoRef.current);
-    autoRef.current = setInterval(() => setPage((p) => (p >= MAX ? 0 : p + 1)), 4000);
+    autoRef.current = setInterval(() => setPage((p) => (p >= MAX ? 0 : p + 1)), 4500);
   }, [MAX]);
 
   useEffect(() => { resetAuto(); return () => clearInterval(autoRef.current); }, [resetAuto]);
@@ -340,11 +336,14 @@ const PromoCarousel = ({ items, onCardClick }) => {
         onClick={() => { go(-1); resetAuto(); }} disabled={page === 0} aria-label="Previous" />
 
       <div className="pc-viewport">
-        <div className="pc-track">
+        <div
+          className="pc-track"
+          style={{ transform: `translateX(-${page * 100}%)` }}
+        >
           {pages.map((group, gi) => (
             <div key={gi} className="pc-page">
               {group.map((item) => (
-                <PromoChip key={item.id} item={item} onClick={onCardClick} />
+                <PromoCard key={item.id} item={item} onClick={onCardClick} />
               ))}
             </div>
           ))}
@@ -353,209 +352,21 @@ const PromoCarousel = ({ items, onCardClick }) => {
 
       <button className="pc-arrow pc-arrow-right"
         onClick={() => { go(1); resetAuto(); }} disabled={page === MAX} aria-label="Next" />
+
+      {/* Dot indicators */}
+      {pages.length > 1 && (
+        <div className="pc-dots">
+          {pages.map((_, i) => (
+            <button
+              key={i}
+              className={`pc-dot ${i === page ? "active" : ""}`}
+              onClick={() => { setPage(i); resetAuto(); }}
+              aria-label={`Page ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════
-   POPULAR DISHES SECTION
-═══════════════════════════════════════════════ */
-const PopularDishes = ({ dishes, onDishClick }) => {
-  if (!dishes.length) return null;
-
-  return (
-    <section className="popular-section">
-      <div className="section-header">
-        <h2 className="section-title">🔥 Popular Dishes</h2>
-        <span className="section-sub">Most ordered by your crowd</span>
-      </div>
-
-      <div className="popular-scroll">
-        {dishes.map((dish, i) => (
-          <button
-            key={dish.id}
-            className="popular-card"
-            onClick={() => onDishClick(dish)}
-            aria-label={dish.name}
-          >
-            {/* Rank badge */}
-            <span className={`popular-rank ${i < 3 ? "popular-rank-top" : ""}`}>
-              {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
-            </span>
-
-            <div className="popular-img-wrap">
-              <img src={dish.image} alt={dish.name} loading="lazy" decoding="async" />
-            </div>
-
-            <div className="popular-info">
-              <span className="popular-name">{dish.name}</span>
-              <div className="popular-meta">
-                <span className="popular-price">₹{dish.price}</span>
-                <span className="popular-orders">{dish.orderCount} orders</span>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-/* ═══════════════════════════════════════════════
-   CROWD PICKS SECTION
-═══════════════════════════════════════════════ */
-const CrowdPicksSection = ({ dishes, onDishClick }) => {
-  if (!dishes.length) return null;
-
-  return (
-    <section className="popular-section">
-      <div className="section-header">
-        <h2 className="section-title">👥 Crowd Picks</h2>
-        <Link to="/favourites/others" className="section-link">View all</Link>
-      </div>
-
-      <div className="popular-scroll">
-        {dishes.map((dish, i) => (
-          <button
-            key={dish.id}
-            className="popular-card crowd-pick-card"
-            onClick={() => onDishClick(dish)}
-            aria-label={dish.name}
-          >
-            <span className={`popular-rank ${i < 3 ? "popular-rank-top" : ""}`}>
-              {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
-            </span>
-
-            <div className="popular-img-wrap">
-              <img src={dish.image} alt={dish.name} loading="lazy" decoding="async" />
-            </div>
-
-            <div className="popular-info">
-              <span className="popular-name">{dish.name}</span>
-              <div className="popular-meta">
-                <span className="popular-price">₹{dish.price}</span>
-                <span className="popular-orders">{dish.orderCount} tables ordered</span>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-
-const FavouriteCombos = ({ combos, onComboClick }) => {
-  if (!combos.length) return null;
-
-  return (
-    <section className="popular-section">
-      <div className="section-header">
-        <h2 className="section-title">🍱 Favourite Combos</h2>
-        <Link to="/combo" className="section-link">Build your own</Link>
-      </div>
-
-      <div className="popular-scroll">
-        {combos.map((combo, i) => (
-          <button
-            key={combo.id}
-            className="popular-card"
-            onClick={() => onComboClick(combo)}
-            aria-label={combo.name}
-          >
-            <span className={`popular-rank ${i < 3 ? "popular-rank-top" : ""}`}>
-              {i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}
-            </span>
-
-            <div className="popular-img-wrap" style={{ background: "linear-gradient(135deg,#7B61FF22,#7B61FF11)" }}>
-              {combo.image
-                ? <img src={combo.image} alt={combo.name} loading="lazy" decoding="async" />
-                : <span style={{ fontSize: 40, display: "flex", alignItems: "center", justifyContent: "center", height: "100%" }}>🍱</span>
-              }
-            </div>
-
-            <div className="popular-info">
-              <span className="popular-name">{combo.name}</span>
-              <div className="popular-meta">
-                <span className="popular-price">₹{combo.price}</span>
-                <span className="popular-orders">{combo.orderCount} orders</span>
-              </div>
-            </div>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-};
-
-/* ═══════════════════════════════════════════════
-   EVENTS SECTION
-═══════════════════════════════════════════════ */
-const EventsSection = ({ events, onEventClick }) => {
-  if (!events.length) return null;
-
-  return (
-    <section className="events-section">
-      <div className="section-header">
-        <h2 className="section-title">🎉 Upcoming Events</h2>
-        <Link to="/events" className="section-link">View all</Link>
-      </div>
-
-      <div className="events-grid">
-        {events.map((ev) => (
-          <div
-            key={ev.id}
-            className="event-card"
-            onClick={() => onEventClick(ev)}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onEventClick(ev)}
-          >
-            {/* Image or gradient placeholder */}
-            <div className="event-img-wrap">
-              {ev.image
-                ? <img src={ev.image} alt={ev.title} loading="lazy" decoding="async" />
-                : <div className="event-img-placeholder">
-                  <span className="event-img-icon">🎊</span>
-                </div>
-              }
-              <span className="event-date-badge">{fmtDate(ev.date)} · {ev.time}</span>
-            </div>
-
-            <div className="event-body">
-              <span className="event-type-tag">{ev.eventType}</span>
-              <h3 className="event-title">{ev.title}</h3>
-              <p className="event-venue">📍 {ev.venue}</p>
-
-              {ev.highlights?.length > 0 && (
-                <ul className="event-highlights">
-                  {ev.highlights.slice(0, 3).map((h, i) => (
-                    <li key={i}>{h}</li>
-                  ))}
-                </ul>
-              )}
-
-              <div className="event-footer">
-                <div className="event-price-wrap">
-                  <span className="event-price-label">Per person</span>
-                  <span className="event-price">₹{ev.price}</span>
-                </div>
-                <div className="event-capacity">
-                  <span className="event-capacity-dot" />
-                  {ev.maxCapacity} seats
-                </div>
-                <button
-                  className="event-cta"
-                  onClick={(e) => { e.stopPropagation(); onEventClick(ev); }}
-                >
-                  Book now
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
   );
 };
 
@@ -587,46 +398,23 @@ const FoodCategory = ({ foodData, currentUser }) => {
   }, [foodData]);
 
   /* ── Navigation handlers ── */
+
+  // Promo carousel cards
   const handlePromoClick = (item) => {
     if (item.type === "offer") {
-      // Offer chips → go to Offers page
+      // Offer → Offers page
       navigate("/offers");
-    } else if (item.type === "dish") {
-      // Dish chips → open FoodList at that dish
-      navigate(`/foods/${item.categoryId}/grid`, { state: { dishId: item.dishId } });
+    } else if (item.type === "dish" || item.type === "popular" || item.type === "new") {
+      // Dish / popular / new arrival → FoodListExpanded so the dish is the focus
+      navigate(`/foods/${item.categoryId}/expanded`, {
+        state: { dishId: item.dishId, fromPromo: true }
+      });
     } else if (item.type === "combo") {
+      // Combo offer → Combo builder, pre-seeded with that offer
       navigate("/combo", { state: { comboOffer: item.comboOffer } });
     } else if (item.type === "event") {
-      navigate(item.route || "/events");
+      navigate("/events/hosted", { state: { eventId: item.eventId } });
     }
-  };
-
-  /**
-   * Clicking a dish in Popular Dishes → navigate to that category's
-   * FoodList page (grid view) and open on that specific dish.
-   *
-   * FoodList reads location.state.dishId to set initialIndex, so
-   * passing it here is enough — no other change needed.
-   */
-  const handleDishClick = (dish) => {
-    // If the dish belongs to a sub-category the route is the sub-category id
-    const targetCatId = dish.subCategoryId || dish.categoryId;
-    navigate(`/foods/${targetCatId}/grid`, { state: { dishId: dish.id } });
-  };
-
-  /**
-   * Clicking an event card → navigate to /events, passing the eventId
-   * so the events page can scroll / highlight it.
-   */
-  const handleEventClick = (ev) => {
-    navigate("/events", { state: { eventId: ev.id } });
-  };
-
-  /**
-   * Clicking a favourite combo → open the combo builder page.
-   */
-  const handleComboClick = (combo) => {
-    navigate("/combo");
   };
 
   /* ── Build category list ── */
@@ -679,14 +467,22 @@ const FoodCategory = ({ foodData, currentUser }) => {
             onClick={() => setViewMode("grid")}
             aria-label="Grid view"
           >
-            <img className="grid-icon" src={gridIcon} alt="" />
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <span className="front">
+              <img className="grid-icon" src={gridIcon} alt="" />
+            </span>
           </button>
           <button
             className={`view-btn ${viewMode === "list" ? "active" : ""}`}
             onClick={() => setViewMode("list")}
             aria-label="List view"
           >
-            <img className="list-icon" src={listIcon} alt="" />
+            <span className="shadow"></span>
+            <span className="edge"></span>
+            <span className="front">
+              <img className="list-icon" src={listIcon} alt="" />
+            </span>
           </button>
         </div>
       </div>
@@ -710,7 +506,6 @@ const FoodCategory = ({ foodData, currentUser }) => {
           </Link>
         ))}
       </div>
-
     </div>
   );
 };

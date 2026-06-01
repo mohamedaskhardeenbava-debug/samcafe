@@ -5,6 +5,7 @@ import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./ReservationForm.css";
 import { useToast } from "./Usetoast";
+import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -256,11 +257,15 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
 
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
-                <div>
+                <div style={{ flex: "1 1"}}>
                     <div className="rf-page-title">Table Reservation</div>
                     <div className="rf-page-sub">Reserve your perfect dining experience</div>
                 </div>
-                <div className="home-btn home-btn-icon" onClick={handleHome} />
+                <div className="home-btn home-btn-icon" onClick={handleHome}>
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                </div>
             </div>
 
             <div className="rf-single-form">
@@ -329,7 +334,6 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                     <button type="button" key={p.label}
                                         className={`rf-table-pref-card${form.tablePref === p.label ? " active" : ""}`}
                                         onClick={() => set("tablePref", p.label)}>
-                                        {form.tablePref === p.label && <span className="rf-tpref-tick">✓</span>}
                                         <div className="rf-tpref-visual">{p.svg}</div>
                                         <div className="rf-tpref-label">{p.label}</div>
                                         <div className="rf-tpref-desc">{p.desc}</div>

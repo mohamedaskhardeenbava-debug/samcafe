@@ -5,6 +5,7 @@ import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./CelebrationForm.css";
 import "./ReservationForm.css";
+import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -74,8 +75,7 @@ const AV_PRICE = 500; /* mic or projector base pack */
 const CheckCard = ({ label, checked, onChange, price }) => (
     <label className={`clp-check-card${checked ? " active" : ""}`}>
         <input type="checkbox" checked={checked} onChange={e => onChange(e.target.checked)} style={{ display: "none" }} />
-        <span className="clp-check-label">{label}{price ? <span style={{ fontSize: 10, color: "#999", marginLeft: 4 }}>+₹{price}</span> : null}</span>
-        {checked && <span className="clp-check-tick">✓</span>}
+        <span className="clp-check-label">{label}{price ? <span style={{ fontSize: 10, marginLeft: 4 }}>+₹{price}</span> : null}</span>
     </label>
 );
 
@@ -97,7 +97,6 @@ const DecorationPicker = ({ value, onChange, allowLuxury }) => (
                     <div className="clp-deco-price">₹{t.price.toLocaleString()}</div>
                     <div className="clp-deco-desc">{t.desc}</div>
                     {disabled && <div className="clp-deco-lock-msg">Candle Light Dinner only</div>}
-                    {value === t.value && <span className="clp-check-tick">✓</span>}
                 </button>
             );
         })}
@@ -285,7 +284,11 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                 <div className="food-header">
                     <button className="back-button" onClick={handleBack} />
                     <div className="food-list-title">Celebration</div>
-                    <div className="home-btn home-btn-icon" onClick={handleHome} />
+                    <div className="home-btn home-btn-icon" onClick={handleHome} >
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                    </div>
                 </div>
                 <div className="clp-success-screen">
                     <div className="clp-success-icon">
@@ -327,7 +330,11 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-list-title">Celebration</div>
-                <div className="home-btn home-btn-icon" onClick={handleHome} />
+                <div className="home-btn home-btn-icon" onClick={handleHome} >
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                </div>
             </div>
 
             <div className="clp-container">
@@ -343,7 +350,6 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                                     className={`clp-type-card${form.type === t.value ? " active" : ""}`}
                                     onClick={() => setType(t.value)}>
                                     <span className="clp-type-label">{t.label}</span>
-                                    {form.type === t.value && <span className="clp-check-tick">✓</span>}
                                 </button>
                             ))}
                         </div>

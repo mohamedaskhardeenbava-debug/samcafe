@@ -54,7 +54,11 @@ const EventHome = ({ handleBack, handleHome }) => {
       <div className="ehome-topbar">
         <button className="back-button" onClick={handleBack} aria-label="Back" />
         <h1 className="ehome-page-title">Events & Bookings</h1>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} />
+        <div className="home-btn  home-btn-icon" onClick={handleHome} >
+          <span className="shadow"></span>
+          <span className="edge"></span>
+          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+        </div>
       </div>
 
       {/* Hero */}

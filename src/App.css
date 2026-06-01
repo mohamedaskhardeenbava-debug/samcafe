@@ -123,10 +123,104 @@ body {
 }
 
 .home-btn {
-  width: 24px;
-  height: 24px;
-  margin-left: auto;
-  margin-right: 20px;
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.home-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: hsl(0deg 0% 0% / 0.22);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.home-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.home-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* edge — inactive (neutral grey) */
+.home-btn .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  background: linear-gradient(to left,
+      hsl(0, 0%, 42%) 0%,
+      hsl(0, 0%, 52%) 8%,
+      hsl(0, 0%, 52%) 92%,
+      hsl(0, 0%, 42%) 100%);
+}
+
+/* front — inactive */
+.home-btn .front {
+  display: block;
+  position: relative;
+  padding: 3px 6px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.home-btn:hover {
+  filter: brightness(108%);
+}
+
+.home-btn:hover .front {
+  color: var(--color-red);
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.home-btn:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.home-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* edge — active (red) */
+.home-btn.active .edge {
+  background: linear-gradient(to left,
+      hsl(340deg 100% 16%) 0%,
+      hsl(340deg 100% 32%) 8%,
+      hsl(340deg 100% 32%) 92%,
+      hsl(340deg 100% 16%) 100%);
+}
+
+/* front — active */
+.home-btn.active .front {
+  color: #fff;
+  background: var(--color-red);
 }
 
 button {
@@ -134,25 +228,26 @@ button {
 }
 
 /* AFTER */
-.home-btn img {
-  width: 100%;
-  height: 100%;
+.home-btn .front img {
+  width: 24px;
+  height: 24px;
   object-fit: cover;
-  filter: var(--home-btn-filter, brightness(0) saturate(100%) invert(24%) sepia(97%) saturate(7462%) hue-rotate(6deg) brightness(98%) contrast(107%));
+  z-index: 999;
+  /* filter: var(--home-btn-filter, brightness(0) saturate(100%) invert(24%) sepia(97%) saturate(7462%) hue-rotate(6deg) brightness(98%) contrast(107%)); */
 }
 
 [data-theme="dark"] .home-btn img {
-  filter: var(--home-btn-filter, brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1200%) hue-rotate(346deg) brightness(105%) contrast(110%));
+  /* filter: var(--home-btn-filter, brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1200%) hue-rotate(346deg) brightness(105%) contrast(110%)); */
 }
 
 .home-btn-icon {
-  width: 24px;
+  /* width: 24px;
   height: 24px;
   margin-left: auto;
-  margin-right: 20px;
-  background-color: var(--color-red);
+  margin-right: 20px; */
+  /* background-color: var(--color-red);
   -webkit-mask: url('../src/assets/icons/home.png') no-repeat center / contain;
-  mask: url('../src/assets/icons/home.png') no-repeat center / contain;
+  mask: url('../src/assets/icons/home.png') no-repeat center / contain; */
   cursor: pointer;
 }
 
@@ -182,6 +277,10 @@ button {
 
 button:hover {
   cursor: pointer !important;
+}
+
+image {
+  object-fit: contain;
 }
 
 /* ===============================
@@ -556,6 +655,7 @@ button:hover {
   touch-action: manipulation;
   white-space: nowrap;
   flex-shrink: 0;
+  width: fit-content;
 }
 
 /* shadow layer */

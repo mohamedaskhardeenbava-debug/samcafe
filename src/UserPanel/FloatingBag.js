@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import closeIcon from "../assets/icons/close.png";
 import { placeOrder } from "./placeOrder.js";
-
+import PrinterReceipt from "../components/PrinterReceipt.js";
 const FloatingBag = ({
     bag,
     increaseQty,
@@ -16,6 +16,7 @@ const FloatingBag = ({
     const navigate = useNavigate();
     const location = useLocation();
     const safeBag = Array.isArray(bag) ? bag : [];
+    const [orderForReceipt, setOrderForReceipt] = useState(null);
 
     const groupedBag = Object.values(
         safeBag.reduce((acc, item, index) => {
@@ -173,10 +174,9 @@ const FloatingBag = ({
                         disabled={bag.length === 0}
                         onClick={async () => {
                             try {
-                                await placeOrder(bag);
-
+                                const newOrder = await placeOrder(bag);
                                 setIsOpen(false);
-                                navigate("/thank-you", { replace: true });
+                                setOrderForReceipt(newOrder);   // 👈 show printer
                             } catch (err) {
                                 console.error(err);
                                 alert("Failed to place order");
@@ -190,6 +190,15 @@ const FloatingBag = ({
                         </span>
                     </button>
                 </div>
+            )}
+            {orderForReceipt && (
+                <PrinterReceipt
+                    order={orderForReceipt}
+                    onDone={() => {
+                        setOrderForReceipt(null);
+                        navigate("/thank-you", { replace: true });
+                    }}
+                />
             )}
         </>
     );

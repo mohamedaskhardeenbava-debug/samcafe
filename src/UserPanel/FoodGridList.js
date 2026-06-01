@@ -64,20 +64,35 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
             <div className="food-grid-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-grid-title">{category.name}</div>
-                <div className="home-btn home-btn-icon" onClick={handleHome} />
+                <div className="home-btn home-btn-icon" onClick={handleHome}>
+                    <span className="shadow"></span>
+                    <span className="edge"></span>
+                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                </div>
             </div>
 
             {/* TOOLBAR: search + sort */}
             <div className="food-grid-toolbar">
                 <div className="food-grid-search-wrap">
-                    <span className="food-grid-search-icon">🔍</span>
-                    <input
-                        className="food-grid-search"
-                        type="text"
-                        placeholder="Search dishes…"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                    />
+
+                    <div class="field-group">
+                        <div class="mat">
+                            <input
+                                class="mat-input"
+                                placeholder=" "
+                                value=""
+                                type="text"
+                                placeholder="Search dishes…"
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                            />
+                            <label class="mat-label">
+                                Search dishes…
+                            </label>
+                            <span class="mat-bar">
+                            </span
+                            ></div>
+                    </div>
                     {search && (
                         <button className="food-grid-search-clear" onClick={() => setSearch("")} aria-label="Clear">✕</button>
                     )}

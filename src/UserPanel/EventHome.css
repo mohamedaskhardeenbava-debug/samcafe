@@ -29,6 +29,7 @@
   color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.01em;
+  flex: 1 1;
 }
 
 /* ── Hero ─────────────────────────────────────────────── */
