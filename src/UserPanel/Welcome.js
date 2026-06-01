@@ -185,12 +185,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
   return (
     <div className="welcome-page">
-      {/* Wave background */}
-      <div className="welcome-waves" aria-hidden="true">
-        <div className="welcome-wave" />
-        <div className="welcome-wave" />
-        <div className="welcome-wave" />
-      </div>
       <ThemeToggle />
       <datalist id="user-mobiles">
         {filteredMobiles.map((m) => (
