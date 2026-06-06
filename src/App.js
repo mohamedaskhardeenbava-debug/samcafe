@@ -470,48 +470,8 @@ function App() {
     fetchMenu();
   }, [currentUser]);
 
-  // ── Load saved theme from server on mount ──────────────────────────────
-  useEffect(() => {
-    const applyThemeTokens = (themeData) => {
-      const root = document.documentElement;
-      const isDark = root.getAttribute("data-theme") === "dark";
-      const tokens = isDark ? themeData.dark : themeData.light;
-      if (tokens && Object.keys(tokens).length > 0) {
-        Object.entries(tokens).forEach(([key, val]) => {
-          root.style.setProperty(key, val);
-        });
-      }
-    };
-
-    const loadTheme = async () => {
-      try {
-        const res = await api.get("/theme");
-        const saved = Array.isArray(res.data) ? res.data[0] : res.data;
-        if (saved) applyThemeTokens(saved);
-      } catch (err) {
-        console.warn("Could not load theme:", err);
-      }
-    };
-
-    loadTheme();
-  }, []);
-
-  // ── Listen for live theme broadcasts from admin panel ──────────────────
-  useEffect(() => {
-    const handleThemeUpdate = (themeData) => {
-      const root = document.documentElement;
-      const isDark = root.getAttribute("data-theme") === "dark";
-      const tokens = isDark ? themeData.dark : themeData.light;
-      if (tokens && Object.keys(tokens).length > 0) {
-        Object.entries(tokens).forEach(([key, val]) => {
-          root.style.setProperty(key, val);
-        });
-      }
-    };
-
-    socket.on("theme-update", handleThemeUpdate);
-    return () => socket.off("theme-update", handleThemeUpdate);
-  }, []);
+  // Theme loading and live socket updates are handled by ThemeContext.
+  // Do NOT add theme logic here — it would double-apply and conflict.
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);

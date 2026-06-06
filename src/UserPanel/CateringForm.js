@@ -312,6 +312,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
                 unitPrice,
                 totalPrice: unitPrice * guestCount,
             }]);
+            setErrors(prev => ({ ...prev, dishes: "" }));
         }
     };
 
@@ -335,6 +336,8 @@ const CateringForm = ({ handleBack, handleHome }) => {
         if (!form.addrDistrict.trim()) err.addrDistrict = true;
         if (!form.addrState.trim()) err.addrState = true;
         if (!form.addrPincode || form.addrPincode.length !== 6) err.addrPincode = true;
+        /* Dishes — at least one required */
+        if (selectedDishes.length === 0) err.dishes = true;
         return err;
     };
 
@@ -399,7 +402,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
     /* ── Success Screen ── */
     if (submitted) {
         return (
-            <div style={{ fontFamily: "inherit" }}>
+            <div className="rf-page">
                 <div className="food-header">
                     <button className="back-button" onClick={handleBack} />
                     <div className="food-list-title">Catering</div>
@@ -409,25 +412,34 @@ const CateringForm = ({ handleBack, handleHome }) => {
                         <span className="front"><img src={homeIcon} alt="home-btn" /></span>
                     </div>
                 </div>
-                <div className="ucat-success-screen">
-                    <div className="ucat-success-icon">🍽️</div>
+                <div className="rf-success-screen">
+                    <div className="pbp-success-icon">
+                        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+                            <circle cx="32" cy="32" r="32" fill="#d1fae5" />
+                            <path d="M20 32 L28 40 L44 24" stroke="#16a34a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
                     <h2 className="ucat-success-title">Catering Submitted!</h2>
                     <p className="ucat-success-sub">We'll confirm your catering order shortly.</p>
                     <div className="ucat-success-id">
                         Booking ID: <span className="ucat-booking-code">#{bookingId}</span>
                     </div>
-                    <div className="ucat-success-card">
-                        <div className="ucat-sc-row"><span>Name</span><strong>{form.name}</strong></div>
-                        <div className="ucat-sc-row"><span>Mobile</span><strong>{form.mobile}</strong></div>
-                        <div className="ucat-sc-row"><span>Date</span><strong>{form.eventDate}</strong></div>
+                    <div className="rf-success-card">
+                        <div className="rf-sc-row"><span>Name</span><strong>{form.name}</strong></div>
+                        <div className="rf-sc-row"><span>Mobile</span><strong>{form.mobile}</strong></div>
+                        <div className="rf-sc-row"><span>Date</span><strong>{form.eventDate}</strong></div>
                         {form.slotGroup && <div className="ucat-sc-row"><span>Slot</span><strong>{SLOT_GROUPS.find(s => s.key === form.slotGroup)?.label}</strong></div>}
-                        <div className="ucat-sc-row"><span>Time</span><strong>{fmtTime(form.time)}</strong></div>
-                        <div className="ucat-sc-row"><span>Guests</span><strong>{guestCount}</strong></div>
-                        <div className="ucat-sc-row"><span>Dishes Total</span><strong>₹{dishTotal.toLocaleString()}</strong></div>
+                        <div className="rf-sc-row"><span>Time</span><strong>{fmtTime(form.time)}</strong></div>
+                        <div className="rf-sc-row"><span>Guests</span><strong>{guestCount}</strong></div>
+                        <div className="rf-sc-row"><span>Dishes Total</span><strong>₹{dishTotal.toLocaleString()}</strong></div>
                         {extrasTotal > 0 && <div className="ucat-sc-row"><span>Extras</span><strong>₹{extrasTotal.toLocaleString()}</strong></div>}
-                        <div className="ucat-sc-row"><span>Grand Total</span><strong>₹{totalAmount.toLocaleString()}</strong></div>
+                        <div className="rf-sc-row"><span>Grand Total</span><strong>₹{totalAmount.toLocaleString()}</strong></div>
                     </div>
-                    <button className="ucat-back-home-btn" onClick={handleHome}>Back to Home</button>
+                    <button className="form-action-btn submit" onClick={handleHome}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">Back to Home</span>
+                        </button>
                 </div>
             </div>
         );
@@ -435,7 +447,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
 
     /* ── Main Form ── */
     return (
-        <div className="ucat-page">
+        <div className="rf-page">
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-list-title">Catering</div>
@@ -694,9 +706,9 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                 <span className="front">+ Add Dish</span>
                             </button>
                         </div>
-                        <div className="ucat-card">
+                        <div className={`pbp-card${errors.dishes ? " pbp-card-error" : ""}`}>
                             {selectedDishes.length === 0 ? (
-                                <div className={"ucat-empty ucat-card-error"}>
+                                <div className="ucat-empty">
                                     <p>No dishes selected</p>
                                     <span>Click "Add Dish" to pick event food items</span>
                                 </div>
@@ -731,52 +743,39 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                     </button>
                                 </>
                             )}
+
+
+                            {/* PRICE SUMMARY */}
+                            {(dishTotal > 0 || extrasTotal > 0) && (
+                                <div className="ucat-card ucat-bill">
+                                    {dishTotal > 0 && (
+                                        <div className="ucat-bill-row">
+                                            <span>Dishes ({selectedDishes.length} × {guestCount} guests)</span>
+                                            <span>₹{dishTotal.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {form.decoration && (
+                                        <div className="ucat-bill-row">
+                                            <span>Decoration ({DECORATION_TIERS.find(d => d.value === form.decoration)?.label})</span>
+                                            <span>₹{DECORATION_TIERS.find(d => d.value === form.decoration)?.price.toLocaleString()}</span>
+                                        </div>
+                                    )}
+                                    {Object.keys(EXTRA_PRICES).filter(k => form[k] && EXTRA_PRICES[k] > 0).map(k => (
+                                        <div key={k} className="ucat-bill-row">
+                                            <span style={{ textTransform: "capitalize" }}>{k.replace(/([A-Z])/g, " $1")}</span>
+                                            <span>₹{EXTRA_PRICES[k]}</span>
+                                        </div>
+                                    ))}
+                                    <div className="ucat-bill-row ucat-bill-total">
+                                        <span>Grand Total</span>
+                                        <strong>₹{totalAmount.toLocaleString()}</strong>
+                                    </div>
+                                </div>
+                            )}
+
                         </div>
 
-                        {/* PRICE SUMMARY */}
-                        {(dishTotal > 0 || extrasTotal > 0) && (
-                            <div className="ucat-card ucat-bill">
-                                {dishTotal > 0 && (
-                                    <div className="ucat-bill-row">
-                                        <span>Dishes ({selectedDishes.length} × {guestCount} guests)</span>
-                                        <span>₹{dishTotal.toLocaleString()}</span>
-                                    </div>
-                                )}
-                                {form.decoration && (
-                                    <div className="ucat-bill-row">
-                                        <span>Decoration ({DECORATION_TIERS.find(d => d.value === form.decoration)?.label})</span>
-                                        <span>₹{DECORATION_TIERS.find(d => d.value === form.decoration)?.price.toLocaleString()}</span>
-                                    </div>
-                                )}
-                                {Object.keys(EXTRA_PRICES).filter(k => form[k] && EXTRA_PRICES[k] > 0).map(k => (
-                                    <div key={k} className="ucat-bill-row">
-                                        <span style={{ textTransform: "capitalize" }}>{k.replace(/([A-Z])/g, " $1")}</span>
-                                        <span>₹{EXTRA_PRICES[k]}</span>
-                                    </div>
-                                ))}
-                                <div className="ucat-bill-row ucat-bill-total">
-                                    <span>Grand Total</span>
-                                    <strong>₹{totalAmount.toLocaleString()}</strong>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* ERRORS */}
-                        {errors._submit && (
-                            <div className="ucat-submit-error">Something went wrong. Please try again.</div>
-                        )}
-
                         <div className="form-btn-row">
-                            <button
-                                className={`form-action-btn submit${loading ? " loading" : ""}`}
-                                type="button"
-                                onClick={handleSubmit}
-                                disabled={loading}
-                            >
-                                <span className="shadow"></span>
-                                <span className="edge"></span>
-                                <span className="front">{loading ? "Submitting..." : "Submit Catering"}</span>
-                            </button>
                             <button
                                 className="form-action-btn cancel"
                                 type="button"
@@ -802,6 +801,17 @@ const CateringForm = ({ handleBack, handleHome }) => {
                                 <span className="edge"></span>
                                 <span className="front">Cancel</span>
                             </button>
+                            <button
+                                className={`form-action-btn submit${loading ? " loading" : ""}`}
+                                type="button"
+                                onClick={handleSubmit}
+                                disabled={loading}
+                            >
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">{loading ? "Submitting..." : "Submit Catering"}</span>
+                            </button>
+
                         </div>
 
                     </div>{/* end right col */}

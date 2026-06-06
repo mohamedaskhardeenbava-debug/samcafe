@@ -638,10 +638,10 @@
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%);
+        var(--edge-color-dark) 0%,
+        var(--edge-color-light) 8%,
+        var(--edge-color-light) 92%,
+        var(--edge-color-dark) 100%);
 }
 
 .reel-cta .front {
@@ -705,10 +705,10 @@
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-      hsl(98, 100%, 16%) 0%,
-      hsl(98, 100%, 20%) 8%,
-      hsl(98, 100%, 20%) 92%,
-      hsl(98, 100%, 16%) 100%);
+        var(--edge-color-green-dark) 0%,
+        var(--edge-color-green-light) 8%,
+        var(--edge-color-green-light) 92%,
+        var(--edge-color-green-dark) 100%);
 }
 
 .show-more-btn .front {

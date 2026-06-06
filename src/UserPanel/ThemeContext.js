@@ -5,6 +5,38 @@ import api from "../api";
 // ─── Context ──────────────────────────────────────────────────────────────────
 const ThemeContext = createContext();
 
+// ─── Derive edge-gradient stops from --color-red ─────────────────────────────
+// Keeps the 3-D button edge colour in sync with the admin's accent choice.
+// Mirrors the same helper in ThemeSettings.js so the user panel is fully
+// self-contained — it works even when the saved DB record pre-dates the
+// --edge-color-dark / --edge-color-light feature.
+const deriveEdgeColors = (accentHex = "") => {
+  try {
+    const hex = accentHex.startsWith("#") ? accentHex : `#${accentHex}`;
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0;
+    if (max !== min) {
+      const d = max - min;
+      if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+      else if (max === g) h = ((b - r) / d + 2) * 60;
+      else h = ((r - g) / d + 4) * 60;
+    }
+    const hue = Math.round(h);
+    return {
+      "--edge-color-dark": `hsl(${hue}deg 100% 16%)`,
+      "--edge-color-light": `hsl(${hue}deg 100% 32%)`,
+    };
+  } catch {
+    return {
+      "--edge-color-dark": "hsl(6deg 100% 16%)",
+      "--edge-color-light": "hsl(6deg 100% 32%)",
+    };
+  }
+};
+
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export const ThemeProvider = ({ children }) => {
   // "light" | "dark" — user's own toggle preference
@@ -17,12 +49,27 @@ export const ThemeProvider = ({ children }) => {
   const [darkTokens, setDarkTokens] = useState({});
 
   // ── Apply a token map to :root CSS variables ──────────────────────────────
+  // Always derives --edge-color-dark/light from --color-red so edge gradients
+  // stay in sync even when the token map was saved before the edge-color feature.
   const applyTokens = (tokenMap) => {
     if (!tokenMap || typeof tokenMap !== "object") return;
     const root = document.documentElement;
     Object.entries(tokenMap).forEach(([key, val]) => {
       root.style.setProperty(key, val);
     });
+    const accentHex = tokenMap["--color-red"];
+    if (accentHex) {
+      const edgeColors = deriveEdgeColors(accentHex);
+      Object.entries(edgeColors).forEach(([key, val]) => {
+        root.style.setProperty(key, val);
+      });
+    }
+    const greenHex = tokenMap["--color-green"];
+    if (greenHex) {
+      const { "--edge-color-dark": gDark, "--edge-color-light": gLight } = deriveEdgeColors(greenHex);
+      root.style.setProperty("--edge-color-green-dark", gDark);
+      root.style.setProperty("--edge-color-green-light", gLight);
+    }
   };
 
   // ── Load saved theme from server on mount ─────────────────────────────────

@@ -323,13 +323,17 @@ export const UserTimePicker = ({
 
                     {/* Footer */}
                     <div className="utp-footer">
-                        <button type="button" className="utp-cancel"
+                        <button type="button" className="form-action-btn cancel"
                             onClick={() => { setOpen(false); setMode("hour"); }}>
-                            Cancel
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front sm-padding">Cancel</span>
                         </button>
-                        <button type="button" className="utp-ok"
+                        <button type="button" className="form-action-btn submit"
                             onClick={() => { emit(selRef.current); setOpen(false); setMode("hour"); }}>
-                            OK
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front sm-padding">Ok</span>
                         </button>
                     </div>
                 </div>

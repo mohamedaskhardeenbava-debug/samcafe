@@ -185,6 +185,18 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
         return (
             <div className="rf-page">
+                <div className="food-header">
+                    <button className="back-button" onClick={handleBack} />
+                    <div style={{ flex: "1 1" }}>
+                        <div className="rf-page-title">Table Reservation</div>
+                        <div className="rf-page-sub">Reserve your perfect dining experience</div>
+                    </div>
+                    <div className="home-btn home-btn-icon" onClick={handleHome}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+                    </div>
+                </div>
                 <div className="rf-success-screen">
                     <div className="rf-success-icon">
                         <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
@@ -208,11 +220,20 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         {form.notes && <div className="rf-sc-row rf-sc-notes"><span className="rf-sc-label">Notes</span><span className="rf-sc-val">{form.notes}</span></div>}
                     </div>
                     <p className="rf-success-policy">Please arrive 10 min early. Reservation held for 15 min.</p>
-                    <button className="rf-cta-btn" onClick={() => {
+                    <button className="form-action-btn submit" onClick={() => {
                         setSubmitted(false);
                         setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" });
-                    }}>Make Another Reservation</button>
-                    <button className="rf-ghost-btn" onClick={handleHome}>Back to Home</button>
+                    }}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">Make Another Reservation</span>
+                        </button>
+                    
+                    <button className="form-action-btn submit" onClick={handleHome}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">Back to Home</span>
+                        </button>
                 </div>
             </div>
         );
@@ -242,9 +263,15 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                 </div>
                 {form.notes && <div className="rf-modal-notes"><span className="rf-modal-key">Notes</span><span>{form.notes}</span></div>}
                 <div className="rf-modal-actions">
-                    <button className="rf-ghost-btn" onClick={() => setShowCrossCheck(false)}>Edit</button>
-                    <button className="rf-cta-btn" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? <span className="rf-spinner" /> : "Confirm"}
+                    <button className="form-action-btn cancel" onClick={() => setShowCrossCheck(false)}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">Edit</span>
+                    </button>
+                    <button className="form-action-btn submit" onClick={handleSubmit} disabled={submitting}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">{submitting ? <span className="rf-spinner" /> : "Confirm"}</span>
                     </button>
                 </div>
             </div>
@@ -415,11 +442,6 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         </div>
 
                         <div className="form-btn-row">
-                            <button type="button" className="form-action-btn submit" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
-                                <span className="shadow"></span>
-                                <span className="edge"></span>
-                                <span className="front">Review &amp; Confirm</span>
-                            </button>
                             <button type="button" className="form-action-btn cancel" onClick={() => {
                                 setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" });
                                 setErrors({});
@@ -429,6 +451,12 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                                 <span className="edge"></span>
                                 <span className="front">Cancel</span>
                             </button>
+                            <button type="button" className="form-action-btn submit" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
+                                <span className="shadow"></span>
+                                <span className="edge"></span>
+                                <span className="front">Review &amp; Confirm</span>
+                            </button>
+                            
                         </div>
                     </div>
                 </div>

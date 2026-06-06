@@ -54,12 +54,12 @@
     border: 1.5px solid transparent;
     transition: border-color 0.2s;
     overflow: visible;
+    padding: 16px;
 }
 
 /* Card-level error (empty bag) */
 .pbp-card.pbp-card-error {
-    border-color: #e74c3c;
-    background: #fff8f8;
+    border-color: var(--color-red);
 }
 
 /* ── FORM ROW / GROUP ── */
@@ -194,7 +194,7 @@
 
 .pbp-field-error {
     font-size: 11px;
-    color: #e74c3c;
+    color: var(--color-red);
     margin-top: 3px;
     display: block;
 }
@@ -691,7 +691,7 @@
 /* ══ EMPTY ══ */
 .pbp-empty {
     text-align: center;
-    padding: 20px 0;
+    padding: 20px 10px;
     color: #6b7280;
     border: 1px dashed var(--text-tertiary);
     border-radius: 14px;
@@ -751,36 +751,6 @@
 
 .pbp-cancel-btn:hover {
     background: #f3f4f6;
-}
-
-.pbp-submit-btn {
-    width: 300px !important;
-    padding: 16px 20px !important;
-    border-radius: 14px;
-    border: none;
-    background: var(--color-red);
-    color: #fff;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 4px 16px rgba(231, 76, 60, 0.3);
-    align-self: center;
-}
-
-.pbp-submit-btn:hover:not(:disabled) {
-    scale: 1.3;
-    box-shadow: 0 6px 22px rgba(231, 76, 60, 0.4);
-}
-
-.pbp-submit-btn.loading,
-.pbp-submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 @media (max-width: 1024px) {
@@ -1075,10 +1045,10 @@
 /* edge — active (red) */
 .pbp-dish-popup-close.active .edge {
     background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 /* front — active */
@@ -1210,10 +1180,10 @@
 /* edge — active (red) */
 .pbp-dish-cat-btn.active .edge {
     background: linear-gradient(to left,
-                hsl(340deg 100% 16%) 0%,
-                hsl(340deg 100% 32%) 8%,
-                hsl(340deg 100% 32%) 92%,
-                hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 /* front — active */
@@ -1306,10 +1276,10 @@
 
 .pbp-veg-filter-btn.active-all .edge {
     background: linear-gradient(to left,
-                hsl(340deg 100% 16%) 0%,
-                hsl(340deg 100% 32%) 8%,
-                hsl(340deg 100% 32%) 92%,
-                hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 .pbp-veg-filter-btn.active-all .front {
@@ -1319,10 +1289,10 @@
 
 .pbp-veg-filter-btn.active-veg .edge {
     background: linear-gradient(to left,
-                hsl(98, 100%, 16%) 0%,
-                hsl(98, 100%, 20%) 8%,
-                hsl(98, 100%, 20%) 92%,
-                hsl(98, 100%, 16%) 100%);
+            var(--edge-color-green-dark) 0%,
+            var(--edge-color-green-light) 8%,
+            var(--edge-color-green-light) 92%,
+            var(--edge-color-green-dark) 100%);
 }
 
 .pbp-veg-filter-btn.active-veg .front {
@@ -1332,10 +1302,10 @@
 
 .pbp-veg-filter-btn.active-nonveg .edge {
     background: linear-gradient(to left,
-                hsl(340deg 100% 16%) 0%,
-                hsl(340deg 100% 32%) 8%,
-                hsl(340deg 100% 32%) 92%,
-                hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 .pbp-veg-filter-btn.active-nonveg .front {
@@ -1432,10 +1402,10 @@
 /* edge — active (red) */
 .pbp-dish-cat-btn.active .edge {
     background: linear-gradient(to left,
-                hsl(340deg 100% 16%) 0%,
-                hsl(340deg 100% 32%) 8%,
-                hsl(340deg 100% 32%) 92%,
-                hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 /* front — active */
@@ -1486,8 +1456,8 @@
 }
 
 .pbp-dish-card.added {
-    border-color: #fca5a5;
-    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+    border-color: var(--color-red);
+    background: var(--color-pale-red)
 }
 
 /* Thumbnail */
@@ -1541,7 +1511,7 @@
 .pbp-dish-card-price {
     font-size: 11.5px;
     font-weight: 700;
-    color: #e74c3c;
+    color: var(--color-red);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -1562,7 +1532,7 @@
     height: 30px;
     border-radius: 50%;
     background: transparent;
-    color: #e74c3c;
+    color: var(--color-red);
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
@@ -1573,11 +1543,11 @@
     justify-content: center;
     line-height: 1;
 
-        background: #e8e8e8;
-            cursor: pointer;
-            border: 1px solid #e8e8e8;
-            transition: all 0.3s;
-            box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+    background: #e8e8e8;
+    cursor: pointer;
+    border: 1px solid #e8e8e8;
+    transition: all 0.3s;
+    box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
 }
 
 .pbp-dish-card-btn:hover {
@@ -1585,10 +1555,10 @@
 }
 
 .pbp-dish-card-btn.remove {
-    background: #fee2e2;
-    color: #dc2626;
+    background: transparent;
+    color: var(--color-red);
     font-size: 14px;
-                box-shadow: 6px 6px 12px #ffbfbf, -6px -6px 12px #ffeeee;
+    box-shadow: 6px 6px 12px #c7c7c7, -6px -6px 12px #e2dcdc;
 }
 
 .pbp-dish-card-btn.remove:hover {

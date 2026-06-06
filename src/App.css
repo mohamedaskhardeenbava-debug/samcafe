@@ -46,6 +46,14 @@
   --floating-btn-shadow: 0 10px 26px rgba(243, 55, 22, 0.40);
   --bg-hover: #ffc800;
   --home-btn-filter: brightness(0) saturate(100%) invert(24%) sepia(97%) saturate(7462%) hue-rotate(6deg) brightness(98%) contrast(107%);
+  /* Edge layer colours — derived from --color-red at runtime by ThemeSettings.
+     Fallback uses the default Chili Red hue (6°). */
+  --edge-color-dark: hsl(6deg 100% 16%);
+  --edge-color-light: hsl(6deg 100% 32%);
+  /* Green edge layer colours — derived from --color-green at runtime.
+     Fallback uses the default green hue (134°). */
+  --edge-color-green-dark: hsl(134deg 100% 16%);
+  --edge-color-green-light: hsl(134deg 100% 32%);
 }
 
 [data-theme="dark"] {
@@ -88,6 +96,12 @@
   --floating-btn-shadow: 0 4px 20px rgba(255, 58, 24, 0.40);
   --bg-hover: #ffc800;
   --home-btn-filter: brightness(0) saturate(100%) invert(44%) sepia(85%) saturate(1200%) hue-rotate(346deg) brightness(105%) contrast(110%);
+  /* Edge layer colours for dark mode — derived from --color-red at runtime. */
+  --edge-color-dark: hsl(6deg 100% 16%);
+  --edge-color-light: hsl(6deg 100% 32%);
+  /* Green edge layer colours for dark mode — derived from --color-green at runtime. */
+  --edge-color-green-dark: hsl(134deg 100% 16%);
+  --edge-color-green-light: hsl(134deg 100% 32%);
 }
 
 .theme-toggle {
@@ -208,13 +222,13 @@ body {
   outline: none;
 }
 
-/* edge — active (red) */
+/* edge — active (themed) */
 .home-btn.active .edge {
   background: linear-gradient(to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 /* front — active */
@@ -264,7 +278,6 @@ textarea {
   font-family: "Geom", system-ui, sans-serif;
 }
 
-textarea:focus,
 input:focus textarea:hover,
 input:hover {
   border: 1px solid var(--color-red) !important;
@@ -489,6 +502,12 @@ image {
   transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
 }
 
+.sm-padding {
+  padding: 6px 14px !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+}
+
 /* ── Shared 3-D push button base (submit = red, cancel = white) ── */
 .form-action-btn {
   position: relative;
@@ -527,7 +546,7 @@ image {
   transition: transform 34ms;
 }
 
-/* ── Submit variant — red ── */
+/* ── Submit variant — themed ── */
 .form-action-btn.submit .edge {
   position: absolute;
   top: 0;
@@ -536,10 +555,10 @@ image {
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .form-action-btn.submit .front {
@@ -566,10 +585,10 @@ image {
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-      hsl(98, 100%, 16%) 0%,
-      hsl(98, 100%, 20%) 8%,
-      hsl(98, 100%, 20%) 92%,
-      hsl(98, 100%, 16%) 100%);
+        var(--edge-color-green-dark) 0%,
+        var(--edge-color-green-light) 8%,
+        var(--edge-color-green-light) 92%,
+        var(--edge-color-green-dark) 100%);
 }
 
 .form-action-btn.done .front {
@@ -729,13 +748,13 @@ image {
   transition: transform 34ms;
 }
 
-/* ── Active (selected) chip — red ── */
+/* ── Active (selected) chip — themed ── */
 .chip.active .edge {
   background: linear-gradient(to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .chip.active .front {
@@ -785,7 +804,7 @@ image {
   transition: transform 34ms;
 }
 
-/* ── Submit variant — red ── */
+/* ── Submit variant — themed ── */
 .action-btn .edge {
   position: absolute;
   top: 0;
@@ -794,10 +813,10 @@ image {
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-      hsl(340deg 100% 16%) 0%,
-      hsl(340deg 100% 32%) 8%,
-      hsl(340deg 100% 32%) 92%,
-      hsl(340deg 100% 16%) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .action-btn .front {

@@ -43,9 +43,19 @@
 
 /* CARD */
 .ucat-card {
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    border: 1.5px solid transparent;
+    transition: border-color 0.2s;
+    overflow: visible;
+    padding: 16px;
+}
+
+/* Card-level error — matches pbp-card.pbp-card-error */
+.ucat-card.ucat-card-error {
+    border-color: var(--color-red);
 }
 
 .ucat-req {
@@ -120,9 +130,9 @@
     border: none;
     border-radius: 999px;
     background: var(--bg-surface);
-        color: #dc2626;
-        font-size: 14px;
-        box-shadow: 6px 6px 12px #c0c0c0, -6px -6px 12px #cfcfcf;
+    color: #dc2626;
+    font-size: 14px;
+    box-shadow: 6px 6px 12px #c0c0c0, -6px -6px 12px #cfcfcf;
 }
 
 /* BILL */
@@ -170,15 +180,16 @@
     font-size: 12px;
 }
 
-/* SUBMIT ERROR */
+/* SUBMIT ERROR — matches pbp-submit-error */
 .ucat-submit-error {
     background: #fee2e2;
     border: 1px solid #fca5a5;
-    border-radius: 10px;
-    padding: 10px 14px;
-    font-size: 13px;
     color: #dc2626;
+    font-size: 13px;
     font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 10px;
+    margin-top: 4px;
 }
 
 /* ACTIONS */
@@ -991,10 +1002,10 @@
 /* edge — active (red) */
 .ucat-dish-cat-btn.active .edge {
     background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 /* front — active */
@@ -1087,10 +1098,10 @@
 
 .ucat-veg-filter-btn.active-all .edge {
     background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 .ucat-veg-filter-btn.active-all .front {
@@ -1113,10 +1124,10 @@
 
 .ucat-veg-filter-btn.active-nonveg .edge {
     background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 .ucat-veg-filter-btn.active-nonveg .front {
@@ -1213,10 +1224,10 @@
 /* edge — active (red) */
 .ucat-dish-cat-btn.active .edge {
     background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 /* front — active */
@@ -1269,8 +1280,8 @@
 }
 
 .ucat-dish-card.added {
-    border-color: #fca5a5;
-    background: linear-gradient(135deg, #fff5f5 0%, #fff 100%);
+    border-color: var(--color-red);
+    background:var(--color-pale-red);
 }
 
 /* Thumbnail */
@@ -1279,7 +1290,6 @@
     height: 64px;
     min-width: 64px;
     object-fit: cover;
-    background: #f3f4f6;
     border-radius: 10px;
     margin: 6px 0 6px 6px;
 }
@@ -1324,7 +1334,7 @@
 .ucat-dish-card-price {
     font-size: 11.5px;
     font-weight: 700;
-    color: #e74c3c;
+    color: var(--color-red);
     display: flex;
     align-items: center;
     gap: 4px;
@@ -1365,9 +1375,9 @@
 }
 
 .ucat-dish-card-btn.remove {
-    border-color: #dc2626;
+    border-color: var(--color-red);
     background: #fee2e2;
-    color: #dc2626;
+    color: var(--color-red);
     font-size: 14px;
 }
 
@@ -1461,7 +1471,7 @@
 .ucat-deco-price {
     font-size: 12px;
     font-weight: 700;
-    color: #e74c3c;
+    color: var(--color-red);
 }
 
 .ucat-deco-desc {

@@ -1068,7 +1068,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 10px;
 }
 
 .ep-cta-booked {
@@ -1388,11 +1388,11 @@
     width: 100%;
     height: 100%;
     border-radius: 12px;
-    background: linear-gradient(to left,
-            hsl(340deg 100% 16%) 0%,
-            hsl(340deg 100% 32%) 8%,
-            hsl(340deg 100% 32%) 92%,
-            hsl(340deg 100% 16%) 100%);
+background: linear-gradient(to left,
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 .ep-action-btn.submit .ep-btn-front {
