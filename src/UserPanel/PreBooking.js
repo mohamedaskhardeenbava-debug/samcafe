@@ -5,6 +5,7 @@ import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./PreBooking.css";
 import "./ReservationForm.css";
+import "./PreviewModal.css";
 import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -207,6 +208,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
   const [bookingId, setBookingId] = useState("");
   const [selectedDishes, setSelectedDishes] = useState([]);
   const [showDishPopup, setShowDishPopup] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   /* Pre-fill from logged-in user */
   useEffect(() => {
@@ -298,6 +300,68 @@ const PreBooking = ({ handleBack, handleHome }) => {
   const activeSlot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
   const fmtTime = (t) => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; };
 
+  const handleReview = () => {
+    const ve = validate();
+    if (Object.keys(ve).length > 0) { setErrors(ve); return; }
+    setShowPreview(true);
+  };
+
+  /* ── Preview Modal ── */
+  const PreviewModal = () => {
+    const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
+    const rows = [
+      ["Name", form.name],
+      ["Mobile", "+91 " + form.mobile],
+      ["Email", form.email || "—"],
+      ["Guests", form.guests],
+      ["Date", form.date],
+      ["Slot", slot?.label || "—"],
+      ["Time", fmtTime(form.time)],
+      ["Dishes", selectedDishes.length],
+    ];
+    if (isGroupDiscount) rows.push(["Group Discount", "10% off"]);
+    return (
+      <div className="rf-modal-overlay" onClick={() => setShowPreview(false)}>
+        <div className="rf-modal" onClick={e => e.stopPropagation()}>
+          <div className="rf-modal-title">Confirm Pre-Booking</div>
+          <div className="rf-modal-subtitle">Review your order before confirming.</div>
+          <div className="rf-modal-grid">
+            {rows.map(([k, v]) => (
+              <div key={k} className="rf-modal-row">
+                <span className="rf-modal-key">{k}</span>
+                <span className="rf-modal-val">{v}</span>
+              </div>
+            ))}
+          </div>
+          {form.notes && (
+            <div className="rf-modal-notes">
+              <span className="rf-modal-key">Notes</span>
+              <span>{form.notes}</span>
+            </div>
+          )}
+          {totalAmount > 0 && (
+            <div className="rf-modal-total-row">
+              <span className="rf-modal-total-label">Total (Pay in Advance)</span>
+              <span className="rf-modal-total-val">₹{totalAmount.toLocaleString()}</span>
+            </div>
+          )}
+          <div className="rf-modal-actions">
+            <button className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Edit</span>
+            </button>
+            <button className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">{loading ? <span className="rf-spinner" /> : "Confirm"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   /* ── Success Screen ── */
   if (submitted) {
     const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
@@ -313,17 +377,17 @@ const PreBooking = ({ handleBack, handleHome }) => {
           </div>
         </div>
         <div className="rf-success-screen">
-          <div className="pbp-success-icon">
+          <div className="rf-success-icon">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
               <circle cx="32" cy="32" r="32" fill="#d1fae5" />
               <path d="M20 32 L28 40 L44 24" stroke="#16a34a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <h2 className="pbp-success-title">Pre-Booking Confirmed!</h2>
-          <p className="pbp-success-sub">Your food order is reserved. See you soon!</p>
-          <div className="pbp-booking-id">
-            <span className="pbp-booking-label">Booking ID</span>
-            <span className="pbp-booking-code">#{bookingId}</span>
+          <h2 className="rf-success-title">Pre-Booking Confirmed!</h2>
+          <p className="rf-success-sub">Your food order is reserved. See you soon!</p>
+          <div className="rf-booking-id">
+            <span className="rf-booking-label">Booking ID</span>
+            <span className="rf-booking-code">#{bookingId}</span>
           </div>
           <div className="rf-success-card">
             {[
@@ -378,6 +442,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
   /* ── Main Form ── */
   return (
     <div className="rf-page">
+      {showPreview && <PreviewModal />}
 
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
@@ -601,12 +666,12 @@ const PreBooking = ({ handleBack, handleHome }) => {
               <button
                 className={`form-action-btn submit${loading ? " loading" : ""}`}
                 type="button"
-                onClick={handleSubmit}
+                onClick={handleReview}
                 disabled={loading}
               >
                 <span className="shadow"></span>
                 <span className="edge"></span>
-                <span className="front">{loading ? "Processing..." : "Confirm Pre Booking"}</span>
+                <span className="front">{loading ? "Processing..." : "Review & Confirm"}</span>
               </button>
 
             </div>

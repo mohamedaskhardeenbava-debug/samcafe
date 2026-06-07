@@ -5,6 +5,7 @@ import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./CelebrationForm.css";
 import "./ReservationForm.css";
+import "./PreviewModal.css";
 import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -148,6 +149,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bookingId, setBookingId] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     const loadUser = async () => {
@@ -276,6 +278,74 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
     </div>
   ));
 
+  const handleReview = () => {
+    const validationErrors = validate();
+    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    setShowPreview(true);
+  };
+
+  /* ─── Preview Modal ─── */
+  const PreviewModal = () => {
+    const typeObj = CELEBRATION_TYPES.find(t => t.value === form.type);
+    const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
+    const decoTier = DECORATION_TIERS.find(t => t.value === form.decoration);
+    const fmtT = (t) => { if (!t) return ""; const [h, m] = t.split(":").map(Number); return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; };
+    const rows = [
+      ["Name", form.name],
+      ["Mobile", "+91 " + form.mobile],
+      ["Email", form.email || "—"],
+      ["Event Type", typeObj?.label],
+      ["Date", form.date],
+      ["Slot", slot?.label || "—"],
+      ["Time", fmtT(form.time)],
+      ["Guests", form.guests],
+      ["Decoration", decoTier ? `${decoTier.label} (₹${decoTier.price.toLocaleString()})` : "None"],
+    ];
+    if (form.type === "birthday" && form.birthdayPersonName) {
+      rows.push(["Birthday Person", form.birthdayPersonName + (form.birthdayPersonAge ? `, Age ${form.birthdayPersonAge}` : "")]);
+    }
+    return (
+      <div className="rf-modal-overlay" onClick={() => setShowPreview(false)}>
+        <div className="rf-modal" onClick={e => e.stopPropagation()}>
+          <div className="rf-modal-title">Confirm Celebration Booking</div>
+          <div className="rf-modal-subtitle">Review your details before confirming.</div>
+          <div className="rf-modal-grid">
+            {rows.map(([k, v]) => (
+              <div key={k} className="rf-modal-row">
+                <span className="rf-modal-key">{k}</span>
+                <span className="rf-modal-val">{v}</span>
+              </div>
+            ))}
+          </div>
+          {form.specialNote && (
+            <div className="rf-modal-notes">
+              <span className="rf-modal-key">Special Notes</span>
+              <span>{form.specialNote}</span>
+            </div>
+          )}
+          {estimatedTotal > 0 && (
+            <div className="rf-modal-total-row">
+              <span className="rf-modal-total-label">Estimated Total</span>
+              <span className="rf-modal-total-val">₹{estimatedTotal.toLocaleString()}</span>
+            </div>
+          )}
+          <div className="rf-modal-actions">
+            <button className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">Edit</span>
+            </button>
+            <button className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+              <span className="shadow"></span>
+              <span className="edge"></span>
+              <span className="front">{loading ? <span className="rf-spinner" /> : "Confirm"}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   /* ─── Success Screen ─── */
   if (submitted) {
     const typeObj = CELEBRATION_TYPES.find(t => t.value === form.type);
@@ -337,6 +407,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
   return (
     <div className="rf-page">
+      {showPreview && <PreviewModal />}
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">Celebration</div>
@@ -639,10 +710,10 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
               <span className="front">Cancel</span>
             </button>
 
-            <button className={`form-action-btn submit${loading ? " loading" : ""}`} onClick={handleSubmit} disabled={loading}>
+            <button className={`form-action-btn submit${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
               <span className="shadow"></span>
               <span className="edge"></span>
-              <span className="front">{loading ? "Processing..." : "Book Celebration"}</span>
+              <span className="front">{loading ? "Processing..." : "Review & Confirm"}</span>
             </button>
 
           </div>

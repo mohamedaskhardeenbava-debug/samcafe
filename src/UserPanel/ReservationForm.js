@@ -4,6 +4,7 @@ import api from "../api";
 import { UserDatePicker, todayStr } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./ReservationForm.css";
+import "./PreviewModal.css";
 import { useToast } from "./Usetoast";
 import homeIcon from "../assets/icons/home.png";
 
@@ -227,13 +228,13 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                         <span className="shadow"></span>
                         <span className="edge"></span>
                         <span className="front">Make Another Reservation</span>
-                        </button>
-                    
+                    </button>
+
                     <button className="form-action-btn submit" onClick={handleHome}>
                         <span className="shadow"></span>
                         <span className="edge"></span>
                         <span className="front">Back to Home</span>
-                        </button>
+                    </button>
                 </div>
             </div>
         );
@@ -284,7 +285,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
 
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
-                <div style={{ flex: "1 1"}}>
+                <div style={{ flex: "1 1" }}>
                     <div className="rf-page-title">Table Reservation</div>
                     <div className="rf-page-sub">Reserve your perfect dining experience</div>
                 </div>
@@ -454,9 +455,9 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                             <button type="button" className="form-action-btn submit" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
                                 <span className="shadow"></span>
                                 <span className="edge"></span>
-                                <span className="front">Review &amp; Confirm</span>
+                                <span className="front">Review & Confirm</span>
                             </button>
-                            
+
                         </div>
                     </div>
                 </div>

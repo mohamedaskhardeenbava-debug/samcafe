@@ -5,6 +5,7 @@ import { UserDatePicker } from "./UserDatePicker";
 import { UserTimePicker } from "./UserTimePicker";
 import "./CateringForm.css";
 import "./ReservationForm.css";
+import "./PreviewModal.css";
 import homeIcon from "../assets/icons/home.png";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -259,6 +260,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
     const [bookingId, setBookingId] = useState("");
     const [selectedDishes, setSelectedDishes] = useState([]);
     const [showDishPopup, setShowDishPopup] = useState(false);
+    const [showPreview, setShowPreview] = useState(false);
 
     /* Pre-fill from logged-in user */
     useEffect(() => {
@@ -399,7 +401,95 @@ const CateringForm = ({ handleBack, handleHome }) => {
         return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`;
     };
 
+    const handleReview = () => {
+        const ve = validate();
+        if (Object.keys(ve).length > 0) { setErrors(ve); return; }
+        setShowPreview(true);
+    };
+
+    /* ── Preview Modal ── */
+    const PreviewModal = () => {
+        const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
+        const decoTier = DECORATION_TIERS.find(d => d.value === form.decoration);
+        const address = buildAddress(form);
+        const rows = [
+            ["Name", form.name],
+            ["Mobile", "+91 " + form.mobile],
+            ["Email", form.email || "—"],
+            ["Guests", form.guests],
+            ["Date", form.eventDate],
+            ["Time", fmtTime(form.time)],
+            ["Slot", slot?.label || "—"],
+            ["Decoration", decoTier ? `${decoTier.label} (₹${decoTier.price.toLocaleString()})` : "None"],
+            ["Dishes", selectedDishes.length],
+        ];
+        return (
+            <div className="rf-modal-overlay" onClick={() => setShowPreview(false)}>
+                <div className="rf-modal" onClick={e => e.stopPropagation()}>
+                    <div className="rf-modal-title">Confirm Catering Order</div>
+                    <div className="rf-modal-subtitle">Please review your details before submitting.</div>
+                    <div className="rf-modal-grid">
+                        {rows.map(([k, v]) => (
+                            <div key={k} className="rf-modal-row">
+                                <span className="rf-modal-key">{k}</span>
+                                <span className="rf-modal-val">{v}</span>
+                            </div>
+                        ))}
+                        {address && (
+                            <div className="rf-modal-row-full">
+                                <span className="rf-modal-key">Address</span>
+                                <span className="rf-modal-val">{address}</span>
+                            </div>
+                        )}
+                    </div>
+                    {form.notes && (
+                        <div className="rf-modal-notes">
+                            <span className="rf-modal-key">Notes</span>
+                            <span>{form.notes}</span>
+                        </div>
+                    )}
+                    {totalAmount > 0 && (
+                        <div className="rf-modal-total-row">
+                            <span className="rf-modal-total-label">Estimated Total</span>
+                            <span className="rf-modal-total-val">₹{totalAmount.toLocaleString()}</span>
+                        </div>
+                    )}
+                    <div className="rf-modal-actions">
+                        <button className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">Edit</span>
+                        </button>
+                        <button className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+                            <span className="shadow"></span>
+                            <span className="edge"></span>
+                            <span className="front">{loading ? <span className="rf-spinner" /> : "Submit"}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     /* ── Success Screen ── */
+    /* ── Success Screen ── */
+    const resetForm = () => {
+        setSubmitted(false);
+        setSelectedDishes([]);
+        setErrors({});
+        setForm({
+            name: "", mobile: "", email: "", guests: 20,
+            eventDate: "", time: "", slotGroup: "",
+            addrDoorNo: "", addrStreet: "", addrArea: "",
+            addrLandmark: "", addrCity: "", addrDistrict: "", addrState: "", addrPincode: "",
+            notes: "",
+            decoration: null,
+            cake: false, specialMention: false, specialMentionText: "",
+            mic: false, projector: false, music: false, speaker: false,
+            liveMusic: false, surpriseGift: false, candleLight: false,
+        });
+    };
+
     if (submitted) {
         return (
             <div className="rf-page">
@@ -413,33 +503,39 @@ const CateringForm = ({ handleBack, handleHome }) => {
                     </div>
                 </div>
                 <div className="rf-success-screen">
-                    <div className="pbp-success-icon">
+                    <div className="rf-success-icon">
                         <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
                             <circle cx="32" cy="32" r="32" fill="#d1fae5" />
                             <path d="M20 32 L28 40 L44 24" stroke="#16a34a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </div>
-                    <h2 className="ucat-success-title">Catering Submitted!</h2>
-                    <p className="ucat-success-sub">We'll confirm your catering order shortly.</p>
-                    <div className="ucat-success-id">
-                        Booking ID: <span className="ucat-booking-code">#{bookingId}</span>
+                    <h2 className="rf-success-title">Catering Submitted!</h2>
+                    <p className="rf-success-sub">We'll confirm your catering order shortly.</p>
+                    <div className="rf-booking-id">
+                        <span className="rf-booking-label">Booking ID</span>
+                        <span className="rf-booking-code">#{bookingId}</span>
                     </div>
                     <div className="rf-success-card">
-                        <div className="rf-sc-row"><span>Name</span><strong>{form.name}</strong></div>
-                        <div className="rf-sc-row"><span>Mobile</span><strong>{form.mobile}</strong></div>
-                        <div className="rf-sc-row"><span>Date</span><strong>{form.eventDate}</strong></div>
-                        {form.slotGroup && <div className="ucat-sc-row"><span>Slot</span><strong>{SLOT_GROUPS.find(s => s.key === form.slotGroup)?.label}</strong></div>}
-                        <div className="rf-sc-row"><span>Time</span><strong>{fmtTime(form.time)}</strong></div>
-                        <div className="rf-sc-row"><span>Guests</span><strong>{guestCount}</strong></div>
-                        <div className="rf-sc-row"><span>Dishes Total</span><strong>₹{dishTotal.toLocaleString()}</strong></div>
-                        {extrasTotal > 0 && <div className="ucat-sc-row"><span>Extras</span><strong>₹{extrasTotal.toLocaleString()}</strong></div>}
-                        <div className="rf-sc-row"><span>Grand Total</span><strong>₹{totalAmount.toLocaleString()}</strong></div>
+                        <div className="rf-sc-row"><span className="rf-sc-label">Name</span><span className="rf-sc-val">{form.name}</span></div>
+                        <div className="rf-sc-row"><span className="rf-sc-label">Mobile</span><span className="rf-sc-val">{form.mobile}</span></div>
+                        <div className="rf-sc-row"><span className="rf-sc-label">Date</span><span className="rf-sc-val">{form.eventDate}</span></div>
+                        {form.slotGroup && <div className="rf-sc-row"><span className="rf-sc-label">Slot</span><span className="rf-sc-val">{SLOT_GROUPS.find(s => s.key === form.slotGroup)?.label}</span></div>}
+                        <div className="rf-sc-row"><span className="rf-sc-label">Time</span><span className="rf-sc-val">{fmtTime(form.time)}</span></div>
+                        <div className="rf-sc-row"><span className="rf-sc-label">Guests</span><span className="rf-sc-val">{guestCount}</span></div>
+                        <div className="rf-sc-row"><span className="rf-sc-label">Dishes Total</span><span className="rf-sc-val">₹{dishTotal.toLocaleString()}</span></div>
+                        {extrasTotal > 0 && <div className="rf-sc-row"><span className="rf-sc-label">Extras</span><span className="rf-sc-val">₹{extrasTotal.toLocaleString()}</span></div>}
+                        <div className="rf-sc-row"><span className="rf-sc-label">Grand Total</span><span className="rf-sc-val">₹{totalAmount.toLocaleString()}</span></div>
                     </div>
+                    <button className="form-action-btn submit" onClick={resetForm}>
+                        <span className="shadow"></span>
+                        <span className="edge"></span>
+                        <span className="front">Make Another Booking</span>
+                    </button>
                     <button className="form-action-btn submit" onClick={handleHome}>
                         <span className="shadow"></span>
                         <span className="edge"></span>
                         <span className="front">Back to Home</span>
-                        </button>
+                    </button>
                 </div>
             </div>
         );
@@ -448,6 +544,8 @@ const CateringForm = ({ handleBack, handleHome }) => {
     /* ── Main Form ── */
     return (
         <div className="rf-page">
+            {showPreview && <PreviewModal />}
+
             <div className="food-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-list-title">Catering</div>
@@ -804,12 +902,12 @@ const CateringForm = ({ handleBack, handleHome }) => {
                             <button
                                 className={`form-action-btn submit${loading ? " loading" : ""}`}
                                 type="button"
-                                onClick={handleSubmit}
+                                onClick={handleReview}
                                 disabled={loading}
                             >
                                 <span className="shadow"></span>
                                 <span className="edge"></span>
-                                <span className="front">{loading ? "Submitting..." : "Submit Catering"}</span>
+                                <span className="front">Review &amp; Submit</span>
                             </button>
 
                         </div>
