@@ -44,7 +44,7 @@
 .ehome-hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #111 0%, #18103a 50%, #1a0a2e 100%);
+  background: linear-gradient(135deg, var(--text-primary) 0%, #18103a 50%, #1a0a2e 100%);
 }
 
 .ehome-hero-orb {
@@ -57,7 +57,7 @@
 .ehome-orb-1 {
   width: 180px;
   height: 180px;
-  background: rgba(124, 58, 237, 0.5);
+  background: var(--color-orb-purple);
   top: -40px;
   right: -20px;
 }
@@ -65,7 +65,7 @@
 .ehome-orb-2 {
   width: 120px;
   height: 120px;
-  background: rgba(236, 72, 153, 0.4);
+  background: var(--color-orb-pink);
   bottom: -20px;
   left: 40px;
 }
@@ -83,7 +83,7 @@
   display: inline-block;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--color-on-red-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -91,7 +91,7 @@
 .ehome-hero-title {
   font-size: 26px;
   font-weight: 900;
-  color: #fff;
+  color: var(--bg-main);
   margin: 0;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -99,7 +99,7 @@
 
 .ehome-hero-sub {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--color-on-red-muted);
   margin: 4px 0 0;
   line-height: 1.5;
   max-width: 260px;
@@ -179,7 +179,7 @@
   transform: translateY(-6px);
   scale: 1 !important;
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(124, 58, 237, 0.2);
+  border-color: var(--color-orb-purple-border);
 }
 
 .ehome-option-card:hover::before {

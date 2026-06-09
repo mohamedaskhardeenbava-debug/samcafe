@@ -18,7 +18,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const mobileInputRef = useRef(null);
   const [users, setUsers] = useState([]);
   const [enableAutocomplete, setEnableAutocomplete] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [formErrors, setFormErrors] = useState({});
   const [activeCard, setActiveCard] = useState(null);
 
   const { theme } = useTheme();
@@ -105,21 +105,19 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   };
 
   const handleLogin = async () => {
-
-    if (mobile.length !== 10) {
-      setErrorMsg("Enter a valid 10-digit mobile number.");
-      return;
-    }
+    const e = {};
+    if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
+    if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
     const matches = users.filter(u => u.mobile === mobile);
 
     if (matches.length === 0) {
-      setErrorMsg("No account exists with this mobile number.");
+      setFormErrors({ mobile: "No account exists with this mobile number." });
       return;
     }
 
     if (matches.length > 1) {
-      setErrorMsg("Multiple accounts exist with this number. Contact support.");
+      setFormErrors({ mobile: "Multiple accounts found. Contact support." });
       return;
     }
 
@@ -137,11 +135,10 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   };
 
   const handleSignup = async () => {
-    ;
-    if (!name.trim() || mobile.length !== 10) {
-      setErrorMsg("Enter name and valid mobile number.");
-      return;
-    }
+    const e = {};
+    if (!name.trim() || name.trim().length < 2) e.name = "Enter a valid name.";
+    if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
+    if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
     try {
       setLoading(true);
@@ -152,7 +149,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       const matches = users.filter(u => u.mobile === mobile);
 
       if (matches.length > 0) {
-        setErrorMsg("An account already exists with this mobile number.");
+        setFormErrors({ mobile: "An account already exists with this mobile number." });
         return;
       }
 
@@ -185,6 +182,12 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
   return (
     <div className="welcome-page">
+      {/* Wave background */}
+      <div className="welcome-waves" aria-hidden="true">
+        <div className="welcome-wave" />
+        <div className="welcome-wave" />
+        <div className="welcome-wave" />
+      </div>
       <ThemeToggle />
       <datalist id="user-mobiles">
         {filteredMobiles.map((m) => (
@@ -220,7 +223,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
             <div
               className="flip-inner"
               onClick={() => {
-                setErrorMsg("");
+                setFormErrors({});
                 setMobile("");
                 setActiveCard(prev => (prev === "login" ? null : "login"));
               }}
@@ -242,36 +245,40 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                 <h3>Login</h3>
 
                 <div
-                  className="section floating-field"
+                  className="section"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <input
-                    ref={mobileInputRef}
-                    type="tel"
-                    placeholder=" "
-                    list={enableAutocomplete ? "user-mobiles" : undefined}
-                    maxLength={10}
-                    value={mobile}
-                    onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                      setMobile(value);
-
-                      if (value.length === 10) {
-                        setEnableAutocomplete(false);
-                        setTimeout(() => mobileInputRef.current?.blur(), 0);
-                      } else {
-                        setEnableAutocomplete(true);
-                      }
-                    }}
-                  />
-                  <label>Enter Mobile Number</label>
-                </div>
-
-                {errorMsg && activeCard === "login" && (
-                  <div className="inline-error">
-                    {errorMsg}
+                  <div className="mat">
+                    <input
+                      ref={mobileInputRef}
+                      className={`mat-input${formErrors.mobile ? " error" : ""}`}
+                      style={{paddingLeft: "4px"}}
+                      type="tel"
+                      placeholder=" "
+                      list={enableAutocomplete ? "user-mobiles" : undefined}
+                      maxLength={10}
+                      value={mobile}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                        setMobile(value);
+                        setFormErrors(prev => ({ ...prev, mobile: "" }));
+                        if (value.length === 10) {
+                          setEnableAutocomplete(false);
+                          setTimeout(() => mobileInputRef.current?.blur(), 0);
+                        } else {
+                          setEnableAutocomplete(true);
+                        }
+                      }}
+                    />
+                    <label className={`mat-label${formErrors.mobile ? " mat-label-error" : ""}`}>
+                      Mobile Number
+                    </label>
+                    <span className={`mat-bar${formErrors.mobile ? " mat-bar-error" : ""}`} />
                   </div>
-                )}
+                  {formErrors.mobile && (
+                    <span className="mat-error">{formErrors.mobile}</span>
+                  )}
+                </div>
 
                 <div
                   className="btn-container"
@@ -301,7 +308,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
             <div
               className="flip-inner"
               onClick={() => {
-                setErrorMsg("");
+                setFormErrors({});
                 setName("");
                 setMobile("");
                 setActiveCard(prev => (prev === "signup" ? null : "signup"));
@@ -324,51 +331,63 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                 <h3>Create Profile</h3>
 
                 <div
-                  className="section floating-field"
+                  className="section"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <input
-                    required
-                    placeholder=" "
-                    type="text"
-                    maxLength={100}
-                    value={name}
-                    onChange={(e) => {
-                      let value = e.target.value;
-                      if (value.length > 100) return;
-                      const words = value.trim().split(/\s+/);
-                      if (words.length > 5) return;
-                      setName(toCamelCase(value));
-                    }}
-                  />
-                  <label>Enter Name</label>
+                  <div className="mat">
+                    <input
+                      className={`mat-input${formErrors.name ? " error" : ""}`}
+                      placeholder=" "
+                      type="text"
+                      maxLength={100}
+                      value={name}
+                      onChange={(e) => {
+                        let value = e.target.value;
+                        if (value.length > 100) return;
+                        const words = value.trim().split(/\s+/);
+                        if (words.length > 5) return;
+                        setName(toCamelCase(value));
+                        setFormErrors(prev => ({ ...prev, name: "" }));
+                      }}
+                    />
+                    <label className={`mat-label${formErrors.name ? " mat-label-error" : ""}`}>
+                      Full Name
+                    </label>
+                    <span className={`mat-bar${formErrors.name ? " mat-bar-error" : ""}`} />
+                  </div>
+                  {formErrors.name && (
+                    <span className="mat-error">{formErrors.name}</span>
+                  )}
                 </div>
 
                 <div
-                  className="section floating-field"
+                  className="section"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <input
-                    required
-                    type="tel"
-                    placeholder=" "
-                    maxLength={10}
-                    value={mobile}
-                    onChange={(e) => {
-                      const digitsOnly = e.target.value.replace(/\D/g, "");
-                      if (digitsOnly.length <= 10) {
-                        setMobile(digitsOnly);
-                      }
-                    }}
-                  />
-                  <label>Enter Mobile Number</label>
-                </div>
-
-                {errorMsg && activeCard === "signup" && (
-                  <div className="inline-error">
-                    {errorMsg}
+                  <div className="mat">
+                    <input
+                      className={`mat-input${formErrors.mobile ? " error" : ""}`}
+                      type="tel"
+                      placeholder=" "
+                      maxLength={10}
+                      value={mobile}
+                      onChange={(e) => {
+                        const digitsOnly = e.target.value.replace(/\D/g, "");
+                        if (digitsOnly.length <= 10) {
+                          setMobile(digitsOnly);
+                          setFormErrors(prev => ({ ...prev, mobile: "" }));
+                        }
+                      }}
+                    />
+                    <label className={`mat-label${formErrors.mobile ? " mat-label-error" : ""}`}>
+                      Mobile Number
+                    </label>
+                    <span className={`mat-bar${formErrors.mobile ? " mat-bar-error" : ""}`} />
                   </div>
-                )}
+                  {formErrors.mobile && (
+                    <span className="mat-error">{formErrors.mobile}</span>
+                  )}
+                </div>
 
                 <div
                   className="btn-container"

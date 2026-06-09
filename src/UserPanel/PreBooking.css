@@ -33,7 +33,7 @@
     overflow-y: auto;
     padding-bottom: 20px;
     scrollbar-width: thin;
-    scrollbar-color: #ddd transparent;
+    scrollbar-color: var(--border-dark) transparent;
 }
 
 .pbp-col::-webkit-scrollbar {
@@ -41,7 +41,7 @@
 }
 
 .pbp-col::-webkit-scrollbar-thumb {
-    background: #ddd;
+    background: var(--border-dark);
     border-radius: 4px;
 }
 
@@ -80,19 +80,19 @@
 .pbp-form-group label {
     font-size: 11px;
     font-weight: 700;
-    color: #666;
+    color: var(--text-light);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
 
 /* REQ / OPTIONAL */
 .pbp-req {
-    color: #e74c3c;
+    color: var(--color-red);
 }
 
 .pbp-opt {
     font-size: 9px;
-    color: #aaa;
+    color: var(--text-placeholder);
     font-weight: 400;
     text-transform: none;
     letter-spacing: 0;
@@ -102,8 +102,8 @@
 /* ── DISCOUNT NOTE ── */
 .pbp-discount-note {
     font-size: 11px;
-    color: #065f46;
-    background: #d1fae5;
+    color: var(--color-green-text);
+    background: var(--color-green-pale);
     padding: 3px 8px;
     border-radius: 999px;
     display: inline-block;
@@ -140,8 +140,8 @@
     gap: 5px;
     padding: 12px 8px;
     border-radius: 14px;
-    border: 1.5px solid #e5e7eb;
-    background: #f9fafb;
+    border: 1.5px solid var(--border-lightest);
+    background: var(--bg-very-light);
     cursor: pointer;
     transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
     min-width: 72px;
@@ -149,32 +149,32 @@
 }
 
 .slot-group:hover:not(.pbp-slot-disabled) {
-    border-color: var(--color-red, #e74c3c);
+    border-color: var(--color-red, var(--color-red));
     transform: translateY(-2px);
 }
 
 .slot-group.active {
-    background: var(--color-red, #e74c3c);
-    border-color: var(--color-red, #e74c3c);
-    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.3);
+    background: var(--color-red, var(--color-red));
+    border-color: var(--color-red, var(--color-red));
+    box-shadow: 0 6px 18px var(--shadow-red-lg);
     transform: translateY(-2px);
 }
 
 .slot-group-label {
     font-size: 12px;
     font-weight: 700;
-    color: #555;
+    color: var(--text-lighter);
 }
 
 .slot-group-time {
     font-size: 10px;
-    color: #888;
+    color: var(--text-muted);
     text-align: center;
 }
 
 .slot-group.active .slot-group-label,
 .slot-group.active .slot-group-time {
-    color: #fff;
+    color: var(--bg-main);
 }
 
 .pbp-slot-disabled {
@@ -186,8 +186,8 @@
 .slot-group-passed-badge {
     font-size: 9px;
     font-weight: 700;
-    background: rgba(0, 0, 0, 0.13);
-    color: #fff;
+    background: var(--color-overlay-light);
+    color: var(--bg-main);
     padding: 1px 5px;
     border-radius: 6px;
 }
@@ -201,7 +201,7 @@
 
 .pbp-time-hint {
     font-size: 11px;
-    color: #aaa;
+    color: var(--text-placeholder);
     margin-top: 4px;
     display: block;
 }
@@ -220,10 +220,10 @@
     height: 44px;
     padding: 0 14px;
     border-radius: 10px;
-    border: 1.5px solid #e5e7eb;
-    background: #f9fafb;
+    border: 1.5px solid var(--border-lightest);
+    background: var(--bg-very-light);
     font-size: 14px;
-    color: #111;
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.18s;
     font-family: inherit;
@@ -231,15 +231,15 @@
 }
 
 .pbp-cdp-trigger:hover {
-    border-color: #111;
-    background: #fff;
+    border-color: var(--text-primary);
+    background: var(--bg-main);
 }
 
 /* Error state for date picker trigger */
 .pbp-cdp-trigger.error {
-    border-color: #e74c3c;
-    background: #fff5f5;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+    border-color: var(--color-red);
+    background: var(--bg-main)5f5;
+    box-shadow: 0 0 0 3px var(--shadow-red-xs);
 }
 
 .pbp-cdp-val {
@@ -249,7 +249,7 @@
 }
 
 .pbp-cdp-val.ph {
-    color: #aaa;
+    color: var(--text-placeholder);
     font-weight: 400;
 }
 
@@ -258,9 +258,9 @@
     top: calc(100% + 6px);
     left: 0;
     z-index: 9999;
-    background: #fff;
+    background: var(--bg-main);
     border-radius: 14px;
-    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.16);
+    box-shadow: 0 16px 48px var(--shadow-card-subtle);
     padding: 14px;
     width: 268px;
     animation: pbpCdpFade 0.18s ease;
@@ -289,14 +289,14 @@
     width: 28px;
     height: 28px;
     border-radius: 7px;
-    border: 1.5px solid #f0f0f0;
-    background: #fff;
+    border: 1.5px solid var(--border-lighter);
+    background: var(--bg-main);
     font-size: 15px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #555;
+    color: var(--text-lighter);
 }
 
 .pbp-cdp-nav-center {
@@ -310,7 +310,7 @@
     border: none;
     font-size: 13px;
     font-weight: 700;
-    color: #111;
+    color: var(--text-primary);
     cursor: pointer;
     padding: 3px 7px;
     border-radius: 6px;
@@ -318,7 +318,7 @@
 }
 
 .pbp-cdp-nav-lbl:hover {
-    background: #f5f5f5;
+    background: var(--bg-input);
 }
 
 .pbp-cdp-weekdays {
@@ -331,7 +331,7 @@
 .pbp-cdp-weekdays span {
     font-size: 9px;
     font-weight: 700;
-    color: #222;
+    color: var(--text-secondary);
     text-transform: uppercase;
     padding: 3px 0;
 }
@@ -349,7 +349,7 @@
     border: none;
     background: transparent;
     font-size: 12px;
-    color: #333;
+    color: var(--text-secondary);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -358,23 +358,23 @@
 }
 
 .pbp-cdp-day:hover:not(.dis) {
-    background: #e0e0e0;
-    color: var(--color-red, #e74c3c);
+    background: var(--bg-lighter);
+    color: var(--color-red, var(--color-red));
 }
 
 .pbp-cdp-day.today {
     font-weight: 700;
-    color: var(--color-red, #e74c3c);
+    color: var(--color-red, var(--color-red));
 }
 
 .pbp-cdp-day.sel {
-    background: #111 !important;
-    color: #fff !important;
+    background: var(--text-primary) !important;
+    color: var(--bg-main) !important;
     font-weight: 700;
 }
 
 .pbp-cdp-day.dis {
-    color: #b6b6b6;
+    color: var(--text-disabled);
     cursor: not-allowed;
 }
 
@@ -388,19 +388,19 @@
 .pbp-cdp-month-btn {
     padding: 9px 4px;
     border-radius: 9px;
-    border: 1.5px solid #f0f0f0;
-    background: #fff;
+    border: 1.5px solid var(--border-lighter);
+    background: var(--bg-main);
     font-size: 12px;
     font-weight: 500;
-    color: #333;
+    color: var(--text-secondary);
     cursor: pointer;
     font-family: inherit;
 }
 
 .pbp-cdp-month-btn.sel {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--text-primary);
+    color: var(--bg-main);
+    border-color: var(--text-primary);
 }
 
 .pbp-cdp-year-grid {
@@ -413,19 +413,19 @@
 .pbp-cdp-year-btn {
     padding: 9px 4px;
     border-radius: 9px;
-    border: 1.5px solid #f0f0f0;
-    background: #fff;
+    border: 1.5px solid var(--border-lighter);
+    background: var(--bg-main);
     font-size: 11px;
     font-weight: 500;
-    color: #333;
+    color: var(--text-secondary);
     cursor: pointer;
     font-family: inherit;
 }
 
 .pbp-cdp-year-btn.sel {
-    background: #111;
-    color: #fff;
-    border-color: #111;
+    background: var(--text-primary);
+    color: var(--bg-main);
+    border-color: var(--text-primary);
 }
 
 /* ══ CLOCK TIME PICKER ══ */
@@ -442,10 +442,10 @@
     height: 44px;
     padding: 0 14px;
     border-radius: 10px;
-    border: 1.5px solid #e5e7eb;
-    background: #f9fafb;
+    border: 1.5px solid var(--border-lightest);
+    background: var(--bg-very-light);
     font-size: 14px;
-    color: #111;
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.18s;
     font-family: inherit;
@@ -453,23 +453,23 @@
 }
 
 .pbp-ctp-trigger:hover {
-    border-color: #111;
-    background: #fff;
+    border-color: var(--text-primary);
+    background: var(--bg-main);
 }
 
 /* Error state for time picker trigger */
 .pbp-ctp-trigger.error {
-    border-color: #e74c3c;
-    background: #fff5f5;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.08);
+    border-color: var(--color-red);
+    background: var(--bg-main)5f5;
+    box-shadow: 0 0 0 3px var(--shadow-red-xs);
 }
 
 /* Disabled state — slot not yet selected */
 .pbp-ctp-trigger.pbp-ctp-disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background: #f3f4f6;
-    border-color: #e5e7eb;
+    background: var(--btn-default);
+    border-color: var(--border-lightest);
     pointer-events: none;
 }
 
@@ -480,7 +480,7 @@
 }
 
 .pbp-ctp-val.ph {
-    color: #aaa;
+    color: var(--text-placeholder);
     font-weight: 400;
 }
 
@@ -489,9 +489,9 @@
     top: calc(100% + 8px);
     left: 0;
     z-index: 9999;
-    background: #fff;
+    background: var(--bg-main);
     border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+    box-shadow: var(--shadow-dropdown);
     padding: 0 0 12px;
     width: 260px;
     animation: pbpCdpFade 0.18s ease;
@@ -501,8 +501,8 @@
 .pbp-ctp-slot-hint {
     font-size: 11px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.8);
-    background: rgba(255, 255, 255, 0.15);
+    color: var(--color-on-red-hint-2);
+    background: var(--color-on-red-hint);
     padding: 5px 14px;
     text-align: center;
     border-radius: 0;
@@ -511,7 +511,7 @@
 
 /* Red header — matches ReservationForm ClockTimePicker */
 .pbp-ctp-header {
-    background: var(--color-red, #e74c3c);
+    background: var(--color-red, var(--color-red));
     padding: 14px 16px;
     display: flex;
     align-items: center;
@@ -528,8 +528,8 @@
     padding: 3px 10px;
     border-radius: 6px;
     border: none;
-    background: rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.7);
+    background: var(--color-on-red-faint);
+    color: var(--color-on-red-muted);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -538,8 +538,8 @@
 }
 
 .pbp-ctp-ampm-btn.active {
-    background: rgba(255, 255, 255, 0.4);
-    color: #fff;
+    background: var(--color-on-red-mid);
+    color: var(--bg-main);
 }
 
 .pbp-ctp-time-display {
@@ -552,7 +552,7 @@
 .pbp-ctp-hm {
     font-size: 30px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-on-red-muted);
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 8px;
@@ -561,14 +561,14 @@
 }
 
 .pbp-ctp-hm.active {
-    color: #fff;
-    background: rgba(255, 255, 255, 0.2);
+    color: var(--bg-main);
+    background: var(--color-on-red-faint);
 }
 
 .pbp-ctp-colon {
     font-size: 28px;
     font-weight: 700;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--color-on-red-muted);
     line-height: 1;
 }
 
@@ -589,8 +589,8 @@
     padding: 6px 16px;
     border-radius: 8px;
     border: none;
-    background: #f3f4f6;
-    color: #555;
+    background: var(--btn-default);
+    color: var(--text-lighter);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -599,15 +599,15 @@
 }
 
 .pbp-ctp-cancel:hover {
-    background: #e5e7eb;
+    background: var(--border-lightest);
 }
 
 .pbp-ctp-ok {
     padding: 6px 16px;
     border-radius: 8px;
     border: none;
-    background: var(--color-red, #e74c3c);
-    color: #fff;
+    background: var(--color-red, var(--color-red));
+    color: var(--bg-main);
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
@@ -639,7 +639,7 @@
 
 .pbp-item-size {
     font-size: 11px;
-    color: #6b7280;
+    color: var(--text-muted);
 }
 
 .pbp-item-price {
@@ -652,16 +652,16 @@
     border: none;
     border-radius: 999px;
     background: var(--bg-surface);
-    color: #dc2626;
+    color: var(--color-red);
     font-size: 14px;
-    box-shadow: 6px 6px 12px #c0c0c0, -6px -6px 12px #cfcfcf;
+    box-shadow: 6px 6px 12px var(--shadow-neu-dark), -6px -6px 12px var(--shadow-neu-light);
 }
 
 /* ══ BILL ══ */
 .pbp-bill {
     margin-top: 12px;
     padding-top: 10px;
-    border-top: 1px solid #f0f0f0;
+    border-top: 1px solid var(--border-lighter);
     display: flex;
     flex-direction: column;
     gap: 7px;
@@ -671,20 +671,20 @@
     display: flex;
     justify-content: space-between;
     font-size: 14px;
-    color: #374151;
+    color: var(--text-lighter);
 }
 
 .pbp-bill-discount {
-    color: #065f46;
+    color: var(--color-green-text);
     font-weight: 600;
 }
 
 .pbp-bill-total {
     font-size: 15px;
     font-weight: 700;
-    color: #111;
+    color: var(--text-primary);
     padding-top: 7px;
-    border-top: 1px dashed #e5e7eb;
+    border-top: 1px dashed var(--border-lightest);
     margin-top: 2px;
 }
 
@@ -692,7 +692,7 @@
 .pbp-empty {
     text-align: center;
     padding: 20px 10px;
-    color: #6b7280;
+    color: var(--text-muted);
     border: 1px dashed var(--text-tertiary);
     border-radius: 14px;
 }
@@ -725,8 +725,8 @@
 
 .pbp-notes:focus {
     border-color: var(--color-red);
-    background: #fff;
-    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    background: var(--bg-main);
+    box-shadow: 0 0 0 3px var(--shadow-red-sm);
 }
 
 /* ══ ACTIONS ══ */
@@ -739,9 +739,9 @@
     flex: 1;
     height: 50px;
     border-radius: 14px;
-    border: 1.5px solid #e5e7eb;
-    background: #fff;
-    color: #374151;
+    border: 1.5px solid var(--border-lightest);
+    background: var(--bg-main);
+    color: var(--text-lighter);
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
@@ -750,7 +750,7 @@
 }
 
 .pbp-cancel-btn:hover {
-    background: #f3f4f6;
+    background: var(--btn-default);
 }
 
 @media (max-width: 1024px) {
@@ -829,13 +829,13 @@
 .pbp-success-title {
     font-size: 22px;
     font-weight: 800;
-    color: #111;
+    color: var(--text-primary);
     margin: 0;
 }
 
 .pbp-success-sub {
     font-size: 14px;
-    color: #6b7280;
+    color: var(--text-muted);
     margin: 0;
 }
 
@@ -843,8 +843,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #f9fafb;
-    border: 1.5px dashed #d1d5db;
+    background: var(--bg-very-light);
+    border: 1.5px dashed var(--border-muted);
     border-radius: 14px;
     padding: 12px 28px;
     gap: 2px;
@@ -853,7 +853,7 @@
 .pbp-booking-label {
     font-size: 10px;
     font-weight: 700;
-    color: #9ca3af;
+    color: var(--text-placeholder);
     text-transform: uppercase;
     letter-spacing: 0.08em;
 }
@@ -861,15 +861,15 @@
 .pbp-booking-code {
     font-size: 22px;
     font-weight: 800;
-    color: #111;
+    color: var(--text-primary);
     letter-spacing: 2px;
 }
 
 .pbp-success-card {
     width: 100%;
-    background: #fff;
+    background: var(--bg-main);
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+    box-shadow: 0 2px 12px var(--shadow-card-xs);
     padding: 16px;
     display: flex;
     flex-direction: column;
@@ -881,7 +881,7 @@
     justify-content: space-between;
     align-items: center;
     font-size: 13px;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--btn-default);
     padding-bottom: 8px;
 }
 
@@ -891,7 +891,7 @@
 }
 
 .pbp-sc-label {
-    color: #9ca3af;
+    color: var(--text-placeholder);
     font-weight: 600;
     font-size: 11px;
     text-transform: uppercase;
@@ -900,14 +900,14 @@
 
 .pbp-sc-val {
     font-weight: 700;
-    color: #111;
+    color: var(--text-primary);
 }
 
 /* ══ SUBMIT ERROR ══ */
 .pbp-submit-error {
-    background: #fee2e2;
-    border: 1px solid #fca5a5;
-    color: #dc2626;
+    background: var(--color-error-bg);
+    border: 1px solid var(--border-error);
+    color: var(--color-error-dark);
     font-size: 13px;
     font-weight: 500;
     padding: 10px 14px;
@@ -921,7 +921,7 @@
 .pbp-dish-popup-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--color-overlay);
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -930,7 +930,7 @@
 }
 
 .pbp-dish-popup {
-    background: #fff;
+    background: var(--bg-main);
     border-radius: 18px;
     width: 100%;
     max-width: 720px;
@@ -939,7 +939,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+    box-shadow: var(--shadow-dropdown);
 }
 
 .pbp-dish-popup-header {
@@ -947,7 +947,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 18px 20px 12px;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid var(--border-lighter);
     flex-shrink: 0;
 }
 
@@ -955,7 +955,7 @@
     font-size: 18px;
     font-weight: 700;
     margin: 0;
-    color: #111;
+    color: var(--text-primary);
 }
 
 .pbp-dish-popup-close {
@@ -1053,7 +1053,7 @@
 
 /* front — active */
 .pbp-dish-popup-close.active .front {
-    color: #fff;
+    color: var(--bg-main);
     background: var(--color-red);
 }
 
@@ -1067,8 +1067,8 @@
     box-sizing: border-box;
     padding: 9px 14px;
     border-radius: 999px;
-    border: 1.5px solid #e5e7eb;
-    background: #f9fafb;
+    border: 1.5px solid var(--border-lightest);
+    background: var(--bg-very-light);
     font-size: 14px;
     outline: none;
     font-family: inherit;
@@ -1076,8 +1076,8 @@
 }
 
 .pbp-dish-popup-search:focus {
-    border-color: #111;
-    background: #fff;
+    border-color: var(--text-primary);
+    background: var(--bg-main);
 }
 
 .pbp-dish-popup-cats {
@@ -1188,7 +1188,7 @@
 
 /* front — active */
 .pbp-dish-cat-btn.active .front {
-    color: #fff;
+    color: var(--bg-main);
     background: var(--color-red);
 }
 
@@ -1255,7 +1255,7 @@
     font-family: inherit;
     font-weight: 600;
     background: var(--bg-surface);
-    color: #555;
+    color: var(--text-lighter);
     transform: translateY(-4px);
     transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
 }
@@ -1284,7 +1284,7 @@
 
 .pbp-veg-filter-btn.active-all .front {
     background: var(--color-red);
-    color: #fff;
+    color: var(--bg-main);
 }
 
 .pbp-veg-filter-btn.active-veg .edge {
@@ -1297,7 +1297,7 @@
 
 .pbp-veg-filter-btn.active-veg .front {
     background: var(--color-green);
-    color: #fff;
+    color: var(--bg-main);
 }
 
 .pbp-veg-filter-btn.active-nonveg .edge {
@@ -1310,7 +1310,7 @@
 
 .pbp-veg-filter-btn.active-nonveg .front {
     background: var(--color-red);
-    color: #fff;
+    color: var(--bg-main);
 }
 
 .pbp-dish-cat-btn {
@@ -1410,7 +1410,7 @@
 
 /* front — active */
 .pbp-dish-cat-btn.active .front {
-    color: #fff;
+    color: var(--bg-main);
     background: var(--color-red);
 }
 
@@ -1423,7 +1423,7 @@
 .pbp-dish-popup-empty {
     text-align: center;
     padding: 32px;
-    color: #aaa;
+    color: var(--text-placeholder);
     font-size: 14px;
 }
 
@@ -1436,7 +1436,7 @@
 
 /* Horizontal compact card */
 .pbp-dish-card {
-    border: 1.5px solid #ebebeb;
+    border: 1.5px solid var(--bg-dish-placeholder-end);
     border-radius: 12px;
     overflow: hidden;
     display: flex;
@@ -1444,14 +1444,14 @@
     align-items: center;
     gap: 0;
     transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
-    background: #fff;
+    background: var(--bg-main);
     min-height: 64px;
     position: relative;
 }
 
 .pbp-dish-card:hover {
-    border-color: #d1d5db;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+    border-color: var(--border-muted);
+    box-shadow: 0 3px 12px var(--shadow-card-xs);
     transform: translateY(-1px);
 }
 
@@ -1466,7 +1466,7 @@
     height: 64px;
     min-width: 64px;
     object-fit: cover;
-    background: #f3f4f6;
+    background: var(--btn-default);
     border-radius: 10px;
     margin: 6px 0 6px 6px;
 }
@@ -1476,7 +1476,7 @@
     align-items: center;
     justify-content: center;
     font-size: 22px;
-    background: linear-gradient(135deg, #f8f9fa, #ebebeb);
+    background: linear-gradient(135deg, var(--bg-dish-placeholder-start), var(--bg-dish-placeholder-end));
 }
 
 /* Info area */
@@ -1492,7 +1492,7 @@
 .pbp-dish-card-name {
     font-size: 12.5px;
     font-weight: 650;
-    color: #111;
+    color: var(--text-primary);
     text-transform: capitalize;
     white-space: nowrap;
     overflow: hidden;
@@ -1502,7 +1502,7 @@
 
 .pbp-dish-card-cat {
     font-size: 10px;
-    color: #bbb;
+    color: var(--border-dark);
     font-weight: 500;
     letter-spacing: 0.02em;
     text-transform: uppercase;
@@ -1520,7 +1520,7 @@
 
 .pbp-dish-card-total {
     font-size: 10px;
-    color: #999;
+    color: var(--text-light);
     font-weight: 400;
 }
 
@@ -1543,11 +1543,11 @@
     justify-content: center;
     line-height: 1;
 
-    background: #e8e8e8;
+    background: var(--bg-neu);
     cursor: pointer;
-    border: 1px solid #e8e8e8;
+    border: 1px solid var(--border-neu);
     transition: all 0.3s;
-    box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+    box-shadow: 6px 6px 12px var(--shadow-neu-mid), -6px -6px 12px var(--bg-main);
 }
 
 .pbp-dish-card-btn:hover {
@@ -1558,7 +1558,7 @@
     background: transparent;
     color: var(--color-red);
     font-size: 14px;
-    box-shadow: 6px 6px 12px #c7c7c7, -6px -6px 12px #e2dcdc;
+    box-shadow: 6px 6px 12px var(--shadow-neu-warm-dark), -6px -6px 12px var(--shadow-neu-warm-light);
 }
 
 .pbp-dish-card-btn.remove:hover {
@@ -1568,9 +1568,9 @@
 .pbp-add-dish-btn {
     padding: 6px 14px;
     border-radius: 999px;
-    border: 1.5px solid #111;
-    background: #111;
-    color: #fff;
+    border: 1.5px solid var(--text-primary);
+    background: var(--text-primary);
+    color: var(--bg-main);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -1579,15 +1579,15 @@
 }
 
 .pbp-add-dish-btn:hover {
-    background: #333;
+    background: var(--text-secondary);
 }
 
 .pbp-addmore-dish-btn {
     padding: 6px 14px;
     border-radius: 999px;
-    border: 1.5px solid #111;
-    background: #111;
-    color: #fff;
+    border: 1.5px solid var(--text-primary);
+    background: var(--text-primary);
+    color: var(--bg-main);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
@@ -1598,7 +1598,7 @@
 }
 
 .pbp-addmore-dish-btn:hover {
-    background: #333;
+    background: var(--text-secondary);
 }
 
 @media (max-width: 600px) {
@@ -1610,6 +1610,10 @@
 
     .pbp-dish-grid {
         grid-template-columns: 1fr;
+    }
+
+    .pbp-card {
+        padding: 0;
     }
 }
 
@@ -1626,7 +1630,7 @@
 .pbp-form-group>label {
     font-size: 11px !important;
     font-weight: 700 !important;
-    color: var(--color-red, #e74c3c) !important;
+    color: var(--color-red, var(--color-red)) !important;
     text-transform: uppercase !important;
     letter-spacing: 0.06em !important;
     margin-bottom: 4px !important;

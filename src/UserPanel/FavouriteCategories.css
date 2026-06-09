@@ -2,7 +2,7 @@
 .empty-favourites {
   margin-top: 60px;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-tertiary);
 }
 
 .empty-favourites h3 {

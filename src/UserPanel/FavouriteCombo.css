@@ -1,12 +1,7 @@
 :root {
-  --bg-light: #f6f7fb;
-  --card-bg: #ffffff;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --primary: #2563eb;
+  --card-bg: var(--bg-main)fff;
   --primary-hover: #1d4ed8;
-  --danger: #ef4444;
-  --danger-hover: #dc2626;
+  --color-red-hover: var(--color-error-dark);
   --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 18px 45px rgba(0, 0, 0, 0.08);
   --radius: 18px;
@@ -16,7 +11,7 @@
 .fav-combo-page {
   min-height: 100vh;
   background: transparent;
-  color: var(--text-main);
+  color: var(--text-primary);
 }
 
 /* HEADER */
@@ -35,7 +30,7 @@
 
 .fav-combo-header-text p {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   margin: 2px 0 0;
 }
 
@@ -121,7 +116,7 @@
   padding: 4px 8px;
   border-radius: 999px;
   background: rgba(37, 99, 235, 0.1);
-  color: var(--primary);
+  color: var(--color-blue);
   font-weight: 600;
 }
 
@@ -196,7 +191,7 @@
 
 /* ── 3-layer base (shared) ── */
 .btn-primary,
-.btn-danger,
+.btn-color-red,
 .fav-combo-quantity-section button {
   position: relative;
   border: none;
@@ -207,7 +202,7 @@
 }
 
 .btn-primary .shadow,
-.btn-danger .shadow,
+.btn-color-red .shadow,
 .fav-combo-quantity-section button .shadow {
   position: absolute;
   inset: 0;
@@ -218,7 +213,7 @@
 }
 
 .btn-primary .edge,
-.btn-danger .edge,
+.btn-color-red .edge,
 .fav-combo-quantity-section button .edge {
   position: absolute;
   inset: 0;
@@ -227,7 +222,7 @@
 }
 
 .btn-primary .front,
-.btn-danger .front,
+.btn-color-red .front,
 .fav-combo-quantity-section button .front {
   display: block;
   position: relative;
@@ -264,15 +259,15 @@
 }
 
 /* ── Delete (red) ── */
-.btn-danger {
+.btn-color-red {
   border-radius: 12px;
 }
 
-.btn-danger .shadow {
+.btn-color-red .shadow {
   background: rgba(120, 10, 10, 0.45);
 }
 
-.btn-danger .edge {
+.btn-color-red .edge {
   background: linear-gradient(to left,
         var(--edge-color-dark) 0%,
         var(--edge-color-light) 8%,
@@ -280,11 +275,11 @@
         var(--edge-color-dark) 100%);
 }
 
-.btn-danger .front {
+.btn-color-red .front {
   padding: 10px 16px;
   border-radius: 12px;
   background: var(--color-red);
-  color: #fff;
+  color: var(--bg-main);
   font-size: 13px;
   font-weight: 700;
 }
@@ -320,26 +315,26 @@
 }
 
 .btn-primary:hover .front,
-.btn-danger:hover .front,
+.btn-color-red:hover .front,
 .fav-combo-quantity-section button:hover .front {
   transform: translateY(-6px);
   filter: brightness(108%);
 }
 
 .btn-primary:active .front,
-.btn-danger:active .front,
+.btn-color-red:active .front,
 .fav-combo-quantity-section button:active .front {
   transform: translateY(-2px);
 }
 
 .btn-primary:hover .shadow,
-.btn-danger:hover .shadow,
+.btn-color-red:hover .shadow,
 .fav-combo-quantity-section button:hover .shadow {
   transform: translateY(4px);
 }
 
 .btn-primary:active .shadow,
-.btn-danger:active .shadow,
+.btn-color-red:active .shadow,
 .fav-combo-quantity-section button:active .shadow {
   transform: translateY(1px);
 }

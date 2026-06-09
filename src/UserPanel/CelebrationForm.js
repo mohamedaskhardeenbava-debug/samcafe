@@ -249,13 +249,16 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
     }
   };
 
-  const resetForm = () => setForm({
+  const resetForm = () => {setForm({
     type: "birthday", name: "", mobile: "", email: "", date: "", time: "", slotGroup: "",
     guests: 2, birthdayPersonName: "", birthdayPersonAge: "", cake: false,
     specialMention: false, specialMentionText: "", standingBrochures: false,
     placeHolders: false, pens: false, mic: false, projector: false, candleLight: false,
     liveMusic: false, surpriseGift: false, decoration: null, audioVideo: false, specialNote: "",
   });
+    setShowPreview(false);
+    setSubmitted(false);
+}
 
   /* ─── Special Mention expansion helper ─── */
   const renderExtrasWithMention = (extras) => extras.map(ex => (

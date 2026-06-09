@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    UserTimePicker.css  — shared user-panel clock time picker
-   Accent: var(--color-red, #e74c3c)
+   Accent: var(--color-red, var(--color-red))
 ═══════════════════════════════════════════════════════ */
 
 /* ── Wrapper — material underline, matches rf-mat ── */
@@ -42,13 +42,13 @@
     top: 2px;
     font-size: 11px;
     font-weight: 700;
-    color: var(--color-red, #e74c3c);
+    color: var(--color-red, var(--color-red));
     letter-spacing: 0.06em;
     text-transform: uppercase;
 }
 
 .utp-label.utp-label-error {
-    color: var(--color-red, #e74c3c);
+    color: var(--color-red, var(--color-red));
 }
 
 /* ── Trigger — flat underline only, no box ── */
@@ -65,7 +65,7 @@
     background: transparent;
     font-size: 15px;
     font-weight: 500;
-    color: var(--text-primary, #1a1d26);
+    color: var(--text-primary);
     cursor: pointer;
     transition: border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
@@ -77,7 +77,7 @@
 
 .utp-trigger:hover {
     border: none;
-    border-bottom: 1px solid var(--text-tertiary, #94a0b4);
+    border-bottom: 1px solid var(--text-tertiary);
     box-shadow: none;
     background: transparent;
 }
@@ -91,7 +91,7 @@
 }
 
 .utp-trigger.utp-error {
-    border-bottom-color: var(--color-red, #e74c3c) !important;
+    border-bottom-color: var(--color-red, var(--color-red)) !important;
 }
 
 .utp-trigger.utp-disabled {
@@ -107,7 +107,7 @@
     left: 0;
     height: 2px;
     width: 0;
-    background: var(--color-red, #e74c3c);
+    background: var(--color-red, var(--color-red));
     border-radius: 1px;
     transition: width 0.3s cubic-bezier(0.22, 1, 0.36, 1);
     pointer-events: none;
@@ -120,7 +120,7 @@
 
 .utp-wrap.utp-error-state .utp-bar {
     width: 100%;
-    background: var(--color-red, #e74c3c);
+    background: var(--color-red, var(--color-red));
 }
 
 /* Value / placeholder */
@@ -128,7 +128,7 @@
     flex: 1;
     font-size: 15px;
     font-weight: 500;
-    color: var(--text-primary, #1a1d26);
+    color: var(--text-primary);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -141,7 +141,7 @@
 
 /* Clock icon */
 .utp-icon {
-    color: #94a0b4;
+    color: var(--text-secondary);
     flex-shrink: 0;
     opacity: 0.7;
 }
@@ -166,7 +166,7 @@
     top: calc(100% + 8px);
     left: 0;
     z-index: 9999;
-    background: #fff;
+    background: var(--bg-main);
     border-radius: 20px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
     width: 260px;
@@ -188,7 +188,7 @@
 
 /* ── Header — red accent ── */
 .utp-header {
-    background: var(--color-red, #e74c3c);
+    background: var(--color-red, var(--color-red));
     padding: 14px 16px;
     display: flex;
     align-items: center;
@@ -218,12 +218,12 @@
 
 .utp-ampm-btn:hover {
     background: rgba(255, 255, 255, 0.3);
-    color: #fff;
+    color: var(--bg-main);
 }
 
 .utp-ampm-btn.active {
     background: rgba(255, 255, 255, 0.4);
-    color: #fff;
+    color: var(--bg-main);
 }
 
 /* Digital time display */
@@ -246,12 +246,12 @@
 }
 
 .utp-hm.active {
-    color: #fff;
+    color: var(--bg-main);
     background: rgba(255, 255, 255, 0.2);
 }
 
 .utp-hm:hover {
-    color: #fff;
+    color: var(--bg-main);
 }
 
 .utp-colon {
@@ -264,9 +264,9 @@
 /* ── Slot hint ── */
 .utp-slot-hint {
     font-size: 11px;
-    color: #888;
-    background: #f8f8f8;
-    border-bottom: 1px solid #f0f0f0;
+    color: var(--text-muted);
+    background: var(--bg-very-light);
+    border-bottom: 1px solid var(--border-lighter);
     padding: 5px 16px;
     text-align: center;
     font-weight: 500;
@@ -291,8 +291,8 @@
     padding: 6px 14px;
     border-radius: 8px;
     border: none;
-    background: #f0f0f0;
-    color: #666;
+    background: var(--border-lighter);
+    color: var(--text-light);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -301,15 +301,15 @@
 }
 
 .utp-cancel:hover {
-    background: #e5e5e5;
+    background: var(--bg-lighter);
 }
 
 .utp-ok {
     padding: 6px 18px;
     border-radius: 8px;
     border: none;
-    background: var(--color-red, #e74c3c);
-    color: #fff;
+    background: var(--color-red, var(--color-red));
+    color: var(--bg-main);
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;

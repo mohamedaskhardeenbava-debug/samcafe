@@ -16,19 +16,6 @@ export const placeOrder = async (bag) => {
 
     const mode = tableNo ? "dine in" : "take away";
 
-    /* 🔹 ORDER ID */
-    let orderId;
-    const allOrdersRes = await api.get("/orders");
-    const allOrders = allOrdersRes.data;
-
-    if (!allOrders || allOrders.length === 0) {
-        orderId = "order_00001";
-    } else {
-        const lastOrder = allOrders[allOrders.length - 1];
-        const lastNum = parseInt(lastOrder.id?.replace("order_", "")) || 0;
-        orderId = `order_${String(lastNum + 1).padStart(5, "0")}`;
-    }
-    /* 🔹 USER */
     /* 🔹 USER */
     let userName = "Guest";
     let mobileNo = null;
@@ -41,7 +28,6 @@ export const placeOrder = async (bag) => {
 
     const nowISO = new Date().toISOString();
 
-    // optional: if you still want a separate date field
     const date = nowISO.split("T")[0]; // "2026-02-10"
 
     const time = new Date().toLocaleTimeString("en-GB", {
@@ -74,11 +60,11 @@ export const placeOrder = async (bag) => {
             : name;
 
     const newOrder = {
-        id: orderId,
-        userId: userId || null,
+        id: "pending",  // 🔹 Server assigns the real incremental ID
+        ...(userId ? { userId } : {}),
         userName,
-        mobile: mobileNo,
-        tableNo: tableNo ? Number(tableNo) : null,
+        ...(mobileNo ? { mobile: mobileNo } : {}),
+        ...(tableNo ? { tableNo: Number(tableNo) } : {}),
         mode,
         date,
         time,
@@ -97,30 +83,18 @@ export const placeOrder = async (bag) => {
             totalPrice: Math.round(item.totalPrice || 0),
             status: "placed",
             isCustomized: !!item.isCustomized,
-            selectedSize: item.selectedSize || null,
+            ...(item.selectedSize ? { selectedSize: item.selectedSize } : {}),
             notes: item.notes || "",
             ingredients: Array.isArray(item.ingredients) ? item.ingredients : [],
             createdAt: nowISO,
-            pickupAt: item.pickupAt || null
+            ...(item.pickupAt ? { pickupAt: item.pickupAt } : {})
         }))
     };
 
-    /* 🔹 SAVE ORDER TO GLOBAL ORDERS */
-    await api.post("/orders", newOrder);
+    /* 🔹 SAVE ORDER — server generates the real ID and handles user embedding */
+    const savedRes = await api.post("/orders", newOrder);
+    const savedOrder = savedRes.data;
 
-    /* 🔹 SAVE ORDER INSIDE USER */
-    if (userId) {
-        const userRes = await api.get(`/users/${userId}`);
-
-        const updatedUser = {
-            ...userRes.data,
-            orders: [...(userRes.data.orders || []), newOrder]
-        };
-
-        await api.put(`/users/${userId}`, updatedUser);
-    }
-
-    /* 🔹 UPDATE INGREDIENT STOCK */
     /* 🔹 UPDATE INGREDIENT STOCK */
     const ingredientsRes = await api.get("/ingredients");
     const allIngredients = ingredientsRes.data;
@@ -152,12 +126,8 @@ export const placeOrder = async (bag) => {
     };
 
     const printerOrder = {
-        ...newOrder,
-
-        // printer-friendly date
-        date: formatForPrinter(newOrder.date),
-
-        // printer needs GST breakup
+        ...savedOrder,
+        date: formatForPrinter(savedOrder.date),
         gst: {
             cgst: totalWithGST.cgst,
             sgst: totalWithGST.sgst,
@@ -172,5 +142,5 @@ export const placeOrder = async (bag) => {
         body: JSON.stringify({ order: printerOrder })
     }).catch(() => { });
 
-    return newOrder;
+    return savedOrder;
 };

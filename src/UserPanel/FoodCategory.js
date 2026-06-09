@@ -371,7 +371,6 @@ const PromoCarousel = ({ items, onCardClick }) => {
 
   const startXRef = useRef(null);
   const autoRef = useRef(null);
-  const isJumping = useRef(false);
 
   // Dot index: which real page we're on (0-based)
   const dotIdx = ((idx - 1) % PAGE_COUNT + PAGE_COUNT) % PAGE_COUNT;
@@ -388,7 +387,6 @@ const PromoCarousel = ({ items, onCardClick }) => {
   }, [pageSize]);
 
   const step = useCallback((dir) => {
-    if (isJumping.current) return;
     setAnimated(true);
     setIdx((prev) => prev + dir);
   }, []);
@@ -412,18 +410,15 @@ const PromoCarousel = ({ items, onCardClick }) => {
 
   /* Seamless infinite: snap from clone to real twin after transition */
   const handleTransitionEnd = useCallback(() => {
-    isJumping.current = true;
     if (idx === 0) {
       setAnimated(false);
       setIdx(PAGE_COUNT);
+      requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)));
     } else if (idx === PAGE_COUNT + 1) {
       setAnimated(false);
       setIdx(1);
+      requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)));
     }
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      isJumping.current = false;
-      setAnimated(true);
-    }));
   }, [idx, PAGE_COUNT]);
 
   /* Swipe support */
@@ -449,13 +444,14 @@ const PromoCarousel = ({ items, onCardClick }) => {
         <div
           className="pc-track"
           style={{
-            transform: `translateX(-${idx * 100}%)`,
+            width: `${extended.length * 100}%`,
+            transform: `translateX(-${(idx / extended.length) * 100}%)`,
             transition: animated ? "transform 0.42s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
           }}
           onTransitionEnd={handleTransitionEnd}
         >
           {extended.map((group, gi) => (
-            <div key={gi} className={`pc-page pc-page--${pageSize}`}>
+            <div key={gi} className={`pc-page pc-page--${pageSize}`} style={{ width: `${100 / extended.length}%`, flex: `0 0 ${100 / extended.length}%` }}>
               {group.map((item) => (
                 <PromoCard key={item.id} item={item} onClick={onCardClick} />
               ))}

@@ -111,15 +111,15 @@
 /* edge — active (red) */
 .view-btn.active .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 /* front — active */
 .view-btn.active .front {
-  color: #fff;
+  color: var(--bg-main);
   background: var(--color-red);
 }
 
@@ -374,7 +374,7 @@
   flex-shrink: 0;
   font-size: 10px;
   font-weight: 800;
-  color: #fff;
+  color: var(--bg-main);
   background: var(--color-red);
   padding: 3px 9px;
   border-radius: 20px;
@@ -390,20 +390,20 @@
 
 /* ── Nav arrows ── */
 .pc-arrow {
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  color: var(--text-primary);
+  height: 32px;
+  width: 32px;
+  font-size: 18px;
+  border-radius: 999px;
   background: var(--bg-main);
-  border: 1.5px solid var(--border-light, rgba(0, 0, 0, 0.1));
   cursor: pointer;
+  border: 1px solid var(--bg-surface);
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px var(--text-tertiary), -6px -6px 12px var(--bg-surface);
+
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  transition: background 0.18s ease, transform 0.18s ease;
-  padding: 0;
-  align-self: center;
 }
 
 .pc-arrow:disabled {
@@ -418,7 +418,7 @@
 }
 
 .pc-arrow:hover:not(:disabled)::after {
-  border-color: #fff;
+  border-color: var(--bg-main);
 }
 
 .pc-arrow::after {
@@ -432,11 +432,27 @@
 }
 
 .pc-arrow-left::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid var(--text-secondary);
+  border-top: 2px solid var(--text-secondary);
+  transition: border-color 0.18s ease;
   transform: rotate(-135deg) translateX(-1px);
+  text-align: center !important;
 }
 
 .pc-arrow-right::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-right: 2px solid var(--text-secondary);
+  border-top: 2px solid var(--text-secondary);
+  transition: border-color 0.18s ease;
   transform: rotate(45deg) translateX(-1px);
+  text-align: center !important;
 }
 
 /* ── Dot indicators ── */
@@ -454,7 +470,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--border-light, #ddd);
+  background: var(--border-light);
   border: none;
   padding: 0;
   cursor: pointer;
@@ -492,8 +508,7 @@
   gap: 2px;
   height: 155px;
   cursor: pointer;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
-    rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+  box-shadow: var(--shadow-card-normal);
   transition: transform 0.25s ease;
   will-change: transform;
   contain: layout paint;
@@ -503,31 +518,32 @@
 .my-favourites,
 .crowd-picks,
 .combo-category {
-  background-color: #ffd563;
-  color: #111 !important;
+  background-color: var(--color-red);
+}
+
+.my-favourites .food-category-name,
+.crowd-picks .food-category-name,
+.combo-category .food-category-name {
+  color: var(--bg-main);
 }
 
 .food-category-items:hover {
   transform: translateY(-6px);
-  background-color: var(--bg-hover);
+  background-color: var(--color-red);
   color: var(--bg-main);
   box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
     rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
     rgba(0, 0, 0, 0.09) 0px 32px 16px;
 }
 
-.food-category-items.favourites {
-  background-color: #ffd563;
-}
-
-.food-category-items.favourites:hover {
-  background-color: #FECA40;
+.food-category-items:hover .food-category-name {
+  color: var(--bg-main);
 }
 
 .food-category-items.favourites .food-category-name::after {
   content: "★";
   margin-left: 6px;
-  color: #ff4d4f;
+  color: var(--color-red);
 }
 
 .food-category-image {
@@ -620,7 +636,7 @@
 .section-link {
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-red, #f33716);
+  color: var(--color-red);
   text-decoration: none;
   flex-shrink: 0;
 }
@@ -738,5 +754,15 @@
 
   .popular-img-wrap {
     height: 88px;
+  }
+
+  .view-toggle-btns {
+    flex-direction: column;
+  }
+
+  .pc-arrow,
+  .pc-arrow-left,
+  .pc-arrow-left {
+    display: none;
   }
 }

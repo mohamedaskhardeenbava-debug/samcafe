@@ -409,11 +409,12 @@ const PreBooking = ({ handleBack, handleHome }) => {
             className="form-action-btn submit"
             onClick={() => {
               setSubmitted(false);
+              setShowPreview(false);
               setSelectedDishes([]);
               setForm({
-                name: form.name,
-                mobile: form.mobile,
-                email: form.email,
+                name: "",
+                mobile: "",
+                email: "",
                 guests: 1,
                 date: tomorrowStr(),
                 time: "",

@@ -5,7 +5,7 @@
 .empty-favourites {
   margin-top: 60px;
   text-align: center;
-  color: #6b7280;
+  color: var(--text-light);
 }
 
 .empty-favourites h3 {
@@ -20,7 +20,7 @@
 
 .fav-delete-btn {
   background: var(--color-red);
-  color: #fff;
+  color: var(--bg-main);
   border: none;
   padding: 10px 16px;
   border-radius: 10px;
@@ -43,10 +43,6 @@
 .food-category-items.favourites-list img{
   width: 120px;
   height: 120px;
-}
-
-.fav-dish-page .food-category-items.favourites-list:hover {
-  background-color: #FECA40;
 }
 
 .fav-dish-page .food-category-items.favourites-list .food-category-name::after {

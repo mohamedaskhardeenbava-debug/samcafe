@@ -1076,9 +1076,9 @@
 
 .combo-category-card.disabled .front,
 .combo-category-card:disabled .front {
-  background: var(--bg-primary, #f4f4f4);
-  color: var(--text-tertiary, #bbb);
-  border-color: var(--text-tertiary, #ddd);
+  background: var(--bg-primary);
+  color: var(--text-tertiary, var(--border-dark));
+  border-color: var(--text-tertiary, var(--border-dark));
   transform: translateY(-4px);
   cursor: not-allowed;
   /* keep same lift, no hover */

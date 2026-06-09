@@ -98,7 +98,7 @@
 }
 
 .builder-item:hover {
-    background: #ffb84d;
+    background: var(--color-red);
     transform: translateY(-2px);
     box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
         rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
@@ -106,17 +106,17 @@
 }
 
 .builder-item.active {
-    background: #ff4d4d;
-    color: #111;
+    background: var(--color-red);
+    color: var(--text-primary);
     box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
-        rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
+        rgba(0, 0, 0) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
         rgba(0, 0, 0, 0.09) 0px 32px 16px;
 }
 
 .builder-item-image {
     width: 50%;
     aspect-ratio: 1/1;
-    background-color: #f0f0f0;
+    background-color: var(--border-lighter);
 }
 
 .builder-item-name {
@@ -152,7 +152,7 @@
 }
 
 .builder-main-item:hover {
-    background: #ffb84d;
+    background: var(--color-red);
     transform: translateY(-2px);
     box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
         rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
@@ -160,8 +160,8 @@
 }
 
 .builder-main-item.active {
-    background: #ff4d4d;
-    color: #111;
+    background: var(--color-red);
+    color: var(--text-primary);
     box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
         rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
         rgba(0, 0, 0, 0.09) 0px 32px 16px;
@@ -225,7 +225,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: #777;
+    color: var(--text-muted);
     text-align: center;
     gap: 12px;
 }
@@ -349,7 +349,7 @@
 }
 
 .appetizer-add-btn .shadow {
-    background: #145a32;
+    background: var(--color-green);
 }
 
 .appetizer-add-btn .edge {
@@ -373,7 +373,7 @@
 }
 
 .appetizer-delete-btn .shadow {
-    background: #922b21;
+    background: var(--color-red);
 }
 
 .appetizer-delete-btn .edge {

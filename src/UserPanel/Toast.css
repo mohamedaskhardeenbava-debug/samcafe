@@ -23,7 +23,7 @@
     display: flex;
     align-items: center;
     gap: 0;
-    background: #fff;
+    background: var(--bg-main);
     border-radius: 6px;
     box-shadow:
         0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -113,7 +113,7 @@
     cursor: pointer;
     font-size: 20px;
     line-height: 1;
-    color: #6c757d;
+    color: var(--text-tertiary);
     padding: 4px 12px;
     align-self: flex-start;
     margin-top: 8px;
@@ -123,7 +123,7 @@
 }
 
 .bs-toast-close:hover {
-    color: #000;
+    color: var(--text-primary);
     background: rgba(0, 0, 0, 0.06);
 }
 
@@ -152,60 +152,60 @@
    TYPE VARIANTS  (Bootstrap exact palette)
 ══════════════════════════════════════════════════════ */
 
-/* SUCCESS — #198754 green */
+/* SUCCESS — var(--color-green) green */
 .bs-toast-success .bs-toast-accent {
-    background: #198754;
+    background: var(--color-green);
 }
 
 .bs-toast-success .bs-toast-icon {
-    color: #198754;
+    color: var(--color-green);
 }
 
 .bs-toast-success .bs-toast-progress {
-    background: #198754;
+    background: var(--color-green);
 }
 
 .bs-toast-success {
     border-left: none;
 }
 
-/* ERROR — #dc3545 red */
+/* ERROR — var(--color-red) red */
 .bs-toast-error .bs-toast-accent {
-    background: #dc3545;
+    background: var(--color-red);
 }
 
 .bs-toast-error .bs-toast-icon {
-    color: #dc3545;
+    color: var(--color-red);
 }
 
 .bs-toast-error .bs-toast-progress {
-    background: #dc3545;
+    background: var(--color-red);
 }
 
 /* WARNING — #ffc107 amber */
 .bs-toast-warning .bs-toast-accent {
-    background: #ffc107;
+    background: var(--bg-hover);
 }
 
 .bs-toast-warning .bs-toast-icon {
-    color: #e0a800;
+    color: var(--bg-hover);
 }
 
 .bs-toast-warning .bs-toast-progress {
-    background: #ffc107;
+    background: var(--bg-hover);
 }
 
 /* INFO — #0dcaf0 cyan */
 .bs-toast-info .bs-toast-accent {
-    background: #0dcaf0;
+    background: var(--color-blue-active);
 }
 
 .bs-toast-info .bs-toast-icon {
-    color: #0aa2c0;
+    color: var(--color-blue-active);
 }
 
 .bs-toast-info .bs-toast-progress {
-    background: #0dcaf0;
+    background: var(--color-blue-active);
 }
 
 /* ── Responsive: full-width on small screens ─────────── */

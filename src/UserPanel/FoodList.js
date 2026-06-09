@@ -202,6 +202,29 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
 
             <div className="btn-section">
               <button
+                className="show-more-btn"
+                onClick={() => {
+                  if (isNavigatingRef.current) return;
+                  isNavigatingRef.current = true;
+                  setIsGlidingOut(true);
+
+                  exitTimerRef.current = setTimeout(() => {
+                    navigate(`/foods/${category.id}/expanded`, {
+                      state: {
+                        categoryId: category.id,
+                        dishId: visible[1].id,
+                        disablePageAnimation: true
+                      }
+                    });
+                  }, FOODLIST_EXIT_DURATION);
+                }}
+              >
+                <span className="shadow"></span>
+                <span className="edge"></span>
+                <span className="front">Show more</span>
+              </button>
+              
+              <button
                 className="reel-cta"
                 onClick={() => {
                   const dish = visible[1];
@@ -231,28 +254,7 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                 <span className="front">Add to Bag</span>
               </button>
 
-              <button
-                className="show-more-btn"
-                onClick={() => {
-                  if (isNavigatingRef.current) return;
-                  isNavigatingRef.current = true;
-                  setIsGlidingOut(true);
-
-                  exitTimerRef.current = setTimeout(() => {
-                    navigate(`/foods/${category.id}/expanded`, {
-                      state: {
-                        categoryId: category.id,
-                        dishId: visible[1].id,
-                        disablePageAnimation: true
-                      }
-                    });
-                  }, FOODLIST_EXIT_DURATION);
-                }}
-              >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">Show more</span>
-              </button>
+              
             </div>
           </motion.div>
 

@@ -8,6 +8,75 @@
   padding: 20px;
 }
 
+/* ===== WAVE BACKGROUND ===== */
+.welcome-page {
+  position: relative;
+}
+
+.welcome-waves {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Each wave is a giant circle that rotates — same trick as the uiverse e-card */
+.welcome-wave {
+  position: absolute;
+  /* 540px wide, 700px tall — same ratio as uiverse, but scaled up */
+  width: 160vmax;
+  height: 200vmax;
+  /* start off-screen bottom-left, same as uiverse margin trick */
+  left: 0;
+  top: 50%;
+  margin-left: -50%;
+  margin-top: -5%;
+  border-radius: 48%;
+  opacity: 0.6;
+  background: linear-gradient(744deg, var(--color-red), var(--color-red) 60%, var(--bg-hover));
+  animation: wv-spin 18s infinite linear;
+}
+
+.welcome-wave:nth-child(2) {
+  top: 50%;
+  opacity: 0.5;
+  animation-duration: 26s;
+}
+
+.welcome-wave:nth-child(3) {
+  top: 50%;
+  opacity: 0.4;
+  animation-duration: 34s;
+}
+
+@keyframes wv-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* frosted overlay so content stays readable */
+.welcome-waves::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(0px);
+  pointer-events: none;
+}
+
+/* ensure all direct children of welcome-page sit above waves */
+.welcome-page>*:not(.welcome-waves) {
+  position: relative;
+  z-index: 1;
+}
+
+
+
 .welcome-container {
   text-align: center;
   width: 100%;
@@ -119,7 +188,7 @@
 .signup-modal input {
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-dark);
   font-size: 14px;
   background-color: var(--bg-main);
   color: var(--text-primary);
@@ -237,7 +306,7 @@
 }
 
 .card-overlay p {
-  color: #555 !important;
+  color: var(--text-secondary) !important;
 }
 
 .profile-card:hover .card-image img {
@@ -295,6 +364,7 @@
   height: 100%;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  background-color: var(--bg-main);
   border-radius: 14px;
   overflow: hidden;
   /* keep here */
@@ -348,7 +418,7 @@
 .signup-modal input {
   padding: 14px;
   border-radius: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-dark);
   font-size: 15px;
   outline: none;
 }
@@ -360,8 +430,8 @@
 }
 
 .signup-modal input:focus {
-  border-color: #f64848;
-  box-shadow: 0 0 0 2px rgba(246, 72, 72, 0.15);
+  border-color: var(--color-red);
+  box-shadow: 0 0 0 2px var(--floating-btn-shadow-color);
 }
 
 .wc-login-btn {
@@ -402,10 +472,10 @@
   left: 0;
   border-radius: 12px;
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .wc-login-btn .front {
@@ -475,18 +545,6 @@
 
   .card-overlay {
     height: 260px;
-  }
-
-  .view-toggle {
-    margin-bottom: 10px !important;
-  }
-
-  .view-toggle-btns {
-    flex-direction: column;
-  }
-
-  .pc-arrow {
-    display: none !important;
   }
 
 }

@@ -476,6 +476,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
     const resetForm = () => {
         setSubmitted(false);
         setSelectedDishes([]);
+        setShowPreview(false);
         setErrors({});
         setForm({
             name: "", mobile: "", email: "", guests: 20,

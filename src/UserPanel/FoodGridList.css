@@ -198,15 +198,15 @@
 /* edge — active (red) */
 .fgl-sort-btn.active .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 /* front — active */
 .fgl-sort-btn.active .front {
-  color: #fff;
+  color: var(--bg-main);
   background: var(--color-red);
 }
 
@@ -355,7 +355,7 @@
   height: 32px;
   border-radius: 50%;
   background: var(--color-red);
-  color: #fff;
+  color: var(--bg-main);
   border: none;
   font-size: 20px;
   font-weight: 400;
@@ -470,5 +470,9 @@
   .fgl-sort-btn .front {
     padding: 5px 10px;
     font-size: 11px;
+  }
+
+  .food-grid-card-body {
+    gap: 0;
   }
 }

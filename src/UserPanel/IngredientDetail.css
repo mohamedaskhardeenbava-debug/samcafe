@@ -134,7 +134,7 @@
   width: 70px;
   height: auto;
   padding: 12px 10px;
-  color: #444;
+  color: var(--text-secondary);
   background-color: var(--color-pale-green);
   display: flex;
   flex-direction: column;
@@ -155,6 +155,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: var(--img-theme-filter);
 }
 
 @media (max-width: 1200px) {

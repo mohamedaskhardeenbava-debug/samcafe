@@ -14,7 +14,7 @@
 }
 
 .thankyou-page.flash {
-  background-color: #ED3237
+  background-color: var(--color-red)
 }
 
 .thankyou-page::after {
@@ -501,7 +501,7 @@
 
 .confirm-cancel {
   background: transparent;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-dark);
   padding: 6px 12px;
   border-radius: 6px;
   cursor: pointer;

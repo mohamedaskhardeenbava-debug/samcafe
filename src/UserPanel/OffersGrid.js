@@ -44,7 +44,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
 
             {/* HEADER */}
             <div className="offers-grid-header">
-                <button className="offers-back-btn" onClick={handleBack} />
+                <button className="back-button" onClick={handleBack} />
 
                 <div className="offers-grid-title">Offers</div>
 

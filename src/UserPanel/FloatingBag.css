@@ -59,7 +59,7 @@
   }
 
   40% {
-    box-shadow: 0 12px 32px rgba(255, 60, 60, 0.45);
+    box-shadow: 0 12px 32px var(--floating-btn-shadow-color);
   }
 
   100% {
@@ -293,10 +293,10 @@
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .continue-btn .front {
