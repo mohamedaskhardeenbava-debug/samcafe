@@ -478,7 +478,7 @@
     padding: 4px 10px;
     border-radius: 999px;
     background: var(--btn-default);
-    color: #6b7280;
+    color: var(--text-secondary);
     border: 1px solid #d1d5db;
     width: fit-content;
 }
@@ -2046,8 +2046,8 @@ background: linear-gradient(to left,
     padding: 4px 10px;
     border-radius: 999px;
     width: fit-content;
-    background: #f0fdf4;
-    color: #16a34a;
+    background: var(--color-pale-green);
+    color: var(--color-green);
     border: 1px solid #bbf7d0;
 }
 

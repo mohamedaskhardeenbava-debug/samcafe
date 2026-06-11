@@ -427,6 +427,7 @@
   justify-content: space-between;
   width: 40%;
   z-index: 99;
+  box-sizing: border-box;
 }
 
 .top {
@@ -445,13 +446,16 @@
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 32px 1fr auto auto 20px;
+  grid-template-columns: 32px 1fr auto auto auto;
   gap: 12px;
   align-items: center;
   padding: 10px;
   border-radius: 8px;
   box-shadow: var(--shadow-bottom);
   cursor: pointer;
+  margin-bottom: 4px;
+
+  background: var(--color-pale-red);
 }
 
 /* BG zoom-out animation */
@@ -635,10 +639,10 @@
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .food-place-order-button .front {
@@ -1172,7 +1176,7 @@
   }
 
   .top {
-    padding: 10px 10px 0 10px;
+    padding: 0;
     height: auto;
   }
 

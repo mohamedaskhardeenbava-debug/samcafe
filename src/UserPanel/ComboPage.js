@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { COMBO_OFFER_RULES } from "./comboNotifications";
 import "./ComboPage.css";
 import FavouriteCombo from "./FavouriteCombo";
 import api from "../api";
@@ -41,13 +40,13 @@ const modalAnim = {
 };
 
 /* ─── Helpers ─────────────────────────────────────────────── */
-const getOfferHint = (starter, main) => {
+const getOfferHint = (starter, main, rules = []) => {
   if (starter && !main) {
-    const rule = COMBO_OFFER_RULES.find(r => r.condition.starter === starter.name);
+    const rule = rules.find(r => r.condition.starter === starter.name);
     if (rule) return { message: `Add "${rule.condition.main}" to unlock ${rule.label}`, targetType: "main", targetName: rule.condition.main };
   }
   if (!starter && main) {
-    const rule = COMBO_OFFER_RULES.find(r => r.condition.main === main.name);
+    const rule = rules.find(r => r.condition.main === main.name);
     if (rule) return { message: `Add "${rule.condition.starter}" to unlock ${rule.label}`, targetType: "starter", targetName: rule.condition.starter };
   }
   return null;
@@ -155,6 +154,14 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
   const editQuantity = location.state?.quantity;
   const editIndex = location.state?.bagIndex;
 
+  /* ── Offer rules (fetched from db) ── */
+  const [comboOfferRules, setComboOfferRules] = useState([]);
+  useEffect(() => {
+    api.get("/combo_offers")
+      .then(res => setComboOfferRules(res.data || []))
+      .catch(() => setComboOfferRules([]));
+  }, []);
+
   /* ── Data ── */
   const combo = useMemo(() => (Array.isArray(foodData?.combo) ? foodData.combo : []), [foodData]);
 
@@ -249,14 +256,14 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
     const sName = selectedItems.starter?.name;
     const mName = selectedItems.main?.name;
     if (!sName || !mName) return null;
-    return COMBO_OFFER_RULES.find(r => r.condition.starter === sName && r.condition.main === mName) || null;
-  }, [selectedItems.starter?.name, selectedItems.main?.name]);
+    return comboOfferRules.find(r => r.condition.starter === sName && r.condition.main === mName) || null;
+  }, [selectedItems.starter?.name, selectedItems.main?.name, comboOfferRules]);
 
   /* ── Offer hint (only when exactly one is selected) ── */
   useEffect(() => {
-    const hint = getOfferHint(selectedItems.starter, selectedItems.main);
+    const hint = getOfferHint(selectedItems.starter, selectedItems.main, comboOfferRules);
     setOfferHint(hint);
-  }, [selectedItems.starter?.name, selectedItems.main?.name]);
+  }, [selectedItems.starter?.name, selectedItems.main?.name, comboOfferRules]);
 
   /* ── Prices ── */
   const perComboBasePrice = useMemo(() => (

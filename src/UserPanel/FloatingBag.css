@@ -10,7 +10,6 @@
   border: none;
   font-weight: 600;
   z-index: 120;
-  box-shadow: var(--floating-btn-shadow);
   cursor: pointer;
   font-family: "Geom", system-ui, sans-serif;
 }
@@ -117,6 +116,7 @@
 .bag-close img {
   width: 100%;
   height: 100%;
+  filter: var(--nutrition-icon-filter);
 }
 
 /* ===== ITEMS ===== */

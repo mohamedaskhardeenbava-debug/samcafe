@@ -168,7 +168,8 @@ const FavouriteCombo = ({
                                     </div>
 
                                     <button
-                                        className="btn-primary"
+                                        className="show-more-btn"
+                                        style={{ width: "fit-content" }}
                                         onClick={() => handleAddToBag(combo)}
                                     >
                                         <span className="shadow" />
@@ -177,11 +178,12 @@ const FavouriteCombo = ({
                                     </button>
 
                                     <button
-                                        className="btn-danger"
+                                        className="reel-cta"
+                                        style={{ width: "fit-content" }}
                                         onClick={() => handleDelete(combo.id)}
                                     >
                                         <span className="shadow" />
-                                        <span className="edge" />
+                                        <span className="edge"/>
                                         <span className="front">Delete</span>
                                     </button>
                                 </div>

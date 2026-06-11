@@ -110,7 +110,7 @@ function App() {
 
   useEffect(() => {
     const tableNo = localStorage.getItem("tableNo");
-    setIsDineIn(!!tableNo);
+    setIsDineIn(!tableNo);
   }, [location.pathname]);
 
   const findCategoryByDish = (foodData, dishId) => {

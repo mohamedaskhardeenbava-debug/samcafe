@@ -5,6 +5,11 @@
 .food-list {
   padding: 36px;
   font-family: "Geom", system-ui, sans-serif;
+  box-sizing: border-box;
+}
+
+.food-list > * {
+  box-sizing: border-box !important;
 }
 
 /* =========================
@@ -115,7 +120,7 @@
 
 .btn-section {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   gap: 20px;
   margin-top: 26px;
 }
@@ -792,6 +797,10 @@
     background: none;
   }
 
+    .carousel-controls {
+      top: 25%;
+    }
+
   .food-details-container {
     justify-content: start;
   }
@@ -822,6 +831,7 @@
   }
 
   .food-details-expanded {
-    padding: 0 12px !important;
+    padding: 0 12px;
+    box-sizing: border-box;
   }
 }

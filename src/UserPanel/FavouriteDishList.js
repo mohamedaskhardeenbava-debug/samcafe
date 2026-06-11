@@ -92,7 +92,7 @@ const FavouriteDishList = ({
       </div>
 
       {/* LIST */}
-      <div className="food-category">
+      <div className="food-category" style={{padding:"0px"}}>
         <div className="food-category-container">
           {dishes.length === 0 && (
             <p style={{ padding: "16px" }}>
@@ -103,7 +103,7 @@ const FavouriteDishList = ({
           {dishes.map((dish) => (
             <div
               key={dish.id}
-              className="food-category-items favourites-list"
+              className="food-category-items"
               role="button"
               onClick={() =>
                 navigate(`/favourites/${source}/dish/${dish.id}`, {

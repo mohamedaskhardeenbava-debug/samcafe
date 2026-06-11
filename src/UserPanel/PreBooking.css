@@ -54,7 +54,6 @@
     border: 1.5px solid transparent;
     transition: border-color 0.2s;
     overflow: visible;
-    padding: 16px;
 }
 
 /* Card-level error (empty bag) */
@@ -163,12 +162,12 @@
 .slot-group-label {
     font-size: 12px;
     font-weight: 700;
-    color: var(--text-lighter);
+    color: var(--text-primary);
 }
 
 .slot-group-time {
     font-size: 10px;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     text-align: center;
 }
 
@@ -1255,7 +1254,7 @@
     font-family: inherit;
     font-weight: 600;
     background: var(--bg-surface);
-    color: var(--text-lighter);
+    color: var(--text-secondary);
     transform: translateY(-4px);
     transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
 }

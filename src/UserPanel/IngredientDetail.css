@@ -135,7 +135,7 @@
   height: auto;
   padding: 12px 10px;
   color: var(--text-secondary);
-  background-color: var(--color-pale-green);
+  background: var(--color-pale-red);
   display: flex;
   flex-direction: column;
   align-self: center;

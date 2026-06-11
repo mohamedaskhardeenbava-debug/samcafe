@@ -196,8 +196,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       </datalist>
 
       <div className="welcome-container">
-        <div className="welcome-text">Welcome to</div>
-
         <div className="welcome-title">
           <img
             src={theme === "light" ? logoLight : logoDark}

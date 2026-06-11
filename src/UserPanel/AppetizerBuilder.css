@@ -144,7 +144,7 @@
     justify-content: center;
     gap: 16px;
     cursor: pointer;
-    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+    box-shadow: var(--shadow-card-normal);
     will-change: transform;
     contain: layout paint;
     transform: translateZ(0);
@@ -154,17 +154,13 @@
 .builder-main-item:hover {
     background: var(--color-red);
     transform: translateY(-2px);
-    box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
-        rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
-        rgba(0, 0, 0, 0.09) 0px 32px 16px;
+    box-shadow: var(--card-shadow);
 }
 
 .builder-main-item.active {
     background: var(--color-red);
     color: var(--text-primary);
-    box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
-        rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
-        rgba(0, 0, 0, 0.09) 0px 32px 16px;
+    box-shadow: var(--card-shadow);
 }
 
 .builder-main-item-image {

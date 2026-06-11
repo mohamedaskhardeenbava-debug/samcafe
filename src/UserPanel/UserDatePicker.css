@@ -157,6 +157,7 @@
 /* ── Popup ── */
 .udp-popup {
     position: absolute;
+    height: 315px;
     top: calc(100% + 8px);
     left: 0;
     z-index: 9999;
@@ -195,10 +196,9 @@
     border-radius: 8px;
     border: 1.5px solid var(--border-lighter);
     background: var(--bg-main);
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
     display: flex;
-    align-items: center;
     justify-content: center;
     color: var(--text-lighter);
     transition: background 0.15s, border-color 0.15s;
@@ -243,7 +243,7 @@
 .udp-weekdays span {
     font-size: 10px;
     font-weight: 700;
-    color: var(--border-dark);
+    color: var(--text-secondary);
     text-transform: uppercase;
     padding: 4px 0;
     letter-spacing: 0.04em;
@@ -290,8 +290,8 @@
 }
 
 .udp-day.udp-dis {
-    color: var(--border-dark);
-    cursor: not-allowed;
+    color: var(--text-tertiary);
+    cursor: not-allowed !important;
 }
 
 /* ── Month grid ── */

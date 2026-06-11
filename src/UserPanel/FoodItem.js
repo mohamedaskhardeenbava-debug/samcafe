@@ -420,10 +420,10 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                   </div>
                   <div className="ingredient-item-name">{ing.name}</div>
                   <div className="ingredient-item-price">₹{ing.pricePer100g}/100g</div>
-                  <div className="ingredient-modification">
-                    <button className="ingredient-minus" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, -STEP); }}>−</button>
-                    <div className="ingredient-quantity">{qty}g</div>
-                    <button className="ingredient-plus" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, +STEP); }}>+</button>
+                  <div className="stepper-ctrl">
+                    <button className="stepper-btn" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, -STEP); }}>−</button>
+                    <div className="stepper-val">{qty}g</div>
+                    <button className="stepper-btn" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, +STEP); }}>+</button>
                   </div>
                 </div>
               );
@@ -456,6 +456,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
             const out = !master || Number(master.stockRemaining || 0) * 1000 < STEP;
 
             return (
+              
               <div
                 key={ing.name}
                 className={`ingredient-item-calculation ${out ? "out-of-stock" : ""} ${blinkIngredient === ing.name ? "blink" : ""}`}
@@ -470,8 +471,35 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 </div>
                 <div className="ingredient-item-quantity-calculation">{ing.quantity}g</div>
                 <div className="ingredient-item-price-calculation">₹{ing.totalPrice.toFixed(0)}</div>
-                <div className="ingredient-delete" onClick={e => { e.stopPropagation(); !out && handleIngredientAdjust(ing.name, -ing.quantity); }}>
-                  <img src={trash} alt="Remove" />
+                <div className="home-btn" onClick={e => { e.stopPropagation(); !out && handleIngredientAdjust(ing.name, -ing.quantity); }}>
+                  <span className="shadow"></span>
+                  <span
+                    className="edge"
+                    style={{
+                      background: `linear-gradient(
+      to left,
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%
+    )`,
+                    }}
+                  >
+                  </span>
+                  <span
+                    className="front"
+                    style={{ backgroundColor: "var(--color-red)" }}
+                  >
+                    <img
+                      src={trash}
+                      alt="remove"
+                      style={{
+                        height: "18px",
+                        width: "18px",
+                        filter: "var(--opp-img-theme-filter)",
+                      }}
+                    />
+                  </span>
                 </div>
               </div>
             );
@@ -488,10 +516,10 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
           <div className="quantity-section">
             <div className="qty-label">Quantity</div>
-            <div className="quantity-controls">
-              <button className="qty-btn" onClick={decreaseQty} disabled={quantity === 1}>−</button>
-              <div className="qty-value">{quantity}x</div>
-              <button className="qty-btn" onClick={increaseQty}>+</button>
+            <div className="stepper-ctrl">
+              <button className="stepper-btn" onClick={decreaseQty} disabled={quantity === 1}>−</button>
+              <div className="stepper-val">{quantity}x</div>
+              <button className="stepper-btn" onClick={increaseQty}>+</button>
             </div>
           </div>
 
@@ -517,7 +545,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           </button>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

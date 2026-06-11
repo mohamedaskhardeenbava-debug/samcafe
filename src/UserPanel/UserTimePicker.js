@@ -267,14 +267,14 @@ export const UserTimePicker = ({
                         onPointerCancel={onPointerUp}
                     >
                         {/* Face */}
-                        <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="#f8f9fa" stroke="#e5e7eb" strokeWidth="1.5" />
+                        <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="var(--bg-main)" stroke="var(--color-pale-red)" strokeWidth="1.5" />
 
                         {/* Hand */}
                         <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y}
-                            stroke="var(--color-red, #e74c3c)" strokeWidth="2.5" strokeLinecap="round" />
-                        <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red, #e74c3c)" />
-                        <circle cx={handTip.x} cy={handTip.y} r="18" fill="var(--color-red, #e74c3c)" opacity="0.15" />
-                        <circle cx={handTip.x} cy={handTip.y} r="5" fill="#fff" />
+                            stroke="var(--color-red)" strokeWidth="2.5" strokeLinecap="round" />
+                        <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red)" />
+                        <circle cx={handTip.x} cy={handTip.y} r="18" fill="var(--color-red)" opacity="0.15" />
+                        <circle cx={handTip.x} cy={handTip.y} r="5" fill="var(--bg-main)" />
 
                         {/* Hour numbers */}
                         {mode === "hour" && hours12.map((h) => {
@@ -292,7 +292,7 @@ export const UserTimePicker = ({
                                     <text x={pos.x} y={pos.y}
                                         textAnchor="middle" dominantBaseline="central"
                                         fontSize="13" fontWeight={isSel ? "700" : "400"}
-                                        fill={isSel ? "#fff" : isDis ? "#d1d5db" : "#333"}
+                                        fill={isSel ? "var(--text-primary)" : isDis ? "var(--text-tertiary)" : "var(--text-primary)"}
                                     >{h}</text>
                                 </g>
                             );

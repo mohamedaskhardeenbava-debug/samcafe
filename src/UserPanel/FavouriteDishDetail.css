@@ -50,12 +50,7 @@
   margin: 0;
   color: var(--text-primary);
   font-size: 20px;
-}
-
-.fav-customer-name {
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  flex: 1 1;
 }
 
 .fav-price {
@@ -103,7 +98,6 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: var(--bg-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -192,7 +186,8 @@
 .fav-actions {
   display: flex;
   gap: 12px;
-  margin-top: auto;   /* push to bottom */
+  margin-top: auto;
+  /* push to bottom */
 }
 
 .fav-add-btn {
@@ -251,6 +246,10 @@
   .fav-price {
     font-size: 26px;
   }
+
+  .fav-actions > * {
+    flex: 1 1;
+  }
 }
 
 
@@ -291,5 +290,11 @@
 
   .fav-actions {
     flex-direction: row;
+  }
+
+  .fav-left,
+  .fav-right {
+    width: 100%;
+    padding: 0;
   }
 }

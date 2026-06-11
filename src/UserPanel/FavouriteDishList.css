@@ -29,7 +29,7 @@
   font-family: inherit;
 }
 
-.food-category-items.favourites-list{
+.food-category-items.favourites-list {
   background-color: var(--bg-main);
   display: flex;
   flex-direction: column;
@@ -40,7 +40,7 @@
   height: 186px;
 }
 
-.food-category-items.favourites-list img{
+.food-category-items.favourites-list img {
   width: 120px;
   height: 120px;
 }
@@ -51,7 +51,6 @@
 
 .fav-customer-name {
   font-size: 12px;
-  color: var(--text-secondary);
   margin-top: 2px;
 }
 

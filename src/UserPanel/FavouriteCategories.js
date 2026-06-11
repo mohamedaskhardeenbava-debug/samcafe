@@ -49,7 +49,7 @@ const FavouriteCategories = ({
         </div>
       </div>
 
-      <div className="food-category">
+      <div className="food-category" style={{ padding: "0px" }}>
         <div className="food-category-container">
           {categories.length === 0 && (
             <p style={{ padding: "16px" }}>
@@ -61,7 +61,7 @@ const FavouriteCategories = ({
             <Link
               key={category.id}
               to={`/favourites/${source}/category/${category.id}`}
-              className="food-category-items favourites"
+              className="food-category-items"
             >
               <div className="food-category-image">
                 <img src={category.image} alt={category.name} loading="lazy" decoding="async" />

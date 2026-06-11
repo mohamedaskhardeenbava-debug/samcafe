@@ -97,7 +97,9 @@ const FloatingBag = ({
                 className={`floating-btn ${shake ? "shake" : ""}`}
                 onClick={() => setIsOpen(true)}
             >
-                🛒 {totalItems}
+                <span className="shadow"></span>
+                <span className="edge"></span>
+                <span className="front">🛒 {totalItems}</span>
             </button>
 
             {isOpen && (
@@ -106,11 +108,23 @@ const FloatingBag = ({
                     <div className="bag-title-row">
                         <h3>Ordered Dishes</h3>
                         <div
-                            className="bag-close"
+                            className="view-btn"
                             onClick={minimizeSheet}
                             role="button"
                         >
-                            <img src={closeIcon} alt="" className="close-icon" />
+                            <span className="shadow"></span>
+                            <span className="edge"
+                                style={{
+                                    background: `linear-gradient(
+      to left,
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%
+    )`,
+                                }}
+                            ></span>
+                            <span className="front" style={{ backgroundColor: "var(--color-red)" }}><img src={closeIcon} alt="" className="close-icon" style={{ filter: "var(--invert-filter)" }} /></span>
                         </div>
                     </div>
 
