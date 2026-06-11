@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import closeIcon from "../assets/icons/close.png";
 import { placeOrder } from "./placeOrder.js";
 import PrinterReceipt from "../components/PrinterReceipt.js";
+import cartIcon from "../assets/icons/cart.png";
 const FloatingBag = ({
     bag,
     increaseQty,
@@ -99,7 +100,7 @@ const FloatingBag = ({
             >
                 <span className="shadow"></span>
                 <span className="edge"></span>
-                <span className="front">🛒 {totalItems}</span>
+                <span className="front"> <img src={cartIcon} style={{height:"12px", width:"12px", filter:"var(--invert-filter)"}} alt="cart"/> {totalItems}</span>
             </button>
 
             {isOpen && (
@@ -193,7 +194,6 @@ const FloatingBag = ({
                                 setOrderForReceipt(newOrder);   // 👈 show printer
                             } catch (err) {
                                 console.error(err);
-                                alert("Failed to place order");
                             }
                         }}
                     >

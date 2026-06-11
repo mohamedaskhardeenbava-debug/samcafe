@@ -326,69 +326,92 @@ function getPageSize(width) {
 
 /* ═══════════════════════════════════════════════
    PROMO CAROUSEL — responsive infinite page loop
-   Pages are grouped by pageSize (3 / 2 / 1).
+   Pages are grouped by pageSize (4 / 3 / 2 / 1).
    Track layout: [clone-of-last-page, ...pages, clone-of-first-page]
-   Page index is offset by 1 so index 0 = pages[0].
-   On transitionEnd, landing on a clone silently
-   snaps to its real twin — seamless infinite loop.
+   idx 1 = first real page. On transitionEnd, landing
+   on a clone silently snaps to its real twin.
+
+   Key fixes vs. previous version:
+   • PAGE_COUNT stored in a ref so handleTransitionEnd
+     always reads the live value (no stale closure).
+   • idx is reset to 1 whenever items or pageSize
+     changes so it never drifts out of bounds.
+   • extended array is memoised — stable identity
+     between renders that only change idx/animated.
 ═══════════════════════════════════════════════ */
 const PromoCarousel = ({ items, onCardClick }) => {
   const width = useWindowWidth();
   const pageSize = getPageSize(width);
 
-  // Build pages from items based on current pageSize.
-  // The last page is circularly filled with items from the start so every
-  // page is always exactly `pageSize` cards — no empty slots, seamless loop.
-  const pages = [];
-  if (items.length > 0) {
+  // ── Build pages (memoised) ──────────────────────────────────────────────
+  const pages = React.useMemo(() => {
+    const result = [];
+    if (!items.length) return result;
     for (let i = 0; i < items.length; i += pageSize) {
       const slice = items.slice(i, i + pageSize);
       if (slice.length < pageSize) {
-        // Fill the remainder by wrapping around from the beginning.
-        // Use a unique key suffix so React doesn't confuse them with the
-        // originals that are already visible on the first page.
         const needed = pageSize - slice.length;
         const fillers = items.slice(0, needed).map((item) => ({
           ...item,
           id: `${item.id}__fill`,
         }));
-        pages.push([...slice, ...fillers]);
+        result.push([...slice, ...fillers]);
       } else {
-        pages.push(slice);
+        result.push(slice);
       }
     }
-  }
+    return result;
+  }, [items, pageSize]);
+
   const PAGE_COUNT = pages.length;
 
-  // Extended track: [clone-of-last-page, ...pages, clone-of-first-page]
-  const extended = PAGE_COUNT > 0
-    ? [pages[PAGE_COUNT - 1], ...pages, pages[0]]
-    : [];
+  // ── Extended track (memoised) ───────────────────────────────────────────
+  // [clone-of-last, ...real-pages, clone-of-first]
+  const extended = React.useMemo(
+    () => (PAGE_COUNT > 0 ? [pages[PAGE_COUNT - 1], ...pages, pages[0]] : []),
+    [pages, PAGE_COUNT]
+  );
 
-  // Current index into `extended`; 1 = first real page
+  // Keep a ref so handleTransitionEnd never closes over a stale value
+  const pageCountRef = useRef(PAGE_COUNT);
+  useEffect(() => { pageCountRef.current = PAGE_COUNT; }, [PAGE_COUNT]);
+
+  // ── Carousel state ──────────────────────────────────────────────────────
   const [idx, setIdx] = useState(1);
   const [animated, setAnimated] = useState(true);
-
   const startXRef = useRef(null);
   const autoRef = useRef(null);
 
-  // Dot index: which real page we're on (0-based)
-  const dotIdx = ((idx - 1) % PAGE_COUNT + PAGE_COUNT) % PAGE_COUNT;
-
-  // When pageSize changes (resize), reset to page 1 without animation
-  const prevPageSize = useRef(pageSize);
+  // Reset to page 1 (no animation) whenever items or pageSize changes
+  const prevKey = useRef(`${items.length}-${pageSize}`);
   useEffect(() => {
-    if (prevPageSize.current !== pageSize) {
-      prevPageSize.current = pageSize;
+    const key = `${items.length}-${pageSize}`;
+    if (prevKey.current !== key) {
+      prevKey.current = key;
       setAnimated(false);
       setIdx(1);
       requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)));
     }
-  }, [pageSize]);
+  }, [items, pageSize]);
+
+  // ── Navigation ──────────────────────────────────────────────────────────
+  // snappingRef: true while we're doing the silent clone→real snap.
+  // During that window, step() is ignored so rapid clicks can't race idx
+  // past the clone boundary before transitionEnd fires.
+  const snappingRef = useRef(false);
 
   const step = useCallback((dir) => {
+    if (snappingRef.current) return;          // snap in-flight — ignore
+    const total = pageCountRef.current;
     setAnimated(true);
-    setIdx((prev) => prev + dir);
+    setIdx((prev) => {
+      const next = prev + dir;
+      // Hard-clamp: never go beyond the two clone slots (0 and total+1).
+      // This makes rapid clicking safe even if transitionEnd is delayed.
+      if (next < 0) return 0;
+      if (next > total + 1) return total + 1;
+      return next;
+    });
   }, []);
 
   const goToPage = useCallback((pageIdx) => {
@@ -396,7 +419,7 @@ const PromoCarousel = ({ items, onCardClick }) => {
     setIdx(pageIdx + 1);
   }, []);
 
-  /* Auto-play */
+  // ── Auto-play ───────────────────────────────────────────────────────────
   const resetAuto = useCallback(() => {
     clearInterval(autoRef.current);
     autoRef.current = setInterval(() => step(1), 4500);
@@ -408,20 +431,27 @@ const PromoCarousel = ({ items, onCardClick }) => {
     return () => clearInterval(autoRef.current);
   }, [resetAuto, PAGE_COUNT]);
 
-  /* Seamless infinite: snap from clone to real twin after transition */
-  const handleTransitionEnd = useCallback(() => {
-    if (idx === 0) {
-      setAnimated(false);
-      setIdx(PAGE_COUNT);
-      requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)));
-    } else if (idx === PAGE_COUNT + 1) {
-      setAnimated(false);
-      setIdx(1);
-      requestAnimationFrame(() => requestAnimationFrame(() => setAnimated(true)));
-    }
-  }, [idx, PAGE_COUNT]);
+  // ── Seamless infinite snap ──────────────────────────────────────────────
+  // Reads live values via refs — never stale, never needs to re-create.
+  const idxRef = useRef(idx);
+  useEffect(() => { idxRef.current = idx; }, [idx]);
 
-  /* Swipe support */
+  const handleTransitionEnd = useCallback(() => {
+    const current = idxRef.current;
+    const total = pageCountRef.current;
+    if (current === 0 || current === total + 1) {
+      snappingRef.current = true;
+      setAnimated(false);
+      setIdx(current === 0 ? total : 1);
+      // Re-enable animation after the silent snap completes (two rAF = ~2 frames)
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        setAnimated(true);
+        snappingRef.current = false;
+      }));
+    }
+  }, []); // stable — reads live values via refs, never needs to re-create
+
+  // ── Swipe support ───────────────────────────────────────────────────────
   const onTouchStart = (e) => { startXRef.current = e.touches[0].clientX; };
   const onTouchEnd = (e) => {
     if (startXRef.current === null) return;
@@ -429,6 +459,11 @@ const PromoCarousel = ({ items, onCardClick }) => {
     if (Math.abs(dx) > 40) { step(dx > 0 ? 1 : -1); resetAuto(); }
     startXRef.current = null;
   };
+
+  // ── Dot index (which real page is active) ──────────────────────────────
+  const dotIdx = PAGE_COUNT > 0
+    ? ((idx - 1) % PAGE_COUNT + PAGE_COUNT) % PAGE_COUNT
+    : 0;
 
   if (!items.length) return null;
 
@@ -451,7 +486,11 @@ const PromoCarousel = ({ items, onCardClick }) => {
           onTransitionEnd={handleTransitionEnd}
         >
           {extended.map((group, gi) => (
-            <div key={gi} className={`pc-page pc-page--${pageSize}`} style={{ width: `${100 / extended.length}%`, flex: `0 0 ${100 / extended.length}%` }}>
+            <div
+              key={gi}
+              className={`pc-page pc-page--${pageSize}`}
+              style={{ width: `${100 / extended.length}%`, flex: `0 0 ${100 / extended.length}%` }}
+            >
               {group.map((item) => (
                 <PromoCard key={item.id} item={item} onClick={onCardClick} />
               ))}
@@ -466,7 +505,6 @@ const PromoCarousel = ({ items, onCardClick }) => {
         aria-label="Next"
       />
 
-      {/* Dots — one per page (count changes with pageSize) */}
       {PAGE_COUNT > 1 && (
         <div className="pc-dots">
           {pages.map((_, i) => (
