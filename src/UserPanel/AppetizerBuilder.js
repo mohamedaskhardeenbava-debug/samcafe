@@ -1,7 +1,9 @@
 import "./AppetizerBuilder.css";
 import { useState, useRef } from "react";
-import { flyToBag } from "./flyToBag.js";
-import homeIcon from "../assets/icons/home.png";
+import { flyToBag } from "../components/flyToBag.js";
+import PageHeader from "./shared/PageHeader.js";
+import Button3D from "./shared/Button3D.js";
+import { buildDishBagItem } from "./shared/bagUtils.js";
 
 const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
 
@@ -25,20 +27,22 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
             )
             : null;
 
+    const resetSelection = () => {
+        setSelectedSauce(null);
+        setSelectedMain(null);
+        setQty(1);
+    };
+
     const addDishToBag = () => {
         if (!finalDish) return;
 
-        addToBag({
-            id: finalDish.id,
-            name: finalDish.name,
-            image: finalDish.image,
-            quantity: qty,
-            unitPrice: finalDish.basePrice,
-            totalPrice: finalDish.basePrice * qty,
-            categoryId: "appetizer",
-            ingredients: finalDish.ingredients,
-            isCustomized: false
-        });
+        addToBag(
+            buildDishBagItem(finalDish, "appetizer", {
+                quantity: qty,
+                totalPrice: finalDish.basePrice * qty,
+                ingredients: finalDish.ingredients
+            })
+        );
 
         // fly the final dish image to the bag
         if (finalImgRef.current) {
@@ -53,15 +57,12 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
     return (
         <div className="appetizer-builder">
 
-            <div className="food-grid-header">
-                <button className="back-button" onClick={handleBack} />
-                <h2 className="food-grid-title">Build Your Appetizer</h2>
-                <div className="home-btn home-btn-icon" onClick={handleHome}>
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-                </div>
-            </div>
+            <PageHeader
+                title="Build Your Appetizer"
+                titleTag="h2"
+                onBack={handleBack}
+                onHome={handleHome}
+            />
 
             <div className="builder-grid">
 
@@ -117,7 +118,7 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                             {finalDish ? (
                                 <div className="final-card">
                                     <div className="final-image">
-                                        {/* ← ref attached here so flyToBag can grab the element */}
+                                        {/* ref attached here so flyToBag can grab the element */}
                                         <img
                                             ref={finalImgRef}
                                             src={finalDish.image}
@@ -129,27 +130,14 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
 
                                     <div className="final-price">₹ {finalDish.basePrice}</div>
 
-                                    <button
-                                        className="appetizer-delete-btn"
-                                        onClick={() => {
-                                            setSelectedSauce(null);
-                                            setSelectedMain(null);
-                                            setQty(1);
-                                        }}
-                                    >
-                                        <span className="shadow" />
-                                        <span className="edge" />
-                                        <span className="front">Delete</span>
-                                    </button>
 
-                                    <button
-                                        className="appetizer-add-btn"
-                                        onClick={addDishToBag}
-                                    >
-                                        <span className="shadow" />
-                                        <span className="edge" />
-                                        <span className="front">Add to Bag</span>
-                                    </button>
+                                    <Button3D className="btn-3d red" onClick={resetSelection}>
+                                        Delete
+                                    </Button3D>
+
+                                    <Button3D className="btn-3d green" onClick={addDishToBag}>
+                                        Add to Bag
+                                    </Button3D>
                                 </div>
                             ) : (
                                 <div className="final-placeholder">

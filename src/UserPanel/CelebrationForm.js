@@ -1,12 +1,14 @@
 /* user panel */
 import { useState, useEffect } from "react";
 import api from "../api";
-import { UserDatePicker, todayStr } from "./UserDatePicker";
-import { UserTimePicker } from "./UserTimePicker";
+import { UserDatePicker, todayStr } from "../components/UserDatePicker";
+import { UserTimePicker } from "../components/UserTimePicker";
 import "./CelebrationForm.css";
 import "./ReservationForm.css";
 import "./PreviewModal.css";
-import homeIcon from "../assets/icons/home.png";
+import HomeButton from "./shared/HomeButton";
+import Button3D from "./shared/Button3D";
+import MatField from "./shared/MatField";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -249,16 +251,17 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
     }
   };
 
-  const resetForm = () => {setForm({
-    type: "birthday", name: "", mobile: "", email: "", date: "", time: "", slotGroup: "",
-    guests: 2, birthdayPersonName: "", birthdayPersonAge: "", cake: false,
-    specialMention: false, specialMentionText: "", standingBrochures: false,
-    placeHolders: false, pens: false, mic: false, projector: false, candleLight: false,
-    liveMusic: false, surpriseGift: false, decoration: null, audioVideo: false, specialNote: "",
-  });
+  const resetForm = () => {
+    setForm({
+      type: "birthday", name: "", mobile: "", email: "", date: "", time: "", slotGroup: "",
+      guests: 2, birthdayPersonName: "", birthdayPersonAge: "", cake: false,
+      specialMention: false, specialMentionText: "", standingBrochures: false,
+      placeHolders: false, pens: false, mic: false, projector: false, candleLight: false,
+      liveMusic: false, surpriseGift: false, decoration: null, audioVideo: false, specialNote: "",
+    });
     setShowPreview(false);
     setSubmitted(false);
-}
+  }
 
   /* ─── Special Mention expansion helper ─── */
   const renderExtrasWithMention = (extras) => extras.map(ex => (
@@ -333,16 +336,12 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
             </div>
           )}
           <div className="rf-modal-actions">
-            <button className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Edit</span>
-            </button>
-            <button className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">{loading ? <span className="rf-spinner" /> : "Confirm"}</span>
-            </button>
+            <Button3D className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+              Edit
+            </Button3D>
+            <Button3D className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+              {loading ? <span className="rf-spinner" /> : "Confirm"}
+            </Button3D>
           </div>
         </div>
       </div>
@@ -357,11 +356,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
         <div className="food-header">
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">Celebration</div>
-          <div className="home-btn home-btn-icon" onClick={handleHome} >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-          </div>
+          <HomeButton onClick={handleHome} />
         </div>
         <div className="rf-success-screen">
           <div className="rf-success-icon">
@@ -392,17 +387,13 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
               </div>
             ))}
           </div>
-          <button className="form-action-btn submit" onClick={resetForm}>
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">Book Another</span>
-          </button>
+          <Button3D className="form-action-btn submit" onClick={resetForm}>
+            Book Another
+          </Button3D>
 
-          <button className="form-action-btn submit" onClick={handleHome}>
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">Back to Home</span>
-          </button>
+          <Button3D className="form-action-btn submit" onClick={handleHome}>
+            Back to Home
+          </Button3D>
         </div>
       </div>
     );
@@ -414,11 +405,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">Celebration</div>
-        <div className="home-btn home-btn-icon" onClick={handleHome} >
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
+        <HomeButton onClick={handleHome} />
       </div>
 
       <div className="clp-container">
@@ -445,11 +432,14 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
             <div className="clp-card">
               {/* Full Name */}
               <div className="field-group">
-                <div className="mat">
-                  <input className={`mat-input${errors.name ? " error" : ""}`} placeholder=" " value={form.name} onChange={e => set("name", e.target.value)} autoComplete="name" />
-                  <label className="mat-label">Full Name <span className="rf-req">*</span></label>
-                  <span className="mat-bar" />
-                </div>
+                <MatField
+                  label={<>Full Name <span className="rf-req">*</span></>}
+                  value={form.name}
+                  onChange={e => set("name", e.target.value)}
+                  autoComplete="name"
+                  error={errors.name}
+                  wrapperClassName=""
+                />
               </div>
 
               <div className="mat-row">
@@ -457,21 +447,29 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                 <div className="field-group" style={{ flex: 1.4 }}>
                   <div className="mat-input-prefix-wrap">
                     <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
-                    <div className="mat">
-                      <input className={`mat-input${errors.mobile ? " error" : ""}`} placeholder=" " value={form.mobile} onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))} type="tel" autoComplete="tel" />
-                      <label className="mat-label">Mobile <span className="rf-req">*</span></label>
-                      <span className="mat-bar" />
-                    </div>
+                    <MatField
+                      label={<>Mobile <span className="rf-req">*</span></>}
+                      type="tel"
+                      value={form.mobile}
+                      onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      autoComplete="tel"
+                      error={errors.mobile}
+                      wrapperClassName=""
+                    />
                   </div>
                 </div>
 
                 {/* Email */}
                 <div className="field-group" style={{ flex: 1 }}>
-                  <div className="mat">
-                    <input className={`mat-input${errors.email ? " error" : ""}`} placeholder=" " value={form.email} onChange={e => set("email", e.target.value)} type="email" autoComplete="email" />
-                    <label className="mat-label">Email <span className="rf-optional">(optional)</span></label>
-                    <span className="mat-bar" />
-                  </div>
+                  <MatField
+                    label={<>Email <span className="rf-optional">(optional)</span></>}
+                    type="email"
+                    value={form.email}
+                    onChange={e => set("email", e.target.value)}
+                    autoComplete="email"
+                    error={errors.email}
+                    wrapperClassName=""
+                  />
                 </div>
               </div>
 
@@ -556,18 +554,24 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
               <div className="clp-card">
                 <div className="mat-row">
                   <div className="field-group" style={{ flex: 1.5 }}>
-                    <div className="mat">
-                      <input className={`mat-input${errors.birthdayPersonName ? " error" : ""}`} placeholder=" " value={form.birthdayPersonName} onChange={e => set("birthdayPersonName", e.target.value)} />
-                      <label className="mat-label">Birthday Person's Name <span className="rf-req">*</span></label>
-                      <span className="mat-bar" />
-                    </div>
+                    <MatField
+                      label={<>Birthday Person's Name <span className="rf-req">*</span></>}
+                      value={form.birthdayPersonName}
+                      onChange={e => set("birthdayPersonName", e.target.value)}
+                      error={errors.birthdayPersonName}
+                      wrapperClassName=""
+                    />
                   </div>
                   <div className="field-group" style={{ flex: 1 }}>
-                    <div className="mat">
-                      <input className="mat-input" placeholder=" " type="number" min="1" max="120" value={form.birthdayPersonAge} onChange={e => set("birthdayPersonAge", e.target.value)} />
-                      <label className="mat-label">Age <span className="rf-optional">(optional)</span></label>
-                      <span className="mat-bar" />
-                    </div>
+                    <MatField
+                      label={<>Age <span className="rf-optional">(optional)</span></>}
+                      type="number"
+                      min="1"
+                      max="120"
+                      value={form.birthdayPersonAge}
+                      onChange={e => set("birthdayPersonAge", e.target.value)}
+                      wrapperClassName=""
+                    />
                   </div>
                 </div>
                 <div className="section-title" style={{ marginBottom: 8 }}>Add-ons</div>
@@ -684,7 +688,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
           )}
 
           <div className="form-btn-row">
-            <button
+            <Button3D
               className="form-action-btn cancel"
               type="button"
               disabled={loading}
@@ -708,16 +712,12 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                 handleBack();
               }}
             >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Cancel</span>
-            </button>
+              Cancel
+            </Button3D>
 
-            <button className={`form-action-btn submit${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">{loading ? "Processing..." : "Review & Confirm"}</span>
-            </button>
+            <Button3D className={`form-action-btn submit${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
+              {loading ? "Processing..." : "Review & Confirm"}
+            </Button3D>
 
           </div>
 

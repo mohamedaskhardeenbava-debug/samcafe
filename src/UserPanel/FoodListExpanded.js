@@ -5,12 +5,14 @@ import "./FoodList.css"; // reuse same styles
 import "./FoodListExpanded.css";
 import AnimatedPrice from "./AnimatedPrice";
 import IngredientsCarousel from "./IngredientsCarousel";
-import homeIcon from "../assets/icons/home.png";
 import caloriesIcon from "../assets/icons/calorie.png";
 import proteinIcon from "../assets/icons/protein.png";
 import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
-import { flyToBag } from "./flyToBag";
+import { flyToBag } from "../components/flyToBag";
+import PageHeader from "./shared/PageHeader";
+import Button3D from "./shared/Button3D";
+import { buildDishBagItem } from "./shared/bagUtils";
 
 /* 🔁 SAME animation config */
 const SOFT_SPRING = {
@@ -39,6 +41,13 @@ const DETAIL_VARIANTS = {
     filter: "blur(0px)"
   }
 };
+
+const NUTRITION_FIELDS = [
+  [caloriesIcon, "Calories", "calories", "kcal"],
+  [proteinIcon, "protien", "protein", "g"],
+  [fibreIcon, "fibre", "fibre", "g"],
+  [fatIcon, "Fat", "fat", "g"]
+];
 
 const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
   const navigate = useNavigate();
@@ -127,18 +136,22 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
     return true;
   });
 
+  const handleAddToBag = () => {
+    const img = document.querySelector(".dish-image.image-main");
+    addToBag(buildDishBagItem(dish, resolvedCategoryId));
+    flyToBag({ imgEl: img, dishId: dish.id });
+  };
+
   return (
     <div className="food-list">
       {/* HEADER */}
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">{dish.name}</div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} >
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
-      </div>
+      <PageHeader
+        title={dish.name}
+        wrapperClassName="food-header"
+        titleClassName="food-list-title"
+        onBack={handleBack}
+        onHome={handleHome}
+      />
 
       {/* MAIN */}
       <div className="food-reel-expanded">
@@ -178,18 +191,13 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
             variants={DETAIL_VARIANTS}
             transition={SOFT_SPRING}
           >
-            {[
-              [caloriesIcon, "Calories", dish.benefits?.calories, "kcal"],
-              [proteinIcon, "protien", dish.benefits?.protein, "g"],
-              [fibreIcon, "fibre", dish.benefits?.fibre, "g"],
-              [fatIcon, "Fat", dish.benefits?.fat, "g"]
-            ].map(([icon, label, value, unit], i) => (
+            {NUTRITION_FIELDS.map(([icon, label, key, unit], i) => (
               <div className="dish-nutrition-item" key={i}>
                 <div className="dish-nutrition-image">
                   <img src={icon} alt="" />
                 </div>
                 <div className="dish-nutrition-name">{label}</div>
-                <div className="dish-nutrition-value">{value}{unit}</div>
+                <div className="dish-nutrition-value">{dish.benefits?.[key]}{unit}</div>
               </div>
             ))}
           </motion.div>
@@ -223,13 +231,13 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
 
           <motion.div
             initial="hidden"
-            className="button-section"
+            className="btn-section"
             animate={steps[3]}
             variants={DETAIL_VARIANTS}
             transition={SOFT_SPRING}
           >
-            <button
-              className="customize-button"
+            <Button3D
+              className="btn-3d green"
               onClick={() => {
                 navigate("/food/customize", {
                   state: {
@@ -239,36 +247,16 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
                 });
               }}
             >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Customize</span>
-            </button>
+              Customize
+            </Button3D>
 
-            <button
+            <Button3D
               type="button"
-              className="place-order-button"
-              onClick={() => {
-                const img = document.querySelector(".dish-image.image-main");
-                const bagItem = {
-                  id: dish.id,
-                  name: dish.name,
-                  image: dish.image,
-                  categoryId: resolvedCategoryId,
-                  quantity: 1,
-                  unitPrice: dish.basePrice,
-                  totalPrice: dish.basePrice,
-                  isCustomized: false,
-                  notes: ""
-                };
-
-                addToBag(bagItem);
-                flyToBag({ imgEl: img, dishId: dish.id });
-              }}
+              className="btn-3d red"
+              onClick={handleAddToBag}
             >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Add to Bag</span>
-            </button>
+              Add to Bag
+            </Button3D>
           </motion.div>
         </div>
       </div>

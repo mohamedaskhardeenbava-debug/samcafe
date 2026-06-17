@@ -82,15 +82,15 @@
 }
 
 .table-number {
-  font-weight: 700;
-  font-size: 18px;
+  font-weight: 800;
+  font-size: 22px;
   color: var(--color-green);
   white-space: nowrap;
 }
 
 .time {
-  font-weight: 700;
-  font-size: 18px;
+  font-weight: 800;
+  font-size: 22px;
   color: var(--color-green);
 }
 
@@ -191,7 +191,7 @@
   user-select: none;
   touch-action: manipulation;
   width: fit-content;
-  margin-top: 36px;
+  margin-top: 24px;
 }
 
 .ty-done-btn .shadow {

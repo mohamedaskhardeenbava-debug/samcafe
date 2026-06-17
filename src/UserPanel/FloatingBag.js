@@ -1,10 +1,16 @@
 import "./FloatingBag.css";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import closeIcon from "../assets/icons/close.png";
-import { placeOrder } from "./placeOrder.js";
+import minimizeIcon from "../assets/icons/minimize.png";
+import { placeOrder } from "../components/placeOrder.js";
 import PrinterReceipt from "../components/PrinterReceipt.js";
 import cartIcon from "../assets/icons/cart.png";
+import Button3D from "./shared/Button3D.js";
+import { groupBagItems, getUnitPrice, getLineTotal, getBagSubtotal, getBagItemCount } from "./shared/bagUtils.js";
+import { RED_EDGE_GRADIENT } from "./shared/styles.js";
+
+const VIEW_BTN_EDGE_STYLE = RED_EDGE_GRADIENT;
+
 const FloatingBag = ({
     bag,
     increaseQty,
@@ -19,35 +25,10 @@ const FloatingBag = ({
     const safeBag = Array.isArray(bag) ? bag : [];
     const [orderForReceipt, setOrderForReceipt] = useState(null);
 
-    const groupedBag = Object.values(
-        safeBag.reduce((acc, item, index) => {
-            const key = item.isCombo
-                ? `${item.id}__${JSON.stringify(item.comboItems)}`
-                : [
-                    item.id,
-                    item.customizationKey || "",
-                    item.isCustomized ? "custom" : "normal"
-                ].join("__");
-
-            if (!acc[key]) {
-                acc[key] = {
-                    ...item,
-                    indices: [index] // 👈 track original indices
-                };
-            } else {
-                acc[key].quantity += item.quantity;
-                acc[key].totalPrice += item.totalPrice;
-                acc[key].indices.push(index);
-            }
-
-            return acc;
-        }, {})
-    );
-
-    const totalItems = groupedBag.reduce(
-        (sum, item) => sum + item.quantity,
-        0
-    );
+    const groupedBag = groupBagItems(safeBag);
+    const totalItems = getBagItemCount(safeBag);
+    const subtotal = getBagSubtotal(groupedBag);
+    const total = Number(subtotal.toFixed(2));
 
     const prevCountRef = useRef(totalItems);
 
@@ -62,26 +43,6 @@ const FloatingBag = ({
     if (location.pathname === "/" || location.pathname === "/thank-you" || location.pathname === "/scan-table")
         return null;
 
-    const getUnitPrice = (item) => {
-        if (item.isCombo) {
-            return Number(item.perComboFinalPrice || 0);
-        }
-        return Number(item.unitPrice || 0);
-    };
-
-    const getLineTotal = (item) => {
-        const unit = getUnitPrice(item);
-        const qty = Number(item.quantity || 0);
-        return unit * qty;
-    };
-
-    const subtotal = groupedBag.reduce(
-        (sum, item) => sum + getLineTotal(item),
-        0
-    );
-
-    const total = Number(subtotal.toFixed(2));
-
     const minimizeSheet = () => {
         setClosing(true);
         setTimeout(() => {
@@ -93,40 +54,27 @@ const FloatingBag = ({
     return (
         <>
             {/* Floating pill */}
-            <button
+            <Button3D
                 id="floating-bag-btn"
                 className={`floating-btn ${shake ? "shake" : ""}`}
                 onClick={() => setIsOpen(true)}
             >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front"> <img src={cartIcon} style={{height:"12px", width:"12px", filter:"var(--invert-filter)"}} alt="cart"/> {totalItems}</span>
-            </button>
+                <img src={cartIcon} style={{ height: "12px", width: "12px", filter: "var(--invert-filter)" }} alt="cart" /> {totalItems}
+            </Button3D>
 
             {isOpen && (
                 <div className={`bag-sheet ${closing ? "closing" : ""}`}>
                     {/* Header */}
                     <div className="bag-title-row">
                         <h3>Ordered Dishes</h3>
-                        <div
-                            className="view-btn"
+                        <Button3D
+                            className="home-btn home-icon"
                             onClick={minimizeSheet}
-                            role="button"
+                            edgeStyle={VIEW_BTN_EDGE_STYLE}
+                            frontStyle={{ backgroundColor: "var(--color-red)" }}
                         >
-                            <span className="shadow"></span>
-                            <span className="edge"
-                                style={{
-                                    background: `linear-gradient(
-      to left,
-      var(--edge-color-dark) 0%,
-      var(--edge-color-light) 8%,
-      var(--edge-color-light) 92%,
-      var(--edge-color-dark) 100%
-    )`,
-                                }}
-                            ></span>
-                            <span className="front" style={{ backgroundColor: "var(--color-red)" }}><img src={closeIcon} alt="" className="close-icon" style={{ filter: "var(--invert-filter)" }} /></span>
-                        </div>
+                            <img src={minimizeIcon} alt="" className="minimize-icon" style={{ filter: "var(--invert-filter)" }} />
+                        </Button3D>
                     </div>
 
                     {/* Items */}
@@ -184,8 +132,8 @@ const FloatingBag = ({
                     </div>
 
                     {/* CTA */}
-                    <button
-                        className="continue-btn"
+                    <Button3D
+                        className="btn-3d red"
                         disabled={bag.length === 0}
                         onClick={async () => {
                             try {
@@ -197,12 +145,8 @@ const FloatingBag = ({
                             }
                         }}
                     >
-                        <span className="shadow" />
-                        <span className="edge" />
-                        <span className="front">
-                            Place Order
-                        </span>
-                    </button>
+                        Place Order
+                    </Button3D>
                 </div>
             )}
             {orderForReceipt && (

@@ -3,8 +3,10 @@ import "./FoodList.css";
 import AnimatedPrice from "./AnimatedPrice";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import homeIcon from "../assets/icons/home.png";
-import { flyToBag } from "./flyToBag";
+import PageHeader from "./shared/PageHeader";
+import Button3D from "./shared/Button3D";
+import { buildDishBagItem } from "./shared/bagUtils";
+import { flyToBag } from "../components/flyToBag";
 
 const SLOT_X = [-1000, 0, 420, 700, 900];
 const FOODLIST_EXIT_DURATION = 750;
@@ -103,15 +105,13 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
   if (!category) {
     return (
       <div className="food-list">
-        <div className="food-header">
-          <button className="back-button" onClick={handleBack} />
-          <div className="food-list-title">Category not found</div>
-          <div className="home-btn  home-btn-icon" onClick={handleHome}>
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-          </div>
-        </div>
+        <PageHeader
+          title="Category not found"
+          wrapperClassName="food-header"
+          titleClassName="food-list-title"
+          onBack={handleBack}
+          onHome={handleHome}
+        />
       </div>
     );
   }
@@ -126,23 +126,26 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
     setRenderIndex(i => (i - 1 + slides.length) % slides.length);
   };
 
+  const handleAddToBag = () => {
+    const dish = visible[1];
+    const img = document.querySelector(
+      `.dish-image[data-active-dish="${dish.id}"]`
+    );
+
+    addToBag(buildDishBagItem(dish, category.id, { selectedSize: null, isCombo: false }));
+    flyToBag({ imgEl: img, dishId: dish.id });
+  };
+
   return (
     <div className="food-list">
       {/* HEADER */}
-      <div className="food-header">
-        <button
-          className="back-button"
-          onClick={(e) => { handleBack(e) }}
-        />
-        <div className="food-list-title">
-          {category.name}
-        </div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} >
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
-      </div>
+      <PageHeader
+        title={category.name}
+        wrapperClassName="food-header"
+        titleClassName="food-list-title"
+        onBack={(e) => handleBack(e)}
+        onHome={handleHome}
+      />
 
       {/* MAIN AREA */}
       <div
@@ -201,8 +204,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
             </p>
 
             <div className="btn-section">
-              <button
-                className="show-more-btn"
+              <Button3D
+                className="btn-3d green"
                 onClick={() => {
                   if (isNavigatingRef.current) return;
                   isNavigatingRef.current = true;
@@ -219,42 +222,12 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
                   }, FOODLIST_EXIT_DURATION);
                 }}
               >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">Show more</span>
-              </button>
-              
-              <button
-                className="reel-cta"
-                onClick={() => {
-                  const dish = visible[1];
-                  const unitPrice = Number(dish.basePrice || 0);
-                  const img = document.querySelector(
-                    `.dish-image[data-active-dish="${dish.id}"]`
-                  );
+                Show more
+              </Button3D>
 
-                  addToBag({
-                    id: dish.id,
-                    name: dish.name,
-                    image: dish.image,
-                    categoryId: category.id,
-                    quantity: 1,
-                    unitPrice,
-                    totalPrice: unitPrice,
-                    selectedSize: null,
-                    notes: "",
-                    isCustomized: false,
-                    isCombo: false
-                  });
-                  flyToBag({ imgEl: img, dishId: visible[1].id });
-                }}
-              >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">Add to Bag</span>
-              </button>
-
-              
+              <Button3D className="btn-3d red" onClick={handleAddToBag}>
+                Add to Bag
+              </Button3D>
             </div>
           </motion.div>
 

@@ -161,77 +161,6 @@
     margin-top: 1px;
 }
 
-/* ── Input ── */
-.mat-input {
-    height: 46px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text-primary);
-    background: var(--bg-very-light);
-    outline: none;
-    transition: border-color 0.9s, box-shadow 0.2s;
-    box-sizing: border-box;
-}
-
-.mat-input:focus {
-    border-color: var(--color-red);
-    background: var(--bg-main);
-    box-shadow: 0 0 0 3px var(--shadow-red-sm);
-}
-
-.mat-input.error {
-    border-color: var(--color-red) !important;
-}
-
-.mat-input-prefix-wrap {
-    display: flex;
-    align-items: center;
-    border-radius: 12px;
-    overflow: hidden;
-    background: var(--bg-very-light);
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.mat-input-prefix-wrap:focus-within {
-    border-color: var(--color-red);
-    background: var(--bg-main);
-    box-shadow: 0 0 0 3px var(--shadow-red-sm);
-}
-
-.mat-prefix {
-    padding: 0 12px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-    border-right: 1px solid var(--border-lightest);
-    height: 46px;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    background: var(--border-lighter);
-}
-
-.mat-input-with-prefix {
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    flex: 1;
-}
-
-/* ── Row ── */
-.mat-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    width: 100%;
-}
-
-.mat-row .field-group {
-    min-width: 0;
-}
-
 /* ── Textarea ── */
 .rf-textarea {
     border-radius: 12px;
@@ -1287,13 +1216,6 @@
     border-radius: 4px;
 }
 
-/* inline row — items side by side, no stretching */
-.mat-row-inline {
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 12px;
-}
-
 .rf-section {
     border-radius: 16px;
     display: flex;
@@ -1842,17 +1764,19 @@
         gap: 10px;
     }
 
-    .mat-row-inline {
-        flex-direction: column;
-    }
-
     .food-grid-search-wrap {
         width: 100%;
         max-width: 800px;
     }
-}
 
-@media (max-width: 480px) {
+    .rf-col{
+        gap: 6px;
+    }
+
+    .rf-col-left .rf-section,
+    .rf-col-right .rf-section {
+        gap: 4px;
+    }
 
     .rf-time-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -1871,18 +1795,29 @@
         gap: 6px;
     }
 
+    .rf-slot-group {
+        padding: 10px 2px;
+        min-width: 0;
+    }
+
     .rf-modal-grid {
         grid-template-columns: 1fr;
     }
-}
 
-@media (max-width: 360px) {
-    .rf-table-map {
-        grid-template-columns: repeat(3, 1fr);
+    .stepper-ctrl {
+        padding: 4px;
     }
 
-    .rf-time-grid {
-        grid-template-columns: repeat(2, 1fr);
+    .stepper-btn {
+        font-size: 12px;
+        height: 24px;
+        width: 24px;
+    }
+
+    .stepper-val {
+        min-width: 40px;
+        font-size: 14px;
+        font-weight: 00;
     }
 }
 
@@ -1953,285 +1888,6 @@
     width: 100%;
     padding-top: 10px;
     /* room for floated label */
-}
-
-/* ══════════════════════════════
-   INPUT — no box, only underline
-══════════════════════════════ */
-.mat-input {
-    display: block !important;
-    width: 100% !important;
-    height: 36px !important;
-    font-size: 15px !important;
-    font-weight: 500 !important;
-    font-family: inherit !important;
-    color: var(--m-text) !important;
-    background: transparent !important;
-    border: none !important;
-    border-bottom: 2px solid var(--m-underline) !important;
-    border-radius: 0 !important;
-    outline: none !important;
-    box-shadow: none !important;
-    box-sizing: border-box !important;
-    caret-color: var(--m-accent) !important;
-    transition: border-color 0.7s var(--m-ease) !important;
-    border-bottom-color: var(--text-tertiary) !important;
-}
-
-.mat-input::placeholder {
-    color: transparent !important;
-}
-
-.mat-input:hover {
-    border: none !important;
-    box-shadow: none !important;
-    border-bottom: 1px solid var(--text-tertiary) !important;
-}
-
-.mat-input.error,
-.mat-input-prefix-wrap.error {
-    border-bottom: 2px solid var(--m-accent) !important;
-}
-
-/* ══════════════════════════════
-   FLOATING LABEL
-══════════════════════════════ */
-.mat-label {
-    position: absolute;
-    top: 24px;
-    /* sits on the baseline when idle */
-    left: 0;
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--m-label-idle);
-    pointer-events: none;
-    transition:
-        top 0.25s var(--m-ease),
-        font-size 0.25s var(--m-ease),
-        font-weight 0.25s var(--m-ease),
-        color 0.25s var(--m-ease),
-        letter-spacing 0.25s var(--m-ease);
-    line-height: 1;
-    white-space: nowrap;
-}
-
-/* Floated state — focus OR has value */
-.mat-input:focus~.mat-label,
-.mat-input:not(:placeholder-shown)~.mat-label {
-    top: 2px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--m-accent);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.mat-input.error~.mat-label {
-    color: var(--m-accent);
-}
-
-/* ══════════════════════════════
-   HIGHLIGHT BAR — draws left→right
-══════════════════════════════ */
-.mat-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 0;
-    background: var(--m-accent);
-    border-radius: 1px;
-    transition: width 0.3s var(--m-spring);
-    pointer-events: none;
-}
-
-.mat-input:focus~.mat-label~.mat-bar,
-.mat-input:focus~.mat-bar {
-    width: 100%;
-}
-
-.mat-input.error~.mat-bar {
-    width: 100%;
-}
-
-/* ══════════════════════════════
-   PREFIX WRAP — phone field
-══════════════════════════════ */
-.mat-input-prefix-wrap {
-    display: flex !important;
-    align-items: flex-end !important;
-    border: none !important;
-    border-bottom: 2px solid var(--m-underline) !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    box-shadow: none !important;
-    height: auto !important;
-    padding: 0 !important;
-    overflow: visible !important;
-    transition: border-color 0.25s var(--m-ease) !important;
-}
-
-/* The bar for prefix fields lives on mat via :focus-within */
-.mat:focus-within .mat-input-prefix-wrap {
-    border-bottom-color: transparent !important;
-    /* bar covers it */
-}
-
-.mat:focus-within .mat-bar {
-    width: 100%;
-}
-
-.mat:focus-within .mat-label {
-    top: 2px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--m-accent);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-}
-
-.mat-prefix {
-    height: 36px !important;
-    vertical-align: middle !important;
-    font-size: 15px !important;
-    font-weight: 600 !important;
-    color: var(--text-primary);
-    background: transparent !important;
-    border: none !important;
-    flex-shrink: 0 !important;
-    letter-spacing: 0.02em !important;
-    line-height: 1 !important;
-}
-
-.mat-prefix.error {
-    color: var(--m-accent) !important;
-}
-
-.mat-input-with-prefix {
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-    flex: 1 !important;
-    padding-left: 4px !important;
-    transition: border-color 0.7s var(--m-ease) !important;
-    border-bottom: 1px solid var(--text-tertiary) !important;
-}
-
-/* ══════════════════════════════
-   TEXTAREA
-══════════════════════════════ */
-.mat-area {
-    position: relative;
-    width: 100%;
-    padding-top: 20px;
-}
-
-.mat-area-label {
-    position: absolute;
-    top: 28px;
-    left: 0;
-    font-size: 15px;
-    font-weight: 400;
-    color: var(--m-label-idle);
-    pointer-events: none;
-    transition: top 0.25s var(--m-ease), font-size 0.25s var(--m-ease),
-        font-weight 0.25s var(--m-ease), color 0.25s var(--m-ease),
-        letter-spacing 0.25s var(--m-ease);
-    line-height: 1;
-}
-
-.mat-area-bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 0;
-    background: var(--m-accent);
-    border-radius: 1px;
-    transition: width 0.3s var(--m-spring);
-    pointer-events: none;
-}
-
-/* Char counter */
-.mat-char {
-    position: absolute;
-    bottom: 6px;
-    right: 0;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--m-label-idle);
-    opacity: 0;
-    transition: opacity 0.2s;
-    pointer-events: none;
-    letter-spacing: 0.04em;
-}
-
-/* ══════════════════════════════
-   ERROR
-══════════════════════════════ */
-.rf-error {
-    font-size: 11px !important;
-    font-weight: 600 !important;
-    color: var(--m-accent) !important;
-    margin-top: 5px !important;
-    display: flex !important;
-    align-items: center !important;
-    gap: 4px !important;
-    animation: m-err 0.22s var(--m-ease) both !important;
-    padding-left: 0 !important;
-}
-
-@keyframes m-err {
-    from {
-        opacity: 0;
-        transform: translateY(-3px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* ══════════════════════════════
-   FIELD ENTRY STAGGER
-══════════════════════════════ */
-@keyframes m-in {
-    from {
-        opacity: 0;
-        transform: translateY(8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.mat,
-.mat-area {
-    animation: m-in 0.3s var(--m-ease) both;
-}
-
-.field-group:nth-child(1) .mat {
-    animation-delay: 0.04s;
-}
-
-.field-group:nth-child(2) .mat {
-    animation-delay: 0.08s;
-}
-
-.field-group:nth-child(3) .mat {
-    animation-delay: 0.12s;
-}
-
-.mat-row .field-group:nth-child(1) .mat {
-    animation-delay: 0.1s;
-}
-
-.mat-row .field-group:nth-child(2) .mat {
-    animation-delay: 0.15s;
 }
 
 /* ══════════════════════════════════════════════════════

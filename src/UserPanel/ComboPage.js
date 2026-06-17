@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import "./ComboPage.css";
 import FavouriteCombo from "./FavouriteCombo";
 import api from "../api";
+import ButtonFace from "./shared/ButtonFace";
 
 /* ─── Animations ──────────────────────────────────────────── */
 const pageVariant = {
@@ -59,12 +60,10 @@ const CategoryCard = ({ title, active, selected, disabled, onClick }) => (
     onClick={onClick}
     disabled={disabled}
   >
-    <span className="shadow" />
-    <span className="edge" />
-    <span className="front">
+    <ButtonFace>
       {selected && <span className="combo-category-tick">✓</span>}
       {title}
-    </span>
+    </ButtonFace>
   </button>
 );
 
@@ -76,9 +75,7 @@ const SubCategoryBar = ({ groups, activeGroup, onSelect }) => (
         className={`combo-subcategory-btn ${activeGroup === g.id ? "active" : ""}`}
         onClick={() => onSelect(g.id)}
       >
-        <span className="shadow" />
-        <span className="edge" />
-        <span className="front">{g.title}</span>
+        <ButtonFace>{g.title}</ButtonFace>
       </button>
     ))}
   </div>
@@ -98,9 +95,7 @@ const ComboItemCard = ({ item, onAdd, index }) => (
     <div className="combo-item-name">{item.name}</div>
     <div className="combo-item-price">₹{item.price ?? item.basePrice ?? 0}</div>
     <button className="combo-action-btn" onClick={onAdd}>
-      <span className="shadow" />
-      <span className="edge" />
-      <span className="front">Add</span>
+      <ButtonFace>Add</ButtonFace>
     </button>
   </motion.div>
 );
@@ -398,19 +393,13 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
         {offerHint && (
           <motion.div className="offer-hint-backdrop" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
             <motion.div className="offer-hint-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
-              <div className="offer-hint-emoji">🎉</div>
               <div className="offer-hint-text">{offerHint.message}</div>
-              <div className="offer-hint-actions">
-                <button className="offer-hint-add" onClick={handleHintAdd}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">Add Item</span>
+              <div className="btn-section">
+                <button className="btn-3d red" onClick={() => setOfferHint(null)}>
+                  <ButtonFace>Skip for now</ButtonFace>
                 </button>
-
-                <button className="offer-hint-skip" onClick={() => setOfferHint(null)}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">Skip for now</span>
+                <button className="btn-3d green" onClick={handleHintAdd}>
+                  <ButtonFace>Add Item</ButtonFace>
                 </button>
               </div>
             </motion.div>
@@ -427,15 +416,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
               <h3>Save to Favourites?</h3>
               <p className="combo-add-fav-title">{comboTitle}</p>
               <div className="combo-add-fav-actions">
-                <button className="combo-add-fav-cancel" onClick={() => setShowAddFavConfirm(false)}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">Cancel</span>
+                <button className="btn-3d white" onClick={() => setShowAddFavConfirm(false)}>
+                  <ButtonFace>Cancel</ButtonFace>
                 </button>
-                <button className="combo-add-fav-confirm" disabled={!isComboComplete || isSavingFav} onClick={() => { handleConfirmAddFav(); }}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">{isSavingFav ? "Saving…" : "Confirm"}</span>
+                <button className="btn-3d red" disabled={!isComboComplete || isSavingFav} onClick={() => { handleConfirmAddFav(); }}>
+                  <ButtonFace>{isSavingFav ? "Saving…" : "Confirm"}</ButtonFace>
                 </button>
               </div>
             </motion.div>
@@ -452,10 +437,8 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
               <h3>Already Saved</h3>
               <p className="combo-add-fav-title">This combo already exists in your favourites.</p>
               <div className="combo-add-fav-actions">
-                <button className="combo-add-fav-confirm" onClick={() => setShowDuplicateOverlay(false)}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">Okay</span>
+                <button className="btn-3d red" onClick={() => setShowDuplicateOverlay(false)}>
+                  <ButtonFace>Okay</ButtonFace>
                 </button>
               </div>
             </motion.div>
@@ -476,15 +459,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             </div>
             {currentUser && currentUser.id !== "guest" && (
               <div className="combo-header-btn-section">
-                <button className="combo-add-fav-btn" disabled={!isComboComplete} onClick={() => setShowAddFavConfirm(true)}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">♥ Save</span>
+                <button className="btn-3d red" disabled={!isComboComplete} onClick={() => setShowAddFavConfirm(true)}>
+                  <ButtonFace>♥ Save</ButtonFace>
                 </button>
-                <button className="combo-my-fav-btn" onClick={() => setActiveLeftView("favourites")}>
-                  <span className="shadow" />
-                  <span className="edge" />
-                  <span className="front">My Favs</span>
+                <button className="btn-3d red" onClick={() => setActiveLeftView("favourites")}>
+                  <ButtonFace>My Favs</ButtonFace>
                 </button>
               </div>
             )}
@@ -636,15 +615,13 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
           </div>
 
           <button
-            className="combo-add-btn"
+            className="btn-3d red"
             onClick={handleAddToBag}
             disabled={!isComboComplete}
           >
-            <span className="shadow" />
-            <span className="edge" />
-            <span className="front">
+            <ButtonFace>
               {isEditMode ? "Update Combo" : "Add to Bag"}
-            </span>
+            </ButtonFace>
           </button>
         </div>
       </div>

@@ -164,7 +164,7 @@
 .ep-filter-scroll {
     display: flex;
     gap: 8px;
-    overflow-x: visible;
+    overflow-x: auto;
     padding-bottom: 4px;
 }
 

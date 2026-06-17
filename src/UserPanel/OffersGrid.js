@@ -1,7 +1,8 @@
 import "./OffersGrid.css"; // reuse same UI
 import { useNavigate } from "react-router-dom";
-import homeIcon from "../assets/icons/home.png";
-import { flyToBag } from "./flyToBag";
+import { flyToBag } from "../components/flyToBag";
+import HomeButton from "./shared/HomeButton";
+import Button3D from "./shared/Button3D";
 
 const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
     const navigate = useNavigate();
@@ -48,11 +49,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
 
                 <div className="offers-grid-title">Offers</div>
 
-                <div className="home-btn  home-btn-icon" onClick={handleHome}>
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-                </div>
+                <HomeButton onClick={handleHome} />
             </div>
 
             {/* GRID */}
@@ -90,8 +87,8 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
                         </div>
 
                         {/* ADD BUTTON */}
-                        <button
-                            className="offers-add-btn"
+                        <Button3D
+                            className="btn-3d red"
                             onClick={(e) => {
                                 e.stopPropagation();
 
@@ -119,10 +116,8 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
                                 });
                             }}
                         >
-                            <span className="shadow"></span>
-                            <span className="edge"></span>
-                            <span className="front">Add to Bag</span>
-                        </button>
+                            Add to Bag
+                        </Button3D>
                     </div>
                 ))}
             </div>

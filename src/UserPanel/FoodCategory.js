@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./FoodCategory.css";
 import listIcon from "../assets/icons/list.png";
 import gridIcon from "../assets/icons/grid.png";
+import Button3D from "./shared/Button3D";
 
 /* ═══════════════════════════════════════════════
    DATA HELPERS
@@ -613,28 +614,20 @@ const FoodCategory = ({ foodData, currentUser }) => {
       <div className="view-toggle">
         <PromoCarousel items={promoItems} onCardClick={handlePromoClick} />
         <div className="view-toggle-btns">
-          <button
+          <Button3D
             className={`view-btn ${viewMode === "grid" ? "active" : ""}`}
             onClick={() => setViewMode("grid")}
             aria-label="Grid view"
           >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">
-              <img className="grid-icon" src={gridIcon} alt="" />
-            </span>
-          </button>
-          <button
+            <img className="grid-icon" src={gridIcon} alt="" />
+          </Button3D>
+          <Button3D
             className={`view-btn ${viewMode === "list" ? "active" : ""}`}
             onClick={() => setViewMode("list")}
             aria-label="List view"
           >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">
-              <img className="list-icon" src={listIcon} alt="" />
-            </span>
-          </button>
+            <img className="list-icon" src={listIcon} alt="" />
+          </Button3D>
         </div>
       </div>
 
@@ -645,9 +638,11 @@ const FoodCategory = ({ foodData, currentUser }) => {
             key={category.id}
             to={category.route}
             className={`food-category-items ${viewMode}
-              ${category.id === "my" ? "my-favourites" : ""}
-              ${category.id === "others" ? "crowd-picks" : ""}
-              ${category.id === "combo" ? "combo-category" : ""}
+              ${category.id === "my" ? "special" : ""}
+              ${category.id === "others" ? "special" : ""}
+              ${category.id === "combo" ? "special" : ""}
+              ${category.id === "events" ? "special" : ""}
+              ${category.id === "offers" ? "special" : ""}
             `}
           >
             <div className="food-category-image">

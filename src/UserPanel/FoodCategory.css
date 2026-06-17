@@ -490,7 +490,7 @@
 .food-category-container {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(8, 1fr);
   padding: 10px 0 0 0;
   transition: all 0.3s ease;
 }
@@ -506,7 +506,6 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  height: 155px;
   cursor: pointer;
   box-shadow: var(--shadow-card-normal);
   transition: transform 0.25s ease;
@@ -515,15 +514,11 @@
   transform: translateZ(0);
 }
 
-.my-favourites,
-.crowd-picks,
-.combo-category {
+.special {
   background-color: var(--color-red);
 }
 
-.my-favourites .food-category-name,
-.crowd-picks .food-category-name,
-.combo-category .food-category-name {
+.special .food-category-name {
   color: var(--bg-main);
 }
 

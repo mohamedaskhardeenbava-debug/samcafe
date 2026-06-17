@@ -1,0 +1,55 @@
+import HomeButton from "./HomeButton";
+
+/**
+ * PageHeader
+ * ----------
+ * Standard page header: a back button on the left, a title in the
+ * middle, and the home button on the right. Used by virtually every
+ * top-level page (FoodList, FoodGridList, Favourites, Events, Catering,
+ * Celebration, Reservation, PreBooking, AppetizerBuilder, etc).
+ *
+ * Props:
+ *  - title:            string | node — header title content
+ *  - onBack:           click handler for the back button
+ *  - onHome:           click handler for the home button
+ *  - wrapperClassName: className for the outer header container
+ *                       (default: "food-grid-header")
+ *  - backClassName:    className for the back button
+ *                       (default: "back-button")
+ *  - titleTag:         tag used to render the title (default: "div")
+ *  - titleClassName:   className for the title element
+ *                       (default: "food-grid-title")
+ *
+ * Example:
+ *   <PageHeader title="Catering" onBack={handleBack} onHome={handleHome} />
+ *
+ *   <PageHeader
+ *     title={dish.name}
+ *     titleTag="h2"
+ *     titleClassName="dish-name"
+ *     wrapperClassName="food-header"
+ *     onBack={handleBack}
+ *     onHome={handleHome}
+ *   />
+ */
+const PageHeader = ({
+  title,
+  onBack,
+  onHome,
+  wrapperClassName = "food-grid-header",
+  backClassName = "back-button",
+  titleTag = "div",
+  titleClassName = "food-grid-title"
+}) => {
+  const TitleTag = titleTag;
+
+  return (
+    <div className={wrapperClassName}>
+      <button className={backClassName} onClick={onBack} />
+      <TitleTag className={titleClassName}>{title}</TitleTag>
+      <HomeButton onClick={onHome} />
+    </div>
+  );
+};
+
+export default PageHeader;

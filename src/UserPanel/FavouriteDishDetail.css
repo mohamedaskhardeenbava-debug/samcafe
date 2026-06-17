@@ -187,7 +187,10 @@
   display: flex;
   gap: 12px;
   margin-top: auto;
-  /* push to bottom */
+}
+
+.fav-actions>* {
+  flex: 1 1;
 }
 
 .fav-add-btn {
@@ -245,10 +248,6 @@
 
   .fav-price {
     font-size: 26px;
-  }
-
-  .fav-actions > * {
-    flex: 1 1;
   }
 }
 

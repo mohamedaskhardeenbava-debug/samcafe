@@ -13,6 +13,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import "./UserTimePicker.css";
+import Button3D from "../UserPanel/shared/Button3D";
 
 // ── Helpers ───────────────────────────────────────────
 const pad = (n) => String(n).padStart(2, "0");
@@ -292,7 +293,7 @@ export const UserTimePicker = ({
                                     <text x={pos.x} y={pos.y}
                                         textAnchor="middle" dominantBaseline="central"
                                         fontSize="13" fontWeight={isSel ? "700" : "400"}
-                                        fill={isSel ? "var(--text-primary)" : isDis ? "var(--text-tertiary)" : "var(--text-primary)"}
+                                        fill={isSel ? "#fff" : isDis ? "var(--text-tertiary)" : "var(--text-primary)"}
                                     >{h}</text>
                                 </g>
                             );
@@ -323,18 +324,14 @@ export const UserTimePicker = ({
 
                     {/* Footer */}
                     <div className="utp-footer">
-                        <button type="button" className="form-action-btn cancel"
+                        <Button3D type="button" className="form-action-btn cancel" frontClassName="sm-padding"
                             onClick={() => { setOpen(false); setMode("hour"); }}>
-                            <span className="shadow"></span>
-                            <span className="edge"></span>
-                            <span className="front sm-padding">Cancel</span>
-                        </button>
-                        <button type="button" className="form-action-btn submit"
+                            Cancel
+                        </Button3D>
+                        <Button3D type="button" className="form-action-btn submit" frontClassName="sm-padding"
                             onClick={() => { emit(selRef.current); setOpen(false); setMode("hour"); }}>
-                            <span className="shadow"></span>
-                            <span className="edge"></span>
-                            <span className="front sm-padding">Ok</span>
-                        </button>
+                            Ok
+                        </Button3D>
                     </div>
                 </div>
             )}

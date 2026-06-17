@@ -807,6 +807,19 @@
     .pbp-actions {
         flex-direction: column;
     }
+
+    .slot-group {
+        padding: 10px 2px;
+        min-width: 0;
+    }
+
+    .pbp-form-grid {
+        gap: 6px;
+    }
+    
+    .pbp-col {
+        gap: 4px;
+    }
 }
 
 /* ══ SUCCESS SCREEN ══ */
@@ -1018,7 +1031,7 @@
     font-family: inherit;
     font-weight: 600;
     color: var(--text-secondary);
-    background: var(--bg-surface);
+    
     will-change: transform;
     transform: translateY(-4px);
     transition: transform 600ms cubic-bezier(.3, .7, .4, 1);

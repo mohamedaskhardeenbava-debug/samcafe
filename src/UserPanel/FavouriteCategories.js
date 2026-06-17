@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useParams } from "react-router-dom";
 import "./FoodCategory.css";
 import "./FavouriteCategories.css";
-import homeIcon from "../assets/icons/home.png";
+import HomeButton from "./shared/HomeButton";
 
 const FavouriteCategories = ({
   foodData,
@@ -42,11 +42,7 @@ const FavouriteCategories = ({
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">Favourites</div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome} >
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
+        <HomeButton onClick={handleHome} />
       </div>
 
       <div className="food-category" style={{ padding: "0px" }}>
