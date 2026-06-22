@@ -81,17 +81,46 @@
   width: 80%;
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+
+  100% {
+    background-position: 200% center;
+  }
+}
+
 .table-number {
   font-weight: 800;
   font-size: 22px;
-  color: var(--color-green);
   white-space: nowrap;
+  display: inline-block;
+  background: linear-gradient(90deg,
+      var(--color-green) 20%,
+      #ffffff 50%,
+      var(--color-green) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
 }
 
 .time {
   font-weight: 800;
   font-size: 22px;
-  color: var(--color-green);
+  display: inline-block;
+  background: linear-gradient(90deg,
+      var(--color-green) 20%,
+      #ffffff 50%,
+      var(--color-green) 80%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+  animation-delay: 1s;
 }
 
 /* ── Order Another button (red) ── */
