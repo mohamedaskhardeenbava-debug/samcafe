@@ -475,7 +475,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
   const [addGuestState, setAddGuestState] = useState("idle");
   const [form, setForm] = useState({
     name: currentUser?.name || "", email: currentUser?.email || "",
-    phone: currentUser?.phone || "", guests: 1, specialRequests: "",
+    phone: currentUser?.mobile || "", guests: 1, specialRequests: "",
   });
 
   // FIX: Use stable currentUser ID instead of the object reference to avoid infinite loop
@@ -564,7 +564,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
 
   const openEnroll = (evt) => {
     setSelectedEvent(evt);
-    setForm({ name: currentUser?.name || "", email: currentUser?.email || "", phone: currentUser?.phone || "", guests: 1, specialRequests: "" });
+    setForm({ name: currentUser?.name || "", email: currentUser?.email || "", phone: currentUser?.mobile || "", guests: 1, specialRequests: "" });
     setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); setShowEnroll(true);
   };
   const closeEnroll = () => { setShowEnroll(false); setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); };

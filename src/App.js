@@ -33,7 +33,6 @@ import PreBooking from "./UserPanel/PreBooking";
 import CateringForm from "./UserPanel/CateringForm";
 
 import bellSound from "./assets/sounds/bell.mp3";
-import { ToastProvider } from "./components/Usetoast";
 import bellGif from "./assets/bell/bell.gif";
 import bellStatic from "./assets/bell/bell-static.png";
 import { normalizeBagItem, findMatchingBagIndex } from "./UserPanel/shared/normalizeBagItem";
@@ -367,8 +366,6 @@ function App() {
 
     socket.on("data-change", ({ resource, action, payload }) => {
 
-      console.log("SYNC EVENT:", resource, action);
-
       if (resource === "orders") {
         setFoodData(prev => ({
           ...prev,
@@ -561,9 +558,8 @@ function App() {
   // clearStorage();
 
   return (
-    <ToastProvider>
-      <LayoutGroup>
-        <div className="App">
+    <LayoutGroup>
+      <div className="App">
           {![
             "/events/reservation",
             "/events/celebration",
@@ -758,12 +754,6 @@ function App() {
                         bag={bag}
                         setBag={setBag}
                         setIsBagOpen={setIsBagOpen}
-                        onOrderPlaced={(order) =>
-                          setFoodData(prev => ({
-                            ...prev,
-                            orders: [...(prev.orders || []), order]
-                          }))
-                        }
                       />
                     </motion.div>
 
@@ -915,6 +905,7 @@ function App() {
                         setBag={setBag}
                         handleBack={handleBack}
                         handleHome={handleHome}
+                        navigateToCatering={() => handleNavigate("/events/catering")}
                       />
                     </motion.div>
                   }
@@ -952,7 +943,6 @@ function App() {
           )}
         </div>
       </LayoutGroup>
-    </ToastProvider>
   );
 }
 

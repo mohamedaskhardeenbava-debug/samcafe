@@ -6,6 +6,7 @@ import "./FavouriteDishList.css";
 import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import ConfirmDialog from "./shared/ConfirmDialog";
+import { useToast } from "../components/Usetoast";
 
 const FavouriteDishList = ({
   foodData,
@@ -16,13 +17,14 @@ const FavouriteDishList = ({
 }) => {
   const navigate = useNavigate();
   const { source, categoryId } = useParams();
+  const { toast } = useToast();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [dishToDelete, setDishToDelete] = useState(null);
 
   const isMyFavourites = source === "my";
 
-  // 🔒 BLOCK GUEST ACCESS
+  // BLOCK GUEST ACCESS
   if (source === "my" && !currentUser) {
     return null;
   }
@@ -36,9 +38,16 @@ const FavouriteDishList = ({
     (dish) => dish.categoryId === categoryId
   );
 
-  const category = foodData.categories.find(
-    (c) => c.id === categoryId
-  );
+  const findCategoryOrSubCategory = (id) => {
+    for (const cat of foodData.categories) {
+      if (cat.id === id) return cat;
+      const sub = (cat.subCategories || []).find((s) => s.id === id);
+      if (sub) return sub;
+    }
+    return null;
+  };
+
+  const category = findCategoryOrSubCategory(categoryId);
 
   /* ---------------- DELETE LOGIC ---------------- */
 
@@ -59,19 +68,21 @@ const FavouriteDishList = ({
 
         await api.put(`/users/${currentUser.id}`, updatedUser);
 
-        // ✅ UPDATE STATE — NO RELOAD
-        setDishToDelete(null);
-        setShowDeleteConfirm(false);
+        // Re-fetch the user from the server so we always have the
+        // authoritative copy — avoids stale-closure overwrites from
+        // any concurrent socket data-change events.
+        const refreshed = await api.get(`/users/${currentUser.id}`);
+        setCurrentUser(refreshed.data);
 
-        // force UI refresh safely
-        setCurrentUser({
-          ...currentUser,
-          favourites: updatedFavourites
-        });
+        // Clear dialog state only after state is committed
+        setShowDeleteConfirm(false);
+        setDishToDelete(null);
       }
     } catch (err) {
       console.error("Failed to delete favourite", err);
-      alert("Failed to remove favourite dish.");
+      toast.error("Failed to remove favourite dish.");
+      setShowDeleteConfirm(false);
+      setDishToDelete(null);
     }
   };
 
@@ -116,12 +127,13 @@ const FavouriteDishList = ({
               </div>
               <div className="food-category-name">
                 {dish.name}
-                {dish.customerName && (
-                  <div className="fav-customer-name">
-                    By {dish.customerName}
-                  </div>
-                )}
               </div>
+
+              {dish.customerName && (
+                <div className="fav-customer-name">
+                  By {dish.customerName}
+                </div>
+              )}
 
               {isMyFavourites && (
                 <Button3D

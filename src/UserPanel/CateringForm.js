@@ -336,7 +336,7 @@ const CateringForm = ({ handleBack, handleHome }) => {
     if (Object.keys(ve).length > 0) { setErrors(ve); return; }
     try {
       setLoading(true);
-      const newId = `cat_${Date.now()}`;
+      const newId = `cater_${Date.now()}`;
       const address = buildAddress(form);
       await api.post("/cateringOrders", {
         id: newId,

@@ -14,6 +14,7 @@ import logoDark from "../assets/logo-dark.png";
 import { useTheme } from "../components/ThemeContext";
 import MatField from "./shared/MatField";
 import Button3D from "./shared/Button3D";
+import { useToast } from "../components/Usetoast";
 
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const [activeCard, setActiveCard] = useState(null);
 
   const { theme } = useTheme();
+  const { toast } = useToast();
 
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -48,6 +50,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
         setUsers(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to fetch users", err);
+        toast.error("Couldn't connect. Please check your connection and reload.");
       }
     };
 
@@ -203,6 +206,9 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       fetchMenu();
       navigate("/categories");
 
+    } catch (err) {
+      console.error("Signup failed", err);
+      toast.error("Couldn't create your account. Please try again.");
     } finally {
       setLoading(false);
     }

@@ -33,8 +33,17 @@ const FavouriteCategories = ({
     return acc;
   }, {});
 
+  const findCategoryOrSubCategory = (id) => {
+    for (const cat of foodData.categories) {
+      if (cat.id === id) return cat;
+      const sub = (cat.subCategories || []).find((s) => s.id === id);
+      if (sub) return sub;
+    }
+    return null;
+  };
+
   const categories = Object.keys(grouped)
-    .map((id) => foodData.categories.find((c) => c.id === id))
+    .map((id) => findCategoryOrSubCategory(id))
     .filter(Boolean);
 
   return (

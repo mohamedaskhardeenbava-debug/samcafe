@@ -5,14 +5,13 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './components/ThemeContext';
-import { ToastProvider, ToastContainer } from './components/Usetoast';
+import { ToastProvider } from './components/Usetoast';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <ThemeProvider>
       <ToastProvider>
-        <ToastContainer />
         <App />
       </ToastProvider>
     </ThemeProvider>

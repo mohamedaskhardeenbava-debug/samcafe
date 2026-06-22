@@ -53,7 +53,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
             </div>
 
             {/* GRID */}
-            <div className="offers-grid-container">
+            <div className="food-category-container">
                 {offerDishes.map(dish => (
                     <div
                         key={dish.id}
