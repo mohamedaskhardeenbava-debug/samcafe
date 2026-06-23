@@ -10,6 +10,7 @@ import guestImg from "../assets/welcome-images/guest-image.jpeg";
 
 import logoLight from "../assets/logo-light.png";
 import logoDark from "../assets/logo-dark.png";
+import powerLogo from "../assets/dishky-logo.png";
 
 import { useTheme } from "../components/ThemeContext";
 import MatField from "./shared/MatField";
@@ -168,54 +169,54 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     navigate("/categories");
   };
 
-  // const handleSignup = async () => {
-  //   const e = {};
-  //   if (!name.trim() || name.trim().length < 2) e.name = "Enter a valid name.";
-  //   if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
-  //   if (Object.keys(e).length > 0) { setFormErrors(e); return; }
+  const handleSignup = async () => {
+    const e = {};
+    if (!name.trim() || name.trim().length < 2) e.name = "Enter a valid name.";
+    if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
+    if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
-  //   try {
-  //     setLoading(true);
+    try {
+      setLoading(true);
 
-  //     const res = await api.get("/users");
-  //     const existingUsers = res.data || [];
+      const res = await api.get("/users");
+      const existingUsers = res.data || [];
 
-  //     const matches = existingUsers.filter(u => u.mobile === mobile);
+      const matches = existingUsers.filter(u => u.mobile === mobile);
 
-  //     if (matches.length > 0) {
-  //       setFormErrors({ mobile: "An account already exists with this mobile number." });
-  //       return;
-  //     }
+      if (matches.length > 0) {
+        setFormErrors({ mobile: "An account already exists with this mobile number." });
+        return;
+      }
 
-  //     const newUser = {
-  //       id: `user_${mobile}`,
-  //       name: name.trim(),
-  //       mobile,
-  //       favourites: [],
-  //       combo: [],
-  //       orders: []
-  //     };
+      const newUser = {
+        id: `user_${mobile}`,
+        name: name.trim(),
+        mobile,
+        favourites: [],
+        combo: [],
+        orders: []
+      };
 
-  //     await api.post("/users", newUser);
+      await api.post("/users", newUser);
 
-  //     // login ONLY first time
-  //     localStorage.setItem("userId", newUser.id);
+      // login ONLY first time
+      localStorage.setItem("userId", newUser.id);
 
-  //     setActiveCard(null);
-  //     setName("");
-  //     setMobile("");
-  //     setCurrentUser(newUser);
-  //     // REFRESH MENU
-  //     fetchMenu();
-  //     navigate("/categories");
+      setActiveCard(null);
+      setName("");
+      setMobile("");
+      setCurrentUser(newUser);
+      // REFRESH MENU
+      fetchMenu();
+      navigate("/categories");
 
-  //   } catch (err) {
-  //     console.error("Signup failed", err);
-  //     toast.error("Couldn't create your account. Please try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    } catch (err) {
+      console.error("Signup failed", err);
+      toast.error("Couldn't create your account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   var loginTab = 'Login';
   var tabs = document.getElementsByClassName('openTab');
@@ -384,6 +385,8 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           <span className="subtext">(No login needed)</span>
         </div>
       </div>
+
+      <img className="power-logo" src={powerLogo} />
     </div >
 
   );

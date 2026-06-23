@@ -1,12 +1,11 @@
 .welcome-page {
-  max-height: 800px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   font-family: "Geom", system-ui, sans-serif;
-  padding: 20px;
   background: linear-gradient(180deg, #7a0101, red);
+  min-height: 100vh;
 }
 
 /* ===== WAVE BACKGROUND ===== */
@@ -76,8 +75,6 @@
   z-index: 1;
 }
 
-
-
 .welcome-container {
   display: flex;
   flex-direction: column;
@@ -86,6 +83,7 @@
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
+  min-height: 600px;
 }
 
 .welcome-text {
@@ -537,6 +535,13 @@
 .wc-login-btn:active .shadow {
   transform: translateY(1px);
   transition: transform 34ms;
+}
+
+.power-logo {
+  width: 100px;
+  position: absolute !important;
+  display: block;
+  bottom: 0;
 }
 
 /* =========================================
