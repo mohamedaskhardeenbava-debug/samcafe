@@ -297,11 +297,9 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           <div
             className="profile-card openTab" id="Login"
           >
-            <h3>Login</h3>
-
             <div
               className="section"
-            //onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <MatField
                 label="Mobile Number"
@@ -334,11 +332,9 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
             style={{ display: "none" }}
             id="Create"
           >
-            <h3>Create Profile</h3>
-
             <div
               className="section"
-            //onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <MatField
                 label="Full Name"
@@ -353,7 +349,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
             <div
               className="section"
-            //onClick={(e) => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
             >
               <MatField
                 label="Mobile Number"
@@ -369,17 +365,20 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
             <Button3D
               className="btn-3d red"
-            // onClick={(e) => {
-            //   e.stopPropagation();
-            //   handleSignup();
-            // }}
-            // disabled={loading}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSignup();
+              }}
+              disabled={loading}
             >
               Sign Up
             </Button3D>
           </div>
 
-          <Button3D className="btn-3d white" >
+          <Button3D
+            className="btn-3d white"
+            onClick={handleGuest}
+          >
             Enter as Guest
           </Button3D>
           <span className="subtext">(No login needed)</span>
