@@ -218,19 +218,19 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
         )}
 
         {orderPlaced && (
-          <div style={{display:"flex", gap:"10px", alignItems:"center", marginTop:"16px"}}>
+          <div style={{display:"flex", gap:"10px", alignItems:"center", marginTop:"16px"}} frontStyle={{padding:"0 10px"}}>
             <Button3D className="btn-3d green" onClick={handleOrderAnother}>
               Order Another
             </Button3D>
 
-            <Button3D className="btn-3d red" onClick={handleLogout}>
+            <Button3D className="btn-3d red" onClick={handleLogout} frontStyle={{padding:"0 10px"}}>
               Back to Home
             </Button3D>
           </div>
         )}
 
         {!isBagEmpty && !orderPlaced && (
-          <Button3D className="ty-order-btn" onClick={() => navigate("/categories")}>
+          <Button3D className="ty-order-btn" frontStyle={{ padding: "0 10px" }} onClick={() => navigate("/categories") }>
             Order Another
           </Button3D>
         )}
