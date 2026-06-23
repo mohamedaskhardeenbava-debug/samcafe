@@ -1356,7 +1356,7 @@ image {
 
 .green .front {
   background: var(--color-green);
-  color: var(--text-primary);
+  color: var(--bg-main);
 }
 
 .white .edge {
