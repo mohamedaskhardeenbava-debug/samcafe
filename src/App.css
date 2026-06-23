@@ -3,6 +3,7 @@
    Light & Dark Themes with Full Color Coverage
 ═══════════════════════════════════════════════════════════════════════════ */
 *,
+:root,
 html,
 body {
   touch-action: manipulation !important;
