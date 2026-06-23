@@ -2,6 +2,16 @@
    ── COMPREHENSIVE CSS VARIABLES SYSTEM ──
    Light & Dark Themes with Full Color Coverage
 ═══════════════════════════════════════════════════════════════════════════ */
+*,
+html,
+body {
+  touch-action: manipulation;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
 :root {
   /* LIGHT THEME (DEFAULT) */
