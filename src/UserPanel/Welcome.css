@@ -6,6 +6,7 @@
   overflow: hidden;
   font-family: "Geom", system-ui, sans-serif;
   padding: 20px;
+  background: linear-gradient(180deg, #7a0101, red);
 }
 
 /* ===== WAVE BACKGROUND ===== */
@@ -229,17 +230,34 @@
   width: 100px;
 }
 
-.profile-cards {
+.welcome-card-wrapper {
   position: relative;
-  width: 720px;
-  /* 3 cards × 240 spacing */
-  height: 300px;
-  margin: 60px auto 0;
-  /* center horizontally */
+  padding: 20px;
+  background-color: var(--bg-main);
+  box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.welcome-btn {
+  padding: 10px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-size: 16px;
+  text-transform: uppercase;
+  border-bottom: 5px solid transparent;
+  margin: 0 20px;
+}
+
+.welcome-btn.active {
+  border-color: #7a0101 !important;
 }
 
 .profile-card {
-  position: absolute;
+  position: relative;
   /* keep absolute */
   width: 220px;
   /* fixed width */
@@ -248,7 +266,10 @@
   border: 1px solid transparent;
   /* box-shadow: 0 12px 28px rgba(236, 233, 227),
     0 6px 14px rgba(236, 233, 227); */
-  box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
 }
 
 .profile-card:not(.secondary):hover {
@@ -265,6 +286,10 @@
 
 .profile-card:hover .card-overlay {
   transform: translateY(0%);
+}
+
+.profile-card .mat-input {
+  margin-bottom: 15px;
 }
 
 .card-image {

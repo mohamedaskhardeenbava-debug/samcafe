@@ -27,6 +27,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const { theme } = useTheme();
   const { toast } = useToast();
 
+  const [activeTab, setActiveTab] = useState("Login")
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
@@ -140,6 +141,8 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
     if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
+    alert("test")
+
     const matches = users.filter(u => u.mobile === mobile);
 
     if (matches.length === 0) {
@@ -165,54 +168,85 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     navigate("/categories");
   };
 
-  const handleSignup = async () => {
-    const e = {};
-    if (!name.trim() || name.trim().length < 2) e.name = "Enter a valid name.";
-    if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
-    if (Object.keys(e).length > 0) { setFormErrors(e); return; }
+  // const handleSignup = async () => {
+  //   const e = {};
+  //   if (!name.trim() || name.trim().length < 2) e.name = "Enter a valid name.";
+  //   if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
+  //   if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const res = await api.get("/users");
-      const existingUsers = res.data || [];
+  //     const res = await api.get("/users");
+  //     const existingUsers = res.data || [];
 
-      const matches = existingUsers.filter(u => u.mobile === mobile);
+  //     const matches = existingUsers.filter(u => u.mobile === mobile);
 
-      if (matches.length > 0) {
-        setFormErrors({ mobile: "An account already exists with this mobile number." });
-        return;
-      }
+  //     if (matches.length > 0) {
+  //       setFormErrors({ mobile: "An account already exists with this mobile number." });
+  //       return;
+  //     }
 
-      const newUser = {
-        id: `user_${mobile}`,
-        name: name.trim(),
-        mobile,
-        favourites: [],
-        combo: [],
-        orders: []
-      };
+  //     const newUser = {
+  //       id: `user_${mobile}`,
+  //       name: name.trim(),
+  //       mobile,
+  //       favourites: [],
+  //       combo: [],
+  //       orders: []
+  //     };
 
-      await api.post("/users", newUser);
+  //     await api.post("/users", newUser);
 
-      // login ONLY first time
-      localStorage.setItem("userId", newUser.id);
+  //     // login ONLY first time
+  //     localStorage.setItem("userId", newUser.id);
 
-      setActiveCard(null);
-      setName("");
-      setMobile("");
-      setCurrentUser(newUser);
-      // REFRESH MENU
-      fetchMenu();
-      navigate("/categories");
+  //     setActiveCard(null);
+  //     setName("");
+  //     setMobile("");
+  //     setCurrentUser(newUser);
+  //     // REFRESH MENU
+  //     fetchMenu();
+  //     navigate("/categories");
 
-    } catch (err) {
-      console.error("Signup failed", err);
-      toast.error("Couldn't create your account. Please try again.");
-    } finally {
-      setLoading(false);
+  //   } catch (err) {
+  //     console.error("Signup failed", err);
+  //     toast.error("Couldn't create your account. Please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  var loginTab = 'Login';
+  var tabs = document.getElementsByClassName('openTab');
+
+  //alert(tabs);
+
+  function openTab(loginTab) {
+    // var i;
+    var x = document.getElementsById;
+    //console.log(loginTab);
+    if (loginTab == 'Login') {
+      console.log(loginTab);
+      document.getElementById('Login').style.display = "block";
+      document.getElementById('Create').style.display = "none";
+      // document.elementFromPoint('Login').className = "welcome-btn welcome-btn-active";
+      //document.getElementsByClassName('welcome-btn').className = "welcome-btn welcome-btn-active";
+
     }
-  };
+    if (loginTab == 'Create') {
+      console.log(loginTab);
+      document.getElementById('Login').style.display = "none";
+      document.getElementById('Create').style.display = "block";
+
+    }
+    //alert(x);
+    //document.getElementById('Login').style.display = "block";
+    //alert(document.getElementById('Login'));
+  }
+
+
+  // tabs.addEventListener.Object.openTab('Login');
 
   return (
     <div className="welcome-page">
@@ -241,167 +275,113 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           Where every bite feels right
         </div>
 
-        <motion.div
-          className="profile-cards"
-          variants={containerVariants}
-          initial="hidden"
-          animate={animateCards ? "visible" : "hidden"}
+        <div className="welcome-card-wrapper">
+          <div className="welcome-btn-container">
+            <button
+              className={`welcome-btn ${activeTab === "Login" ? "active" : ""}`}
+              onClick={() => {
+                openTab('Login')
+                setActiveTab("Login")
+              }}
+              >
+            Login
+          </button>
+          <button 
+              className={`welcome-btn ${activeTab === "Create" ? "active" : ""}`}
+              onClick={() => {
+                openTab('Create')
+                setActiveTab("Create")
+              }}>Create Account</button>
+        </div>
+
+        <div
+          className="profile-card openTab" id="Login"
         >
-          <motion.div
-            className={`profile-card flip-card ${activeCard === "login" ? "flipped" : ""}`}
-            variants={cardVariants}
-            custom={0}
+          <h3>Login</h3>
+
+          <div
+            className="section"
+          //onClick={(e) => e.stopPropagation()}
           >
-            <div
-              className="flip-inner"
-              onClick={() => {
-                setFormErrors({});
-                setMobile("");
-                setActiveCard(prev => (prev === "login" ? null : "login"));
-              }}
-            >
-              {/* FRONT */}
-              <div className="flip-front">
-                <div className="card-image">
-                  <img src={loginImg} alt="Login" />
-                </div>
-
-                <div className="card-overlay">
-                  <h4>Login</h4>
-                  <p>Login using your mobile number</p>
-                </div>
-              </div>
-
-              {/* BACK */}
-              <div className="flip-back signup-modal">
-                <h3>Login</h3>
-
-                <div
-                  className="section"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MatField
-                    label="Mobile Number"
-                    type="tel"
-                    style={{ paddingLeft: "4px" }}
-                    inputRef={mobileInputRef}
-                    list={enableAutocomplete ? "user-mobiles" : undefined}
-                    maxLength={10}
-                    value={mobile}
-                    onChange={handleMobileChange}
-                    error={formErrors.mobile}
-                    wrapperClassName=""
-                  />
-                </div>
+            <MatField
+              label="Mobile Number"
+              type="tel"
+              style={{ paddingLeft: "4px" }}
+              inputRef={mobileInputRef}
+              list={enableAutocomplete ? "user-mobiles" : undefined}
+              maxLength={10}
+              value={mobile}
+              onChange={handleMobileChange}
+              error={formErrors.mobile}
+              wrapperClassName=""
+            />
+          </div>
 
 
-                <Button3D
-                  className="btn-3d red"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleLogin();
-                  }}
-                >
-                  Login
-                </Button3D>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className={`profile-card flip-card ${activeCard === "signup" ? "flipped" : ""}`}
-            variants={cardVariants}
-            custom={1}
+          <Button3D
+            className="btn-3d red"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleLogin();
+            }}
           >
-            <div
-              className="flip-inner"
-              onClick={() => {
-                setFormErrors({});
-                setName("");
-                setMobile("");
-                setActiveCard(prev => (prev === "signup" ? null : "signup"));
-              }}
-            >
-              {/* FRONT */}
-              <div className="flip-front">
-                <div className="card-image">
-                  <img src={signupImg} alt="Signup" />
-                </div>
+            Login
+          </Button3D>
+        </div>
 
-                <div className="card-overlay">
-                  <h4>Sign Up</h4>
-                  <p>Create a new profile</p>
-                </div>
-              </div>
+        <div
+          className="profile-card openTab"
+          style={{ display: "none" }}
+          id="Create"
+        >
+          <h3>Create Profile</h3>
 
-              {/* BACK */}
-              <div className="flip-back signup-modal">
-                <h3>Create Profile</h3>
-
-                <div
-                  className="section"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MatField
-                    label="Full Name"
-                    type="text"
-                    maxLength={100}
-                    value={name}
-                    onChange={handleNameChange}
-                    error={formErrors.name}
-                    wrapperClassName=""
-                  />
-                </div>
-
-                <div
-                  className="section"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <MatField
-                    label="Mobile Number"
-                    type="tel"
-                    maxLength={10}
-                    value={mobile}
-                    onChange={handleSignupMobileChange}
-                    error={formErrors.mobile}
-                    wrapperClassName=""
-                  />
-                </div>
-
-
-                <Button3D
-                  className="btn-3d red"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSignup();
-                  }}
-                  disabled={loading}
-                >
-                  Sign Up
-                </Button3D>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className="profile-card"
-            variants={cardVariants}
-            custom={2}
-            onClick={handleGuest}
+          <div
+            className="section"
+          //onClick={(e) => e.stopPropagation()}
           >
-            <div className="flip-front">
-              <div className="card-image">
-                <img src={guestImg} alt="Guest" />
-              </div>
-              <div className="card-overlay">
-                <h4>Guest</h4>
-                <p>Continue without an account</p>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
+            <MatField
+              label="Full Name"
+              type="text"
+              maxLength={100}
+              value={name}
+              onChange={handleNameChange}
+              error={formErrors.name}
+              wrapperClassName=""
+            />
+          </div>
+
+          <div
+            className="section"
+          //onClick={(e) => e.stopPropagation()}
+          >
+            <MatField
+              label="Mobile Number"
+              type="tel"
+              maxLength={10}
+              value={mobile}
+              onChange={handleSignupMobileChange}
+              error={formErrors.mobile}
+              wrapperClassName=""
+            />
+          </div>
+
+
+          <Button3D
+            className="btn-3d red"
+          // onClick={(e) => {
+          //   e.stopPropagation();
+          //   handleSignup();
+          // }}
+          // disabled={loading}
+          >
+            Sign Up
+          </Button3D>
+        </div>
       </div>
     </div>
+    </div >
+
   );
 };
 
