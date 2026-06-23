@@ -8,7 +8,7 @@
   box-sizing: border-box;
 }
 
-.food-list > * {
+.food-list>* {
   box-sizing: border-box !important;
 }
 
@@ -134,59 +134,6 @@
   color: var(--text-primary);
 }
 
-.image-nav-btn {
-  border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  cursor: pointer;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
-
-.image-nav-btn:disabled,
-.dot:disabled {
-  opacity: 0.3;
-  pointer-events: none;
-}
-
-.forward-btn,
-.backward-btn {
-  cursor: pointer;
-  position: relative;
-  text-align: center;
-}
-
-.backward-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 40%;
-  width: 12px;
-  height: 12px;
-  border-left: 3px solid var(--foodlist-arrow);
-  border-bottom: 3px solid var(--foodlist-arrow);
-  transform: translateY(-50%) rotate(45deg);
-}
-
-.forward-btn::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 40%;
-  width: 12px;
-  height: 12px;
-  border-right: 3px solid var(--foodlist-arrow);
-  border-top: 3px solid var(--foodlist-arrow);
-  transform: translateY(-50%) rotate(45deg);
-}
-
 /* =========================
    RIGHT – IMAGE CONVEYOR
 ========================= */
@@ -289,6 +236,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  box-sizing: border-box;
   z-index: 10;
 }
 
@@ -349,8 +297,8 @@
 .image-nav-btn {
   top: 50%;
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
+  width: 70px;
+  height: 70px;
   cursor: pointer;
   font-size: 18px;
   font-weight: bold;
@@ -375,8 +323,8 @@
   position: absolute;
   top: 50%;
   left: 40%;
-  width: 12px;
-  height: 12px;
+  width: 30px;
+  height: 30px;
   border-left: 3px solid var(--foodlist-arrow);
   border-bottom: 3px solid var(--foodlist-arrow);
   transform: translateY(-50%) rotate(45deg);
@@ -387,11 +335,11 @@
   position: absolute;
   top: 50%;
   left: 40%;
-  width: 12px;
-  height: 12px;
+  width: 30px;
+    height: 30px;
   border-right: 3px solid var(--foodlist-arrow);
   border-top: 3px solid var(--foodlist-arrow);
-  transform: translateY(-50%) rotate(45deg);
+  transform: translateY(-100%) rotate(45deg);
 }
 
 .dish-header {
@@ -591,9 +539,9 @@
     background: none;
   }
 
-    .carousel-controls {
-      top: 25%;
-    }
+  .carousel-controls {
+    top: 25%;
+  }
 
   .food-details-container {
     justify-content: start;

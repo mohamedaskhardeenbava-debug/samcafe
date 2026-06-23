@@ -101,12 +101,16 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
     slides[(renderIndex + 3) % slides.length]                  // slot 4 (far-right)
   ];
 
-  // FoodList should only render REAL menu categories
-  if (!category) {
+  // FoodList should only render REAL menu categories with at least one dish
+  if (!category || slides.length === 0) {
     return (
       <div className="food-list">
         <PageHeader
+<<<<<<< HEAD
           title="Category not found"
+=======
+          title={category ? "No dishes available" : "Category not found"}
+>>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
           wrapperClassName="food-header"
           titleClassName="food-list-title"
           onBack={handleBack}

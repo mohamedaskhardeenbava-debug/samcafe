@@ -5,10 +5,15 @@ import "./ThankYou.css";
 import { AnimatePresence, motion } from "framer-motion";
 import Button3D from "./shared/Button3D";
 import { groupBagItems, sizeNotesBagKey, stripCustomizedPrefix } from "./shared/bagUtils";
+<<<<<<< HEAD
+
+const AUTO_RESET_MS = 60000; // 1 minute
+=======
+>>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 
 const AUTO_RESET_MS = 60000; // 1 minute
 
-const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
+const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
   const navigate = useNavigate();
   const rawTableNo = localStorage.getItem("tableNo");
 
@@ -18,8 +23,6 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
       : null;
 
   const mode = tableNo ? "dine in" : "take away";
-
-  const orderPlaced = true;
 
   const isBagEmpty = bag.length === 0;
 
@@ -32,8 +35,6 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
   }, []);
 
   useEffect(() => {
-    if (!orderPlaced) return;
-
     const timer = setTimeout(() => {
       // 🔥 FULL CLEANUP
       setBag([]);
@@ -43,7 +44,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
     }, AUTO_RESET_MS);
 
     return () => clearTimeout(timer);
-  }, [orderPlaced, navigate, setBag, setIsBagOpen]);
+  }, [navigate, setBag, setIsBagOpen]);
 
   const totalAmount = bag.reduce(
     (sum, item) => sum + item.totalPrice,
@@ -103,16 +104,16 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
     >
       <div className="thankyou-card">
         <h1 className="thankyou-title">
-          {orderPlaced ? "Thank You for Your Order!" : "Your Bag"}
+          Thank You for Your Order!
         </h1>
 
-        {orderPlaced && (
-          <h5 className="thankyou-message">
-            Your order has been successfully placed and will be ready for <br />
-            <span className="table-number">
-              {mode === "dine in" ? "DINE IN" : "TAKE AWAY"}
-            </span>
+        <h5 className="thankyou-message">
+          Your order has been successfully placed and will be ready for <br />
+          <span className="table-number">
+            {mode === "dine in" ? "DINE IN" : "TAKE AWAY"}
+          </span>
 
+<<<<<<< HEAD
             {tableNo && (
               <>
                 {" "}and delivered to{" "}
@@ -144,8 +145,20 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
                 Add Dish
               </Button3D>
             </motion.div>
+=======
+          {tableNo && (
+            <>
+              {" "}and delivered to{" "}
+              <span className="table-number">
+                TABLE NUMBER #{tableNo}
+              </span>
+            </>
+>>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
           )}
-        </AnimatePresence>
+
+          <br />
+          within <span className="time">15–20 minutes</span>.
+        </h5>
 
         {!isBagEmpty && (
           <table className="order-table">
@@ -155,8 +168,6 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
                 <th>Dish</th>
                 <th>Price</th>
                 <th>Qty</th>
-                {!orderPlaced && <th>Edit</th>}
-                {!orderPlaced && <th>Delete</th>}
               </tr>
             </thead>
             <tbody>
@@ -196,6 +207,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
                     <td>₹{Math.round(item.totalPrice)}</td>
 
                     <td>{item.quantity}</td>
+<<<<<<< HEAD
 
                     {!orderPlaced && (
                       <td>
@@ -204,6 +216,8 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
                         </button>
                       </td>
                     )}
+=======
+>>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
                   </motion.tr>
                 ))}
               </AnimatePresence>
@@ -217,6 +231,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
           </div>
         )}
 
+<<<<<<< HEAD
         {orderPlaced && (
           <div style={{display:"flex", gap:"10px", alignItems:"center", marginTop:"16px"}}>
             <Button3D className="btn-3d green" onClick={handleOrderAnother} frontStyle={{padding:"0 10px"}}>
@@ -234,6 +249,17 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
             Order Another
           </Button3D>
         )}
+=======
+        <div style={{display:"flex", gap:"10px", alignItems:"center", marginTop:"16px"}}>
+          <Button3D className="btn-3d green" onClick={handleOrderAnother}>
+            Order Another
+          </Button3D>
+
+          <Button3D className="btn-3d red" onClick={handleLogout}>
+            Back to Home
+          </Button3D>
+        </div>
+>>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
       </div>
     </div>
   );

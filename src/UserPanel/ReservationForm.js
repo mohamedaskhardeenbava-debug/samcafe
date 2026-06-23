@@ -161,7 +161,10 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) e.email = "Invalid email";
     if (!form.guests || Number(form.guests) < 1) e.guests = "At least 1 guest required";
     if (!form.date) e.date = "Pick a date";
+<<<<<<< HEAD
     if (!form.time) e.time = "Pick a time";
+=======
+>>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
     else if (form.date < todayStr()) e.date = "Date cannot be in the past";
     if (!form.slotGroup) e.slotGroup = "Pick a dining slot";
     setErrors(e);
