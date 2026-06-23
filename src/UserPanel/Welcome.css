@@ -235,7 +235,7 @@
 .welcome-card-wrapper {
   position: relative;
   padding: 20px;
-  background-color: var(--bg-main);
+  background-color: #fff;
   opacity: 0.85;
   box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
   display: flex;
