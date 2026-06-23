@@ -2,6 +2,17 @@
    ── COMPREHENSIVE CSS VARIABLES SYSTEM ──
    Light & Dark Themes with Full Color Coverage
 ═══════════════════════════════════════════════════════════════════════════ */
+*,
+:root,
+html,
+body {
+  touch-action: manipulation !important;
+  -webkit-user-drag: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
 
 :root {
   /* LIGHT THEME (DEFAULT) */
@@ -681,6 +692,12 @@ image {
   object-fit: contain;
 }
 
+/* ------------------SubText-------------------- */
+.subtext {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
 @media screen and (max-width: 576px) {
   .floating-bell-wrapper {
     bottom: 16px;
@@ -1313,6 +1330,7 @@ image {
   align-content: center;
   height: 100%;
   min-height: 36px;
+  padding: 0 16px;
 }
 
 .btn-3d:hover {

@@ -633,6 +633,7 @@
 
 .combo-add-fav-actions {
   display: flex;
+  justify-content: right;
   gap: 10px;
 }
 

@@ -33,44 +33,58 @@ const calculateTotals = (bag) => {
     };
 };
 
-/** Fetches the logged-in user's name/mobile, or "Guest" if none is stored. */
+/** Fetches the logged-in user's name/mobile, or "Guest" if none is stored
+ *  or the lookup fails for any reason (don't let a user-lookup hiccup
+ *  block placing the order). */
 const resolveUser = async (userId) => {
     if (!userId) return { userName: "Guest", mobileNo: null };
 
-    const userRes = await api.get(`/users/${userId}`);
-    return {
-        userName: userRes.data?.name || "Guest",
-        mobileNo: userRes.data?.mobile || null
-    };
+    try {
+        const userRes = await api.get(`/users/${userId}`);
+        return {
+            userName: userRes.data?.name || "Guest",
+            mobileNo: userRes.data?.mobile || null
+        };
+    } catch (err) {
+        console.warn("Could not resolve user for order, falling back to Guest:", err);
+        return { userName: "Guest", mobileNo: null };
+    }
 };
 
-/** Deducts the ingredients consumed by this order from the stock collection. */
+/** Deducts the ingredients consumed by this order from the stock collection.
+ *  Failures here are logged but not thrown — stock-tracking is secondary
+ *  to the order itself already being saved, and a partial/failed stock
+ *  update should never make a successfully-placed order look like it failed. */
 const updateIngredientStock = async (bag) => {
-    const ingredientsRes = await api.get("/ingredients");
-    const allIngredients = ingredientsRes.data;
+    try {
+        const ingredientsRes = await api.get("/ingredients");
+        const allIngredients = ingredientsRes.data;
 
-    const stockUpdates = allIngredients
-        .map((ing) => {
-            let usedKg = 0;
-            bag.forEach((item) => {
-                (item.ingredients || []).forEach((i) => {
-                    if (i.name === ing.name) {
-                        usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
-                    }
+        const stockUpdates = allIngredients
+            .map((ing) => {
+                let usedKg = 0;
+                bag.forEach((item) => {
+                    (item.ingredients || []).forEach((i) => {
+                        if (i.name === ing.name) {
+                            usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
+                        }
+                    });
                 });
-            });
 
-            if (usedKg <= 0) return null;
+                if (usedKg <= 0) return null;
 
-            const updated = {
-                ...ing,
-                stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
-            };
-            return api.put(`/ingredients/${ing.id}`, updated);
-        })
-        .filter(Boolean);
+                const updated = {
+                    ...ing,
+                    stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
+                };
+                return api.put(`/ingredients/${ing.id}`, updated);
+            })
+            .filter(Boolean);
 
-    await Promise.all(stockUpdates);
+        await Promise.all(stockUpdates);
+    } catch (err) {
+        console.error("Failed to update ingredient stock after order placement:", err);
+    }
 };
 
 /** Best-effort fire-and-forget KOT print request — failures are silently ignored. */
@@ -85,7 +99,8 @@ const sendKotToPrinter = (savedOrder, totalWithGST) => {
         }
     };
 
-    fetch("http://localhost:9001/print/kot", {
+    const printServerUrl = process.env.REACT_APP_PRINT_SERVER_URL || "http://localhost:9001";
+    fetch(`${printServerUrl}/print/kot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ order: printerOrder })
@@ -131,7 +146,7 @@ export const placeOrder = async (bag) => {
     const { totalAmount, totalWithGST } = calculateTotals(bag);
 
     const newOrder = {
-        id: "pending",  // Server assigns the real incremental ID
+        id: "placed",  // Server assigns the real incremental ID
         ...(userId ? { userId } : {}),
         userName,
         ...(mobileNo ? { mobile: mobileNo } : {}),
