@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.13.2",
     "canvas-confetti": "^1.9.4",
+    "cross-env": "^10.1.0",
     "framer-motion": "^12.23.26",
     "json-server": "^0.17.4",
     "react": "^19.2.3",
