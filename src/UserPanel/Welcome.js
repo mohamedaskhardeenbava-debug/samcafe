@@ -376,7 +376,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           </div>
 
           <Button3D
-            className="btn-3d white"
+            className="btn-3d green"
             onClick={handleGuest}
           >
             Enter as Guest
