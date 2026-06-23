@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "./EventsPage.css";
-import homeIcon from "../assets/icons/home.png";
 import api from "../api";
-import { useToast } from "./Usetoast";
+import { useToast } from "../components/Usetoast";
 import closeIcon from "../assets/icons/close.png";
+import HomeButton from "./shared/HomeButton";
+import Button3D from "./shared/Button3D";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const formatDate = (iso) => {
@@ -405,15 +406,12 @@ const ScratchCard = ({ coupon, onDone }) => {
       )}
 
       {revealed && (
-        <button
+        <Button3D
           className="form-action-btn submit"
           onClick={onDone}
         >
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front">Use This Coupon</span>
-
-        </button>
+          Use This Coupon
+        </Button3D>
       )}
     </div>
   );
@@ -611,11 +609,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
         <div className="ep-hero-content">
           <div className="ep-hero-topbar">
             <button className="events-back-button" onClick={handleBack} />
-            <div className="home-btn  home-btn-icon" onClick={handleHome} >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-            </div>
+            <HomeButton onClick={handleHome} />
           </div>
           <div className="ep-hero-text">
             <h1 className="ep-hero-title">Experiences &<br />Special Events</h1>
@@ -627,17 +621,13 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
       {/* Filters */}
       <div className="ep-filter-section">
         <div className="ep-filter-scroll">
-          <button className={`chip ${filterType === "all" ? "active" : ""}`} onClick={() => setFilterType("all")}>
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">All Events</span>
-          </button>
+          <Button3D className={`chip ${filterType === "all" ? "active" : ""}`} onClick={() => setFilterType("all")}>
+            All Events
+          </Button3D>
           {availableTypes.map(t => (
-            <button key={t} className={`chip ${filterType === t ? "active" : ""}`} onClick={() => setFilterType(t)}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">{TYPE_LABEL[t] || t}</span>
-            </button>
+            <Button3D key={t} className={`chip ${filterType === t ? "active" : ""}`} onClick={() => setFilterType(t)}>
+              {TYPE_LABEL[t] || t}
+            </Button3D>
           ))}
         </div>
       </div>
@@ -739,11 +729,9 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                       ) : closed ? (
                         <button className="ep-booked-btn ep-closed-btn" disabled onClick={e => e.stopPropagation()}>Closed</button>
                       ) : (
-                        <button className="form-action-btn submit" onClick={e => { e.stopPropagation(); openEnroll(evt); }}>
-                          <span className="shadow"></span>
-                          <span className="edge"></span>
-                          <span className="front">Book Ticket</span>
-                        </button>
+                        <Button3D className="form-action-btn submit" onClick={e => { e.stopPropagation(); openEnroll(evt); }}>
+                          Book Ticket
+                        </Button3D>
                       )
                     )}
                   </div>
@@ -892,11 +880,9 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
 
             <div className="ep-sheet-cta">
               {isPast(selectedEvent.date) ? (
-                <button className="form-action-btn disabled">
-                  <span className="shadow"></span>
-                  <span className="edge"></span>
-                  <span className="front">Event Ended</span>
-                </button>
+                <Button3D className="form-action-btn disabled">
+                  Event Ended
+                </Button3D>
               ) : isBooked(selectedEvent.id) ? (
                 <div className="ep-cta-booked-stack">
                   <div className="ep-cta-booked">
@@ -907,27 +893,21 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                     </span>
                   </div>
                   {!isBookingClosed(selectedEvent) && (
-                    <button className="form-action-btn submit" onClick={() => openAddGuest(selectedEvent)}>
-                      <span className="shadow"></span>
-                      <span className="edge"></span>
-                      <span className="front">Add More Guests</span>
+                    <Button3D className="form-action-btn submit" onClick={() => openAddGuest(selectedEvent)}>
+                      Add More Guests
 
-                    </button>
+                    </Button3D>
                   )}
                 </div>
               ) : isBookingClosed(selectedEvent) ? (
-                <button className="form-action-btn disabled" disabled>
-                  <span className="shadow"></span>
-                  <span className="edge"></span>
-                  <span className="front">Booking Closed</span>
-                </button>
+                <Button3D className="form-action-btn disabled" disabled>
+                  Booking Closed
+                </Button3D>
               ) : (
-                <button className="form-action-btn done" onClick={() => openEnroll(selectedEvent)}>
+                <Button3D className="form-action-btn done" onClick={() => openEnroll(selectedEvent)}>
                   <span></span>
-                  <span className="shadow"></span>
-                  <span className="edge"></span>
-                  <span className="front">Book Ticket &amp; Win a Coupon</span>
-                </button>
+                  Book Ticket &amp; Win a Coupon
+                </Button3D>
               )}
             </div>
           </div>
@@ -1059,11 +1039,9 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                     New total: <strong>{bookedForEvent(selectedEvent.id)?.guests} guests</strong>
                   </p>
                 </div>
-                <button className="form-action-btn" style={{ margin: "20px 24px 0" }} onClick={() => { closeAddGuest(); setSelectedEvent(null); }}>
-                  <span className="shadow"></span>
-                  <span className="edge"></span>
-                  <span className="front">Done</span>
-                </button>
+                <Button3D className="form-action-btn" style={{ margin: "20px 24px 0" }} onClick={() => { closeAddGuest(); setSelectedEvent(null); }}>
+                  Done
+                </Button3D>
               </div>
             ) : (
               <>

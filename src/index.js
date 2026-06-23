@@ -4,8 +4,8 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from 'react-router-dom'
-import { ThemeProvider } from './UserPanel/ThemeContext';
-import { ToastProvider, ToastContainer } from './UserPanel/Usetoast';
+import { ThemeProvider } from './components/ThemeContext';
+import { ToastProvider, ToastContainer } from './components/Usetoast';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

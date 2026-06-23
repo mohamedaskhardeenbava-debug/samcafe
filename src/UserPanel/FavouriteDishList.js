@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import api from "../api";
 import "./FoodCategory.css";
 import "./FavouriteDishList.css";
-import homeIcon from "../assets/icons/home.png";
+import PageHeader from "./shared/PageHeader";
+import Button3D from "./shared/Button3D";
+import ConfirmDialog from "./shared/ConfirmDialog";
 
 const FavouriteDishList = ({
   foodData,
@@ -79,20 +80,16 @@ const FavouriteDishList = ({
   return (
     <div className="food-list fav-dish-page">
       {/* HEADER */}
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">
-          {category?.name || "Favourites"}
-        </div>
-        <div className="home-btn  home-btn-icon" onClick={handleHome}>
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
-      </div>
+      <PageHeader
+        title={category?.name || "Favourites"}
+        wrapperClassName="food-header"
+        titleClassName="food-list-title"
+        onBack={handleBack}
+        onHome={handleHome}
+      />
 
       {/* LIST */}
-      <div className="food-category" style={{padding:"0px"}}>
+      <div className="food-category" style={{ padding: "0px" }}>
         <div className="food-category-container">
           {dishes.length === 0 && (
             <p style={{ padding: "16px" }}>
@@ -127,18 +124,16 @@ const FavouriteDishList = ({
               </div>
 
               {isMyFavourites && (
-                <button
-                  className="action-btn"
+                <Button3D
+                  className="btn-3d red"
                   onClick={(e) => {
                     e.stopPropagation();
                     setDishToDelete(dish);
                     setShowDeleteConfirm(true);
                   }}
                 >
-                  <span className="shadow"></span>
-                  <span className="edge"></span>
-                  <span className="front">Delete</span>
-                </button>
+                  Delete
+                </Button3D>
               )}
             </div>
           ))}
@@ -146,46 +141,13 @@ const FavouriteDishList = ({
       </div>
 
       {/* DELETE CONFIRM OVERLAY */}
-      <AnimatePresence mode="wait">
-        {showDeleteConfirm && (
-          <motion.div
-            className="confirm-overlay"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <motion.div
-              className="confirm-box"
-              initial={{ scale: 0.95, y: 20, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <h3>Remove Favourite</h3>
-              <p>
-                Are you sure you want to remove
-                <strong> {dishToDelete?.name}</strong>?
-              </p>
-
-              <div className="confirm-actions">
-                <button
-                  className="confirm-cancel"
-                  onClick={() => setShowDeleteConfirm(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  className="confirm-remove"
-                  onClick={confirmDeleteFavourite}
-                >
-                  Remove
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Remove Favourite"
+        message={<>Are you sure you want to remove <strong>{dishToDelete?.name}</strong>?</>}
+        onConfirm={confirmDeleteFavourite}
+        onCancel={() => setShowDeleteConfirm(false)}
+      />
     </div>
   );
 };

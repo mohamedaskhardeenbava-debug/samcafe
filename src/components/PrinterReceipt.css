@@ -353,7 +353,7 @@
     align-items: center;
     width: 100%;
     max-width: 500px;
-    height: calc(100vh - 72px);
+    height: calc(100vh - 80px);
 }
 
 @keyframes pr-slide-up {
@@ -493,6 +493,7 @@
     }
 
     .receipt-wrapper {
+        max-height: 340px;
         left: 42px;
     }
 
@@ -501,7 +502,18 @@
     }
 
     .pr-done-btn-wrap {
-        margin-top: 500px;
+        margin-top: 450px;
     }
 
+}
+
+@media (max-height: 600px) {
+    .receipt-wrapper {
+        top: 160px;
+        max-height: 360px;
+    }
+
+    .pr-done-btn-wrap {
+        margin-top: 360px;
+    }
 }

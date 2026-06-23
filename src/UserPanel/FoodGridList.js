@@ -2,8 +2,11 @@ import React, { useState, useMemo } from "react";
 import "./FoodGridList.css";
 import { useParams, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import homeIcon from "../assets/icons/home.png";
-import { flyToBag } from "./flyToBag";
+import { flyToBag } from "../components/flyToBag";
+import PageHeader from "./shared/PageHeader";
+import Button3D from "./shared/Button3D";
+import MatField from "./shared/MatField";
+import { buildDishBagItem } from "./shared/bagUtils";
 
 /* ─── Grid container: staggers children on mount/key change ── */
 const gridVariants = {
@@ -18,6 +21,13 @@ const cardVariants = {
     show: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] } },
     exit: { opacity: 0, y: -10, scale: 0.95, transition: { duration: 0.18, ease: [0.4, 0, 1, 1] } }
 };
+
+const SORT_OPTIONS = [
+    { val: "default", label: "Default" },
+    { val: "price_asc", label: "↑ Price" },
+    { val: "price_desc", label: "↓ Price" },
+    { val: "name", label: "A → Z" }
+];
 
 const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
     const { categoryId } = useParams();
@@ -58,62 +68,42 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
     // AFTER hooks
     if (!category) return null;
 
+    const handleAdd = (dish) => (e) => {
+        e.stopPropagation();
+        const img = e.currentTarget.closest(".food-grid-card")?.querySelector(".food-grid-card-img");
+        addToBag(buildDishBagItem(dish, categoryId, { __pendingImage: true }));
+        flyToBag({ imgEl: img, dishId: dish.id, customizationKey: "" });
+    };
+
     return (
         <div className="food-grid-page">
             {/* HEADER */}
-            <div className="food-grid-header">
-                <button className="back-button" onClick={handleBack} />
-                <div className="food-grid-title">{category.name}</div>
-                <div className="home-btn home-btn-icon" onClick={handleHome}>
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-                </div>
-            </div>
+            <PageHeader title={category.name} onBack={handleBack} onHome={handleHome} />
 
             {/* TOOLBAR: search + sort */}
             <div className="food-grid-toolbar">
                 <div className="food-grid-search-wrap">
-
-                    <div class="field-group">
-                        <div class="mat">
-                            <input
-                                class="mat-input"
-                                placeholder=" "
-                                value=""
-                                type="text"
-                                placeholder="Search dishes…"
-                                value={search}
-                                onChange={e => setSearch(e.target.value)}
-                            />
-                            <label class="mat-label">
-                                Search dishes…
-                            </label>
-                            <span class="mat-bar">
-                            </span
-                            ></div>
-                    </div>
+                    <MatField
+                        wrapperClassName="field-group"
+                        label="Search dishes…"
+                        type="text"
+                        value={search}
+                        onChange={e => setSearch(e.target.value)}
+                    />
                     {search && (
                         <button className="food-grid-search-clear" onClick={() => setSearch("")} aria-label="Clear">✕</button>
                     )}
                 </div>
 
                 <div className="food-grid-sort">
-                    {[
-                        { val: "default", label: "Default" },
-                        { val: "price_asc", label: "↑ Price" },
-                        { val: "price_desc", label: "↓ Price" },
-                        { val: "name", label: "A → Z" },
-                    ].map(opt => (
-                        <button
+                    {SORT_OPTIONS.map(opt => (
+                        <Button3D
                             key={opt.val}
-                            className={`fgl-sort-btn ${sortBy === opt.val ? "active" : ""}`}
+                            className={`sort-btn ${sortBy === opt.val ? "active" : ""}`}
                             onClick={() => setSortBy(opt.val)}
                         >
-                            <span className="shadow"></span>
-                            <span className="edge"></span>
-                            <span className="front">{opt.label}</span>
-                        </button>
+                            {opt.label}
+                        </Button3D>
                     ))}
                 </div>
 
@@ -149,25 +139,8 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
                             <DishCard
                                 key={dish.id}
                                 dish={dish}
-                                categoryId={categoryId}
                                 onView={() => navigate(`/foods/${categoryId}`, { state: { dishId: dish.id } })}
-                                onAdd={e => {
-                                    e.stopPropagation();
-                                    const img = e.currentTarget.closest(".food-grid-card")?.querySelector(".food-grid-card-img");
-                                    addToBag({
-                                        id: dish.id,
-                                        name: dish.name,
-                                        image: dish.image,
-                                        categoryId,
-                                        quantity: 1,
-                                        unitPrice: dish.basePrice,
-                                        totalPrice: dish.basePrice,
-                                        isCustomized: false,
-                                        notes: "",
-                                        __pendingImage: true
-                                    });
-                                    flyToBag({ imgEl: img, dishId: dish.id, customizationKey: "" });
-                                }}
+                                onAdd={handleAdd(dish)}
                             />
                         ))}
                     </motion.div>

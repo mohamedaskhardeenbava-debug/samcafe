@@ -1,6 +1,6 @@
 import "./SubCategoryPage.css";
 import { useParams, useNavigate } from "react-router-dom";
-import homeIcon from "../assets/icons/home.png";
+import HomeButton from "./shared/HomeButton";
 
 const SubCategoryPage = ({ foodData, handleBack, handleHome }) => {
     const { categoryId } = useParams();
@@ -18,11 +18,7 @@ const SubCategoryPage = ({ foodData, handleBack, handleHome }) => {
             <div className="food-grid-header">
                 <button className="back-button" onClick={handleBack} />
                 <div className="food-grid-title">{category?.name}</div>
-                <div className="home-btn  home-btn-icon" onClick={handleHome} >
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-                </div>
+                <HomeButton onClick={handleHome} />
             </div>
 
             <div className="food-category-container">

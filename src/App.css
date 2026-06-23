@@ -1099,18 +1099,18 @@ image {
   transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
 }
 
-.floating-btn:hover .shadow{
+.floating-btn:hover .shadow {
   transform: translateY(4px);
   transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
 }
 
-.floating-btn:active .shadow{
+.floating-btn:active .shadow {
   transform: translateY(1px);
   transition: transform 34ms;
 }
 
 /* edge — inactive (neutral grey) */
-.floating-btn .edge{
+.floating-btn .edge {
   position: absolute;
   top: 0;
   left: 0;
@@ -1119,9 +1119,9 @@ image {
   border-radius: 999px;
   background: linear-gradient(to left,
       var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 /* front — inactive */
@@ -1196,9 +1196,9 @@ image {
   border-radius: 999px;
   background: linear-gradient(to left,
       hsl(0, 0%, 42%) 0%,
-        hsl(0, 0%, 52%) 8%,
-        hsl(0, 0%, 52%) 92%,
-        hsl(0, 0%, 42%) 100%);
+      hsl(0, 0%, 52%) 8%,
+      hsl(0, 0%, 52%) 92%,
+      hsl(0, 0%, 42%) 100%);
 }
 
 /* front — inactive */
@@ -1224,4 +1224,686 @@ image {
 .theme-toggle:hover .front {
   transform: translateY(-6px);
   transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+/* ------------------------BACK BUTTON----------------------------- */
+.back-button {
+  width: 30px;
+  height: 50px;
+  border-radius: 25px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+
+.back-button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 12px;
+  height: 12px;
+  border-left: 3px solid var(--text-primary);
+  border-bottom: 3px solid var(--text-primary);
+  transform: translateY(-50%) rotate(45deg);
+}
+
+/* --------------------------- 3D Button ---------------------------- */
+
+.btn-3d {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+
+.btn-3d .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  background: hsl(0deg 0% 0% / 0.25);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.btn-3d:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.btn-3d:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* ── Show-more variant — green ── */
+.btn-3d .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+}
+
+.btn-3d .front {
+  display: block;
+  position: relative;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+  padding: 0;
+  align-content: center;
+  height: 100%;
+  min-height: 36px;
+}
+
+.btn-3d:hover {
+  filter: brightness(108%);
+}
+
+.btn-3d:hover .front {
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.btn-3d:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.btn-3d:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.red .edge {
+  background: linear-gradient(to left,
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
+}
+
+.red .front {
+  background: var(--color-red);
+  color: #fff;
+}
+
+.green .edge {
+  background: linear-gradient(to left,
+      var(--edge-color-green-dark) 0%,
+      var(--edge-color-green-light) 8%,
+      var(--edge-color-green-light) 92%,
+      var(--edge-color-green-dark) 100%);
+}
+
+.green .front {
+  background: var(--color-green);
+  color: #fff;
+}
+
+.white .edge {
+  background: linear-gradient(to left,
+      hsl(0, 0%, 42%) 0%,
+      hsl(0, 0%, 52%) 8%,
+      hsl(0, 0%, 52%) 92%,
+      hsl(0, 0%, 42%) 100%);
+}
+
+.white .front {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.btn-3d img {
+  width: 20px;
+  aspect-ratio: 1/1;
+}
+
+/* --------------------3D SORT BUTTON -------------------------- */
+
+/* Sort pills — 3D push */
+.sort-btn {
+  position: relative;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.sort-btn .shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: hsl(0deg 0% 0% / 0.22);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.sort-btn:hover .shadow {
+  transform: translateY(4px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.sort-btn:active .shadow {
+  transform: translateY(1px);
+  transition: transform 34ms;
+}
+
+/* edge — inactive (neutral grey) */
+.sort-btn .edge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(to left,
+      hsl(0, 0%, 42%) 0%,
+      hsl(0, 0%, 52%) 8%,
+      hsl(0, 0%, 52%) 92%,
+      hsl(0, 0%, 42%) 100%);
+}
+
+/* front — inactive */
+.sort-btn .front {
+  display: block;
+  position: relative;
+  padding: 7px 15px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-main);
+  will-change: transform;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
+}
+
+.sort-btn:hover {
+  filter: brightness(108%);
+}
+
+.sort-btn:hover .front {
+  color: var(--color-red);
+  transform: translateY(-6px);
+  transition: transform 250ms cubic-bezier(.3, .7, .4, 1.5);
+}
+
+.sort-btn:active .front {
+  transform: translateY(-2px);
+  transition: transform 34ms;
+}
+
+.sort-btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* edge — active (red) */
+.sort-btn.active .edge {
+  background: linear-gradient(to left,
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
+}
+
+/* front — active */
+.sort-btn.active .front {
+  color: var(--bg-main);
+  background: var(--color-red);
+}
+
+.active-all .edge {
+  background: linear-gradient(to left,
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
+}
+
+.active-all .front {
+  background: var(--color-red);
+  color: var(--bg-main);
+}
+
+.active-veg .edge {
+  background: linear-gradient(to left,
+      hsl(98, 100%, 16%) 0%,
+      hsl(98, 100%, 20%) 8%,
+      hsl(98, 100%, 20%) 92%,
+      hsl(98, 100%, 16%) 100%);
+}
+
+.active-veg .front {
+  background: var(--color-green);
+  color: var(--bg-main);
+}
+
+.active-nonveg .edge {
+  background: linear-gradient(to left,
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
+}
+
+.active-nonveg .front {
+  background: var(--color-red);
+  color: var(--bg-main);
+}
+
+.active-veg:hover .front,
+.active-nonveg:hover .front {
+  color: #fff;
+}
+
+/* ------------------- MAT INPUT --------------------------- */
+/* ══════════════════════════════
+   INPUT — no box, only underline
+══════════════════════════════ */
+
+/* ── Input ── */
+.mat-input {
+  height: 46px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-very-light);
+  outline: none;
+  transition: border-color 0.9s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.mat-input:focus {
+  border-color: var(--color-red);
+  background: var(--bg-main);
+  box-shadow: 0 0 0 3px var(--shadow-red-sm);
+}
+
+.mat-input.error {
+  border-color: var(--color-red) !important;
+}
+
+.mat-input-prefix-wrap {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-very-light);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.mat-input-prefix-wrap div {
+  width: 100%;
+}
+
+.mat-input-prefix-wrap:focus-within {
+  border-color: var(--color-red);
+  background: var(--bg-main);
+  box-shadow: 0 0 0 3px var(--shadow-red-sm);
+}
+
+.mat-prefix {
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  border-right: 1px solid var(--border-lightest);
+  height: 46px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  background: var(--border-lighter);
+}
+
+.mat-input-with-prefix {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  flex: 1;
+}
+
+/* ── Row ── */
+.mat-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.mat-row .field-group {
+  min-width: 0;
+}
+
+.mat-input {
+  display: block !important;
+  width: 100% !important;
+  height: 36px !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  font-family: inherit !important;
+  color: var(--m-text) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--m-underline) !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  caret-color: var(--m-accent) !important;
+  transition: border-color 0.7s var(--m-ease) !important;
+  border-bottom-color: var(--text-tertiary) !important;
+}
+
+.mat-input::placeholder {
+  color: transparent !important;
+}
+
+.mat-input:hover {
+  border: none !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--text-tertiary) !important;
+}
+
+.mat-input.error,
+.mat-input-prefix-wrap.error {
+  border-bottom: 2px solid var(--m-accent) !important;
+}
+
+/* ══════════════════════════════
+   FLOATING LABEL
+══════════════════════════════ */
+.mat-label {
+  position: absolute;
+  top: 24px;
+  /* sits on the baseline when idle */
+  left: 0;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--m-label-idle);
+  pointer-events: none;
+  transition:
+    top 0.25s var(--m-ease),
+    font-size 0.25s var(--m-ease),
+    font-weight 0.25s var(--m-ease),
+    color 0.25s var(--m-ease),
+    letter-spacing 0.25s var(--m-ease);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Floated state — focus OR has value */
+.mat-input:focus~.mat-label,
+.mat-input:not(:placeholder-shown)~.mat-label {
+  top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--m-accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mat-input.error~.mat-label {
+  color: var(--m-accent);
+}
+
+/* ══════════════════════════════
+   HIGHLIGHT BAR — draws left→right
+══════════════════════════════ */
+.mat-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--m-accent);
+  border-radius: 1px;
+  transition: width 0.3s var(--m-spring);
+  pointer-events: none;
+}
+
+.mat-input:focus~.mat-label~.mat-bar,
+.mat-input:focus~.mat-bar {
+  width: 100%;
+}
+
+.mat-input.error~.mat-bar {
+  width: 100%;
+}
+
+/* ══════════════════════════════
+   PREFIX WRAP — phone field
+══════════════════════════════ */
+.mat-input-prefix-wrap {
+  display: flex !important;
+  align-items: flex-end !important;
+  border: none !important;
+  border-bottom: 2px solid var(--m-underline) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  height: auto !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  transition: border-color 0.25s var(--m-ease) !important;
+}
+
+/* The bar for prefix fields lives on mat via :focus-within */
+.mat:focus-within .mat-input-prefix-wrap {
+  border-bottom-color: transparent !important;
+  /* bar covers it */
+}
+
+.mat:focus-within .mat-bar {
+  width: 100%;
+}
+
+.mat:focus-within .mat-label {
+  top: 2px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--m-accent);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mat-prefix {
+  height: 36px !important;
+  vertical-align: middle !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: var(--text-primary);
+  background: transparent !important;
+  border: none !important;
+  flex-shrink: 0 !important;
+  letter-spacing: 0.02em !important;
+  line-height: 1 !important;
+}
+
+.mat-prefix.error {
+  color: var(--m-accent) !important;
+}
+
+.mat-input-with-prefix {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  flex: 1 !important;
+  padding-left: 4px !important;
+  transition: border-color 0.7s var(--m-ease) !important;
+  border-bottom: 1px solid var(--text-tertiary) !important;
+}
+
+/* ══════════════════════════════
+   TEXTAREA
+══════════════════════════════ */
+.mat-area {
+  position: relative;
+  width: 100%;
+  padding-top: 20px;
+}
+
+.mat-area-label {
+  position: absolute;
+  top: 28px;
+  left: 0;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--m-label-idle);
+  pointer-events: none;
+  transition: top 0.25s var(--m-ease), font-size 0.25s var(--m-ease),
+    font-weight 0.25s var(--m-ease), color 0.25s var(--m-ease),
+    letter-spacing 0.25s var(--m-ease);
+  line-height: 1;
+}
+
+.mat-area-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: var(--m-accent);
+  border-radius: 1px;
+  transition: width 0.3s var(--m-spring);
+  pointer-events: none;
+}
+
+/* Char counter */
+.mat-char {
+  position: absolute;
+  bottom: 6px;
+  right: 0;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--m-label-idle);
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  letter-spacing: 0.04em;
+}
+
+/* ══════════════════════════════
+   ERROR
+══════════════════════════════ */
+.rf-error {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--m-accent) !important;
+  margin-top: 5px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  animation: m-err 0.22s var(--m-ease) both !important;
+  padding-left: 0 !important;
+}
+
+@keyframes m-err {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ══════════════════════════════
+   FIELD ENTRY STAGGER
+══════════════════════════════ */
+@keyframes m-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mat,
+.mat-area {
+  animation: m-in 0.3s var(--m-ease) both;
+}
+
+.field-group:nth-child(1) .mat {
+  animation-delay: 0.04s;
+}
+
+.field-group:nth-child(2) .mat {
+  animation-delay: 0.08s;
+}
+
+.field-group:nth-child(3) .mat {
+  animation-delay: 0.12s;
+}
+
+.mat-row .field-group:nth-child(1) .mat {
+  animation-delay: 0.1s;
+}
+
+.mat-row .field-group:nth-child(2) .mat {
+  animation-delay: 0.15s;
+}
+
+/* inline row — items side by side, no stretching */
+.mat-row-inline {
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sq-padding .front {
+  height: 40px !important;
+  width: 40px !important;
+  padding: 0 !important;
+}
+
+
+
+@media (max-width: 578px) {
+  .sort-btn .front {
+    padding: 5px 10px;
+    font-size: 11px;
+  }
+
+  .mat-row-inline {
+    flex-direction: column;
+  }
 }

@@ -108,9 +108,7 @@
 .builder-item.active {
     background: var(--color-red);
     color: var(--text-primary);
-    box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
-        rgba(0, 0, 0) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
-        rgba(0, 0, 0, 0.09) 0px 32px 16px;
+    box-shadow: var(--card-shadow)
 }
 
 .builder-item-image {
@@ -291,124 +289,6 @@
 
 .appetizer-qty-btn:hover {
     transform: scale(1.1);
-}
-
-/* ----------------- */
-
-/* BASE 3D BUTTON */
-.appetizer-add-btn,
-.appetizer-delete-btn,
-.appetizer-qty-btn {
-    position: relative;
-    border: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    outline-offset: 4px;
-}
-
-/* shadow */
-.appetizer-add-btn .shadow,
-.appetizer-delete-btn .shadow,
-.appetizer-qty-btn .shadow {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    transform: translateY(2px);
-    transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
-}
-
-/* edge */
-.appetizer-add-btn .edge,
-.appetizer-delete-btn .edge,
-.appetizer-qty-btn .edge {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    border-radius: inherit;
-}
-
-/* front */
-.appetizer-add-btn .front,
-.appetizer-delete-btn .front,
-.appetizer-qty-btn .front {
-    display: block;
-    position: relative;
-    transform: translateY(-4px);
-    transition: transform 250ms cubic-bezier(.3, .7, .4, 1);
-    font-weight: 700;
-}
-
-.appetizer-add-btn {
-    width: 160px;
-    border-radius: 12px;
-}
-
-.appetizer-add-btn .shadow {
-    background: var(--color-green);
-}
-
-.appetizer-add-btn .edge {
-    background: linear-gradient(to left,
-                var(--edge-color-green-dark) 0%,
-                var(--edge-color-green-light) 8%,
-                var(--edge-color-green-light) 92%,
-                var(--edge-color-green-dark) 100%);
-}
-
-.appetizer-add-btn .front {
-    padding: 12px 20px;
-    border-radius: 12px;
-    background: var(--color-green);
-    color: white;
-}
-
-.appetizer-delete-btn {
-    width: 120px;
-    border-radius: 10px;
-}
-
-.appetizer-delete-btn .shadow {
-    background: var(--color-red);
-}
-
-.appetizer-delete-btn .edge {
-    background: linear-gradient(to left,
-                var(--edge-color-dark) 0%,
-                var(--edge-color-light) 8%,
-                var(--edge-color-light) 92%,
-                var(--edge-color-dark) 100%);
-}
-
-.appetizer-delete-btn .front {
-    padding: 10px 16px;
-    border-radius: 10px;
-    background: var(--color-red);
-    color: white;
-}
-
-.appetizer-add-btn:hover .front,
-.appetizer-delete-btn:hover .front,
-.appetizer-qty-btn:hover .front {
-    transform: translateY(-6px);
-}
-
-.appetizer-add-btn:active .front,
-.appetizer-delete-btn:active .front,
-.appetizer-qty-btn:active .front {
-    transform: translateY(-2px);
-}
-
-.appetizer-add-btn:hover .shadow,
-.appetizer-delete-btn:hover .shadow,
-.appetizer-qty-btn:hover .shadow {
-    transform: translateY(4px);
-}
-
-.appetizer-add-btn:active .shadow,
-.appetizer-delete-btn:active .shadow,
-.appetizer-qty-btn:active .shadow {
-    transform: translateY(1px);
 }
 
 @media screen and (max-width: 992px) {
@@ -594,11 +474,5 @@
     .final-name,
     .final-price {
         font-size: 20px;
-    }
-
-    .appetizer-add-btn,
-    .appetizer-delete-btn {
-        font-size: 12px;
-        padding: 6px 12px;
     }
 }

@@ -3,6 +3,10 @@ import { useEffect } from "react";
 import confetti from "canvas-confetti";
 import "./ThankYou.css";
 import { AnimatePresence, motion } from "framer-motion";
+import Button3D from "./shared/Button3D";
+import { groupBagItems, sizeNotesBagKey, stripCustomizedPrefix } from "./shared/bagUtils";
+
+const AUTO_RESET_MS = 60000; // 1 minute
 
 const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
   const navigate = useNavigate();
@@ -36,7 +40,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
       setIsBagOpen(false);
       localStorage.removeItem("userId");
       navigate("/");
-    }, 60000); // 1 minute
+    }, AUTO_RESET_MS);
 
     return () => clearTimeout(timer);
   }, [orderPlaced, navigate, setBag, setIsBagOpen]);
@@ -46,54 +50,51 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
     0
   );
 
-  const getDisplayName = (item) => {
-    if (!item?.name) return "";
+  const getDisplayName = (item) =>
+    item?.isCustomized ? stripCustomizedPrefix(item.name) : (item?.name || "");
 
-    // remove prefix ONLY for Make Your Own
-    if (
-      item.isCustomized &&
-      item.name.startsWith("Customized Make Your Own")
-    ) {
-      return item.name.replace("Customized ", "");
-    }
-
-    return item.name;
-  };
-
-  const groupedBag = Object.values(
-    bag.reduce((acc, item, index) => {   // ✅ index declared here
-      const groupKey = [
-        item.id,
-        item.selectedSize || "",
-        item.notes || "",
-        item.isCustomized ? "custom" : "normal"
-      ].join("__");
-
-      if (!acc[groupKey]) {
-        acc[groupKey] = {
-          ...item,
-          groupKey,
-          indices: [index]   // ✅ now valid
-        };
-      } else {
-        acc[groupKey].quantity += item.quantity;
-        acc[groupKey].totalPrice += item.totalPrice;
-        acc[groupKey].indices.push(index); // ✅ ALSO IMPORTANT
-      }
-
-      return acc;
-    }, {})
-  );
+  const groupedBag = groupBagItems(bag, sizeNotesBagKey);
 
   const handleOrderAnother = () => {
     navigate("/categories");
-    setBag([])
+    setBag([]);
   };
 
   const handleLogout = () => {
     setBag([]);
     localStorage.removeItem("userId");
     navigate("/");
+  };
+
+  const handleEdit = (item) => {
+    setIsBagOpen(false);
+
+    if (item.isCombo) {
+      navigate("/combo", {
+        state: {
+          fromBag: true,
+          bagIndex: item.indices[0],
+          comboItems: item.comboItems,
+          originalPrice: item.originalPrice,
+          totalPrice: item.totalPrice,
+          appliedOffer: item.appliedOffer,
+          quantity: item.quantity
+        }
+      });
+    } else {
+      navigate(`/food/${item.id}`, {
+        state: {
+          fromBag: true,
+          bagIndex: item.indices[0],
+          bagItem: {
+            ...item,
+            ingredients: Array.isArray(item.ingredients) ? item.ingredients : []
+          },
+          categoryId: item.categoryId,
+          dishId: item.id
+        }
+      });
+    }
   };
 
   return (
@@ -139,14 +140,9 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
                 Your bag is empty. Please add a dish to continue.
               </p>
 
-              <button
-                className="ty-add-dish-btn"
-                onClick={() => navigate("/categories")}
-              >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">Add Dish</span>
-              </button>
+              <Button3D className="btn-3d red" onClick={() => navigate("/categories")}>
+                Add Dish
+              </Button3D>
             </motion.div>
           )}
         </AnimatePresence>
@@ -203,40 +199,7 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
 
                     {!orderPlaced && (
                       <td>
-                        <button
-                          onClick={() => {
-                            setIsBagOpen(false);
-
-                            if (item.isCombo) {
-                              navigate("/combo", {
-                                state: {
-                                  fromBag: true,
-                                  bagIndex: item.indices[0],   // ✅ FIXED
-                                  comboItems: item.comboItems,
-                                  originalPrice: item.originalPrice,
-                                  totalPrice: item.totalPrice,
-                                  appliedOffer: item.appliedOffer,
-                                  quantity: item.quantity
-                                }
-                              });
-                            } else {
-                              navigate(`/food/${item.id}`, {
-                                state: {
-                                  fromBag: true,
-                                  bagIndex: item.indices[0],   // ✅ FIXED
-                                  bagItem: {
-                                    ...item,
-                                    ingredients: Array.isArray(item.ingredients)
-                                      ? item.ingredients
-                                      : []
-                                  },
-                                  categoryId: item.categoryId,
-                                  dishId: item.id
-                                }
-                              });
-                            }
-                          }}
-                        >
+                        <button onClick={() => handleEdit(item)}>
                           Edit
                         </button>
                       </td>
@@ -255,32 +218,21 @@ const ThankYou = ({ bag, setBag, onOrderPlaced, setIsBagOpen }) => {
         )}
 
         {orderPlaced && (
-          <>
-            <button className="ty-order-btn" onClick={handleOrderAnother}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Order Another</span>
-            </button>
+          <div style={{display:"flex", gap:"10px", alignItems:"center", marginTop:"16px"}}>
+            <Button3D className="btn-3d green" onClick={handleOrderAnother} frontStyle={{padding:"0 10px"}}>
+              Order Another
+            </Button3D>
 
-            <button className="ty-done-btn" onClick={handleLogout}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Back to Home</span>
-            </button>
-          </>
+            <Button3D className="btn-3d red" onClick={handleLogout} frontStyle={{ padding: "0 10px" }}>
+              Back to Home
+            </Button3D>
+          </div>
         )}
 
         {!isBagEmpty && !orderPlaced && (
-          <>
-            <button
-              className="ty-order-btn"
-              onClick={() => navigate("/categories")}
-            >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Order Another</span>
-            </button>
-          </>
+          <Button3D className="ty-order-btn" onClick={() => navigate("/categories")} frontStyle={{ padding: "0 10px" }}>
+            Order Another
+          </Button3D>
         )}
       </div>
     </div>

@@ -5,8 +5,16 @@ import caloriesIcon from "../assets/icons/calorie.png";
 import proteinIcon from "../assets/icons/protein.png";
 import fibreIcon from "../assets/icons/fiber.png";
 import fatIcon from "../assets/icons/fat.png";
-import homeIcon from "../assets/icons/home.png";
-import { flyToBag } from "./flyToBag";
+import { flyToBag } from "../components/flyToBag";
+import PageHeader from "./shared/PageHeader";
+import Button3D from "./shared/Button3D";
+
+const NUTRITION_FIELDS = [
+  [caloriesIcon, "Calories", "calories", "kcal"],
+  [proteinIcon, "Protein", "protein", "g"],
+  [fibreIcon, "Fibre", "fibre", "g"],
+  [fatIcon, "Fat", "fat", "g"]
+];
 
 const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, currentUser }) => {
   const { dishId, source } = useParams();
@@ -47,39 +55,67 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
   if (!dish) {
     return (
       <div className="food-list">
-        <div className="food-header">
-          <button
-            className="back-button"
-            onClick={handleBack}
-          />
-          <div className="food-list-title">
-            Dish not found
-          </div>
-          <div className="home-btn  home-btn-icon" onClick={handleHome} >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-          </div>
-        </div>
+        <PageHeader
+          title="Dish not found"
+          wrapperClassName="food-header"
+          titleClassName="food-list-title"
+          onBack={handleBack}
+          onHome={handleHome}
+        />
       </div>
     );
   }
 
+  const visibleIngredients = (dish.ingredients || []).filter((ing) => {
+    const full = foodData.ingredients.find(i => i.id === ing.id);
+
+    if (!full) return true;
+
+    const isGloballyDisabled = full.isDisabledGlobally === true;
+    const isDisabledForDish =
+      Array.isArray(full.disabledForDishes) &&
+      full.disabledForDishes.includes(dish.id);
+
+    return !(isGloballyDisabled || isDisabledForDish);
+  });
+
+  const visibleNutrition = NUTRITION_FIELDS.filter(
+    ([, , key]) => dish.benefits?.[key] !== undefined
+  );
+
+  const dishPrice = Math.round(dish.totalPrice ?? dish.basePrice ?? 0);
+
+  const handleAddToBag = () => {
+    const img = document.querySelector(
+      `.fav-image[data-fav-dish-id="${dish.id}"]`
+    );
+
+    const price = dish.totalPrice ?? dish.basePrice ?? 0;
+    addToBag({
+      ...dish,
+      quantity: 1,
+      unitPrice: price,
+      totalPrice: price,
+      isCustomized: false,
+      isFromFavourite: true
+    });
+    flyToBag({
+      imgEl: img,
+      dishId: dish.id
+    });
+  };
+
   return (
     <div className="food-list">
       {/* HEADER – same as FoodList */}
-      <div className="food-header">
-        <button
-          className="back-button"
-          onClick={handleBack}
-        />
-        <h2 className="fav-title">{dish.name}</h2>
-        <div className="home-btn  home-btn-icon" onClick={handleHome}>
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
-      </div>
+      <PageHeader
+        title={dish.name}
+        titleTag="h2"
+        titleClassName="fav-title"
+        wrapperClassName="food-header"
+        onBack={handleBack}
+        onHome={handleHome}
+      />
 
       <div className="fav-detail-container">
         {/* LEFT PANEL */}
@@ -97,7 +133,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
             <h2 className="fav-title">{dish.name}</h2>
 
             <div className="fav-price">
-              ₹{Math.round(dish.totalPrice ?? dish.basePrice ?? 0)}
+              ₹{dishPrice}
             </div>
           </div>
 
@@ -119,73 +155,49 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           <div className="fav-ingredient-container">
             <h4>Add-ons</h4>
             <ul className="fav-ingredients-grid">
-              {(dish.ingredients || [])
-                .filter((ing) => {
-                  const full = foodData.ingredients.find(i => i.id === ing.id);
-
-                  if (!full) return true;
-
-                  const isGloballyDisabled = full.isDisabledGlobally === true;
-                  const isDisabledForDish =
-                    Array.isArray(full.disabledForDishes) &&
-                    full.disabledForDishes.includes(dish.id);
-
-                  if (isGloballyDisabled) return false;
-                  if (isDisabledForDish) return false;
-
-                  return true;
-                })
-                .map((ing) => (
-                  <li key={ing.name} className="fav-ingredient-item" onClick={() => {
-                    navigate(`/ingredient/${ing.id}`);
-                  }}>
-                    <div className="fav-ingredient-img" />
-                    <div className="fav-ingredient-info">
-                      <div className="fav-ingredient-name">{ing.name}</div>
-                      <div className="fav-ingredient-qty">{ing.quantity} g</div>
-                    </div>
-                  </li>
-                ))}
+              {visibleIngredients.map((ing) => (
+                <li
+                  key={ing.name}
+                  className="fav-ingredient-item"
+                  onClick={() => navigate(`/ingredient/${ing.id}`)}
+                >
+                  <div className="fav-ingredient-img" />
+                  <div className="fav-ingredient-info">
+                    <div className="fav-ingredient-name">{ing.name}</div>
+                    <div className="fav-ingredient-qty">{ing.quantity} g</div>
+                  </div>
+                </li>
+              ))}
             </ul>
           </div>
 
-
-          {dish.benefits && (
+          {dish.benefits && visibleNutrition.length > 0 && (
             <div className="fav-nutrition-container">
               <h4>Nutritional Benefits</h4>
               <div className="fav-nutrition">
-
-                {[
-                  [caloriesIcon, "Calories", dish.benefits?.calories, "kcal"],
-                  [proteinIcon, "Protein", dish.benefits?.protein, "g"],
-                  [fibreIcon, "Fibre", dish.benefits?.fibre, "g"],
-                  [fatIcon, "Fat", dish.benefits?.fat, "g"]
-                ]
-                  .filter(([_, __, value]) => value !== undefined)
-                  .map(([icon, label, value, unit]) => (
-                    <div className="fav-nutrition-item" key={label}>
-                      <div className="fav-nutrition-image">
-                        <img src={icon} alt={label} />
-                      </div>
-
-                      <div className="fav-nutrition-value">
-                        {value} {unit}
-                      </div>
-
-                      <div className="fav-nutrition-name">
-                        {label}
-                      </div>
+                {visibleNutrition.map(([icon, label, key, unit]) => (
+                  <div className="fav-nutrition-item" key={label}>
+                    <div className="fav-nutrition-image">
+                      <img src={icon} alt={label} />
                     </div>
-                  ))}
+
+                    <div className="fav-nutrition-value">
+                      {dish.benefits[key]} {unit}
+                    </div>
+
+                    <div className="fav-nutrition-name">
+                      {label}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
 
-
           {/* ACTIONS */}
           <div className="fav-actions">
-            <button
-              className="customize-button"
+            <Button3D
+              className="btn-3d green"
               onClick={() =>
                 navigate(`/food/${dish.id}`, {
                   state: {
@@ -197,37 +209,12 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
                 })
               }
             >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Customize</span>
-            </button>
+              Customize
+            </Button3D>
 
-            <button
-              className="place-order-button"
-              onClick={() => {
-                const img = document.querySelector(
-                  `.fav-image[data-fav-dish-id="${dish.id}"]`
-                );
-
-                const price = dish.totalPrice ?? dish.basePrice ?? 0;
-                addToBag({
-                  ...dish,
-                  quantity: 1,
-                  unitPrice: price,
-                  totalPrice: price,
-                  isCustomized: false,
-                  isFromFavourite: true
-                });
-                flyToBag({
-                  imgEl: img,
-                  dishId: dish.id
-                });
-              }}
-            >
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Add to Bag</span>
-            </button>
+            <Button3D className="btn-3d red" onClick={handleAddToBag}>
+              Add to Bag
+            </Button3D>
           </div>
         </div>
       </div>

@@ -1,11 +1,11 @@
 .welcome-page {
-  min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   font-family: "Geom", system-ui, sans-serif;
-  padding: 20px;
+  background: linear-gradient(180deg, #7a0101, red);
+  min-height: 100vh;
 }
 
 /* ===== WAVE BACKGROUND ===== */
@@ -75,13 +75,15 @@
   z-index: 1;
 }
 
-
-
 .welcome-container {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   max-width: 1000px;
   margin: 0 auto;
+  min-height: 600px;
 }
 
 .welcome-text {
@@ -112,10 +114,11 @@
   font-size: 18px;
   font-weight: 500;
   margin-top: 12px;
-  color: var(--text-secondary);
+  color: #fff;
   opacity: 0;
   transform: translateY(20px);
   animation: slidesUp 0.8s ease 0.9s forwards;
+  margin-bottom: 12px;
 }
 
 @keyframes slidesUp {
@@ -199,7 +202,6 @@
 }
 
 .signup-modal button {
-  padding: 12px;
   border-radius: 10px;
   border: none;
   cursor: pointer;
@@ -230,26 +232,43 @@
   width: 100px;
 }
 
-.profile-cards {
+.welcome-card-wrapper {
   position: relative;
-  width: 720px;
-  /* 3 cards × 240 spacing */
-  height: 300px;
-  margin: 60px auto 0;
-  /* center horizontally */
+  padding: 20px;
+  background-color: #fff;
+  opacity: 0.85;
+  box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  height: 310px;
+  max-width: 700px;
+  border-radius: 20px;
+}
+
+.welcome-btn {
+  padding: 10px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-size: 16px;
+  text-transform: uppercase;
+  border-bottom: 5px solid transparent;
+  margin: 0 20px;
+}
+
+.welcome-btn.active {
+  border-color: #7a0101 !important;
 }
 
 .profile-card {
-  position: absolute;
-  /* keep absolute */
-  width: 220px;
-  /* fixed width */
+  padding: 10px;
+  width: 100%;
   height: 300px;
   border-radius: 14px;
   border: 1px solid transparent;
-  /* box-shadow: 0 12px 28px rgba(236, 233, 227),
-    0 6px 14px rgba(236, 233, 227); */
-  box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
+  display: block;
 }
 
 .profile-card:not(.secondary):hover {
@@ -266,6 +285,18 @@
 
 .profile-card:hover .card-overlay {
   transform: translateY(0%);
+}
+
+.profile-card .mat {
+  width: 100%;
+}
+
+.profile-card .mat-input {
+  margin-bottom: 15px;
+}
+
+.profile-card .btn-3d {
+  width: 100%;
 }
 
 .card-image {
@@ -505,6 +536,13 @@
 .wc-login-btn:active .shadow {
   transform: translateY(1px);
   transition: transform 34ms;
+}
+
+.power-logo {
+  width: 100px;
+  position: absolute !important;
+  display: block;
+  bottom: 0;
 }
 
 /* =========================================

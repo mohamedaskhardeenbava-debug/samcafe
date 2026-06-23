@@ -176,10 +176,10 @@
     height: 100%;
     border-radius: 10px;
     background: linear-gradient(to left,
-                var(--edge-color-dark) 0%,
-                var(--edge-color-light) 8%,
-                var(--edge-color-light) 92%,
-                var(--edge-color-dark) 100%);
+            var(--edge-color-dark) 0%,
+            var(--edge-color-light) 8%,
+            var(--edge-color-light) 92%,
+            var(--edge-color-dark) 100%);
 }
 
 .offers-add-btn .front {
@@ -213,4 +213,16 @@
 
 .offers-add-btn:focus:not(:focus-visible) {
     outline: none;
+}
+
+@media screen and (max-width: 992px) {
+    .offers-grid-page {
+        padding: var(--medium-page-padding);
+    }
+}
+
+@media screen and (max-width: 578px) {
+    .offers-grid-page {
+        padding: var(--mobile-page-padding);
+    }
 }

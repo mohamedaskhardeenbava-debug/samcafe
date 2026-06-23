@@ -33,9 +33,11 @@ import PreBooking from "./UserPanel/PreBooking";
 import CateringForm from "./UserPanel/CateringForm";
 
 import bellSound from "./assets/sounds/bell.mp3";
-import { ToastProvider } from "./UserPanel/Usetoast";
+import { ToastProvider } from "./components/Usetoast";
 import bellGif from "./assets/bell/bell.gif";
 import bellStatic from "./assets/bell/bell-static.png";
+import { normalizeBagItem, findMatchingBagIndex } from "./UserPanel/shared/normalizeBagItem";
+import { getUnitPrice } from "./UserPanel/shared/bagUtils";
 
 function App() {
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ function App() {
   const [direction, setDirection] = useState(1);
   const [lastAction, setLastAction] = useState("forward");
   const [bag, setBag] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState("user_9361151067");
   const [isRinging, setIsRinging] = useState(false);
   const [isDineIn, setIsDineIn] = useState(false);
 
@@ -113,126 +115,11 @@ function App() {
     setIsDineIn(!!tableNo);
   }, [location.pathname]);
 
-  const findCategoryByDish = (foodData, dishId) => {
-    for (const cat of foodData.categories) {
-
-      if (Array.isArray(cat.dishes) &&
-        cat.dishes.some(d => d.id === dishId)) {
-        return cat;
-      }
-
-      if (Array.isArray(cat.subCategories)) {
-        for (const sub of cat.subCategories) {
-          if (Array.isArray(sub.dishes) &&
-            sub.dishes.some(d => d.id === dishId)) {
-            return sub;
-          }
-        }
-      }
-
-    }
-
-    return null;
-  };
-
-  const normalizeBagItem = (rawItem, foodData) => {
-
-    // ✅ HANDLE COMBO FIRST
-    if (rawItem.isCombo) {
-      const quantity = Number(rawItem.quantity || 1);
-      const unitPrice = Number(rawItem.perComboFinalPrice || rawItem.unitPrice || 0);
-
-      return {
-        id: rawItem.id,
-        name: rawItem.name,
-        image:
-          rawItem.comboItems?.main?.image ||
-          rawItem.comboItems?.starter?.image ||
-          rawItem.comboItems?.drink?.image ||
-          "",
-        categoryId: "combo",
-
-        isCombo: true,
-        comboItems: rawItem.comboItems || {},
-
-        quantity,
-        unitPrice,
-        // ✅ FIX: preserve perComboFinalPrice so FloatingBag.getUnitPrice() works correctly
-        perComboFinalPrice: unitPrice,
-        totalPrice: unitPrice * quantity,
-
-        status: "placed",
-        selectedSize: "regular",
-        notes: "",
-        ingredients: [],
-        createdAt: new Date().toISOString()
-      };
-    }
-
-    const category =
-      foodData.categories.find(c => c.id === rawItem.categoryId) ||
-      findCategoryByDish(foodData, rawItem.id);
-
-    const dish =
-      Array.isArray(category?.dishes)
-        ? category.dishes.find(d => d.id === rawItem.id)
-        : null || {};
-
-    const defaultSize =
-      category?.sizes?.[0]?.name?.toLowerCase() || "regular";
-
-    const quantity = Number(rawItem.quantity || 1);
-    const unitPrice = Number(rawItem.unitPrice || dish.basePrice || 0);
-    const baseIngredients =
-      Array.isArray(rawItem.ingredients) && rawItem.ingredients.length > 0
-        ? rawItem.ingredients
-        : (dish.ingredients || []).map(i => ({
-          id: i.id,
-          name: i.name,
-          quantity: i.quantity,
-          pricePer100g: i.pricePer100g || 0,
-          totalPrice: 0
-        }));
-
-    return {
-      id: rawItem.id,
-      name: rawItem.name || dish.name,
-      image: rawItem.image || dish.image,
-      categoryId: category?.id || rawItem.categoryId,
-
-      quantity,
-      unitPrice,
-      totalPrice: unitPrice * quantity,
-
-      status: "placed",
-      isCustomized: !!rawItem.isCustomized,
-      selectedSize: rawItem.selectedSize || defaultSize,
-      notes: rawItem.notes || "",
-      ingredients: baseIngredients,
-      createdAt: new Date().toISOString(),
-      pickupAt: null
-    };
-  };
-
-  const ingredientSignature = (ings = []) =>
-    ings
-      .map(i => `${i.name}:${i.quantity}`)
-      .sort()
-      .join("|");
-
   const addToBag = (rawItem) => {
     setBag(prev => {
       const item = normalizeBagItem(rawItem, foodData);
 
-      const matchIndex = prev.findIndex(p =>
-        p.id === item.id &&
-        p.isCombo === item.isCombo &&
-        JSON.stringify(p.comboItems) === JSON.stringify(item.comboItems) &&
-        p.selectedSize === item.selectedSize &&
-        p.isCustomized === item.isCustomized &&
-        ingredientSignature(p.ingredients) === ingredientSignature(item.ingredients) &&
-        (p.notes || "") === (item.notes || "")
-      );
+      const matchIndex = findMatchingBagIndex(prev, item);
 
       if (matchIndex !== -1) {
         return prev.map((p, i) =>
@@ -274,19 +161,12 @@ function App() {
       window.removeEventListener("REVEAL_LAST_BAG_IMAGE", handler);
   }, []);
 
-  const getEffectiveUnitPrice = (item) => {
-    if (item.isCombo) {
-      return Number(item.perComboFinalPrice || 0);
-    }
-    return Number(item.unitPrice || 0);
-  };
-
   const increaseQty = (index) => {
     setBag(prev =>
       prev.map((item, i) => {
         if (i !== index) return item;
 
-        const unit = getEffectiveUnitPrice(item);
+        const unit = getUnitPrice(item);
         const newQty = Number(item.quantity || 1) + 1;
 
         return {
@@ -304,7 +184,7 @@ function App() {
         .map((item, i) => {
           if (i !== index) return item;
 
-          const unit = getEffectiveUnitPrice(item);
+          const unit = getUnitPrice(item);
           const newQty = Number(item.quantity || 1) - 1;
 
           return {
@@ -379,86 +259,86 @@ function App() {
       const userId = localStorage.getItem("userId");
 
       /* =========================
-         1️⃣ PREPARE DISH OBJECT
-         ========================= */
-      let enrichedDish = { ...dish };
-
-      if (userId) {
-        const userRes = await api.get(`/users/${userId}`);
-        const user = userRes.data;
-
-        enrichedDish = {
-          ...dish,
-          userId,
-          customerName: user.name || "Guest"
-        };
-      }
-
-      /* =========================
-         2️⃣ UPDATE /favourites
-         ========================= */
-      const favsRes = await api.get("/favourites");
-      const menuFavourites = Array.isArray(favsRes.data) ? favsRes.data : [];
-
-      const existsInMenu = menuFavourites.some(f => f.id === enrichedDish.id);
-
-      if (!existsInMenu) {
-        await api.post("/favourites", enrichedDish);
-
-        setFoodData(prev => ({
-          ...prev,
-          favourites: [...menuFavourites, enrichedDish]
-        }));
-      }
-
-      /* =========================
-         3️⃣ GUEST USER
+         1️⃣ GUEST USER — localStorage toggle
          ========================= */
       if (!userId) {
         const guestFavs =
           JSON.parse(localStorage.getItem("guestFavourites")) || [];
 
-        const exists = guestFavs.some(f => f.id === enrichedDish.id);
+        const exists = guestFavs.some(f => f.id === dish.id);
 
-        if (!exists) {
-          const updated = [...guestFavs, enrichedDish];
+        const updated = exists
+          ? guestFavs.filter(f => f.id !== dish.id)
+          : [...guestFavs, dish];
 
-          localStorage.setItem(
-            "guestFavourites",
-            JSON.stringify(updated)
-          );
-        }
-
+        localStorage.setItem("guestFavourites", JSON.stringify(updated));
         return;
       }
 
       /* =========================
-         4️⃣ UPDATE USER.FAVOURITES
+         2️⃣ PREPARE DISH OBJECT
          ========================= */
       const userRes = await api.get(`/users/${userId}`);
       const user = userRes.data;
 
-      const userFavourites = Array.isArray(user.favourites)
-        ? user.favourites
-        : [];
+      const enrichedDish = {
+        ...dish,
+        userId,
+        customerName: user.name || "Guest"
+      };
 
-      const existsInUser = userFavourites.some(
-        f => f.id === enrichedDish.id
-      );
+      const userFavourites = Array.isArray(user.favourites) ? user.favourites : [];
+      const existsInUser = userFavourites.some(f => f.id === enrichedDish.id);
 
-      if (!existsInUser) {
+      const favsRes = await api.get("/favourites");
+      const menuFavourites = Array.isArray(favsRes.data) ? favsRes.data : [];
+      const existsInMenu = menuFavourites.some(f => f.id === enrichedDish.id);
+
+      const isFavourited = existsInUser || existsInMenu;
+
+      if (isFavourited) {
+        /* =========================
+           3️⃣ REMOVE FROM /favourites + USER.FAVOURITES
+           ========================= */
+        if (existsInMenu) {
+          await api.delete(`/favourites/${enrichedDish.id}`);
+        }
+
+        setFoodData(prev => ({
+          ...prev,
+          favourites: menuFavourites.filter(f => f.id !== enrichedDish.id)
+        }));
+
+        const updatedUser = {
+          ...user,
+          favourites: userFavourites.filter(f => f.id !== enrichedDish.id)
+        };
+
+        await api.put(`/users/${userId}`, updatedUser);
+        setCurrentUser(updatedUser);
+      } else {
+        /* =========================
+           3️⃣ ADD TO /favourites + USER.FAVOURITES
+           ========================= */
+        if (!existsInMenu) {
+          await api.post("/favourites", enrichedDish);
+
+          setFoodData(prev => ({
+            ...prev,
+            favourites: [...menuFavourites, enrichedDish]
+          }));
+        }
+
         const updatedUser = {
           ...user,
           favourites: [...userFavourites, enrichedDish]
         };
 
         await api.put(`/users/${userId}`, updatedUser);
-
         setCurrentUser(updatedUser);
       }
-
     } catch (err) {
-      console.error("Favourite save failed:", err);
+      console.error("Favourite toggle failed:", err);
     }
   };
 
@@ -605,7 +485,14 @@ function App() {
       socket.off("bell-off", handleBellOff);
       socket.off("bell-ring", handleBellRing);
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    // Also scroll the .App container in case it's the actual overflow/scroll element
+    const appEl = document.querySelector(".App");
+    if (appEl) appEl.scrollTo(0, 0);
+  }, [location.pathname]);
 
   /* ─────────────────────────────────────────────────────────────────────
      🔔 BELL — User taps the floating bell button
@@ -661,6 +548,17 @@ function App() {
       )
     );
   };
+
+  // const clearStorage = () => {
+  //   try {
+  //     localStorage.clear();
+  //     console.log("Local storage cleared");
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
+
+  // clearStorage();
 
   return (
     <ToastProvider>

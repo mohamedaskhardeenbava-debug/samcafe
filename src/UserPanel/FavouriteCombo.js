@@ -2,7 +2,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../api";
 import "./FavouriteCombo.css";
-import { flyToBag } from "./flyToBag";
+import { flyToBag } from "../components/flyToBag";
+import Button3D from "./shared/Button3D";
 
 const listVariants = {
     hidden: { opacity: 0, y: 60 },
@@ -167,25 +168,21 @@ const FavouriteCombo = ({
                                         </div>
                                     </div>
 
-                                    <button
-                                        className="show-more-btn"
-                                        style={{ width: "fit-content" }}
-                                        onClick={() => handleAddToBag(combo)}
-                                    >
-                                        <span className="shadow" />
-                                        <span className="edge" />
-                                        <span className="front">Add to Bag</span>
-                                    </button>
-
-                                    <button
-                                        className="reel-cta"
+                                    <Button3D
+                                        className="btn-3d red"
                                         style={{ width: "fit-content" }}
                                         onClick={() => handleDelete(combo.id)}
                                     >
-                                        <span className="shadow" />
-                                        <span className="edge"/>
-                                        <span className="front">Delete</span>
-                                    </button>
+                                        Delete
+                                    </Button3D>
+
+                                    <Button3D
+                                        className="btn-3d green"
+                                        style={{ width: "fit-content" }}
+                                        onClick={() => handleAddToBag(combo)}
+                                    >
+                                        Add to Bag
+                                    </Button3D>
                                 </div>
                             </motion.article>
                         ))

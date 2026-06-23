@@ -1,8 +1,8 @@
 import "./Welcome.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import ThemeToggle from "./ThemeToggle";
-import { AnimatePresence, motion } from "framer-motion";
+import ThemeToggle from "../components/ThemeToggle";
+import { motion } from "framer-motion";
 import api from "../api";
 import loginImg from "../assets/welcome-images/login-image.jpeg";
 import signupImg from "../assets/welcome-images/signup-image.jpeg";
@@ -10,8 +10,12 @@ import guestImg from "../assets/welcome-images/guest-image.jpeg";
 
 import logoLight from "../assets/logo-light.png";
 import logoDark from "../assets/logo-dark.png";
+import powerLogo from "../assets/dishky-logo.png";
 
-import { useTheme } from "./ThemeContext";
+import { useTheme } from "../components/ThemeContext";
+import MatField from "./shared/MatField";
+import Button3D from "./shared/Button3D";
+import { useToast } from "../components/Usetoast";
 
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
@@ -22,7 +26,9 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const [activeCard, setActiveCard] = useState(null);
 
   const { theme } = useTheme();
+  const { toast } = useToast();
 
+  const [activeTab, setActiveTab] = useState("Login")
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
@@ -46,6 +52,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
         setUsers(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("Failed to fetch users", err);
+        toast.error("Couldn't connect. Please check your connection and reload.");
       }
     };
 
@@ -89,10 +96,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     })
   };
 
-  const goToCategories = () => {
-    navigate("/categories", { state: { direction: "forward" } });
-  };
-
   const handleGuest = () => {
     localStorage.removeItem("userId");
 
@@ -102,6 +105,36 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     });
 
     navigate("/categories");
+  };
+
+  const handleMobileChange = (e) => {
+    const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+    setMobile(value);
+    setFormErrors(prev => ({ ...prev, mobile: "" }));
+
+    if (value.length === 10) {
+      setEnableAutocomplete(false);
+      setTimeout(() => mobileInputRef.current?.blur(), 0);
+    } else {
+      setEnableAutocomplete(true);
+    }
+  };
+
+  const handleSignupMobileChange = (e) => {
+    const digitsOnly = e.target.value.replace(/\D/g, "");
+    if (digitsOnly.length <= 10) {
+      setMobile(digitsOnly);
+      setFormErrors(prev => ({ ...prev, mobile: "" }));
+    }
+  };
+
+  const handleNameChange = (e) => {
+    let value = e.target.value;
+    if (value.length > 100) return;
+    const words = value.trim().split(/\s+/);
+    if (words.length > 5) return;
+    setName(toCamelCase(value));
+    setFormErrors(prev => ({ ...prev, name: "" }));
   };
 
   const handleLogin = async () => {
@@ -124,10 +157,10 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     const user = matches[0];
     localStorage.setItem("userId", user.id);
 
-    // 🔁 SYNC USER INTO STATE
+    // SYNC USER INTO STATE
     setCurrentUser(user);
 
-    // 🔁 REFRESH MENU + FAVOURITES
+    // REFRESH MENU + FAVOURITES
     fetchMenu();
     setActiveCard(null);
     setMobile("");
@@ -144,9 +177,9 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       setLoading(true);
 
       const res = await api.get("/users");
-      const users = res.data || [];
+      const existingUsers = res.data || [];
 
-      const matches = users.filter(u => u.mobile === mobile);
+      const matches = existingUsers.filter(u => u.mobile === mobile);
 
       if (matches.length > 0) {
         setFormErrors({ mobile: "An account already exists with this mobile number." });
@@ -164,21 +197,53 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
       await api.post("/users", newUser);
 
-      // ✅ login ONLY first time
+      // login ONLY first time
       localStorage.setItem("userId", newUser.id);
 
       setActiveCard(null);
       setName("");
       setMobile("");
       setCurrentUser(newUser);
-      // 🔁 REFRESH MENU
+      // REFRESH MENU
       fetchMenu();
       navigate("/categories");
 
+    } catch (err) {
+      console.error("Signup failed", err);
+      toast.error("Couldn't create your account. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
+  var loginTab = 'Login';
+  var tabs = document.getElementsByClassName('openTab');
+
+  function openTab(loginTab) {
+    // var i;
+    var x = document.getElementsById;
+    //console.log(loginTab);
+    if (loginTab == 'Login') {
+      console.log(loginTab);
+      document.getElementById('Login').style.display = "block";
+      document.getElementById('Create').style.display = "none";
+      // document.elementFromPoint('Login').className = "welcome-btn welcome-btn-active";
+      //document.getElementsByClassName('welcome-btn').className = "welcome-btn welcome-btn-active";
+
+    }
+    if (loginTab == 'Create') {
+      console.log(loginTab);
+      document.getElementById('Login').style.display = "none";
+      document.getElementById('Create').style.display = "block";
+
+    }
+    //alert(x);
+    //document.getElementById('Login').style.display = "block";
+    //alert(document.getElementById('Login'));
+  }
+
+
+  // tabs.addEventListener.Object.openTab('Login');
 
   return (
     <div className="welcome-page">
@@ -198,7 +263,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       <div className="welcome-container">
         <div className="welcome-title">
           <img
-            src={theme === "light" ? logoLight : logoDark}
+            src={logoDark}
             alt="Cafe"
           />
         </div>
@@ -207,225 +272,123 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           Where every bite feels right
         </div>
 
-        <motion.div
-          className="profile-cards"
-          variants={containerVariants}
-          initial="hidden"
-          animate={animateCards ? "visible" : "hidden"}
-        >
-          <motion.div
-            className={`profile-card flip-card ${activeCard === "login" ? "flipped" : ""}`}
-            variants={cardVariants}
-            custom={0}
-          >
-            <div
-              className="flip-inner"
+        <div className="welcome-card-wrapper">
+          <div className="welcome-btn-container">
+            <button
+              className={`welcome-btn ${activeTab === "Login" ? "active" : ""}`}
               onClick={() => {
-                setFormErrors({});
-                setMobile("");
-                setActiveCard(prev => (prev === "login" ? null : "login"));
+                openTab('Login')
+                setActiveTab("Login")
+                setMobile("")
               }}
             >
-              {/* FRONT */}
-              <div className="flip-front">
-                <div className="card-image">
-                  <img src={loginImg} alt="Login" />
-                </div>
+              Login
+            </button>
+            <button
+              className={`welcome-btn ${activeTab === "Create" ? "active" : ""}`}
+              onClick={() => {
+                openTab('Create')
+                setActiveTab("Create")
+                setName("")
+                setMobile("")
+              }}>Create Account</button>
+          </div>
 
-                <div className="card-overlay">
-                  <h4>Login</h4>
-                  <p>Login using your mobile number</p>
-                </div>
-              </div>
-
-              {/* BACK */}
-              <div className="flip-back signup-modal">
-                <h3>Login</h3>
-
-                <div
-                  className="section"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="mat">
-                    <input
-                      ref={mobileInputRef}
-                      className={`mat-input${formErrors.mobile ? " error" : ""}`}
-                      style={{paddingLeft: "4px"}}
-                      type="tel"
-                      placeholder=" "
-                      list={enableAutocomplete ? "user-mobiles" : undefined}
-                      maxLength={10}
-                      value={mobile}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, "").slice(0, 10);
-                        setMobile(value);
-                        setFormErrors(prev => ({ ...prev, mobile: "" }));
-                        if (value.length === 10) {
-                          setEnableAutocomplete(false);
-                          setTimeout(() => mobileInputRef.current?.blur(), 0);
-                        } else {
-                          setEnableAutocomplete(true);
-                        }
-                      }}
-                    />
-                    <label className={`mat-label${formErrors.mobile ? " mat-label-error" : ""}`}>
-                      Mobile Number
-                    </label>
-                    <span className={`mat-bar${formErrors.mobile ? " mat-bar-error" : ""}`} />
-                  </div>
-                  {formErrors.mobile && (
-                    <span className="mat-error">{formErrors.mobile}</span>
-                  )}
-                </div>
-
-                <div
-                  className="btn-container"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    className="wc-login-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleLogin();
-                    }}
-                  >
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front">Login</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            className={`profile-card flip-card ${activeCard === "signup" ? "flipped" : ""}`}
-            variants={cardVariants}
-            custom={1}
+          <div
+            className="profile-card openTab" id="Login"
           >
             <div
-              className="flip-inner"
-              onClick={() => {
-                setFormErrors({});
-                setName("");
-                setMobile("");
-                setActiveCard(prev => (prev === "signup" ? null : "signup"));
+              className="section"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MatField
+                label="Mobile Number"
+                type="tel"
+                style={{ paddingLeft: "4px" }}
+                inputRef={mobileInputRef}
+                list={enableAutocomplete ? "user-mobiles" : undefined}
+                maxLength={10}
+                value={mobile}
+                onChange={handleMobileChange}
+                error={formErrors.mobile}
+                wrapperClassName=""
+              />
+            </div>
+
+
+            <Button3D
+              className="btn-3d red"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLogin();
               }}
             >
-              {/* FRONT */}
-              <div className="flip-front">
-                <div className="card-image">
-                  <img src={signupImg} alt="Signup" />
-                </div>
+              Login
+            </Button3D>
+          </div>
 
-                <div className="card-overlay">
-                  <h4>Sign Up</h4>
-                  <p>Create a new profile</p>
-                </div>
-              </div>
-
-              {/* BACK */}
-              <div className="flip-back signup-modal">
-                <h3>Create Profile</h3>
-
-                <div
-                  className="section"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="mat">
-                    <input
-                      className={`mat-input${formErrors.name ? " error" : ""}`}
-                      placeholder=" "
-                      type="text"
-                      maxLength={100}
-                      value={name}
-                      onChange={(e) => {
-                        let value = e.target.value;
-                        if (value.length > 100) return;
-                        const words = value.trim().split(/\s+/);
-                        if (words.length > 5) return;
-                        setName(toCamelCase(value));
-                        setFormErrors(prev => ({ ...prev, name: "" }));
-                      }}
-                    />
-                    <label className={`mat-label${formErrors.name ? " mat-label-error" : ""}`}>
-                      Full Name
-                    </label>
-                    <span className={`mat-bar${formErrors.name ? " mat-bar-error" : ""}`} />
-                  </div>
-                  {formErrors.name && (
-                    <span className="mat-error">{formErrors.name}</span>
-                  )}
-                </div>
-
-                <div
-                  className="section"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="mat">
-                    <input
-                      className={`mat-input${formErrors.mobile ? " error" : ""}`}
-                      type="tel"
-                      placeholder=" "
-                      maxLength={10}
-                      value={mobile}
-                      onChange={(e) => {
-                        const digitsOnly = e.target.value.replace(/\D/g, "");
-                        if (digitsOnly.length <= 10) {
-                          setMobile(digitsOnly);
-                          setFormErrors(prev => ({ ...prev, mobile: "" }));
-                        }
-                      }}
-                    />
-                    <label className={`mat-label${formErrors.mobile ? " mat-label-error" : ""}`}>
-                      Mobile Number
-                    </label>
-                    <span className={`mat-bar${formErrors.mobile ? " mat-bar-error" : ""}`} />
-                  </div>
-                  {formErrors.mobile && (
-                    <span className="mat-error">{formErrors.mobile}</span>
-                  )}
-                </div>
-
-                <div
-                  className="btn-container"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <button
-                    className="wc-login-btn"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSignup();
-                    }}
-                  >
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front">Sign Up</span>
-                  </button>
-                </div>
-              </div>
+          <div
+            className="profile-card openTab"
+            style={{ display: "none" }}
+            id="Create"
+          >
+            <div
+              className="section"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MatField
+                label="Full Name"
+                type="text"
+                maxLength={100}
+                value={name}
+                onChange={handleNameChange}
+                error={formErrors.name}
+                wrapperClassName=""
+              />
             </div>
-          </motion.div>
 
-          <motion.div
-            className="profile-card"
-            variants={cardVariants}
-            custom={2}
+            <div
+              className="section"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <MatField
+                label="Mobile Number"
+                type="tel"
+                maxLength={10}
+                value={mobile}
+                onChange={handleSignupMobileChange}
+                error={formErrors.mobile}
+                wrapperClassName=""
+              />
+            </div>
+
+
+            <Button3D
+              className="btn-3d red"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSignup();
+              }}
+              disabled={loading}
+            >
+              Sign Up
+            </Button3D>
+          </div>
+
+          <Button3D
+            className="btn-3d green"
             onClick={handleGuest}
+            frontStyle={{padding:"0 10px"}}
           >
-            <div className="flip-front">
-              <div className="card-image">
-                <img src={guestImg} alt="Guest" />
-              </div>
-              <div className="card-overlay">
-                <h4>Guest</h4>
-                <p>Continue without an account</p>
-              </div>
-            </div>
-          </motion.div>
-        </motion.div>
+            Enter as Guest
+          </Button3D>
+          <span className="subtext">(No login needed)</span>
+        </div>
       </div>
-    </div>
+
+      <img className="power-logo" src={powerLogo} />
+    </div >
+
   );
 };
 

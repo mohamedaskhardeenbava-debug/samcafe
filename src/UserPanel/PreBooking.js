@@ -1,12 +1,15 @@
 // user panel
 import { useState, useEffect, useMemo } from "react";
 import api from "../api";
-import { UserDatePicker, todayStr } from "./UserDatePicker";
-import { UserTimePicker } from "./UserTimePicker";
+import { UserDatePicker, todayStr } from "../components/UserDatePicker";
+import { UserTimePicker } from "../components/UserTimePicker";
 import "./PreBooking.css";
 import "./ReservationForm.css";
 import "./PreviewModal.css";
-import homeIcon from "../assets/icons/home.png";
+import HomeButton from "./shared/HomeButton";
+import Button3D from "./shared/Button3D";
+import MatField from "./shared/MatField";
+import CloseButton from "./shared/CloseButton";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -90,48 +93,35 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         {/* Header */}
         <div className="pbp-dish-popup-header">
           <h3 className="pbp-dish-popup-title">Add Dish</h3>
-          <button className="pbp-dish-popup-close" onClick={onClose}>
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">✕</span>
-          </button>
+          <CloseButton onClick={onClose}>
+            
+          </CloseButton>
         </div>
 
         {/* Search */}
         <div className="pbp-dish-popup-search-wrap">
-          <div class="field-group">
-            <div class="mat">
-              <input
-                class="mat-input"
-                placeholder="Search dishes…"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-              <label class="mat-label">
-                Search dishes…
-              </label>
-              <span class="mat-bar">
-              </span
-              ></div>
+          <div className="field-group">
+            <MatField
+              label="Search dishes…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              wrapperClassName=""
+            />
           </div>
         </div>
 
         {/* Category tabs */}
         {!loading && (
           <div className="pbp-dish-popup-cats">
-            <button className={`pbp-dish-cat-btn${!activeCat ? " active" : ""}`} onClick={() => setActiveCat(null)}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">All</span>
-            </button>
+            <Button3D className={`sort-btn${!activeCat ? " active" : ""}`} onClick={() => setActiveCat(null)}>
+              All
+            </Button3D>
             {categories.map(c => (
-              <button key={c.id}
-                className={`pbp-dish-cat-btn${activeCat === c.id ? " active" : ""}`}
+              <Button3D key={c.id}
+                className={`sort-btn${activeCat === c.id ? " active" : ""}`}
                 onClick={() => setActiveCat(activeCat === c.id ? null : c.id)}>
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">{c.name}</span>
-              </button>
+                {c.name}
+              </Button3D>
             ))}
           </div>
         )}
@@ -139,15 +129,11 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         {/* Veg filter */}
         <div className="pbp-dish-popup-veg-row">
           {["all", "veg", "nonveg"].map(v => (
-            <button key={v}
-              className={`pbp-veg-filter-btn${vegFilter === v ? " active-" + v : ""}`}
+            <Button3D key={v}
+              className={`sort-btn${vegFilter === v ? " active-" + v : ""}`}
               onClick={() => setVegFilter(v)}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">
-                {v === "all" ? "All" : v === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}
-              </span>
-            </button>
+              {v === "all" ? "All" : v === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}
+            </Button3D>
           ))}
         </div>
 
@@ -346,16 +332,12 @@ const PreBooking = ({ handleBack, handleHome }) => {
             </div>
           )}
           <div className="rf-modal-actions">
-            <button className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">Edit</span>
-            </button>
-            <button className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
-              <span className="shadow"></span>
-              <span className="edge"></span>
-              <span className="front">{loading ? <span className="rf-spinner" /> : "Confirm"}</span>
-            </button>
+            <Button3D className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+              Edit
+            </Button3D>
+            <Button3D className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+              {loading ? <span className="rf-spinner" /> : "Confirm"}
+            </Button3D>
           </div>
         </div>
       </div>
@@ -370,11 +352,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
         <div className="food-header">
           <button className="back-button" onClick={handleBack} />
           <div className="food-list-title">Pre Booking</div>
-          <div className="home-btn home-btn-icon" onClick={handleHome}>
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-          </div>
+          <HomeButton onClick={handleHome} />
         </div>
         <div className="rf-success-screen">
           <div className="rf-success-icon">
@@ -405,7 +383,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
               </div>
             ))}
           </div>
-          <button
+          <Button3D
             className="form-action-btn submit"
             onClick={() => {
               setSubmitted(false);
@@ -423,18 +401,14 @@ const PreBooking = ({ handleBack, handleHome }) => {
               });
             }}
           >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">Make Another Booking</span>
-          </button>
-          <button
+            Make Another Booking
+          </Button3D>
+          <Button3D
             className="form-action-btn submit"
             onClick={handleHome}
           >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">Back to Home</span>
-          </button>
+            Back to Home
+          </Button3D>
         </div>
       </div>
     );
@@ -448,11 +422,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
       <div className="food-header">
         <button className="back-button" onClick={handleBack} />
         <div className="food-list-title">Pre Booking</div>
-        <div className="home-btn home-btn-icon" onClick={handleHome} >
-          <span className="shadow"></span>
-          <span className="edge"></span>
-          <span className="front"><img src={homeIcon} alt="home-btn" /></span>
-        </div>
+        <HomeButton onClick={handleHome} />
       </div>
 
       <div className="pbp-form-shell">
@@ -465,47 +435,38 @@ const PreBooking = ({ handleBack, handleHome }) => {
             <div className="section-title">Guest Details</div>
             <div className="pbp-card">
               <div className="field-group">
-                <div className="mat">
-                  <input
-                    className={`mat-input${errors.name ? " error" : ""}`}
-                    placeholder=" "
-                    value={form.name}
-                    onChange={e => setF("name", e.target.value)}
-                  />
-                  <label className="mat-label">Name <span className="pbp-req">*</span></label>
-                  <span className="mat-bar" />
-                </div>
+                <MatField
+                  label={<>Name <span className="pbp-req">*</span></>}
+                  value={form.name}
+                  onChange={e => setF("name", e.target.value)}
+                  error={errors.name}
+                  wrapperClassName=""
+                />
               </div>
               <div className="mat-row">
                 <div className="field-group" style={{ flex: 1.4 }}>
                   <div className="mat-input-prefix-wrap">
-                    <div className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</div>
-                    <div className="mat">
-                      <input
-                        className={`mat-input${errors.mobile ? " error" : ""}`}
-                        placeholder=" "
-                        type="tel"
-                        value={form.mobile}
-                        onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      />
-                      <label className="mat-label">Mobile <span className="pbp-req">*</span></label>
-                      <span className="mat-bar" />
-                    </div>
+                    <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
+                    <MatField
+                      label={<>Mobile <span className="pbp-req">*</span></>}
+                      type="tel"
+                      value={form.mobile}
+                      onChange={e => setF("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                      error={errors.mobile}
+                      wrapperClassName=""
+                    />
                   </div>
 
                 </div>
                 <div className="field-group" style={{ flex: 1 }}>
-                  <div className="mat">
-                    <input
-                      className={`mat-input${errors.email ? " error" : ""}`}
-                      placeholder=" "
-                      type="email"
-                      value={form.email}
-                      onChange={e => setF("email", e.target.value)}
-                    />
-                    <label className="mat-label">Email <span className="pbp-opt">(optional)</span></label>
-                    <span className="mat-bar" />
-                  </div>
+                  <MatField
+                    label={<>Email <span className="pbp-opt">(optional)</span></>}
+                    type="email"
+                    value={form.email}
+                    onChange={e => setF("email", e.target.value)}
+                    error={errors.email}
+                    wrapperClassName=""
+                  />
                 </div>
               </div>
 
@@ -587,11 +548,9 @@ const PreBooking = ({ handleBack, handleHome }) => {
             {/* PRE-ORDER FOODS */}
             <div className="section-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span>Pre-Order Foods</span>
-              <button type="button" className="chip" onClick={() => setShowDishPopup(true)}>
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">+ Add Dish</span>
-              </button>
+              <Button3D type="button" className="chip" onClick={() => setShowDishPopup(true)}>
+                + Add Dish
+              </Button3D>
             </div>
             <div className={`pbp-card${errors.bag ? " pbp-card-error" : ""}`}>
               {selectedDishes.length === 0 ? (
@@ -619,15 +578,13 @@ const PreBooking = ({ handleBack, handleHome }) => {
                       </div>
                     ))}
                   </div>
-                  <button
+                  <Button3D
                     type="button"
                     className="chip"
                     onClick={() => setShowDishPopup(true)}
                   >
-                    <span className="shadow"></span>
-                    <span className="edge"></span>
-                    <span className="front">+ Add More</span>
-                  </button>
+                    + Add More
+                  </Button3D>
                   <div className="pbp-bill">
                     <div className="pbp-bill-row"><span>Subtotal</span><span>₹{subtotal.toLocaleString()}</span></div>
                     {isGroupDiscount && (
@@ -648,7 +605,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
             )}
 
             <div className="form-btn-row">
-              <button
+              <Button3D
                 className="form-action-btn cancel"
                 type="button"
                 disabled={loading}
@@ -659,21 +616,17 @@ const PreBooking = ({ handleBack, handleHome }) => {
                   handleBack();
                 }}
               >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">Cancel</span>
-              </button>
+                Cancel
+              </Button3D>
 
-              <button
+              <Button3D
                 className={`form-action-btn submit${loading ? " loading" : ""}`}
                 type="button"
                 onClick={handleReview}
                 disabled={loading}
               >
-                <span className="shadow"></span>
-                <span className="edge"></span>
-                <span className="front">{loading ? "Processing..." : "Review & Confirm"}</span>
-              </button>
+                {loading ? "Processing..." : "Review & Confirm"}
+              </Button3D>
 
             </div>
 

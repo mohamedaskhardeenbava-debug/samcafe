@@ -1,14 +1,17 @@
 import "./FoodItem.css";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { createPortal } from "react-dom";
 import trash from "../assets/icons/trash.png";
 import mild from "../assets/icons/mild.png";
 import hot from "../assets/icons/hot.png";
 import extreme from "../assets/icons/extreme.png";
 import notesIcon from "../assets/icons/notes.png";
-import homeIcon from "../assets/icons/home.png";
 import { AnimatePresence, motion } from "framer-motion";
-import { flyToBag } from "./flyToBag";
+import { flyToBag } from "../components/flyToBag";
+import HomeButton from "./shared/HomeButton";
+import Button3D from "./shared/Button3D";
+import { RED_EDGE_GRADIENT, RED_FRONT_STYLE } from "./shared/styles";
 
 /* ─── Constants ───────────────────────────────────────────── */
 const STEP = 10;
@@ -94,10 +97,15 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const wishlistDish = dish || effectiveDish || { id: "__custom__", name: `Make Your Own ${category?.name || ""}`, image: "/assets/placeholder-food.jpg", basePrice: originalCategory?.basePrice ?? 200 };
 
+  /* Stable id for the simple (non-customized) wishlist toggle — does NOT
+     include Date.now() so the same dish/size can be added and removed. */
+
+
   /* ── State ── */
   const [quantity, setQuantity] = useState(1);
   const [spiciness, setSpiciness] = useState("mild");
   const [selectedSize, setSelectedSize] = useState(null);
+  const favouriteId = `${wishlistDish.id}_${selectedSize || "regular"}`;
   const [ingredientQuantities, setIngredientQuantities] = useState({});
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -108,6 +116,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   const [notes, setNotes] = useState("");
   const [blinkIngredient, setBlinkIngredient] = useState(null);
   const [pricePulse, setPricePulse] = useState(false);
+  const [scrollToIngredient, setScrollToIngredient] = useState(null);
+  const calcRefs = useRef({});
 
   /* ── Size & multiplier ── */
   const selectedSizeObj = useMemo(() => (
@@ -165,7 +175,10 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safeIngredients.length, effectiveDish.id, bagItem?.id, fromFavouriteCustomize]);
 
-  useEffect(() => { setIsWishlisted(false); }, [effectiveDish.id]);
+  useEffect(() => {
+    const favs = currentUser?.favourites || [];
+    setIsWishlisted(favs.some(f => f.id === favouriteId));
+  }, [favouriteId, currentUser]);
 
   /* ── Keep selectedOrder in sync ── */
   useEffect(() => {
@@ -190,7 +203,25 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
     });
     setBlinkIngredient(name);
     setTimeout(() => setBlinkIngredient(null), 600);
+
+    // On mobile (stacked layout), jump to the matching row in the
+    // "Selected Ingredients" calculation list on the right panel.
+    if (window.innerWidth <= 576) {
+      setScrollToIngredient(name);
+    }
   }, []);
+
+  /* ── Scroll the matching ingredient-item-calculation into view (mobile) ── */
+  useEffect(() => {
+    if (!scrollToIngredient) return;
+
+    const el = calcRefs.current[scrollToIngredient];
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    setScrollToIngredient(null);
+  }, [scrollToIngredient, ingredientQuantities]);
 
   const hasIngredientChanges = useCallback(() => {
     const base = dish?.ingredients || [];
@@ -305,57 +336,111 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 : dish ? dish.name
                   : `Make Your Own ${category.name}`}
           </div>
-          <div className="home-btn  home-btn-icon" onClick={handleHome} >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front"><img src={homeIcon} alt="home-btn" /></span>
+          <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+            <HomeButton onClick={handleHome} />
+            {!fromBag && !fromFavouriteCustomize && currentUser && currentUser.id !== "guest" && (
+              <div
+                className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
+                onClick={() => {
+                  if (isWishlisted) {
+                    onToggleFavourite({ id: favouriteId, _remove: true });
+                    setIsWishlisted(false);
+                    return;
+                  }
+                  setFavName(wishlistDish.name);
+                  setFavDescription("");
+                  setShowFavouriteForm(true);
+                }}
+                role="button"
+                aria-label="Add to wishlist"
+              >
+                <span className="shadow" />
+                <span className="edge" />
+                <span className="front">♥</span>
+              </div>
+            )}
           </div>
-          {!fromBag && !fromFavouriteCustomize && currentUser && currentUser.id !== "guest" && (
-            <div
-              className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
-              onClick={() => {
-                const ingredientsChanged = hasIngredientChanges();
-                if (!ingredientsChanged) {
-                  const benefits = calculateFinalBenefits({ baseDishBenefits, baseIngredients: dish?.ingredients || [], selectedIngredients: previewItem.ingredients });
-                  onToggleFavourite({ id: `${wishlistDish.id}_${selectedSize}_${Date.now()}`, originalDishId: wishlistDish.id, name: wishlistDish.name, image: wishlistDish.image, categoryId: category.id, selectedSize, basePrice: wishlistDish.basePrice, totalPrice: previewItem.totalPrice, ingredients: dish?.ingredients || [], benefits });
-                  setIsWishlisted(true);
-                  return;
-                }
-                setFavName(wishlistDish.name);
-                setFavDescription("");
-                setShowFavouriteForm(true);
-              }}
-              role="button"
-              aria-label="Add to wishlist"
-            >
-              ♥
-            </div>
-          )}
         </div>
 
-        {/* Wishlist form overlay */}
-        <AnimatePresence mode="wait">
-          {showFavouriteForm && (
-            <motion.div className="overlay" variants={overlayVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.22 }}>
-              <motion.form className="modal" variants={modalVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}>
-                <h3>Save to Wishlist</h3>
-                <label>Name</label>
-                <input autoFocus required value={favName} onChange={e => setFavName(toCamelCase(e.target.value))} />
-                <label>Description</label>
-                <textarea required value={favDescription} onChange={e => setFavDescription(e.target.value)} />
-                <div className="modal-actions">
-                  <button type="button" onClick={() => setShowFavouriteForm(false)}>Cancel</button>
-                  <button type="button" className="primary" onClick={() => {
-                    const benefits = calculateFinalBenefits({ baseDishBenefits, baseIngredients: dish?.ingredients || [], selectedIngredients: previewItem.ingredients });
-                    onToggleFavourite({ id: `${wishlistDish.id}_${selectedSize}_${Date.now()}`, name: favName, description: favDescription, image: wishlistDish.image, categoryId: category.id, selectedSize, basePrice: wishlistDish.basePrice, totalPrice: previewItem.totalPrice, ingredients: previewItem.ingredients, benefits });
-                    setIsWishlisted(true);
-                    setShowFavouriteForm(false);
-                  }}>Save</button>
-                </div>
-              </motion.form>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Wishlist form — portal so .food-item overflow:hidden can't clip it */}
+        {createPortal(
+          <AnimatePresence mode="wait">
+            {showFavouriteForm && (
+              <motion.div
+                className="overlay"
+                variants={overlayVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.22 }}
+                onClick={e => { if (e.target === e.currentTarget) setShowFavouriteForm(false); }}
+              >
+                <motion.div
+                  className="modal"
+                  variants={modalVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <div className="modal-body">
+                    <h3>Save to Wishlist</h3>
+                    <label>Name</label>
+                    <input
+                      autoFocus
+                      required
+                      placeholder="e.g. My Spicy Margherita"
+                      value={favName}
+                      onChange={e => setFavName(toCamelCase(e.target.value))}
+                      onKeyDown={e => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          if (!favName.trim()) return;
+                          const benefits = calculateFinalBenefits({ baseDishBenefits, baseIngredients: dish?.ingredients || [], selectedIngredients: previewItem.ingredients });
+                          const ingredientsChanged = hasIngredientChanges();
+                          const id = ingredientsChanged ? `${wishlistDish.id}_${selectedSize}_${Date.now()}` : favouriteId;
+                          const ingredients = ingredientsChanged ? previewItem.ingredients : (dish?.ingredients || []);
+                          onToggleFavourite({ id, originalDishId: wishlistDish.id, savedBy: currentUser?.name || currentUser?.id || "guest", name: favName.trim(), description: favDescription.trim(), image: wishlistDish.image, categoryId: category.id, selectedSize, basePrice: wishlistDish.basePrice, totalPrice: previewItem.totalPrice, ingredients, benefits });
+                          setIsWishlisted(true);
+                          setShowFavouriteForm(false);
+                        }
+                      }}
+                    />
+                    <label>Description</label>
+                    <textarea
+                      placeholder="Describe your custom dish..."
+                      value={favDescription}
+                      onChange={e => setFavDescription(e.target.value)}
+                    />
+                    <div className="btn-section">
+                      <Button3D
+                        className="btn-3d white"
+                        onClick={() => setShowFavouriteForm(false)}
+                      >Cancel</Button3D>
+                      <Button3D
+                        className="btn-3d red"
+                        edgeStyle={RED_EDGE_GRADIENT}
+                        frontStyle={RED_FRONT_STYLE}
+                        disabled={!favName.trim()}
+                        onClick={() => {
+                          if (!favName.trim()) return;
+                          const benefits = calculateFinalBenefits({ baseDishBenefits, baseIngredients: dish?.ingredients || [], selectedIngredients: previewItem.ingredients });
+                          const ingredientsChanged = hasIngredientChanges();
+                          const id = ingredientsChanged ? `${wishlistDish.id}_${selectedSize}_${Date.now()}` : favouriteId;
+                          const ingredients = ingredientsChanged ? previewItem.ingredients : (dish?.ingredients || []);
+                          onToggleFavourite({ id, originalDishId: wishlistDish.id, savedBy: currentUser?.name || currentUser?.id || "guest", name: favName.trim(), description: favDescription.trim(), image: wishlistDish.image, categoryId: category.id, selectedSize, basePrice: wishlistDish.basePrice, totalPrice: previewItem.totalPrice, ingredients, benefits });
+                          setIsWishlisted(true);
+                          setShowFavouriteForm(false);
+                        }}
+                      >Save</Button3D>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>,
+          document.body
+        )}
 
         {/* IMAGE + SELECTORS */}
         <div className="image-header">
@@ -456,9 +541,10 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
             const out = !master || Number(master.stockRemaining || 0) * 1000 < STEP;
 
             return (
-              
+
               <div
                 key={ing.name}
+                ref={el => { calcRefs.current[ing.name] = el; }}
                 className={`ingredient-item-calculation ${out ? "out-of-stock" : ""} ${blinkIngredient === ing.name ? "blink" : ""}`}
                 onClick={() => { const m = safeIngredients.find(i => i.name === ing.name); if (m) navigate(`/ingredient/${m.id}`); }}
                 role="button"
@@ -471,36 +557,23 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 </div>
                 <div className="ingredient-item-quantity-calculation">{ing.quantity}g</div>
                 <div className="ingredient-item-price-calculation">₹{ing.totalPrice.toFixed(0)}</div>
-                <div className="home-btn" onClick={e => { e.stopPropagation(); !out && handleIngredientAdjust(ing.name, -ing.quantity); }}>
-                  <span className="shadow"></span>
-                  <span
-                    className="edge"
+                <Button3D
+                  as="div"
+                  className="home-btn"
+                  onClick={e => { e.stopPropagation(); !out && handleIngredientAdjust(ing.name, -ing.quantity); }}
+                  edgeStyle={RED_EDGE_GRADIENT}
+                  frontStyle={RED_FRONT_STYLE}
+                >
+                  <img
+                    src={trash}
+                    alt="remove"
                     style={{
-                      background: `linear-gradient(
-      to left,
-      var(--edge-color-dark) 0%,
-      var(--edge-color-light) 8%,
-      var(--edge-color-light) 92%,
-      var(--edge-color-dark) 100%
-    )`,
+                      height: "18px",
+                      width: "18px",
+                      filter: "var(--opp-img-theme-filter)",
                     }}
-                  >
-                  </span>
-                  <span
-                    className="front"
-                    style={{ backgroundColor: "var(--color-red)" }}
-                  >
-                    <img
-                      src={trash}
-                      alt="remove"
-                      style={{
-                        height: "18px",
-                        width: "18px",
-                        filter: "var(--opp-img-theme-filter)",
-                      }}
-                    />
-                  </span>
-                </div>
+                  />
+                </Button3D>
               </div>
             );
           })}
@@ -523,8 +596,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
             </div>
           </div>
 
-          <button
-            className="food-place-order-button"
+          <Button3D
+            className="btn-3d red"
             onClick={() => {
               const img = document.querySelector(".food-item-image img");
               const item = { ...previewItem, isCustomized: previewItem.isCustomized === true, isFromFavourite: fromFavouriteCustomize === true };
@@ -537,12 +610,8 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
               });
             }}
           >
-            <span className="shadow"></span>
-            <span className="edge"></span>
-            <span className="front">
-              {isEditMode ? "Update Bag" : "Add to Bag"}
-            </span>
-          </button>
+            {isEditMode ? "Update Bag" : "Add to Bag"}
+          </Button3D>
         </div>
       </div>
     </div >
