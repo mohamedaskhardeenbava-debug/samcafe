@@ -4,10 +4,6 @@ import api from "../api";
 import "./FavouriteCombo.css";
 import { flyToBag } from "../components/flyToBag";
 import Button3D from "./shared/Button3D";
-<<<<<<< HEAD
-=======
-import { useToast } from "../components/Usetoast";
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 
 const listVariants = {
     hidden: { opacity: 0, y: 60 },
@@ -31,8 +27,6 @@ const FavouriteCombo = ({
     handleBack
 }) => {
 
-    const { toast } = useToast();
-
     const favCombos = [...(currentUser?.combo || [])]
         .sort((a, b) =>
             new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
@@ -42,14 +36,15 @@ const FavouriteCombo = ({
         if (!currentUser) return;
 
         const updatedCombos = favCombos.filter(c => c.id !== comboId);
+        const updatedUser = { ...currentUser, combo: updatedCombos };
 
         try {
-            await api.put(`/users/${currentUser.id}`, { ...currentUser, combo: updatedCombos });
-            const refreshed = await api.get(`/users/${currentUser.id}`);
-            setCurrentUser(refreshed.data);
+            await api.put(`/users/${currentUser.id}`, updatedUser);
+            // ✅ UPDATE UI STATE
+            setCurrentUser(updatedUser);
         } catch (err) {
             console.error("Failed to delete favourite combo", err);
-            toast.error("Failed to delete favourite combo");
+            alert("Failed to delete favourite combo");
         }
     };
 

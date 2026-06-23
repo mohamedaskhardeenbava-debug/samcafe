@@ -43,6 +43,8 @@ const IngredientDetail = ({ handleBack, foodData }) => {
     return <p>Ingredient not found</p>
   }
 
+  const { kcal, protein, fat, fibre } = ingredient.nutritionPer100g
+
   if (ingredient.isDisabledGlobally) {
     return <p>This ingredient is currently unavailable.</p>;
   }

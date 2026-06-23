@@ -1,8 +1,4 @@
 import { AnimatePresence, motion } from "framer-motion";
-<<<<<<< HEAD
-=======
-import Button3D from "./Button3D";
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 
 /**
  * ConfirmDialog
@@ -55,7 +51,6 @@ const ConfirmDialog = ({
           {title && <h3>{title}</h3>}
           {message && <p>{message}</p>}
 
-<<<<<<< HEAD
           <div className="confirm-actions">
             <button className="confirm-cancel" onClick={onCancel}>
               {cancelLabel}
@@ -63,15 +58,6 @@ const ConfirmDialog = ({
             <button className="confirm-remove" onClick={onConfirm}>
               {confirmLabel}
             </button>
-=======
-          <div className="btn-section">
-            <Button3D className="btn-3d white" onClick={onCancel}>
-              {cancelLabel}
-            </Button3D>
-            <Button3D className="btn-3d red" onClick={onConfirm}>
-              {confirmLabel}
-            </Button3D>
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
           </div>
         </motion.div>
       </motion.div>

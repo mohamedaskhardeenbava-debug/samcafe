@@ -9,10 +9,6 @@ import "./PreviewModal.css";
 import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
-<<<<<<< HEAD
-=======
-import { useToast } from "../components/Usetoast";
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -135,7 +131,6 @@ const calcTotal = (form) => {
    Main Component
 ═══════════════════════════════ */
 const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
-  const { toast } = useToast();
   const [form, setForm] = useState({
     type: "birthday",
     name: "", mobile: "", email: "",
@@ -250,7 +245,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
       setSubmitted(true);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to submit. Please try again.");
+      alert("Failed to submit. Please try again.");
     } finally {
       setLoading(false);
     }

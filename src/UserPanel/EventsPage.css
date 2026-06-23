@@ -159,17 +159,12 @@
 /* ── Filter Section ────────────────────────────────────── */
 .ep-filter-section {
     padding: 16px 36px 0;
-    overflow-y: visible;
 }
 
 .ep-filter-scroll {
     display: flex;
     gap: 8px;
     overflow-x: auto;
-<<<<<<< HEAD
-=======
-    overflow-y: visible;
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
     padding-bottom: 4px;
 }
 

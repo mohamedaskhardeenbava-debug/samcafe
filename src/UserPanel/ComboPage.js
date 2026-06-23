@@ -4,13 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import "./ComboPage.css";
 import FavouriteCombo from "./FavouriteCombo";
 import api from "../api";
-<<<<<<< HEAD
 import ButtonFace from "./shared/ButtonFace";
-=======
-import socket from "../socket";
-import ButtonFace from "./shared/ButtonFace";
-import { useToast } from "../components/Usetoast";
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 
 /* ─── Animations ──────────────────────────────────────────── */
 const pageVariant = {
@@ -151,27 +145,16 @@ const ProgressSteps = ({ starter, main, drink }) => {
 /* ─── Main Component ──────────────────────────────────────── */
 const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser, setCurrentUser }) => {
   const location = useLocation();
-  const { toast } = useToast();
   const isEditMode = location.state?.fromBag;
   const editQuantity = location.state?.quantity;
   const editIndex = location.state?.bagIndex;
 
-  /* ── Offer rules (fetched from db, kept live via socket) ── */
+  /* ── Offer rules (fetched from db) ── */
   const [comboOfferRules, setComboOfferRules] = useState([]);
   useEffect(() => {
-    const fetchComboOfferRules = () => {
-      api.get("/combo_offers")
-        .then(res => setComboOfferRules(res.data || []))
-        .catch(() => setComboOfferRules([]));
-    };
-
-    fetchComboOfferRules();
-
-    const handler = ({ resource }) => {
-      if (resource === "combo_offers") fetchComboOfferRules();
-    };
-    socket.on("data-change", handler);
-    return () => socket.off("data-change", handler);
+    api.get("/combo_offers")
+      .then(res => setComboOfferRules(res.data || []))
+      .catch(() => setComboOfferRules([]));
   }, []);
 
   /* ── Data ── */
@@ -378,8 +361,6 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
       setActiveLeftView("favourites");
     } catch (err) {
       console.error("Failed to save favourite combo", err);
-      toast.error("Couldn't save to favourites. Please try again.");
-      setShowAddFavConfirm(false);
     } finally {
       setIsSavingFav(false);
     }
@@ -431,13 +412,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
         {showAddFavConfirm && (
           <motion.div className="combo-add-fav-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
             <motion.div className="combo-add-fav-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+              <div className="combo-add-fav-icon">⭐</div>
               <h3>Save to Favourites?</h3>
               <p className="combo-add-fav-title">{comboTitle}</p>
-<<<<<<< HEAD
               <div className="combo-add-fav-actions">
-=======
-              <div className="btn-section">
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
                 <button className="btn-3d white" onClick={() => setShowAddFavConfirm(false)}>
                   <ButtonFace>Cancel</ButtonFace>
                 </button>
@@ -455,13 +433,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
         {showDuplicateOverlay && (
           <motion.div className="combo-add-fav-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
             <motion.div className="combo-add-fav-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+              <div className="combo-add-fav-icon">⚠️</div>
               <h3>Already Saved</h3>
               <p className="combo-add-fav-title">This combo already exists in your favourites.</p>
-<<<<<<< HEAD
               <div className="combo-add-fav-actions">
-=======
-              <div className="btn-section">
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
                 <button className="btn-3d red" onClick={() => setShowDuplicateOverlay(false)}>
                   <ButtonFace>Okay</ButtonFace>
                 </button>

@@ -45,7 +45,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
         if (found) { dish = { ...found, categoryId: cat.id }; break; }
         for (const sub of cat.subCategories || []) {
           const foundSub = sub.dishes?.find(d => d.id === dishId);
-          if (foundSub) { dish = { ...foundSub, categoryId: sub.id }; break; }
+          if (foundSub) { dish = { ...foundSub, categoryId: cat.id }; break; }
         }
         if (dish) break;
       }
@@ -202,7 +202,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
                 navigate(`/food/${dish.id}`, {
                   state: {
                     fromFavouriteCustomize: true,
-                    favouriteSnapshot: dish,
+                    favouriteSnapshot: dish, // ✅ PASS FULL DATA
                     categoryId: dish.categoryId,
                     dishId: dish.id
                   }

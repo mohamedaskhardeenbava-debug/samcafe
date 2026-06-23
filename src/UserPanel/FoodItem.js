@@ -72,7 +72,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   }, [foodData.categories, categoryId]);
 
   const dish = useMemo(() => (
-    category && dishId ? (category.dishes || []).find(d => d.id === dishId) : null
+    category && dishId ? category.dishes.find(d => d.id === dishId) : null
   ), [category, dishId]);
 
   const originalCategory = useMemo(() => {

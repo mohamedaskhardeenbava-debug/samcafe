@@ -72,15 +72,9 @@ export const normalizeBagItem = (rawItem, foodData) => {
     findCategoryByDish(foodData, rawItem.id);
 
   const dish =
-<<<<<<< HEAD
     Array.isArray(category?.dishes)
       ? category.dishes.find(d => d.id === rawItem.id)
       : null || {};
-=======
-    (Array.isArray(category?.dishes)
-      ? category.dishes.find(d => d.id === rawItem.id)
-      : null) || {};
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 
   const defaultSize =
     category?.sizes?.[0]?.name?.toLowerCase() || "regular";

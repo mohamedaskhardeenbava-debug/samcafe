@@ -84,14 +84,13 @@ const PrinterReceipt = ({ order, onDone }) => {
 
                                 {/* Items table */}
                                 <table className="receipt-table">
-                                    <thead>
+                                    <tbody>
                                         <tr>
                                             <th>Item</th>
                                             <th>Qty</th>
                                             <th>Price</th>
                                         </tr>
-                                    </thead>
-                                    <tbody>
+
                                         {items.map((item, i) => (
                                             <tr key={i}>
                                                 <td>{item.dishName}</td>

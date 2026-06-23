@@ -2,17 +2,6 @@
    ── COMPREHENSIVE CSS VARIABLES SYSTEM ──
    Light & Dark Themes with Full Color Coverage
 ═══════════════════════════════════════════════════════════════════════════ */
-*,
-:root,
-html,
-body {
-  touch-action: manipulation !important;
-  -webkit-user-drag: none !important;
-  -webkit-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;
-}
 
 :root {
   /* LIGHT THEME (DEFAULT) */
@@ -692,12 +681,6 @@ image {
   object-fit: contain;
 }
 
-/* ------------------SubText-------------------- */
-.subtext {
-  font-size: 10px;
-  color: var(--text-secondary);
-}
-
 @media screen and (max-width: 576px) {
   .floating-bell-wrapper {
     bottom: 16px;
@@ -1330,10 +1313,6 @@ image {
   align-content: center;
   height: 100%;
   min-height: 36px;
-<<<<<<< HEAD
-=======
-  padding: 0 16px;
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 }
 
 .btn-3d:hover {
@@ -1364,11 +1343,7 @@ image {
 
 .red .front {
   background: var(--color-red);
-<<<<<<< HEAD
-  color: #fff;
-=======
   color: var(--bg-main);
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 }
 
 .green .edge {
@@ -1381,11 +1356,7 @@ image {
 
 .green .front {
   background: var(--color-green);
-<<<<<<< HEAD
-  color: #fff;
-=======
-  color: var(--bg-main);
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
+  color: var(--text-primary);
 }
 
 .white .edge {
