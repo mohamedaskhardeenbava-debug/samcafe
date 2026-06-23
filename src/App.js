@@ -33,10 +33,6 @@ import PreBooking from "./UserPanel/PreBooking";
 import CateringForm from "./UserPanel/CateringForm";
 
 import bellSound from "./assets/sounds/bell.mp3";
-<<<<<<< HEAD
-import { ToastProvider } from "./components/Usetoast";
-=======
->>>>>>> 656ff502cab1f2fdbb0bf4277e7fcba04fabeae8
 import bellGif from "./assets/bell/bell.gif";
 import bellStatic from "./assets/bell/bell-static.png";
 import { normalizeBagItem, findMatchingBagIndex } from "./UserPanel/shared/normalizeBagItem";
