@@ -113,10 +113,11 @@
   font-size: 18px;
   font-weight: 500;
   margin-top: 12px;
-  color: var(--text-secondary);
+  color: #fff;
   opacity: 0;
   transform: translateY(20px);
   animation: slidesUp 0.8s ease 0.9s forwards;
+  margin-bottom: 12px;
 }
 
 @keyframes slidesUp {
@@ -239,6 +240,7 @@
   flex-direction: column;
   gap: 10px;
   align-items: center;
+  height: 310px;
 }
 
 .welcome-btn {

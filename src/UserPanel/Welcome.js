@@ -266,7 +266,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       <div className="welcome-container">
         <div className="welcome-title">
           <img
-            src={theme === "light" ? logoLight : logoDark}
+            src={logoDark}
             alt="Cafe"
           />
         </div>
@@ -283,103 +283,108 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                 openTab('Login')
                 setActiveTab("Login")
               }}
-              >
-            Login
-          </button>
-          <button 
+            >
+              Login
+            </button>
+            <button
               className={`welcome-btn ${activeTab === "Create" ? "active" : ""}`}
               onClick={() => {
                 openTab('Create')
                 setActiveTab("Create")
               }}>Create Account</button>
-        </div>
-
-        <div
-          className="profile-card openTab" id="Login"
-        >
-          <h3>Login</h3>
-
-          <div
-            className="section"
-          //onClick={(e) => e.stopPropagation()}
-          >
-            <MatField
-              label="Mobile Number"
-              type="tel"
-              style={{ paddingLeft: "4px" }}
-              inputRef={mobileInputRef}
-              list={enableAutocomplete ? "user-mobiles" : undefined}
-              maxLength={10}
-              value={mobile}
-              onChange={handleMobileChange}
-              error={formErrors.mobile}
-              wrapperClassName=""
-            />
           </div>
 
-
-          <Button3D
-            className="btn-3d red"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleLogin();
-            }}
+          <div
+            className="profile-card openTab" id="Login"
           >
-            Login
+            <h3>Login</h3>
+
+            <div
+              className="section"
+            //onClick={(e) => e.stopPropagation()}
+            >
+              <MatField
+                label="Mobile Number"
+                type="tel"
+                style={{ paddingLeft: "4px" }}
+                inputRef={mobileInputRef}
+                list={enableAutocomplete ? "user-mobiles" : undefined}
+                maxLength={10}
+                value={mobile}
+                onChange={handleMobileChange}
+                error={formErrors.mobile}
+                wrapperClassName=""
+              />
+            </div>
+
+
+            <Button3D
+              className="btn-3d red"
+              onClick={(e) => {
+                e.stopPropagation();
+                handleLogin();
+              }}
+            >
+              Login
+            </Button3D>
+          </div>
+
+          <div
+            className="profile-card openTab"
+            style={{ display: "none" }}
+            id="Create"
+          >
+            <h3>Create Profile</h3>
+
+            <div
+              className="section"
+            //onClick={(e) => e.stopPropagation()}
+            >
+              <MatField
+                label="Full Name"
+                type="text"
+                maxLength={100}
+                value={name}
+                onChange={handleNameChange}
+                error={formErrors.name}
+                wrapperClassName=""
+              />
+            </div>
+
+            <div
+              className="section"
+            //onClick={(e) => e.stopPropagation()}
+            >
+              <MatField
+                label="Mobile Number"
+                type="tel"
+                maxLength={10}
+                value={mobile}
+                onChange={handleSignupMobileChange}
+                error={formErrors.mobile}
+                wrapperClassName=""
+              />
+            </div>
+
+
+            <Button3D
+              className="btn-3d red"
+            // onClick={(e) => {
+            //   e.stopPropagation();
+            //   handleSignup();
+            // }}
+            // disabled={loading}
+            >
+              Sign Up
+            </Button3D>
+          </div>
+
+          <Button3D className="btn-3d white" >
+            Enter as Guest
           </Button3D>
-        </div>
-
-        <div
-          className="profile-card openTab"
-          style={{ display: "none" }}
-          id="Create"
-        >
-          <h3>Create Profile</h3>
-
-          <div
-            className="section"
-          //onClick={(e) => e.stopPropagation()}
-          >
-            <MatField
-              label="Full Name"
-              type="text"
-              maxLength={100}
-              value={name}
-              onChange={handleNameChange}
-              error={formErrors.name}
-              wrapperClassName=""
-            />
-          </div>
-
-          <div
-            className="section"
-          //onClick={(e) => e.stopPropagation()}
-          >
-            <MatField
-              label="Mobile Number"
-              type="tel"
-              maxLength={10}
-              value={mobile}
-              onChange={handleSignupMobileChange}
-              error={formErrors.mobile}
-              wrapperClassName=""
-            />
-          </div>
-
-
-          <Button3D
-            className="btn-3d red"
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   handleSignup();
-          // }}
-          // disabled={loading}
-          >
-            Sign Up
-          </Button3D>
+          <span className="subtext">(No login needed)</span>
         </div>
       </div>
-    </div>
     </div >
 
   );

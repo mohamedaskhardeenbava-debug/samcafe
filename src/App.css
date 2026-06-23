@@ -681,6 +681,12 @@ image {
   object-fit: contain;
 }
 
+/* ------------------SubText-------------------- */
+.subtext {
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
 @media screen and (max-width: 576px) {
   .floating-bell-wrapper {
     bottom: 16px;
