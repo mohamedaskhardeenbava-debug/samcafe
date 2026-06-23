@@ -142,8 +142,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
     if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
-    alert("test")
-
     const matches = users.filter(u => u.mobile === mobile);
 
     if (matches.length === 0) {
@@ -221,8 +219,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   var loginTab = 'Login';
   var tabs = document.getElementsByClassName('openTab');
 
-  //alert(tabs);
-
   function openTab(loginTab) {
     // var i;
     var x = document.getElementsById;
@@ -283,6 +279,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
               onClick={() => {
                 openTab('Login')
                 setActiveTab("Login")
+                setMobile("")
               }}
             >
               Login
@@ -292,6 +289,8 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
               onClick={() => {
                 openTab('Create')
                 setActiveTab("Create")
+                setName("")
+                setMobile("")
               }}>Create Account</button>
           </div>
 
