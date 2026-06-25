@@ -29,6 +29,10 @@
   font-family: inherit;
 }
 
+.food-category-items .btn-3d {
+  margin-top: auto;
+}
+
 .food-category-items.favourites-list {
   background-color: var(--bg-main);
   display: flex;
@@ -51,7 +55,7 @@
 
 .fav-customer-name {
   font-size: 12px;
-  margin-top: 2px;
+  margin-bottom: 8px;
 }
 
 @media screen and (max-width: 992px) {

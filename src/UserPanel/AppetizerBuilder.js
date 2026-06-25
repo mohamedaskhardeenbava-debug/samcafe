@@ -131,11 +131,11 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                                     <div className="final-price">₹ {finalDish.basePrice}</div>
 
 
-                                    <Button3D className="btn-3d red" onClick={resetSelection}>
+                                    <Button3D className="btn-3d red" onClick={resetSelection} frontStyle={{ padding: "0 10px" }}>
                                         Delete
                                     </Button3D>
 
-                                    <Button3D className="btn-3d green" onClick={addDishToBag}>
+                                    <Button3D className="btn-3d green" onClick={addDishToBag} frontStyle={{ padding: "0 10px" }}>
                                         Add to Bag
                                     </Button3D>
                                 </div>

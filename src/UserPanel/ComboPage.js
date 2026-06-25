@@ -473,10 +473,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             {currentUser && currentUser.id !== "guest" && (
               <div className="combo-header-btn-section">
                 <button className="btn-3d red" disabled={!isComboComplete} onClick={() => setShowAddFavConfirm(true)}>
-                  <ButtonFace>♥ Save</ButtonFace>
+                  <ButtonFace frontStyle={{ padding: "0 10px" }}>♥ Save</ButtonFace>
                 </button>
                 <button className="btn-3d red" onClick={() => setActiveLeftView("favourites")}>
-                  <ButtonFace>My Favs</ButtonFace>
+                  <ButtonFace frontStyle={{ padding: "0 10px" }}>My Favs</ButtonFace>
                 </button>
               </div>
             )}

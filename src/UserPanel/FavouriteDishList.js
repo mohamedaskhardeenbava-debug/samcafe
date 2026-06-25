@@ -138,6 +138,7 @@ const FavouriteDishList = ({
               {isMyFavourites && (
                 <Button3D
                   className="btn-3d red"
+                  frontStyle={{ padding: "0 10px" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setDishToDelete(dish);
