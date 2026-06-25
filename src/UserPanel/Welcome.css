@@ -5,8 +5,7 @@
   overflow: hidden;
   font-family: "Geom", system-ui, sans-serif;
   background: linear-gradient(180deg, #7a0101, red);
-  min-height: 100vh;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ===== WAVE BACKGROUND ===== */
@@ -86,7 +85,7 @@
   max-width: 1000px;
   margin: 0 auto;
   min-height: 600px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .welcome-text {
