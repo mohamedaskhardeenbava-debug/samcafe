@@ -1,18 +1,16 @@
 .welcome-page {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
   font-family: "Geom", system-ui, sans-serif;
   background: linear-gradient(180deg, #7a0101, red);
+  min-height: 100vh;
   overflow: visible;
 }
 
-/* ===== WAVE BACKGROUND ===== */
-.welcome-page {
-  position: relative;
-}
-
+/* ===== WAVE BACKGROUND   ===== */
 .welcome-waves {
   position: fixed;
   inset: 0;
