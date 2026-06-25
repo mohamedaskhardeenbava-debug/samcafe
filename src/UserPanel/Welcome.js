@@ -384,9 +384,10 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           </Button3D>
           <span className="subtext">(No login needed)</span>
         </div>
+        <img className="power-logo" src={powerLogo} />
       </div>
 
-      <img className="power-logo" src={powerLogo} />
+      
     </div >
 
   );
