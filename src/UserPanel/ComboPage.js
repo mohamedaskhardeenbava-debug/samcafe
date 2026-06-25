@@ -4,7 +4,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import "./ComboPage.css";
 import FavouriteCombo from "./FavouriteCombo";
 import api from "../api";
+import socket from "../socket";
 import ButtonFace from "./shared/ButtonFace";
+import { useToast } from "../components/Usetoast";
 
 /* ─── Animations ──────────────────────────────────────────── */
 const pageVariant = {
@@ -145,16 +147,27 @@ const ProgressSteps = ({ starter, main, drink }) => {
 /* ─── Main Component ──────────────────────────────────────── */
 const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser, setCurrentUser }) => {
   const location = useLocation();
+  const { toast } = useToast();
   const isEditMode = location.state?.fromBag;
   const editQuantity = location.state?.quantity;
   const editIndex = location.state?.bagIndex;
 
-  /* ── Offer rules (fetched from db) ── */
+  /* ── Offer rules (fetched from db, kept live via socket) ── */
   const [comboOfferRules, setComboOfferRules] = useState([]);
   useEffect(() => {
-    api.get("/combo_offers")
-      .then(res => setComboOfferRules(res.data || []))
-      .catch(() => setComboOfferRules([]));
+    const fetchComboOfferRules = () => {
+      api.get("/combo_offers")
+        .then(res => setComboOfferRules(res.data || []))
+        .catch(() => setComboOfferRules([]));
+    };
+
+    fetchComboOfferRules();
+
+    const handler = ({ resource }) => {
+      if (resource === "combo_offers") fetchComboOfferRules();
+    };
+    socket.on("data-change", handler);
+    return () => socket.off("data-change", handler);
   }, []);
 
   /* ── Data ── */
@@ -361,6 +374,8 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
       setActiveLeftView("favourites");
     } catch (err) {
       console.error("Failed to save favourite combo", err);
+      toast.error("Couldn't save to favourites. Please try again.");
+      setShowAddFavConfirm(false);
     } finally {
       setIsSavingFav(false);
     }
@@ -412,10 +427,9 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
         {showAddFavConfirm && (
           <motion.div className="combo-add-fav-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
             <motion.div className="combo-add-fav-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
-              <div className="combo-add-fav-icon">⭐</div>
               <h3>Save to Favourites?</h3>
               <p className="combo-add-fav-title">{comboTitle}</p>
-              <div className="combo-add-fav-actions">
+              <div className="btn-section">
                 <button className="btn-3d white" onClick={() => setShowAddFavConfirm(false)}>
                   <ButtonFace>Cancel</ButtonFace>
                 </button>
@@ -433,10 +447,9 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
         {showDuplicateOverlay && (
           <motion.div className="combo-add-fav-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
             <motion.div className="combo-add-fav-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
-              <div className="combo-add-fav-icon">⚠️</div>
               <h3>Already Saved</h3>
               <p className="combo-add-fav-title">This combo already exists in your favourites.</p>
-              <div className="combo-add-fav-actions">
+              <div className="btn-section">
                 <button className="btn-3d red" onClick={() => setShowDuplicateOverlay(false)}>
                   <ButtonFace>Okay</ButtonFace>
                 </button>
@@ -460,10 +473,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, currentUser,
             {currentUser && currentUser.id !== "guest" && (
               <div className="combo-header-btn-section">
                 <button className="btn-3d red" disabled={!isComboComplete} onClick={() => setShowAddFavConfirm(true)}>
-                  <ButtonFace>♥ Save</ButtonFace>
+                  <ButtonFace frontStyle={{ padding: "0 10px" }}>♥ Save</ButtonFace>
                 </button>
                 <button className="btn-3d red" onClick={() => setActiveLeftView("favourites")}>
-                  <ButtonFace>My Favs</ButtonFace>
+                  <ButtonFace frontStyle={{ padding: "0 10px" }}>My Favs</ButtonFace>
                 </button>
               </div>
             )}

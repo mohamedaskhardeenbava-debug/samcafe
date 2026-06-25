@@ -8,6 +8,7 @@ import cartIcon from "../assets/icons/cart.png";
 import Button3D from "./shared/Button3D.js";
 import { groupBagItems, getUnitPrice, getLineTotal, getBagSubtotal, getBagItemCount } from "./shared/bagUtils.js";
 import { RED_EDGE_GRADIENT } from "./shared/styles.js";
+import { useToast } from "../components/Usetoast.js";
 
 const VIEW_BTN_EDGE_STYLE = RED_EDGE_GRADIENT;
 
@@ -22,6 +23,7 @@ const FloatingBag = ({
     const [shake, setShake] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
+    const { toast } = useToast();
     const safeBag = Array.isArray(bag) ? bag : [];
     const [orderForReceipt, setOrderForReceipt] = useState(null);
 
@@ -142,6 +144,7 @@ const FloatingBag = ({
                                 setOrderForReceipt(newOrder);   // 👈 show printer
                             } catch (err) {
                                 console.error(err);
+                                toast.error("Couldn't place your order. Please try again.");
                             }
                         }}
                     >

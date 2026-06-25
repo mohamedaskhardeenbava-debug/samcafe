@@ -159,12 +159,14 @@
 /* ── Filter Section ────────────────────────────────────── */
 .ep-filter-section {
     padding: 16px 36px 0;
+    overflow-y: visible;
 }
 
 .ep-filter-scroll {
     display: flex;
     gap: 8px;
     overflow-x: auto;
+    overflow-y: visible;
     padding-bottom: 4px;
 }
 

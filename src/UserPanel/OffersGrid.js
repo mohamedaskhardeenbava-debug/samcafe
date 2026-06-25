@@ -53,7 +53,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
             </div>
 
             {/* GRID */}
-            <div className="offers-grid-container">
+            <div className="food-category-container">
                 {offerDishes.map(dish => (
                     <div
                         key={dish.id}
@@ -89,6 +89,7 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
                         {/* ADD BUTTON */}
                         <Button3D
                             className="btn-3d red"
+                            frontStyle={{ padding: "0 10px" }}
                             onClick={(e) => {
                                 e.stopPropagation();
 
