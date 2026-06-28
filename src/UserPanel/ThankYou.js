@@ -150,7 +150,7 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
           </div>
         )}
 
-        <div style={{display:"flex", gap:"10px", alignItems:"center", marginTop:"16px"}}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "16px" }}>
           <Button3D className="btn-3d green" onClick={handleOrderAnother}>
             Order Another
           </Button3D>

@@ -708,10 +708,10 @@
 
 .combo-add-fav-confirm .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .combo-add-fav-confirm .front {
@@ -829,10 +829,10 @@
 .combo-action-btn .edge,
 .combo-add-fav-btn .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .combo-action-btn .front,
@@ -853,10 +853,10 @@
 
 .combo-my-fav-btn .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .combo-my-fav-btn .front {
@@ -894,10 +894,10 @@
 
 .combo-subcategory-btn.active .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .combo-subcategory-btn.active .front {
@@ -964,10 +964,10 @@
 
 .combo-add-btn .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .combo-add-btn .front {
@@ -990,10 +990,10 @@
 
 .offer-hint-add .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .offer-hint-add .front {
@@ -1059,10 +1059,10 @@
 .combo-category-card.active .edge,
 .combo-category-card.selected .edge {
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .combo-category-card.active .front,
@@ -1094,7 +1094,7 @@
       hsl(0, 0%, 80%) 8%,
       hsl(0, 0%, 80%) 92%,
       hsl(0, 0%, 72%) 100%);
-      cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 .combo-category-card.disabled .shadow,

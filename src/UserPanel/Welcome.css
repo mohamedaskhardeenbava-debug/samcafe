@@ -259,7 +259,7 @@
 }
 
 .welcome-btn.active {
-  border-color: #7a0101 !important;
+  border-color: var(--edge-color-dark) !important;
 }
 
 .profile-card {

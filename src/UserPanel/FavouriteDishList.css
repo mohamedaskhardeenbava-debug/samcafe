@@ -1,21 +1,12 @@
-/* Reuse EXACT same category UI */
+/* ─── FAVOURITE DISH LIST ─── */
+/* NOTE: .empty-favourites base styles live in FoodList.css (shared).
+   This file overrides color and adds dish-list-specific styles only. */
+
 @import "./FoodCategory.css";
 
-/* Optional empty state */
-.empty-favourites {
-  margin-top: 60px;
-  text-align: center;
+/* Override empty state color for dish context */
+.fav-dish-page .empty-favourites {
   color: var(--text-light);
-}
-
-.empty-favourites h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.empty-favourites p {
-  font-size: 14px;
 }
 
 .fav-delete-btn {

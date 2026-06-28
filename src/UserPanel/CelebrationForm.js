@@ -1,6 +1,6 @@
 /* user panel */
 import { useState, useEffect } from "react";
-import api from "../api";
+import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker, todayStr } from "../components/UserDatePicker";
 import { UserTimePicker } from "../components/UserTimePicker";
 import "./CelebrationForm.css";
@@ -156,15 +156,9 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const userId = localStorage.getItem("userId");
-        if (!userId) return;
-        const res = await api.get(`/users/${userId}`);
-        setForm(prev => ({ ...prev, name: res.data?.name || "", mobile: res.data?.mobile || "", email: res.data?.email || "" }));
-      } catch (err) { console.error(err); }
-    };
-    loadUser();
+    bookingCrud.resolveUser().then(({ name, mobile, email }) => {
+      setForm(prev => ({ ...prev, name, mobile, email }));
+    }).catch(console.error);
   }, []);
 
   const set = (key, val) => {
@@ -235,15 +229,11 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
     if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
     try {
       setLoading(true);
-      const id = `cele_${Date.now()}`;
-      await api.post("/celebrations", {
-        id, ...form,
+      const saved = await bookingCrud.create("celebrations", {
+        ...form,
         totalAmount: estimatedTotal,
-        status: "pending",
-        source: "User App",
-        createdAt: new Date().toISOString(),
       });
-      setBookingId(id.slice(-6).toUpperCase());
+      setBookingId(bookingCrud.makeRef(saved.id));
       setSubmitted(true);
     } catch (err) {
       console.error(err);

@@ -3,873 +3,873 @@
    Matches PreBooking.css style exactly
 ══════════════════════════════════════════════════════ */
 .ucat-page {
-    padding: 36px;
-    font-family: "Geom", system-ui, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-    box-sizing: border-box;
+  padding: 36px;
+  font-family: "Geom", system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  box-sizing: border-box;
 }
 
 /* TWO-COLUMN GRID */
 .ucat-form-grid {
-    display: flex;
-    gap: 20px;
-    margin-top: 10px;
-    height: calc(100vh - 135px);
+  display: flex;
+  gap: 20px;
+  margin-top: 10px;
+  height: calc(100vh - 135px);
 }
 
 .ucat-col {
-    background: transparent;
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    overflow-y: auto;
-    padding-bottom: 20px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-dark) transparent;
+  background: transparent;
+  width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  padding-bottom: 20px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-dark) transparent;
 }
 
 .ucat-col::-webkit-scrollbar {
-    width: 4px;
+  width: 4px;
 }
 
 .ucat-col::-webkit-scrollbar-thumb {
-    background: var(--border-dark);
-    border-radius: 4px;
+  background: var(--border-dark);
+  border-radius: 4px;
 }
 
 /* CARD */
 .ucat-card {
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    border: 1.5px solid transparent;
-    transition: border-color 0.2s;
-    overflow: visible;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1.5px solid transparent;
+  transition: border-color 0.2s;
+  overflow: visible;
 }
 
 /* Card-level error — matches pbp-card.pbp-card-error */
 .ucat-card.ucat-card-error {
-    border-color: var(--color-red);
+  border-color: var(--color-red);
 }
 
 .ucat-req {
-    color: var(--color-red, var(--color-red));
+  color: var(--color-red, var(--color-red));
 }
 
 .ucat-opt {
-    color: var(--text-placeholder);
-    font-weight: 400;
+  color: var(--text-placeholder);
+  font-weight: 400;
 }
 
 /* NOTES TEXTAREA */
 .ucat-notes {
-    border-radius: 12px;
-    border: 1.5px solid var(--text-tertiary);
-    background-color: transparent;
-    padding: 12px 14px;
-    font-size: 14px;
-    font-family: inherit;
-    color: var(--text-primary);
-    outline: none;
-    resize: none;
-    transition: border-color 0.2s;
-    width: 100%;
-    box-sizing: border-box;
+  border-radius: 12px;
+  border: 1.5px solid var(--text-tertiary);
+  background-color: transparent;
+  padding: 12px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  outline: none;
+  resize: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .ucat-notes:focus {
-    border-color: var(--color-red);
-    box-shadow: 0 0 0 3px var(--shadow-red-sm);
+  border-color: var(--color-red);
+  box-shadow: 0 0 0 3px var(--shadow-red-sm);
 }
 
 /* ITEMS LIST */
 .ucat-items {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .ucat-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
 }
 
 .ucat-item:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .ucat-item-name {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
 .ucat-item-size {
-    font-size: 12px;
-    color: var(--text-muted);
-    margin-left: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-left: 4px;
 }
 
 .ucat-item-price {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-    white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
 }
 
 .ucat-item-delete {
-    outline: none;
-    border: none;
-    border-radius: 999px;
-    background: var(--bg-surface);
-    color: var(--color-red);
-    font-size: 14px;
-    box-shadow: 6px 6px 12px var(--text-secondary), -6px -6px 12px #cfcfcf;
+  outline: none;
+  border: none;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  color: var(--color-red);
+  font-size: 14px;
+  box-shadow: 6px 6px 12px var(--text-secondary), -6px -6px 12px #cfcfcf;
 }
 
 /* BILL */
 .ucat-bill {
-    border-top: 1.5px solid var(--text-tertiary);
-    padding-top: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  border-top: 1.5px solid var(--text-tertiary);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .ucat-bill-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 13px;
-    color: var(--text-lighter);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-lighter);
 }
 
 .ucat-bill-total {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text-primary);
-    border-top: 1px solid var(--text-tertiary);
-    padding-top: 8px;
-    margin-top: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  border-top: 1px solid var(--text-tertiary);
+  padding-top: 8px;
+  margin-top: 4px;
 }
 
 /* EMPTY */
 .ucat-empty {
-    text-align: center;
-    padding: 20px 0;
-    color: var(--text-secondary);
-    border: 1px dashed var(--text-tertiary);
-    border-radius: 14px;
+  text-align: center;
+  padding: 20px 0;
+  color: var(--text-secondary);
+  border: 1px dashed var(--text-tertiary);
+  border-radius: 14px;
 }
 
 .ucat-empty p {
-    margin: 0 0 4px;
-    font-size: 14px;
-    font-weight: 500;
+  margin: 0 0 4px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
 .ucat-empty span {
-    font-size: 12px;
+  font-size: 12px;
 }
 
 /* SUBMIT ERROR — matches pbp-submit-error */
 .ucat-submit-error {
-    background: var(--color-error-bg);
-    border: 1px solid var(--border-error);
-    color: var(--color-error-dark);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 10px 14px;
-    border-radius: 10px;
-    margin-top: 4px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--border-error);
+  color: var(--color-error-dark);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-top: 4px;
 }
 
 /* ACTIONS */
 .ucat-actions {
-    text-align: center;
+  text-align: center;
 }
 
 .ucat-cancel-btn {
-    flex: 0 0 auto;
-    height: 46px;
-    padding: 0 22px;
-    border-radius: 12px;
-    border: 1.5px solid var(--border-lightest);
-    background: var(--btn-default);
-    color: var(--text-lighter);
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.18s;
+  flex: 0 0 auto;
+  height: 46px;
+  padding: 0 22px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-lightest);
+  background: var(--btn-default);
+  color: var(--text-lighter);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s;
 }
 
 .ucat-cancel-btn:hover {
-    background: var(--btn-hover);
-    color: var(--text-primary);
+  background: var(--btn-hover);
+  color: var(--text-primary);
 }
 
 .ucat-submit-btn {
-    width: 300px !important;
-    padding: 16px 20px !important;
-    border-radius: 14px;
-    border: none;
-    background: var(--color-red);
-    color: var(--bg-main);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 4px 16px var(--shadow-red-lg);
-    align-self: center;
+  width: 300px !important;
+  padding: 16px 20px !important;
+  border-radius: 14px;
+  border: none;
+  background: var(--color-red);
+  color: var(--bg-main);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px var(--shadow-red-lg);
+  align-self: center;
 }
 
 .ucat-submit-btn:hover:not(:disabled) {
-    scale: 1.3;
-    box-shadow: 0 6px 22px var(--shadow-red-2xl);
+  scale: 1.3;
+  box-shadow: 0 6px 22px var(--shadow-red-2xl);
 }
 
 .ucat-submit-btn:disabled,
 .ucat-submit-btn.loading {
-    opacity: 0.7;
-    cursor: not-allowed;
-    transform: none;
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ══════════════════════════════════════
    SUCCESS SCREEN
 ══════════════════════════════════════ */
 .ucat-success-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 36px 24px 60px;
-    gap: 14px;
-    max-width: 440px;
-    margin: 0 auto;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 24px 60px;
+  gap: 14px;
+  max-width: 440px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .ucat-success-icon {
-    font-size: 62px;
-    animation: ucatBounce 0.6s ease;
+  font-size: 62px;
+  animation: ucatBounce 0.6s ease;
 }
 
 @keyframes ucatBounce {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
 
-    70% {
-        transform: scale(1.12);
-    }
+  70% {
+    transform: scale(1.12);
+  }
 
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .ucat-success-title {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin: 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
 }
 
 .ucat-success-sub {
-    font-size: 14px;
-    color: var(--text-light);
-    margin: 0;
+  font-size: 14px;
+  color: var(--text-light);
+  margin: 0;
 }
 
 .ucat-success-id {
-    font-size: 13px;
-    color: var(--text-lighter);
+  font-size: 13px;
+  color: var(--text-lighter);
 }
 
 .ucat-booking-code {
-    font-size: 15px;
-    font-weight: 800;
-    background: var(--btn-default);
-    padding: 2px 10px;
-    border-radius: 8px;
-    color: var(--text-primary);
-    letter-spacing: 0.05em;
+  font-size: 15px;
+  font-weight: 800;
+  background: var(--btn-default);
+  padding: 2px 10px;
+  border-radius: 8px;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
 }
 
 .ucat-success-card {
-    width: 100%;
-    background: var(--bg-lighter);
-    border-radius: 16px;
-    border: 1px solid var(--border-lightest);
-    overflow: hidden;
+  width: 100%;
+  background: var(--bg-lighter);
+  border-radius: 16px;
+  border: 1px solid var(--border-lightest);
+  overflow: hidden;
 }
 
 .ucat-sc-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 11px 16px;
-    border-bottom: 1px solid var(--border-lighter);
-    font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border-lighter);
+  font-size: 13px;
 }
 
 .ucat-sc-row:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .ucat-sc-row span {
-    color: var(--text-muted);
-    font-weight: 500;
+  color: var(--text-muted);
+  font-weight: 500;
 }
 
 .ucat-sc-row strong {
-    color: var(--text-primary);
-    font-weight: 700;
+  color: var(--text-primary);
+  font-weight: 700;
 }
 
 .ucat-back-home-btn {
-    padding: 13px 32px;
-    border-radius: 12px;
-    border: none;
-    background: var(--color-red, var(--color-red));
-    color: var(--bg-main);
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.2s;
-    margin-top: 4px;
-    box-shadow: 0 4px 14px var(--shadow-red-lg);
+  padding: 13px 32px;
+  border-radius: 12px;
+  border: none;
+  background: var(--color-red, var(--color-red));
+  color: var(--bg-main);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-top: 4px;
+  box-shadow: 0 4px 14px var(--shadow-red-lg);
 }
 
 .ucat-back-home-btn:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
+  opacity: 0.9;
+  transform: translateY(-1px);
 }
 
 /* ══════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════ */
 @media (max-width: 1024px) {
-    .ucat-page {
-        padding: var(--medium-page-padding);
-    }
+  .ucat-page {
+    padding: var(--medium-page-padding);
+  }
 }
 
 @media (max-width: 768px) {
-    .ucat-form-grid {
-        flex-direction: column;
-        height: auto;
-        gap: 16px;
-    }
+  .ucat-form-grid {
+    flex-direction: column;
+    height: auto;
+    gap: 16px;
+  }
 
-    .ucat-col {
-        width: 100%;
-        box-sizing: border-box;
-        overflow-y: visible;
-    }
+  .ucat-col {
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: visible;
+  }
 
-    .ucat-submit-btn {
-        width: 100% !important;
-    }
+  .ucat-submit-btn {
+    width: 100% !important;
+  }
 }
 
 @media (max-width: 578px) {
-    .ucat-page {
-        padding: var(--mobile-page-padding);
-    }
+  .ucat-page {
+    padding: var(--mobile-page-padding);
+  }
 
-    .ucat-form-grid {
-        gap: 10px;
-    }
+  .ucat-form-grid {
+    gap: 10px;
+  }
 }
 
 /* ══════════════════════════════════════
    ADD DISH POPUP
 ══════════════════════════════════════ */
 .ucat-dish-popup-overlay {
-    position: fixed;
-    inset: 0;
-    background: var(--color-overlay);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
 }
 
 .ucat-dish-popup {
-    background: var(--bg-main);
-    border-radius: 18px;
-    width: 100%;
-    max-width: 720px;
-    height: 100%;
-    max-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: var(--shadow-dropdown);
+  background: var(--bg-main);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 720px;
+  height: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: var(--shadow-dropdown);
 }
 
 .ucat-dish-popup-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 18px 20px 12px;
-    border-bottom: 1px solid var(--border-lighter);
-    flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--border-lighter);
+  flex-shrink: 0;
 }
 
 .ucat-dish-popup-title {
-    font-size: 18px;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
 }
 
 .ucat-dish-popup-close {
-    background: var(--btn-default);
-    border: none;
-    border-radius: 8px;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-lighter);
-    transition: background 0.2s;
+  background: var(--btn-default);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-lighter);
+  transition: background 0.2s;
 }
 
 .ucat-dish-popup-close:hover {
-    background: var(--btn-hover);
+  background: var(--btn-hover);
 }
 
 .ucat-dish-popup-search-wrap {
-    padding: 10px 16px 0;
-    flex-shrink: 0;
+  padding: 10px 16px 0;
+  flex-shrink: 0;
 }
 
 .ucat-dish-popup-search {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 9px 14px;
-    border-radius: 999px;
-    border: 1.5px solid var(--border-lightest);
-    background: var(--bg-very-light);
-    font-size: 14px;
-    outline: none;
-    font-family: inherit;
-    transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-lightest);
+  background: var(--bg-very-light);
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
 }
 
 .ucat-dish-popup-search:focus {
-    border-color: var(--text-primary);
-    background: var(--bg-main);
+  border-color: var(--text-primary);
+  background: var(--bg-main);
 }
 
 /* Category tabs */
 .ucat-dish-popup-cats {
-    display: flex;
-    gap: 6px;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    padding: 10px 16px 4px;
-    flex-shrink: 0;
-    scrollbar-width: 0px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 10px 16px 4px;
+  flex-shrink: 0;
+  scrollbar-width: 0px;
 }
 
 .ucat-dish-popup-cats::-webkit-scrollbar {
-    height: 3px;
+  height: 3px;
 }
 
 .ucat-dish-popup-veg-row {
-    display: flex;
-    gap: 8px;
-    padding: 6px 16px 8px;
-    flex-shrink: 0;
+  display: flex;
+  gap: 8px;
+  padding: 6px 16px 8px;
+  flex-shrink: 0;
 }
 
 /* Dish list body */
 .ucat-dish-popup-body {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 16px 16px;
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px 16px;
 }
 
 .ucat-dish-popup-loading,
 .ucat-dish-popup-empty {
-    text-align: center;
-    padding: 32px;
-    color: var(--text-placeholder);
-    font-size: 14px;
+  text-align: center;
+  padding: 32px;
+  color: var(--text-placeholder);
+  font-size: 14px;
 }
 
 /* Dish grid — compact 2-column list */
 .ucat-dish-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
 }
 
 /* Horizontal compact card */
 .ucat-dish-card {
-    border: 1.5px solid var(--border-lighter);
-    border-radius: 12px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0;
-    transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
-    background: var(--bg-main);
-    min-height: 64px;
-    position: relative;
+  border: 1.5px solid var(--border-lighter);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0;
+  transition: box-shadow 0.18s, border-color 0.18s, transform 0.18s;
+  background: var(--bg-main);
+  min-height: 64px;
+  position: relative;
 }
 
 .ucat-dish-card:hover {
-    border-color: var(--border-muted);
-    box-shadow: 0 3px 12px var(--shadow-card-xs);
-    transform: translateY(-1px);
+  border-color: var(--border-muted);
+  box-shadow: 0 3px 12px var(--shadow-card-xs);
+  transform: translateY(-1px);
 }
 
 .ucat-dish-card.added {
-    border-color: var(--color-red);
-    background: var(--color-pale-red);
+  border-color: var(--color-red);
+  background: var(--color-pale-red);
 }
 
 /* Thumbnail */
 .ucat-dish-card-img {
-    width: 64px;
-    height: 64px;
-    min-width: 64px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin: 6px 0 6px 6px;
+  width: 64px;
+  height: 64px;
+  min-width: 64px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin: 6px 0 6px 6px;
 }
 
 .ucat-dish-placeholder {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    background: linear-gradient(135deg, var(--bg-dish-placeholder-start), var(--bg-dish-placeholder-end));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--bg-dish-placeholder-start), var(--bg-dish-placeholder-end));
 }
 
 /* Info area */
 .ucat-dish-card-body {
-    padding: 8px 8px 8px 10px;
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  padding: 8px 8px 8px 10px;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .ucat-dish-card-name {
-    font-size: 12.5px;
-    font-weight: 650;
-    color: var(--text-primary);
-    text-transform: capitalize;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.3;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
 }
 
 .ucat-dish-card-cat {
-    font-size: 10px;
-    color: var(--border-dark);
-    font-weight: 500;
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
+  font-size: 10px;
+  color: var(--border-dark);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
 .ucat-dish-card-price {
-    font-size: 11.5px;
-    font-weight: 700;
-    color: var(--color-red);
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: wrap;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-red);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .ucat-dish-card-total {
-    font-size: 10px;
-    color: var(--text-light);
-    font-weight: 400;
+  font-size: 10px;
+  color: var(--text-light);
+  font-weight: 400;
 }
 
 /* Action button — icon style, right edge */
 .ucat-dish-card-btn {
-    flex-shrink: 0;
-    margin: 0 8px 0 4px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1.5px solid var(--color-red);
-    background: transparent;
-    color: var(--color-red);
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
+  flex-shrink: 0;
+  margin: 0 8px 0 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-red);
+  background: transparent;
+  color: var(--color-red);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .ucat-dish-card-btn:hover {
-    background: var(--color-red);
-    color: var(--bg-main);
-    transform: scale(1.1);
+  background: var(--color-red);
+  color: var(--bg-main);
+  transform: scale(1.1);
 }
 
 .ucat-dish-card-btn.remove {
-    border-color: var(--color-red);
-    background: var(--color-error-bg);
-    color: var(--color-red);
-    font-size: 14px;
+  border-color: var(--color-red);
+  background: var(--color-error-bg);
+  color: var(--color-red);
+  font-size: 14px;
 }
 
 .ucat-dish-card-btn.remove:hover {
-    background: var(--color-error-dark);
-    color: var(--bg-main);
+  background: var(--color-error-dark);
+  color: var(--bg-main);
 }
 
 .ucat-add-dish-btn {
-    padding: 6px 14px;
-    border-radius: 999px;
-    border: 1.5px solid var(--text-primary);
-    border: none;
-    background: var(--bg-light);
-    color: var(--bg-main);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--text-primary);
+  border: none;
+  background: var(--bg-light);
+  color: var(--bg-main);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
 }
 
 .ucat-add-dish-btn:hover {
-    background: var(--text-secondary);
+  background: var(--text-secondary);
 }
 
 .ucat-addmore-dish-btn {
-    padding: 6px 14px;
-    border-radius: 999px;
-    border: 1.5px solid var(--text-primary);
-    border: none;
-    background: var(--bg-light);
-    color: var(--bg-main);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.15s;
-    width: fit-content;
-    align-self: flex-end;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--text-primary);
+  border: none;
+  background: var(--bg-light);
+  color: var(--bg-main);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  width: fit-content;
+  align-self: flex-end;
 }
 
 .ucat-addmore-dish-btn:hover {
-    background: var(--text-secondary);
+  background: var(--text-secondary);
 }
 
 /* Address grid */
 .ucat-addr-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
 /* Decoration grid */
 .ucat-deco-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
 }
 
 .ucat-deco-btn {
-    position: relative;
-    padding: 10px 6px;
-    border-radius: 12px;
-    border: 1.5px solid var(--border-lightest);
-    background: var(--bg-very-light);
-    cursor: pointer;
-    transition: all 0.18s;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    color: var(--text-placeholder);
+  position: relative;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1.5px solid var(--border-lightest);
+  background: var(--bg-very-light);
+  cursor: pointer;
+  transition: all 0.18s;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--text-placeholder);
 }
 
 .ucat-deco-btn:hover {
-    border-color: var(--color-red);
-    transform: translateY(-2px);
-    scale: 1 !important;
+  border-color: var(--color-red);
+  transform: translateY(-2px);
+  scale: 1 !important;
 }
 
 .ucat-deco-btn.active {
-    border-color: var(--color-red);
-    background: var(--color-red);
-    color: var(--bg-main);
+  border-color: var(--color-red);
+  background: var(--color-red);
+  color: var(--bg-main);
 }
 
 .ucat-deco-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .ucat-deco-price {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-red);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-red);
 }
 
 .ucat-deco-desc {
-    font-size: 10px;
-    color: var(--text-secondary);
+  font-size: 10px;
+  color: var(--text-secondary);
 }
 
 .ucat-deco-btn.active .ucat-deco-label,
 .ucat-deco-btn.active .ucat-deco-price,
 .ucat-deco-btn.active .ucat-deco-desc {
-    color: var(--bg-main);
+  color: var(--bg-main);
 }
 
 /* Check cards */
 .ucat-check-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
 }
 
 .ucat-check-card {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 10px;
-    border: 1.5px solid var(--border-lightest);
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--text-lighter);
-    transition: all 0.15s;
-    background: var(--bg-very-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border-lightest);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-lighter);
+  transition: all 0.15s;
+  background: var(--bg-very-light);
 }
 
 .ucat-check-card.active {
-    border-color: var(--color-red);
-    background: var(--color-red);
+  border-color: var(--color-red);
+  background: var(--color-red);
 }
 
 .ucat-addon-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 .ucat-addon-price {
-    font-size: 10px;
-    color: var(--text-secondary);
+  font-size: 10px;
+  color: var(--text-secondary);
 }
 
 .ucat-check-card.active .ucat-check-card-title .ucat-addon-label,
 .ucat-check-card.active .ucat-check-card-title .ucat-addon-price {
-    color: var(--bg-main) !important;
+  color: var(--bg-main) !important;
 }
 
 /* Responsive */
 @media (max-width: 578px) {
-    .ucat-dish-popup {
-        max-height: 95vh;
-        border-radius: 14px 14px 0 0;
-        align-self: flex-end;
-    }
+  .ucat-dish-popup {
+    max-height: 95vh;
+    border-radius: 14px 14px 0 0;
+    align-self: flex-end;
+  }
 
-    .ucat-dish-grid {
-        grid-template-columns: 1fr;
-    }
+  .ucat-dish-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .ucat-addr-grid {
-        grid-template-columns: 1fr;
-    }
+  .ucat-addr-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .ucat-deco-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+  .ucat-deco-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 
-    .ucat-check-grid {
-        grid-template-columns: 1fr 1fr;
-    }
+  .ucat-check-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 
-    .ucat-col,
-    .ucat-addr-grid {
-        gap: 4px;
-    }
+  .ucat-col,
+  .ucat-addr-grid {
+    gap: 4px;
+  }
 
-    .ucat-card {
-        padding: 0;
-        gap: 4px;
-    }
+  .ucat-card {
+    padding: 0;
+    gap: 4px;
+  }
 }
 
 :root {
-    --m-accent: var(--color-red, var(--color-red));
-    --m-ease: cubic-bezier(0.4, 0, 0.2, 1);
-    --m-spring: cubic-bezier(0.22, 1, 0.36, 1);
+  --m-accent: var(--color-red, var(--color-red));
+  --m-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --m-spring: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .ucat-slot-icon {
-    font-size: 18px;
-    line-height: 1;
+  font-size: 18px;
+  line-height: 1;
 }
 
 /* Inline hint next to the Time label */
 .ucat-slot-hint-inline {
-    font-size: 11px;
-    color: var(--color-blue);
-    font-weight: 500;
-    margin-left: 8px;
-    background: var(--color-blue-light);
-    padding: 1px 7px;
-    border-radius: 999px;
+  font-size: 11px;
+  color: var(--color-blue);
+  font-weight: 500;
+  margin-left: 8px;
+  background: var(--color-blue-light);
+  padding: 1px 7px;
+  border-radius: 999px;
 }
 
 /* Hint below disabled time picker */
 .ucat-hint {
-    display: block;
-    font-size: 11px;
-    color: var(--text-placeholder);
-    margin-top: 4px;
+  display: block;
+  font-size: 11px;
+  color: var(--text-placeholder);
+  margin-top: 4px;
 }
 
 /* Field error */
 .ucat-field-error {
-    display: block;
-    font-size: 11px;
-    color: var(--color-red, var(--color-red));
-    margin-top: 4px;
-    font-weight: 500;
+  display: block;
+  font-size: 11px;
+  color: var(--color-red, var(--color-red));
+  margin-top: 4px;
+  font-weight: 500;
 }

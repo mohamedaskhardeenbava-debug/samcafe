@@ -1,21 +1,8 @@
+/* ─── FAVOURITE CATEGORIES ─── */
+/* NOTE: .empty-favourites base styles are in FoodList.css (shared).
+   This file adds category-list-specific overrides only. */
 
-.empty-favourites {
-  margin-top: 60px;
-  text-align: center;
-  color: var(--text-tertiary);
-}
-
-.empty-favourites h3 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-
-.empty-favourites p {
-  font-size: 14px;
-}
-
-/* REMOVE star & bg in favourite category LIST */
+/* Remove star & background in the favourite category list */
 .fav-category-list .food-category-items.favourites {
   background: var(--bg-main);
 }

@@ -1336,6 +1336,7 @@ image {
 .btn-3d:hover {
   filter: brightness(108%);
 }
+
 /*  */
 
 .btn-3d:hover .front {

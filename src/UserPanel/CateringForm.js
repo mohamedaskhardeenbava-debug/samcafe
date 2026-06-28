@@ -1,6 +1,7 @@
 // user panel
 import { useState, useEffect, useMemo } from "react";
 import api from "../api";
+import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker } from "../components/UserDatePicker";
 import { UserTimePicker } from "../components/UserTimePicker";
 import "./CateringForm.css";
@@ -10,6 +11,7 @@ import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import CloseButton from "./shared/CloseButton";
+import PageLoader from "../components/PageLoader";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -168,7 +170,7 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         {/* Dish grid */}
         <div className="ucat-dish-popup-body">
           {loading ? (
-            <div className="ucat-dish-popup-loading">Loading dishes…</div>
+            <PageLoader inline label="Loading dishes…" />
           ) : filteredDishes.length === 0 ? (
             <div className="ucat-dish-popup-empty">
               {allDishes.length === 0
@@ -252,20 +254,9 @@ const CateringForm = ({ handleBack, handleHome }) => {
 
   /* Pre-fill from logged-in user */
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const userId = localStorage.getItem("userId");
-        if (!userId) return;
-        const res = await api.get(`/users/${userId}`);
-        setForm(prev => ({
-          ...prev,
-          name: res.data?.name || "",
-          mobile: res.data?.mobile || "",
-          email: res.data?.email || "",
-        }));
-      } catch (err) { console.error(err); }
-    };
-    loadUser();
+    bookingCrud.resolveUser().then(({ name, mobile, email }) => {
+      setForm(prev => ({ ...prev, name, mobile, email }));
+    }).catch(console.error);
   }, []);
 
   const guestCount = Math.max(1, parseInt(form.guests, 10) || 1);
@@ -336,10 +327,8 @@ const CateringForm = ({ handleBack, handleHome }) => {
     if (Object.keys(ve).length > 0) { setErrors(ve); return; }
     try {
       setLoading(true);
-      const newId = `cater_${Date.now()}`;
       const address = buildAddress(form);
-      await api.post("/cateringOrders", {
-        id: newId,
+      const saved = await bookingCrud.create("cateringOrders", {
         name: form.name,
         mobile: form.mobile,
         email: form.email || "",
@@ -369,11 +358,8 @@ const CateringForm = ({ handleBack, handleHome }) => {
         dishTotal,
         extrasTotal,
         totalAmount,
-        status: "pending",
-        source: "User App",
-        createdAt: new Date().toISOString(),
       });
-      setBookingId(newId.slice(-6).toUpperCase());
+      setBookingId(bookingCrud.makeRef(saved.id));
       setSubmitted(true);
     } catch (e) {
       console.error(e);

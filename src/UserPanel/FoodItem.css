@@ -755,25 +755,7 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
-  background-color: var(--border-lightest);
-}
-
-/* − button: red on hover */
-.stepper-btn:first-child:not(:disabled):hover {
-  background-color: var(--color-red);
-  box-shadow:
-    0 4px 0 0 #991b1b,
-    0 5px 5px rgba(0, 0, 0, 0.18);
-  color: white;
-}
-
-/* + button: green on hover */
-.stepper-btn:last-child:not(:disabled):hover {
-  background-color: var(--color-green);
-  box-shadow:
-    0 4px 0 0 #166534,
-    0 5px 5px rgba(0, 0, 0, 0.18);
-  color: white;
+  background-color: var(--border-lightest) !important;
 }
 
 /* ===== Overlay Backdrop ===== */
