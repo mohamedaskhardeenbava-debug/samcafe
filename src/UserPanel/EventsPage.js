@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import "./EventsPage.css";
 import api from "../api";
+import { bookingCrud } from "./shared/eventBookingCrud";
 import { useToast } from "../components/Usetoast";
 import closeIcon from "../assets/icons/close.png";
 import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
+import PageLoader from "../components/PageLoader";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const formatDate = (iso) => {
@@ -541,18 +543,19 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
     if (Object.keys(errs).length) { setFormErrors(errs); return; }
     setFormErrors({}); setErrorMsg(""); setSubmitState("loading");
     try {
-      const payload = {
-        id: `bk_${Date.now()}`, eventId: selectedEvent.id,
-        userId: currentUserId, name: form.name.trim(),
-        email: form.email.trim(), phone: form.phone.trim(),
+      const saved = await bookingCrud.create("eventBookings", {
+        eventId: selectedEvent.id,
+        userId: currentUserId,
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
         guests: Number(form.guests) || 1,
         specialRequests: form.specialRequests.trim(),
         totalAmount: (Number(form.guests) || 1) * (Number(selectedEvent.price) || 0),
-        status: "pending", bookedAt: new Date().toISOString(),
-      };
-      const res = await api.post("/eventBookings", payload);
-      setAllBookings(p => [...p, res.data]);
-      setMyBookings(p => [...p, res.data]);
+        bookedAt: new Date().toISOString(),
+      });
+      setAllBookings(p => [...p, saved]);
+      setMyBookings(p => [...p, saved]);
       setCoupon(randomCoupon());
       setSubmitState("scratch");
     } catch (err) {
@@ -579,9 +582,12 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
       if (!booking) return;
       const pricePerPerson = Number(selectedEvent?.price || 0);
       const newGuests = (Number(booking.guests) || 1) + extra;
-      const newTotal = newGuests * pricePerPerson;
-      const updated = { ...booking, guests: newGuests, totalAmount: newTotal };
-      await api.put(`/eventBookings/${booking.id}`, updated);
+      const updated = await bookingCrud.update(
+        "eventBookings",
+        booking.id,
+        { guests: newGuests, totalAmount: newGuests * pricePerPerson },
+        booking
+      );
       setAllBookings(p => p.map(b => b.id === booking.id ? updated : b));
       setMyBookings(p => p.map(b => b.id === booking.id ? updated : b));
       setAddGuestState("done");
@@ -634,7 +640,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
 
       {/* Events Grid */}
       {loading ? (
-        <div className="ep-loading"><div className="ep-spinner" /><p>Loading events…</p></div>
+        <PageLoader inline label="Loading events…" />
       ) : filteredEvents.length === 0 ? (
         <div className="ep-empty">
           <p>No events right now.</p>

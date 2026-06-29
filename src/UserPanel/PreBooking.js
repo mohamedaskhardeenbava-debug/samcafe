@@ -1,6 +1,7 @@
 // user panel
 import { useState, useEffect, useMemo } from "react";
 import api from "../api";
+import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker, todayStr } from "../components/UserDatePicker";
 import { UserTimePicker } from "../components/UserTimePicker";
 import "./PreBooking.css";
@@ -10,6 +11,7 @@ import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import CloseButton from "./shared/CloseButton";
+import PageLoader from "../components/PageLoader";
 
 const pad = (n) => String(n).padStart(2, "0");
 const tomorrowStr = () => { const d = new Date(); d.setDate(d.getDate() + 1); return d.toISOString().split("T")[0]; };
@@ -94,7 +96,7 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         <div className="pbp-dish-popup-header">
           <h3 className="pbp-dish-popup-title">Add Dish</h3>
           <CloseButton onClick={onClose}>
-            
+
           </CloseButton>
         </div>
 
@@ -140,7 +142,7 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         {/* Dish grid */}
         <div className="pbp-dish-popup-body">
           {loading ? (
-            <div className="pbp-dish-popup-empty">Loading dishes…</div>
+            <PageLoader inline label="Loading dishes…" />
           ) : filteredDishes.length === 0 ? (
             <div className="pbp-dish-popup-empty">No dishes found.</div>
           ) : (
@@ -198,15 +200,9 @@ const PreBooking = ({ handleBack, handleHome }) => {
 
   /* Pre-fill from logged-in user */
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const id = localStorage.getItem("userId");
-        if (!id) return;
-        const r = await api.get(`/users/${id}`);
-        setForm(p => ({ ...p, name: r.data?.name || "", mobile: r.data?.mobile || "", email: r.data?.email || "" }));
-      } catch (e) { console.error(e); }
-    };
-    loadUser();
+    bookingCrud.resolveUser().then(({ name, mobile, email }) => {
+      setForm(p => ({ ...p, name, mobile, email }));
+    }).catch(console.error);
   }, []);
 
   const guestCount = parseInt(form.guests, 10) || 0;
@@ -263,17 +259,13 @@ const PreBooking = ({ handleBack, handleHome }) => {
     if (Object.keys(ve).length > 0) { setErrors(ve); return; }
     try {
       setLoading(true);
-      const newId = `pre_${Date.now()}`;
-      await api.post("/preBookings", {
-        id: newId,
+      const saved = await bookingCrud.create("preBookings", {
         name: form.name, mobile: form.mobile, email: form.email || "",
         guests: guestCount, date: form.date, time: form.time,
         slotGroup: form.slotGroup || "", notes: form.notes || "",
         items: selectedDishes, subtotal, discount, totalAmount,
-        status: "scheduled", source: "User App",
-        createdAt: new Date().toISOString(),
       });
-      setBookingId(newId.slice(-6).toUpperCase());
+      setBookingId(bookingCrud.makeRef(saved.id));
       setSubmitted(true);
     } catch (e) {
       console.error(e);

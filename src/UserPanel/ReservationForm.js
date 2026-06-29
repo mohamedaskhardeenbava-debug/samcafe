@@ -1,6 +1,6 @@
 //user panel
 import { useState, useEffect } from "react";
-import api from "../api";
+import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker, todayStr } from "../components/UserDatePicker";
 import { UserTimePicker } from "../components/UserTimePicker";
 import "./ReservationForm.css";
@@ -93,8 +93,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     let cancelled = false;
     const loadPrefs = async () => {
       try {
-        const res = await api.get("/tablePreferences");
-        const records = res.data || [];
+        const records = await bookingCrud.getAll("tablePreferences");
         if (!cancelled && records.length > 0) {
           const sorted = [...records].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
           setTablePrefs(sorted.map(r => ({
@@ -124,12 +123,8 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     let cancelled = false;
     const load = async () => {
       try {
-        const uid = localStorage.getItem("userId");
-        if (!uid) return;
-        const res = await api.get(`/users/${uid}`);
-        if (!cancelled) {
-          setForm(p => ({ ...p, name: res.data?.name || "", mobile: res.data?.mobile || "", email: res.data?.email || "" }));
-        }
+        const { name, mobile, email } = await bookingCrud.resolveUser();
+        if (!cancelled) setForm(p => ({ ...p, name, mobile, email }));
       } catch { }
     };
     load();
@@ -170,9 +165,8 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const id = `res_${Date.now()}`;
-      await api.post("/reservations", { id, ...form, status: "pending", source: "User App", createdAt: new Date().toISOString() });
-      setBookingId(id.slice(-6).toUpperCase());
+      const saved = await bookingCrud.create("reservations", form);
+      setBookingId(bookingCrud.makeRef(saved.id));
       setSubmitted(true);
     } catch {
       toast.error("Failed to reserve table. Please try again.");

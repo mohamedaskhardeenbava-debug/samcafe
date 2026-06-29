@@ -1,4 +1,5 @@
 .welcome-page {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6,13 +7,10 @@
   font-family: "Geom", system-ui, sans-serif;
   background: linear-gradient(180deg, #7a0101, red);
   min-height: 100vh;
+  overflow: visible;
 }
 
-/* ===== WAVE BACKGROUND ===== */
-.welcome-page {
-  position: relative;
-}
-
+/* ===== WAVE BACKGROUND   ===== */
 .welcome-waves {
   position: fixed;
   inset: 0;
@@ -76,6 +74,7 @@
 }
 
 .welcome-container {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -84,6 +83,7 @@
   max-width: 1000px;
   margin: 0 auto;
   min-height: 600px;
+  overflow: visible;
 }
 
 .welcome-text {
@@ -542,7 +542,7 @@
   width: 100px;
   position: absolute !important;
   display: block;
-  bottom: 0;
+  bottom: -30px;
 }
 
 /* =========================================

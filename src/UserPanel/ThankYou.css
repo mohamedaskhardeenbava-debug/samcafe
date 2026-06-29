@@ -169,10 +169,10 @@
   height: 100%;
   border-radius: 14px;
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .ty-order-btn .front {
@@ -254,10 +254,10 @@
   height: 100%;
   border-radius: 14px;
   background: linear-gradient(to left,
-        var(--edge-color-green-dark) 0%,
-        var(--edge-color-green-light) 8%,
-        var(--edge-color-green-light) 92%,
-        var(--edge-color-green-dark) 100%);
+      var(--edge-color-green-dark) 0%,
+      var(--edge-color-green-light) 8%,
+      var(--edge-color-green-light) 92%,
+      var(--edge-color-green-dark) 100%);
 }
 
 .ty-done-btn .front {
@@ -339,10 +339,10 @@
   height: 100%;
   border-radius: 14px;
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .ty-add-dish-btn .front {

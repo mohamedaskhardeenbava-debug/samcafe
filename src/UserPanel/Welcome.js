@@ -1,4 +1,5 @@
 import "./Welcome.css";
+import PageLoader from "../components/PageLoader";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import ThemeToggle from "../components/ThemeToggle";
@@ -247,6 +248,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
   return (
     <div className="welcome-page">
+      {loading && <PageLoader label="Please wait…" />}
       {/* Wave background */}
       <div className="welcome-waves" aria-hidden="true">
         <div className="welcome-wave" />
@@ -280,6 +282,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                 openTab('Login')
                 setActiveTab("Login")
                 setMobile("")
+                setFormErrors(prev => ({ ...prev, name: "", mobile: "" }));
               }}
             >
               Login
@@ -291,6 +294,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
                 setActiveTab("Create")
                 setName("")
                 setMobile("")
+                setFormErrors(prev => ({ ...prev, mobile: "" }));
               }}>Create Account</button>
           </div>
 
@@ -378,15 +382,16 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
           <Button3D
             className="btn-3d green"
             onClick={handleGuest}
-            frontStyle={{padding:"0 10px"}}
+            frontStyle={{ padding: "0 10px" }}
           >
             Enter as Guest
           </Button3D>
           <span className="subtext">(No login needed)</span>
         </div>
+        <img className="power-logo" src={powerLogo} />
       </div>
 
-      <img className="power-logo" src={powerLogo} />
+
     </div >
 
   );

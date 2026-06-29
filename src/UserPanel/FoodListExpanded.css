@@ -150,10 +150,10 @@
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-        var(--edge-color-dark) 0%,
-        var(--edge-color-light) 8%,
-        var(--edge-color-light) 92%,
-        var(--edge-color-dark) 100%);
+      var(--edge-color-dark) 0%,
+      var(--edge-color-light) 8%,
+      var(--edge-color-light) 92%,
+      var(--edge-color-dark) 100%);
 }
 
 .place-order-button .front {
@@ -218,10 +218,10 @@
   height: 100%;
   border-radius: 12px;
   background: linear-gradient(to left,
-        var(--edge-color-green-dark) 0%,
-        var(--edge-color-green-light) 8%,
-        var(--edge-color-green-light) 92%,
-        var(--edge-color-green-dark) 100%);
+      var(--edge-color-green-dark) 0%,
+      var(--edge-color-green-light) 8%,
+      var(--edge-color-green-light) 92%,
+      var(--edge-color-green-dark) 100%);
 }
 
 .customize-button .front {
@@ -354,6 +354,12 @@
   .food-images-expanded {
     width: 100%;
     height: 260px;
+  }
+
+  .food-images-expanded .dish-image.image-main {
+    filter:
+      drop-shadow(0px 8px 12px rgba(0, 0, 0, 0.28)) drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.18));
+    transition: filter 0.4s ease;
   }
 
   .food-details-expanded {

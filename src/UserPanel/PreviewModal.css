@@ -8,175 +8,181 @@
 
 /* ── Overlay ── */
 .rf-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    backdrop-filter: blur(3px);
-    animation: rf-modal-fade-in 0.2s ease;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(3px);
+  animation: rf-modal-fade-in 0.2s ease;
 }
 
 @keyframes rf-modal-fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ── Modal Box ── */
 .rf-modal {
-    background: var(--bg-main);
-    border-radius: 20px;
-    padding: 24px 22px;
-    width: 100%;
-    max-width: 460px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    animation: rf-modal-slide-up 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
-    max-height: 90vh;
-    overflow-y: auto;
+  background: var(--bg-main);
+  border-radius: 20px;
+  padding: 24px 22px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  animation: rf-modal-slide-up 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 @keyframes rf-modal-slide-up {
-    from {
-        transform: scale(0.85) translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1) translateY(0);
-        opacity: 1;
-    }
+  from {
+    transform: scale(0.85) translateY(20px);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
 }
 
 /* ── Title ── */
 .rf-modal-title {
-    font-size: 17px;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin-bottom: 4px;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
 .rf-modal-subtitle {
-    font-size: 12px;
-    color: var(--text-light);
-    margin-bottom: 16px;
+  font-size: 12px;
+  color: var(--text-light);
+  margin-bottom: 16px;
 }
 
 /* ── Grid of rows (2-column) ── */
 .rf-modal-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .rf-modal-row {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 8px 10px;
-    background: var(--bg-lighter);
-    border-radius: 10px;
-    border: 1px solid var(--border-lighter);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg-lighter);
+  border-radius: 10px;
+  border: 1px solid var(--border-lighter);
 }
 
 /* Full-width row inside grid */
 .rf-modal-row-full {
-    grid-column: 1 / -1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 8px 10px;
-    background: var(--bg-lighter);
-    border-radius: 10px;
-    border: 1px solid var(--border-lighter);
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--bg-lighter);
+  border-radius: 10px;
+  border: 1px solid var(--border-lighter);
 }
 
 /* ── Key / Value labels ── */
 .rf-modal-key {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-light);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .rf-modal-val {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* ── Notes block (warm tint) ── */
 .rf-modal-notes {
-    padding: 10px 12px;
-    background: var(--bg-main)bea;
-    border-radius: 10px;
-    border: 1px solid var(--color-pale-yellow);
-    margin-bottom: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    font-size: 13px;
-    color: #78350f;
+  padding: 10px 12px;
+  background: var(--bg-main)bea;
+  border-radius: 10px;
+  border: 1px solid var(--color-pale-yellow);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 13px;
+  color: #78350f;
 }
 
 /* ── Divider ── */
 .rf-modal-divider {
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--border-lightest), transparent);
-    margin: 12px 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border-lightest), transparent);
+  margin: 12px 0;
 }
 
 /* ── Total row (highlighted) ── */
 .rf-modal-total-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 12px;
-    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
-    border-radius: 10px;
-    border: 1px solid var(--border-lighter);
-    margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-radius: 10px;
+  border: 1px solid var(--border-lighter);
+  margin-bottom: 14px;
 }
 
 .rf-modal-total-label {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--color-green);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-green);
 }
 
 .rf-modal-total-val {
-    font-size: 16px;
-    font-weight: 800;
-    color: var(--color-green);
-    letter-spacing: 0.02em;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-green);
+  letter-spacing: 0.02em;
 }
 
 /* ── Action buttons row ── */
 .rf-modal-actions {
-    display: flex;
-    gap: 10px;
+  display: flex;
+  gap: 10px;
 }
 
-.rf-modal-actions > button,
-.rf-modal-actions > * {
-    flex: 1 1 0;
-    width: 0;
+.rf-modal-actions>button,
+.rf-modal-actions>* {
+  flex: 1 1 0;
+  width: 0;
 }
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
-    .rf-modal {
-        padding: 18px 16px;
-    }
+  .rf-modal {
+    padding: 18px 16px;
+  }
 
-    .rf-modal-grid {
-        grid-template-columns: 1fr;
-    }
+  .rf-modal-grid {
+    grid-template-columns: 1fr;
+  }
 
-    .rf-modal-row-full {
-        grid-column: 1;
-    }
+  .rf-modal-row-full {
+    grid-column: 1;
+  }
 }
