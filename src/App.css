@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════════
-   ── COMPREHENSIVE CSS VARIABLES SYSTEM ──
+   COMPREHENSIVE CSS VARIABLES SYSTEM
    Light & Dark Themes with Full Color Coverage
 ═══════════════════════════════════════════════════════════════════════════ */
 *,
@@ -1914,8 +1914,6 @@ image {
   width: 40px !important;
   padding: 0 !important;
 }
-
-
 
 @media (max-width: 578px) {
   .sort-btn .front {
