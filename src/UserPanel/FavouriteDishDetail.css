@@ -140,7 +140,6 @@
 
 .fav-nutrition {
   display: flex;
-  align-items: center;
   justify-content: center;
   gap: 14px;
   list-style: none;
@@ -152,9 +151,8 @@
   background-color: var(--fav-nutrition-color);
   display: flex;
   flex-direction: column;
-  align-self: center;
   justify-content: center;
-  width: 60px;
+  width: 80px;
   aspect-ratio: 1 / 1;
   border-radius: 20px;
 }

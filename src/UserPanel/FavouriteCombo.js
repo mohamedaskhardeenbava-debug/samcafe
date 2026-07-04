@@ -112,15 +112,15 @@ const FavouriteCombo = ({
           {favCombos.length === 0 ? (
             <motion.div
               key="fav-combo-empty"
-              className="fav-combo-empty"
+              className="fav-empty fav-empty-page"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
             >
-              <div className="empty-icon">🍽️</div>
-              <h3>No favourite combos yet</h3>
-              <p>Create a combo and save it to see it here.</p>
+              <div className="fav-empty-icon">🍽️</div>
+              <h3 className="fav-empty-title">No favourite combos yet</h3>
+              <p className="fav-empty-sub">Create a combo and save it to see it here.</p>
             </motion.div>
           ) : (
             favCombos.map(combo => (
@@ -154,10 +154,10 @@ const FavouriteCombo = ({
                 </div>
 
                 <div className="fav-combo-actions">
-                  <div className="fav-combo-quantity-section">
-                    <button onClick={() => decreaseQty(combo.id)}>-</button>
-                    <span>{qtyMap[combo.id] || 1}x</span>
-                    <button onClick={() => increaseQty(combo.id)}>+</button>
+                  <div className="stepper-ctrl">
+                    <button className="stepper-btn" onClick={() => decreaseQty(combo.id)}>-</button>
+                    <span className="stepper-val">{qtyMap[combo.id] || 1}x</span>
+                    <button className="stepper-btn" onClick={() => increaseQty(combo.id)}>+</button>
                   </div>
 
                   <div className="price-section">

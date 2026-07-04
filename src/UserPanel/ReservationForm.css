@@ -271,8 +271,6 @@
   font-size: 16px;
   font-weight: 700;
   color: var(--text-primary);
-  border-left: 1px solid var(--border-lightest);
-  border-right: 1px solid var(--border-lightest);
   display: flex;
   align-items: center;
   justify-content: center;

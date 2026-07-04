@@ -67,8 +67,9 @@
   pointer-events: none;
 }
 
-/* ensure all direct children of welcome-page sit above waves */
-.welcome-page>*:not(.welcome-waves) {
+/* ensure all direct children of welcome-page sit above waves,
+   but don't disturb PageLoader's own fixed full-screen overlay */
+.welcome-page>*:not(.welcome-waves):not(.pl-page) {
   position: relative;
   z-index: 1;
 }
@@ -259,7 +260,7 @@
 }
 
 .welcome-btn.active {
-  border-color: var(--edge-color-dark) !important;
+  border-color: #7a0101 !important;
 }
 
 .profile-card {

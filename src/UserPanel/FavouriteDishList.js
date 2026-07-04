@@ -103,9 +103,11 @@ const FavouriteDishList = ({
       <div className="food-category" style={{ padding: "0px" }}>
         <div className="food-category-container">
           {dishes.length === 0 && (
-            <p style={{ padding: "16px" }}>
-              No favourite dishes in this category.
-            </p>
+            <div className="fav-empty fav-empty-page">
+              <div className="fav-empty-icon">🍽️</div>
+              <h3 className="fav-empty-title">No favourite dishes yet</h3>
+              <p className="fav-empty-sub">Dishes you favourite in this category will show up here.</p>
+            </div>
           )}
 
           {dishes.map((dish) => (

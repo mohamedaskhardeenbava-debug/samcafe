@@ -367,7 +367,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           <AnimatePresence mode="wait">
             {showFavouriteForm && (
               <motion.div
-                className="overlay"
+                className="user-overlay"
                 variants={overlayVariants}
                 initial="hidden"
                 animate="visible"
@@ -376,14 +376,14 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 onClick={e => { if (e.target === e.currentTarget) setShowFavouriteForm(false); }}
               >
                 <motion.div
-                  className="modal"
+                  className="user-modal"
                   variants={modalVariants}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
                   transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
                 >
-                  <div className="modal-body">
+                  <div className="user-modal-body">
                     <h3>Save to Wishlist</h3>
                     <label>Name</label>
                     <input

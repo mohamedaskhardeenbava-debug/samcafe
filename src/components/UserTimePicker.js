@@ -237,101 +237,103 @@ export const UserTimePicker = ({
 
       {/* Popup */}
       {open && !disabled && (
-        <div className="utp-popup">
+        <div className="utp-overlay" onMouseDown={() => { setOpen(false); setMode("hour"); }}>
+          <div className="utp-popup" onMouseDown={(e) => e.stopPropagation()}>
 
-          {/* Red header */}
-          <div className="utp-header">
-            <div className="utp-ampm-col">
-              <button type="button" className={`utp-ampm-btn${sel.ampm === "AM" ? " active" : ""}`} onClick={() => tapAmpm("AM")}>AM</button>
-              <button type="button" className={`utp-ampm-btn${sel.ampm === "PM" ? " active" : ""}`} onClick={() => tapAmpm("PM")}>PM</button>
+            {/* Red header */}
+            <div className="utp-header">
+              <div className="utp-ampm-col">
+                <button type="button" className={`utp-ampm-btn${sel.ampm === "AM" ? " active" : ""}`} onClick={() => tapAmpm("AM")}>AM</button>
+                <button type="button" className={`utp-ampm-btn${sel.ampm === "PM" ? " active" : ""}`} onClick={() => tapAmpm("PM")}>PM</button>
+              </div>
+              <div className="utp-time-display">
+                <span className={`utp-hm${mode === "hour" ? " active" : ""}`} onClick={() => setMode("hour")}>{pad(sel.h)}</span>
+                <span className="utp-colon">:</span>
+                <span className={`utp-hm${mode === "minute" ? " active" : ""}`} onClick={() => setMode("minute")}>{pad(sel.m)}</span>
+              </div>
             </div>
-            <div className="utp-time-display">
-              <span className={`utp-hm${mode === "hour" ? " active" : ""}`} onClick={() => setMode("hour")}>{pad(sel.h)}</span>
-              <span className="utp-colon">:</span>
-              <span className={`utp-hm${mode === "minute" ? " active" : ""}`} onClick={() => setMode("minute")}>{pad(sel.m)}</span>
+
+            {/* Slot hint */}
+            {slotHint && <div className="utp-slot-hint">{slotHint}</div>}
+
+            {/* SVG clock */}
+            <svg
+              ref={svgRef}
+              width={CENTER * 2}
+              height={CENTER * 2}
+              className="utp-clock"
+              style={{ touchAction: "none", display: "block" }}
+              onPointerDown={onPointerDown}
+              onPointerMove={onPointerMove}
+              onPointerUp={onPointerUp}
+              onPointerCancel={onPointerUp}
+            >
+              {/* Face */}
+              <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="var(--bg-main)" stroke="var(--color-pale-red)" strokeWidth="1.5" />
+
+              {/* Hand */}
+              <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y}
+                stroke="var(--color-red)" strokeWidth="2.5" strokeLinecap="round" />
+              <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red)" />
+              <circle cx={handTip.x} cy={handTip.y} r="18" fill="var(--color-red)" opacity="0.15" />
+              <circle cx={handTip.x} cy={handTip.y} r="5" fill="var(--bg-main)" />
+
+              {/* Hour numbers */}
+              {mode === "hour" && hours12.map((h) => {
+                const ang = hourAngle(h);
+                const pos = toXY(ang, HOUR_R);
+                const isSel = sel.h === h;
+                const isDis = isHourDis(h, sel.ampm);
+                return (
+                  <g key={h}
+                    style={{ cursor: isDis ? "not-allowed" : "pointer" }}
+                    onPointerDown={(e) => { e.stopPropagation(); if (!isDis) tapHour(h); }}
+                  >
+                    <circle cx={pos.x} cy={pos.y} r="16"
+                      fill={isSel ? "var(--color-red, #e74c3c)" : "transparent"} />
+                    <text x={pos.x} y={pos.y}
+                      textAnchor="middle" dominantBaseline="central"
+                      fontSize="13" fontWeight={isSel ? "700" : "400"}
+                      fill={isSel ? "#fff" : isDis ? "var(--text-tertiary)" : "var(--text-primary)"}
+                    >{h}</text>
+                  </g>
+                );
+              })}
+
+              {/* Minute marks */}
+              {mode === "minute" && minutes5.map((m) => {
+                const ang = minAngle(m);
+                const pos = toXY(ang, MIN_R);
+                const isSel = sel.m === m;
+                const isDis = isMinDis(m);
+                return (
+                  <g key={m}
+                    style={{ cursor: isDis ? "not-allowed" : "pointer" }}
+                    onPointerDown={(e) => { e.stopPropagation(); tapMinute(m); }}
+                  >
+                    <circle cx={pos.x} cy={pos.y} r="16"
+                      fill={isSel ? "var(--color-red, #e74c3c)" : isDis ? "#f3f4f6" : "transparent"} />
+                    <text x={pos.x} y={pos.y}
+                      textAnchor="middle" dominantBaseline="central"
+                      fontSize="12" fontWeight={isSel ? "700" : "400"}
+                      fill={isSel ? "#fff" : isDis ? "#d1d5db" : "#333"}
+                    >{pad(m)}</text>
+                  </g>
+                );
+              })}
+            </svg>
+
+            {/* Footer */}
+            <div className="utp-footer">
+              <Button3D type="button" className="form-action-btn cancel" frontClassName="sm-padding"
+                onClick={() => { setOpen(false); setMode("hour"); }}>
+                Cancel
+              </Button3D>
+              <Button3D type="button" className="form-action-btn submit" frontClassName="sm-padding"
+                onClick={() => { emit(selRef.current); setOpen(false); setMode("hour"); }}>
+                Ok
+              </Button3D>
             </div>
-          </div>
-
-          {/* Slot hint */}
-          {slotHint && <div className="utp-slot-hint">{slotHint}</div>}
-
-          {/* SVG clock */}
-          <svg
-            ref={svgRef}
-            width={CENTER * 2}
-            height={CENTER * 2}
-            className="utp-clock"
-            style={{ touchAction: "none", display: "block" }}
-            onPointerDown={onPointerDown}
-            onPointerMove={onPointerMove}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-          >
-            {/* Face */}
-            <circle cx={CENTER} cy={CENTER} r={CLOCK_R} fill="var(--bg-main)" stroke="var(--color-pale-red)" strokeWidth="1.5" />
-
-            {/* Hand */}
-            <line x1={CENTER} y1={CENTER} x2={handTip.x} y2={handTip.y}
-              stroke="var(--color-red)" strokeWidth="2.5" strokeLinecap="round" />
-            <circle cx={CENTER} cy={CENTER} r="4" fill="var(--color-red)" />
-            <circle cx={handTip.x} cy={handTip.y} r="18" fill="var(--color-red)" opacity="0.15" />
-            <circle cx={handTip.x} cy={handTip.y} r="5" fill="var(--bg-main)" />
-
-            {/* Hour numbers */}
-            {mode === "hour" && hours12.map((h) => {
-              const ang = hourAngle(h);
-              const pos = toXY(ang, HOUR_R);
-              const isSel = sel.h === h;
-              const isDis = isHourDis(h, sel.ampm);
-              return (
-                <g key={h}
-                  style={{ cursor: isDis ? "not-allowed" : "pointer" }}
-                  onPointerDown={(e) => { e.stopPropagation(); if (!isDis) tapHour(h); }}
-                >
-                  <circle cx={pos.x} cy={pos.y} r="16"
-                    fill={isSel ? "var(--color-red, #e74c3c)" : "transparent"} />
-                  <text x={pos.x} y={pos.y}
-                    textAnchor="middle" dominantBaseline="central"
-                    fontSize="13" fontWeight={isSel ? "700" : "400"}
-                    fill={isSel ? "#fff" : isDis ? "var(--text-tertiary)" : "var(--text-primary)"}
-                  >{h}</text>
-                </g>
-              );
-            })}
-
-            {/* Minute marks */}
-            {mode === "minute" && minutes5.map((m) => {
-              const ang = minAngle(m);
-              const pos = toXY(ang, MIN_R);
-              const isSel = sel.m === m;
-              const isDis = isMinDis(m);
-              return (
-                <g key={m}
-                  style={{ cursor: isDis ? "not-allowed" : "pointer" }}
-                  onPointerDown={(e) => { e.stopPropagation(); tapMinute(m); }}
-                >
-                  <circle cx={pos.x} cy={pos.y} r="16"
-                    fill={isSel ? "var(--color-red, #e74c3c)" : isDis ? "#f3f4f6" : "transparent"} />
-                  <text x={pos.x} y={pos.y}
-                    textAnchor="middle" dominantBaseline="central"
-                    fontSize="12" fontWeight={isSel ? "700" : "400"}
-                    fill={isSel ? "#fff" : isDis ? "#d1d5db" : "#333"}
-                  >{pad(m)}</text>
-                </g>
-              );
-            })}
-          </svg>
-
-          {/* Footer */}
-          <div className="utp-footer">
-            <Button3D type="button" className="form-action-btn cancel" frontClassName="sm-padding"
-              onClick={() => { setOpen(false); setMode("hour"); }}>
-              Cancel
-            </Button3D>
-            <Button3D type="button" className="form-action-btn submit" frontClassName="sm-padding"
-              onClick={() => { emit(selRef.current); setOpen(false); setMode("hour"); }}>
-              Ok
-            </Button3D>
           </div>
         </div>
       )}

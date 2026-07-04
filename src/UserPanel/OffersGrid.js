@@ -54,6 +54,13 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
 
       {/* GRID */}
       <div className="food-category-container">
+        {offerDishes.length === 0 && (
+          <div className="fav-empty fav-empty-page">
+            <div className="fav-empty-icon">🍽️</div>
+            <h3 className="fav-empty-title">No offers right now</h3>
+            <p className="fav-empty-sub">Check back later for new deals and discounts.</p>
+          </div>
+        )}
         {offerDishes.map(dish => (
           <div
             key={dish.id}

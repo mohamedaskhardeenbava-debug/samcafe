@@ -78,6 +78,8 @@ function App() {
   const [isRinging, setIsRinging] = useState(false);
   const [isDineIn, setIsDineIn] = useState(false);
   const [menuLoading, setMenuLoading] = useState(true);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [connectionError, setConnectionError] = useState(false);
   const [foodData, setFoodData] = useState({
     categories: [],
     favourites: [],
@@ -132,8 +134,11 @@ function App() {
         events: eventsRes.data || [],
         orders: ordersRes.data || [],
       }));
+      setConnectionError(false);
+      setInitialLoading(false);
     } catch (err) {
       console.error("Failed to load menu", err);
+      setConnectionError(true);
     } finally {
       setMenuLoading(false);
     }
@@ -174,6 +179,14 @@ function App() {
 
   useEffect(() => { fetchMenu(); }, []);
   useEffect(() => { fetchMenu(); }, [currentUser]);
+
+  // Auto-retry the initial connection if it failed, so the user isn't
+  // stuck on "Reconnecting…" forever without another attempt being made.
+  useEffect(() => {
+    if (!initialLoading || !connectionError) return;
+    const retryTimer = setTimeout(() => { fetchMenu(); }, 3000);
+    return () => clearTimeout(retryTimer);
+  }, [initialLoading, connectionError]);
 
   // ─── Scroll to Top on Route Change ───────────────────────────────────────
   useEffect(() => {
@@ -395,6 +408,16 @@ function App() {
   };
 
   // ─── Render ───────────────────────────────────────────────────────────────
+  if (initialLoading) {
+    return (
+      <div className="App">
+        <PageLoader
+          label={connectionError ? "Reconnecting to the server…" : "Connecting to the server…"}
+        />
+      </div>
+    );
+  }
+
   return (
     <LayoutGroup>
       <div className="App">
@@ -460,7 +483,7 @@ function App() {
 
               <Route path="/" element={<motion.div {...motionProps}><Welcome handleNavigate={handleNavigate} toCamelCase={toCamelCase} setCurrentUser={setCurrentUser} fetchMenu={fetchMenu} /></motion.div>} />
 
-              <Route path="/categories" element={<motion.div {...motionProps}>{menuLoading ? <PageLoader label="Loading menu…" /> : <FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} />}</motion.div>} />
+              <Route path="/categories" element={<motion.div {...motionProps}><FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} /></motion.div>} />
 
               <Route path="/appetizer-builder" element={<AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} />} />
 
