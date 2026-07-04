@@ -160,15 +160,38 @@
   opacity: 0.6;
 }
 
+/* ── Overlay backdrop (matches modal overlay pattern) ── */
+.utp-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: utpOverlayFadeIn 0.17s ease;
+}
+
+@keyframes utpOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 /* ── Popup ── */
 .utp-popup {
-  position: absolute;
-  top: calc(100% + 8px);
-  left: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 9999;
   background: var(--bg-main);
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.28);
   width: 260px;
   overflow: hidden;
   animation: utpFadeIn 0.17s ease;
@@ -177,12 +200,12 @@
 @keyframes utpFadeIn {
   from {
     opacity: 0;
-    transform: translateY(-4px);
+    transform: translate(-50%, -50%) scale(0.96);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 

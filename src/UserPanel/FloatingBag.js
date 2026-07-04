@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import minimizeIcon from "../assets/icons/minimize.png";
 import { placeOrder } from "../components/placeOrder.js";
 import PrinterReceipt from "../components/PrinterReceipt.js";
+import PageLoader from "../components/PageLoader.js";
 import cartIcon from "../assets/icons/cart.png";
 import Button3D from "./shared/Button3D.js";
 import { groupBagItems, getUnitPrice, getLineTotal, getBagSubtotal, getBagItemCount } from "./shared/bagUtils.js";
@@ -26,6 +27,7 @@ const FloatingBag = ({
   const { toast } = useToast();
   const safeBag = Array.isArray(bag) ? bag : [];
   const [orderForReceipt, setOrderForReceipt] = useState(null);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   const groupedBag = groupBagItems(safeBag);
   const totalItems = getBagItemCount(safeBag);
@@ -136,8 +138,9 @@ const FloatingBag = ({
           {/* CTA */}
           <Button3D
             className="btn-3d red"
-            disabled={bag.length === 0}
+            disabled={bag.length === 0 || isPlacingOrder}
             onClick={async () => {
+              setIsPlacingOrder(true);
               try {
                 const newOrder = await placeOrder(bag);
                 setIsOpen(false);
@@ -145,11 +148,18 @@ const FloatingBag = ({
               } catch (err) {
                 console.error(err);
                 toast.error("Couldn't place your order. Please try again.");
+              } finally {
+                setIsPlacingOrder(false);
               }
             }}
           >
-            Place Order
+            {isPlacingOrder ? "Placing Order…" : "Place Order"}
           </Button3D>
+        </div>
+      )}
+      {isPlacingOrder && (
+        <div className="place-order-loading-overlay">
+          <PageLoader label="Placing your order…" />
         </div>
       )}
       {orderForReceipt && (

@@ -120,46 +120,9 @@
   font-weight: 600;
 }
 
-/* QUANTITY SELECTOR */
-.fav-combo-quantity-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.04);
-  border-radius: 999px;
-  padding: 4px 6px;
-  margin: 0;
-}
-
-.fav-combo-quantity-section button {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: none;
-  background: var(--bg-main);
-  color: var(--text-primary);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: all 0.15s ease;
-}
-
-.fav-combo-quantity-section button:hover {
-  background: var(--color-green);
-  color: var(--bg-main);
-  transform: scale(1.08);
-}
-
-.fav-combo-quantity-section span {
-  min-width: 26px;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
+.fav-combo-actions .stepper-ctrl {
+  padding: 4px 8px;
+  gap: 0;
 }
 
 /* TOTAL PRICE (above quantity selector) */

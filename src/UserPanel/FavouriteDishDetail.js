@@ -62,6 +62,11 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           onBack={handleBack}
           onHome={handleHome}
         />
+        <div className="fav-empty fav-empty-page">
+          <div className="fav-empty-icon">🍽️</div>
+          <h3 className="fav-empty-title">Dish not found</h3>
+          <p className="fav-empty-sub">This dish may have been removed from your favourites.</p>
+        </div>
       </div>
     );
   }

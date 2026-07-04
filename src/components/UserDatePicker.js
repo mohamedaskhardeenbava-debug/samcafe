@@ -136,83 +136,85 @@ export const UserDatePicker = ({
       <span className="udp-bar" />
 
       {open && !disabled && (
-        <div className="udp-popup">
+        <div className="udp-overlay" onMouseDown={() => setOpen(false)}>
+          <div className="udp-popup" onMouseDown={(e) => e.stopPropagation()}>
 
-          {/* Navigation */}
-          <div className="udp-nav">
-            <button type="button" className="udp-nav-btn" onClick={prevNav}>‹</button>
-            <div className="udp-nav-center">
-              {view === "day" && (
-                <>
-                  <button type="button" className="udp-nav-lbl" onClick={() => setView("month")}>{MONTHS[calMonth]}</button>
+            {/* Navigation */}
+            <div className="udp-nav">
+              <button type="button" className="udp-nav-btn" onClick={prevNav}>‹</button>
+              <div className="udp-nav-center">
+                {view === "day" && (
+                  <>
+                    <button type="button" className="udp-nav-lbl" onClick={() => setView("month")}>{MONTHS[calMonth]}</button>
+                    <button type="button" className="udp-nav-lbl" onClick={() => setView("year")}>{calYear}</button>
+                  </>
+                )}
+                {view === "month" && (
                   <button type="button" className="udp-nav-lbl" onClick={() => setView("year")}>{calYear}</button>
-                </>
-              )}
-              {view === "month" && (
-                <button type="button" className="udp-nav-lbl" onClick={() => setView("year")}>{calYear}</button>
-              )}
-              {view === "year" && (
-                <span className="udp-nav-lbl">{calYear - 5} – {calYear + 14}</span>
-              )}
+                )}
+                {view === "year" && (
+                  <span className="udp-nav-lbl">{calYear - 5} – {calYear + 14}</span>
+                )}
+              </div>
+              <button type="button" className="udp-nav-btn" onClick={nextNav}>›</button>
             </div>
-            <button type="button" className="udp-nav-btn" onClick={nextNav}>›</button>
+
+            {/* Day view */}
+            {view === "day" && (
+              <>
+                <div className="udp-weekdays">
+                  {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => <span key={d}>{d}</span>)}
+                </div>
+                <div className="udp-grid">
+                  {cells.map((d, i) => {
+                    if (!d) return <span key={i} />;
+                    const ds = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
+                    const sel = ds === value;
+                    const dis = isDisabled(ds);
+                    const tod = ds === today;
+                    return (
+                      <button
+                        key={i}
+                        type="button"
+                        className={`udp-day${sel ? " udp-sel" : ""}${dis ? " udp-dis" : ""}${tod && !sel ? " udp-today" : ""}`}
+                        disabled={dis}
+                        onClick={() => selectDay(d)}
+                      >{d}</button>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {/* Month view */}
+            {view === "month" && (
+              <div className="udp-month-grid">
+                {MONTHS.map((m, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`udp-month-btn${i === calMonth ? " udp-sel" : ""}`}
+                    onClick={() => { setCalMonth(i); setView("day"); }}
+                  >{m.slice(0, 3)}</button>
+                ))}
+              </div>
+            )}
+
+            {/* Year view */}
+            {view === "year" && (
+              <div className="udp-year-grid">
+                {yearRange.map(y => (
+                  <button
+                    key={y}
+                    type="button"
+                    className={`udp-year-btn${y === calYear ? " udp-sel" : ""}`}
+                    onClick={() => { setCalYear(y); setView("month"); }}
+                  >{y}</button>
+                ))}
+              </div>
+            )}
+
           </div>
-
-          {/* Day view */}
-          {view === "day" && (
-            <>
-              <div className="udp-weekdays">
-                {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map(d => <span key={d}>{d}</span>)}
-              </div>
-              <div className="udp-grid">
-                {cells.map((d, i) => {
-                  if (!d) return <span key={i} />;
-                  const ds = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
-                  const sel = ds === value;
-                  const dis = isDisabled(ds);
-                  const tod = ds === today;
-                  return (
-                    <button
-                      key={i}
-                      type="button"
-                      className={`udp-day${sel ? " udp-sel" : ""}${dis ? " udp-dis" : ""}${tod && !sel ? " udp-today" : ""}`}
-                      disabled={dis}
-                      onClick={() => selectDay(d)}
-                    >{d}</button>
-                  );
-                })}
-              </div>
-            </>
-          )}
-
-          {/* Month view */}
-          {view === "month" && (
-            <div className="udp-month-grid">
-              {MONTHS.map((m, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  className={`udp-month-btn${i === calMonth ? " udp-sel" : ""}`}
-                  onClick={() => { setCalMonth(i); setView("day"); }}
-                >{m.slice(0, 3)}</button>
-              ))}
-            </div>
-          )}
-
-          {/* Year view */}
-          {view === "year" && (
-            <div className="udp-year-grid">
-              {yearRange.map(y => (
-                <button
-                  key={y}
-                  type="button"
-                  className={`udp-year-btn${y === calYear ? " udp-sel" : ""}`}
-                  onClick={() => { setCalYear(y); setView("month"); }}
-                >{y}</button>
-              ))}
-            </div>
-          )}
-
         </div>
       )}
     </div>
