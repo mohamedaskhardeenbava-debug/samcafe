@@ -1,6 +1,8 @@
 // user panel
 // src/components/placeOrder.js   this is the file for placing the order of foods. 
 import api from "../api";
+import socket from "../socket";
+import { printKot } from "../printUtils";
 import { stripCustomizedPrefix } from "../UserPanel/shared/bagUtils";
 
 const CGST_RATE = 0.025;
@@ -87,24 +89,34 @@ const updateIngredientStock = async (bag) => {
   }
 };
 
-/** Best-effort fire-and-forget KOT print request — failures are silently ignored. */
+/** Best-effort KOT print request over the socket.io relay — failures are
+ *  logged but never block the caller; placing the order already succeeded
+ *  by the time this runs, so a printer hiccup shouldn't look like an
+ *  order failure to the customer. */
 const sendKotToPrinter = (savedOrder, totalWithGST) => {
   const printerOrder = {
-    ...savedOrder,
+    id: savedOrder.id,
     date: formatForPrinter(savedOrder.date),
-    gst: {
-      cgst: totalWithGST.cgst,
-      sgst: totalWithGST.sgst,
-      total: totalWithGST.total
-    }
+    time: savedOrder.time,
+    tableNo: savedOrder.tableNo,
+    staffName: savedOrder.userName,
+    items: (savedOrder.items || []).map(item => ({
+      dishName: item.dishName,
+      quantity: item.quantity,
+      selectedSize: item.selectedSize,
+      spiciness: item.spiciness,
+      notes: item.notes
+    })),
+    totalWithGST
   };
 
-  const printServerUrl = process.env.REACT_APP_PRINT_SERVER_URL || "http://localhost:9001";
-  fetch(`${printServerUrl}/print/kot`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ order: printerOrder })
-  }).catch(() => { });
+  printKot(socket, printerOrder)
+    .then((result) => {
+      if (!result.success) {
+        console.warn("KOT print failed:", result.error);
+      }
+    })
+    .catch((err) => console.warn("KOT print failed:", err));
 };
 
 /**
