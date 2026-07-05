@@ -1,6 +1,8 @@
 // user panel
 // src/components/placeOrder.js   this is the file for placing the order of foods. 
 import api from "../api";
+import socket from "../socket";
+import { printKot } from "../printUtils";
 import { stripCustomizedPrefix } from "../UserPanel/shared/bagUtils";
 
 const CGST_RATE = 0.025;
@@ -33,78 +35,74 @@ const calculateTotals = (bag) => {
   };
 };
 
-/** Fetches the logged-in user's name/mobile, or "Guest" if none is stored
- *  or the lookup fails for any reason (don't let a user-lookup hiccup
- *  block placing the order). */
+/** Fetches the logged-in user's name/mobile, or "Guest" if none is stored. */
 const resolveUser = async (userId) => {
   if (!userId) return { userName: "Guest", mobileNo: null };
 
-  try {
-    const userRes = await api.get(`/users/${userId}`);
-    return {
-      userName: userRes.data?.name || "Guest",
-      mobileNo: userRes.data?.mobile || null
-    };
-  } catch (err) {
-    console.warn("Could not resolve user for order, falling back to Guest:", err);
-    return { userName: "Guest", mobileNo: null };
-  }
+  const userRes = await api.get(`/users/${userId}`);
+  return {
+    userName: userRes.data?.name || "Guest",
+    mobileNo: userRes.data?.mobile || null
+  };
 };
 
-/** Deducts the ingredients consumed by this order from the stock collection.
- *  Failures here are logged but not thrown — stock-tracking is secondary
- *  to the order itself already being saved, and a partial/failed stock
- *  update should never make a successfully-placed order look like it failed. */
+/** Deducts the ingredients consumed by this order from the stock collection. */
 const updateIngredientStock = async (bag) => {
-  try {
-    const ingredientsRes = await api.get("/ingredients");
-    const allIngredients = ingredientsRes.data;
+  const ingredientsRes = await api.get("/ingredients");
+  const allIngredients = ingredientsRes.data;
 
-    const stockUpdates = allIngredients
-      .map((ing) => {
-        let usedKg = 0;
-        bag.forEach((item) => {
-          (item.ingredients || []).forEach((i) => {
-            if (i.name === ing.name) {
-              usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
-            }
-          });
+  const stockUpdates = allIngredients
+    .map((ing) => {
+      let usedKg = 0;
+      bag.forEach((item) => {
+        (item.ingredients || []).forEach((i) => {
+          if (i.name === ing.name) {
+            usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
+          }
         });
+      });
 
-        if (usedKg <= 0) return null;
+      if (usedKg <= 0) return null;
 
-        const updated = {
-          ...ing,
-          stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
-        };
-        return api.put(`/ingredients/${ing.id}`, updated);
-      })
-      .filter(Boolean);
+      const updated = {
+        ...ing,
+        stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
+      };
+      return api.put(`/ingredients/${ing.id}`, updated);
+    })
+    .filter(Boolean);
 
-    await Promise.all(stockUpdates);
-  } catch (err) {
-    console.error("Failed to update ingredient stock after order placement:", err);
-  }
+  await Promise.all(stockUpdates);
 };
 
-/** Best-effort fire-and-forget KOT print request — failures are silently ignored. */
+/** Best-effort KOT print request over the socket.io relay — failures are
+ *  logged but never block the caller; placing the order already succeeded
+ *  by the time this runs, so a printer hiccup shouldn't look like an
+ *  order failure to the customer. */
 const sendKotToPrinter = (savedOrder, totalWithGST) => {
   const printerOrder = {
-    ...savedOrder,
+    id: savedOrder.id,
     date: formatForPrinter(savedOrder.date),
-    gst: {
-      cgst: totalWithGST.cgst,
-      sgst: totalWithGST.sgst,
-      total: totalWithGST.total
-    }
+    time: savedOrder.time,
+    tableNo: savedOrder.tableNo,
+    staffName: savedOrder.userName,
+    items: (savedOrder.items || []).map(item => ({
+      dishName: item.dishName,
+      quantity: item.quantity,
+      selectedSize: item.selectedSize,
+      spiciness: item.spiciness,
+      notes: item.notes
+    })),
+    totalWithGST
   };
 
-  const printServerUrl = process.env.REACT_APP_PRINT_SERVER_URL || "http://localhost:9001";
-  fetch(`${printServerUrl}/print/kot`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ order: printerOrder })
-  }).catch(() => { });
+  printKot(socket, printerOrder)
+    .then((result) => {
+      if (!result.success) {
+        console.warn("KOT print failed:", result.error);
+      }
+    })
+    .catch((err) => console.warn("KOT print failed:", err));
 };
 
 /**
@@ -146,7 +144,7 @@ export const placeOrder = async (bag) => {
   const { totalAmount, totalWithGST } = calculateTotals(bag);
 
   const newOrder = {
-    id: "placed",  // Server assigns the real incremental ID
+    id: "pending",  // Server assigns the real incremental ID
     ...(userId ? { userId } : {}),
     userName,
     ...(mobileNo ? { mobile: mobileNo } : {}),
