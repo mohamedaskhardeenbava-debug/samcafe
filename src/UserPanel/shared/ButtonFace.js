@@ -12,7 +12,7 @@
  */
 const ButtonFace = ({ children, edgeStyle, frontStyle, frontClassName = "" }) => (
   <>
-    <span className="shadow"></span>
+    <span className="shadow shadow-none"></span>
     <span className="edge" style={edgeStyle}></span>
     <span className={`front${frontClassName ? ` ${frontClassName}` : ""}`} style={frontStyle}>
       {children}
