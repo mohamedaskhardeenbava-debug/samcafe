@@ -6,7 +6,6 @@
 :root,
 html,
 body {
-  touch-action: manipulation !important;
   -webkit-user-drag: none !important;
   -webkit-user-select: none !important;
   -moz-user-select: none !important;
@@ -14,6 +13,19 @@ body {
   user-select: none !important;
 
   font-family: "Geom", system-ui, sans-serif !important;
+}
+
+/* Restore the tap-delay/double-tap-zoom fix for interactive controls only —
+   applying `manipulation` globally (as `*`) overrides swipe surfaces like
+   .combo-reel / .appetizer-reel that need `touch-action: pan-x` (or their
+   own custom pointer handling) to receive vertical drag gestures on mobile. */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
 }
 
 :root {
@@ -798,11 +810,6 @@ image {
   will-change: transform;
   transform: translateY(2px);
   transition: transform 600ms cubic-bezier(.3, .7, .4, 1);
-  box-shadow: none !important;
-}
-
-div.shadow {
-  box-shadow: none !important;
 }
 
 .edge {
