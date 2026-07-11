@@ -1,478 +1,629 @@
-.appetizer-builder {
-  height: 100vh;
+/* ============================================================
+   AppetizerBuilder.css — mirrors ComboPage.css: same swipeable
+   reel pattern for browsing sauce/main, the same compact angled
+   grouping strip, and the same vibrant final-summary card.
+============================================================ */
+
+:root {
+  --appetizer-ink: #161616;
+  --appetizer-line: rgba(0, 0, 0, 0.08);
+  --appetizer-radius: 26px;
+  --appetizer-gradient: linear-gradient(90deg, var(--color-red), #ff9a44, var(--color-green, #1a9b4c));
+}
+
+/* ── Page ─────────────────────────────────────────────────── */
+.appetizer-page {
+  width: 100%;
   padding: 36px;
   box-sizing: border-box;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
   font-family: "Geom", system-ui, sans-serif;
+  color: var(--text-primary);
+  position: relative;
+  overflow-x: hidden;
 }
 
-.builder-header {
+/* ── Top bar ──────────────────────────────────────────────── */
+.appetizer-topbar {
   display: flex;
   align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
 }
 
-.builder-grid {
+.appetizer-phase-label {
   flex: 1;
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 14px;
-  height: calc(100% - 65px);
-  box-sizing: border-box;
-}
-
-.appetizer-first-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  height: 100%;
-  max-height: 100%;
-}
-
-.builder-column {
-  display: flex;
-  flex-direction: column;
-  border-radius: 16px;
-  padding: 16px;
-  box-sizing: border-box;
-  overflow: hidden;
-  box-shadow: var(--shadow-primary);
-}
-
-.final-column {
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  border-radius: 16px;
-  padding: 16px;
-  box-sizing: border-box;
-  overflow: hidden;
-  box-shadow: var(--shadow-primary);
-}
-
-.builder-column-header {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  font-size: 20px;
-  padding: 6px 0 12px 0;
-  margin: 0 0 16px 0;
+  font-size: 15px;
   font-weight: 600;
+  color: var(--text-secondary);
 }
 
-.builder-column-scroll {
-  flex: 1;
-  overflow-y: auto;
-  padding-bottom: 6px;
-}
-
-.builder-column-grid {
-  display: grid;
-  height: 100%;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  padding: 6px;
-  box-sizing: border-box;
-}
-
-.builder-item {
-  background: var(--bg-main);
-  color: var(--text-primary);
-  border-radius: 20px;
-  padding: 16px;
-  text-decoration: none;
+.appetizer-topbar-actions {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.appetizer-icon-btn .front {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  cursor: pointer;
-  box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-  transition: transform 0.25s ease;
-  will-change: transform;
-  contain: layout paint;
-  transform: translateZ(0);
-
-  transition: all 0.2s ease;
+  font-size: 16px;
 }
 
-.builder-item:hover {
+.appetizer-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 999px;
   background: var(--color-red);
-  transform: translateY(-2px);
-  box-shadow: rgba(0, 0, 0, 0.09) 0px 2px 1px, rgba(0, 0, 0, 0.09) 0px 4px 2px,
-    rgba(0, 0, 0, 0.09) 0px 8px 4px, rgba(0, 0, 0, 0.09) 0px 16px 8px,
-    rgba(0, 0, 0, 0.09) 0px 32px 16px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
-.builder-item.active {
-  background: var(--color-red);
-  color: var(--text-primary);
-  box-shadow: var(--card-shadow)
+/* ── Compact grouping strip ──────────────────────────────── */
+.appetizer-group-strip {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  height: 130px;
+  margin-bottom: 18px;
+  margin-left: 0;
 }
 
-.builder-item-image {
-  width: 50%;
-  aspect-ratio: 1/1;
-  background-color: var(--border-lighter);
-}
-
-.builder-item-name {
-  font-weight: 600;
-}
-
-.builder-main-column-grid {
-  display: grid;
-  height: 100%;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding: 6px;
-  box-sizing: border-box;
-}
-
-.builder-main-item {
-  background: var(--bg-main);
-  color: var(--text-primary);
-  border-radius: 20px;
-  padding: 16px;
-  text-decoration: none;
+.appetizer-group-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 16px;
-  cursor: pointer;
-  box-shadow: var(--shadow-card-normal);
-  will-change: transform;
-  contain: layout paint;
-  transform: translateZ(0);
-  transition: all 0.2s ease;
+  gap: 8px;
+  width: 96px;
+  z-index: 5;
 }
 
-.builder-main-item:hover {
-  background: var(--color-red);
-  transform: translateY(-2px);
-  box-shadow: var(--card-shadow);
+.appetizer-group-node-btn {
+  display: block;
+  width: 84px;
+  height: 84px;
 }
 
-.builder-main-item.active {
-  background: var(--color-red);
-  color: var(--text-primary);
-  box-shadow: var(--card-shadow);
+.appetizer-group-node-btn .shadow,
+.appetizer-group-node-btn .edge {
+  border-radius: 50%;
 }
 
-.builder-main-item-image {
-  width: 50%;
-  aspect-ratio: 1/1;
+.appetizer-group-node-btn .front {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: #fff;
 }
 
-.builder-main-item-image img {
+.appetizer-group-node-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  background: transparent;
+}
+
+.appetizer-group-node-img img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.builder-main-item-name {
-  font-weight: 600;
+/* ── Swipeable reel (ComboReel pattern) ──────────────────── */
+.appetizer-reel {
+  height: calc(100vh - 360px);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  contain: layout;
+  overflow: visible;
+  touch-action: pan-x;
+  position: relative;
 }
 
-.final-card {
+.appetizer-reel-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.appetizer-reel-details {
+  position: relative;
+  z-index: 10;
+  width: 34%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
-.final-image {
-  width: 50%;
-  aspect-ratio: 1/1;
-}
-
-.final-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.final-name {
-  font-size: 28px;
-  font-weight: 600;
-  height: 72px;
-  align-content: center;
-}
-
-.final-price {
-  font-size: 28px;
+.appetizer-reel-name {
+  font-size: clamp(21px, 4vw, 34px);
   font-weight: 700;
-  color: var(--color-red);
+  margin: 0;
+  color: var(--text-primary);
+  overflow-wrap: break-word;
 }
 
-.qty-controls {
-  display: flex;
-  gap: 10px;
-  align-items: center;
+.appetizer-reel-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 10px 0 0;
+  overflow-wrap: break-word;
 }
 
-.final-placeholder {
+/* Image conveyor */
+.appetizer-reel-images {
+  position: relative;
   height: 100%;
+  width: 66%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.appetizer-reel-image-wrapper {
+  position: absolute;
+  width: 60%;
+  max-width: 460px;
+  aspect-ratio: 1 / 1;
+  will-change: transform;
+}
+
+.appetizer-reel-image {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0px 30px 22px rgba(0, 0, 0, 0.18));
+}
+
+/* ── Bottom sheet (My Appetizer / Receipt) — mirrors ComboPage's
+   .combo-sheet-overlay / .combo-sheet-modal exactly, just with the
+   `appetizer-` prefix, so both builders feel like one product. ── */
+.appetizer-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 4000;
+}
+
+.appetizer-sheet-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 85vh;
+  background: var(--bg-main);
+  border-radius: var(--appetizer-radius) var(--appetizer-radius) 0 0;
+  padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  box-shadow: 0 -20px 60px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.appetizer-sheet-handle {
+  width: 36px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--appetizer-line);
+  margin: 10px auto 16px;
+  flex-shrink: 0;
+}
+
+.appetizer-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--appetizer-line);
+  flex-shrink: 0;
+}
+
+.appetizer-sheet-header h3 {
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.appetizer-sheet-body {
+  overflow-y: auto;
+  scrollbar-width: none;
+  margin-bottom: 16px;
+}
+
+.appetizer-sheet-body::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Receipt confirmation (mirrors combo-receipt) ────────── */
+.appetizer-receipt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6px 4px 4px;
+}
+
+.appetizer-receipt-check {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-green, #1a9b4c);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.appetizer-receipt h3 {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 4px;
+  color: var(--text-primary);
+}
+
+.appetizer-receipt-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.appetizer-receipt-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 22px;
+}
+
+.appetizer-receipt-done {
+  width: 100%;
+}
+
+/* ── Cart list — plain text rows, mirrors ComboPage's combo-cart-* ── */
+.appetizer-checkout-bar {
+  margin-top: 12px;
+}
+
+.appetizer-cart-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.appetizer-cart-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.appetizer-cart-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.03));
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.appetizer-cart-row.filled {
+  background: var(--color-pale-red);
+}
+
+.appetizer-cart-row.empty {
+  opacity: 0.7;
+}
+
+.appetizer-cart-row-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.appetizer-cart-row-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.appetizer-cart-row-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.appetizer-cart-row-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.appetizer-cart-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.appetizer-cart-row-empty {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+/* Quantity */
+.appetizer-cart-qty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 4px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.appetizer-cart-divider {
+  height: 1px;
+  background: var(--appetizer-line);
+  margin: 14px 0;
+}
+
+/* Totals — plain rows like the receipt's Total */
+.appetizer-cart-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.appetizer-cart-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+}
+
+.appetizer-cart-total-row.final {
+  font-size: 17px;
+  font-weight: 800;
+  color: #fff;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--color-red);
+  box-shadow: 0 10px 24px rgba(217, 68, 45, 0.28);
+}
+
+/* Checkout amount pill inside the Button3D front face */
+.appetizer-checkout-amount {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 3px 10px;
+  font-size: 13px;
+}
+
+/* Placeholder (edge case: sauce+main combo not in dish list) */
+.final-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: var(--text-muted);
+  color: var(--text-tertiary);
   text-align: center;
   gap: 12px;
+  padding: 30px 10px 6px;
 }
 
 .placeholder-icon {
-  font-size: 48px;
+  font-size: 44px;
   opacity: 0.6;
 }
 
 .placeholder-text {
-  font-size: 16px;
-  max-width: 220px;
-  line-height: 1.4;
+  font-size: 14px;
+  max-width: 260px;
+  line-height: 1.5;
 }
 
-.qty-controls button {
-  width: 32px;
-  height: 32px;
-}
-
-/*  */
-.appetizer-qty-controls {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px;
-  border-radius: 20px;
-  border: 1px solid var(--border-light);
-}
-
-.appetizer-qty-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 15px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.15s ease;
-  border-radius: 50%;
-  background-color: var(--btn-color);
-  color: var(--text-primary);
-  box-shadow: var(--shadow-list);
-  cursor: pointer;
-  transition: all 0.1s ease-in;
-  outline: none;
-  border: none;
-}
-
-.appetizer-qty-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.appetizer-qty-value {
-  min-width: 32px;
-  text-align: center;
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg-primary);
-}
-
-.appetizer-qty-btn:hover {
-  transform: scale(1.1);
-}
+/* ── Responsive (mirrors ComboPage breakpoints) ──────────── */
 
 @media screen and (max-width: 992px) {
-
-  .appetizer-builder {
-    padding: var(--medium-page-padding);
+  .appetizer-page {
+    padding: var(--medium-page-padding, 24px);
   }
 
-  /* 🔥 MAIN GRID → STACK */
-  .builder-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    height: auto;
+  .appetizer-reel-details {
+    width: 38%;
   }
 
-  /* 🔥 FIRST GRID (sauce + main) */
-  .appetizer-first-grid {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: auto;
+  .appetizer-reel-images {
+    width: 62%;
   }
 
-  /* 🔥 REMOVE FIXED HEIGHT */
-  .builder-column {
-    padding: 10px 8px;
-    height: auto;
-    min-height: 200px;
-  }
-
-  /* 🔥 SCROLL INSIDE */
-  .builder-column-scroll {
-    max-height: 200px;
-  }
-
-  .builder-column-header {
-    margin-bottom: 8px;
-  }
-
-  /* 🔥 LIST STYLE */
-  .builder-column-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .builder-item {
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 10px;
-    gap: 10px;
-  }
-
-  .builder-main-item {
-    padding: 8px;
-  }
-
-  .builder-item-image,
-  .builder-main-item-image {
-    width: 40px;
-    height: 40px;
-  }
-
-  /* 🔥 FINAL CARD FULL WIDTH */
-  .appetizer-last-grid {
-    width: 100%;
-  }
-
-  .final-column {
-    width: 100%;
+  .appetizer-group-strip {
+    max-width: 260px;
+    height: 110px;
   }
 }
 
 @media screen and (max-width: 768px) {
-  .builder-column {
-    padding: 6px 4px;
-    height: stretch;
+  .appetizer-reel-details {
+    width: 42%;
   }
 
-  .builder-column-scroll {
-    max-height: 240px;
+  .appetizer-reel-images {
+    width: 58%;
   }
 
-  .final-image {
-    width: 90%;
+  .appetizer-reel-image-wrapper {
+    max-width: 340px;
   }
 }
 
 @media screen and (max-width: 578px) {
-
-  .appetizer-builder {
-    padding: var(--mobile-page-padding);
+  .appetizer-page {
+    padding: var(--mobile-page-padding, 16px);
   }
 
-  .appetizer-first-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  .appetizer-reel {
+    flex-direction: column-reverse;
     height: auto;
+    min-height: 0;
+    gap: 18px;
   }
 
-  .builder-column {
-    padding: 6px 4px;
-    height: 100%;
-  }
-
-  .builder-column-scroll {
-    height: 100%;
-  }
-
-  .builder-column-header {
-    margin-bottom: 4px;
-    padding: 4px;
-    font-size: 16px;
-  }
-
-  .builder-item,
-  .builder-main-item {
-    padding: 6px;
-    font-size: 14px;
-  }
-
-  .builder-item-image,
-  .builder-main-item-image {
-    width: 32px;
-    height: 32px;
-  }
-
-  .final-image {
+  .appetizer-reel-details {
     width: 100%;
+    align-items: center;
+    text-align: center;
   }
 
-  .final-name,
-  .final-price {
-    font-size: 18px;
+  .appetizer-reel-images {
+    width: 100%;
+    height: 300px;
+  }
+
+  .appetizer-reel-image-wrapper {
+    max-width: 260px;
+  }
+
+  .appetizer-group-strip {
+    max-width: 220px;
+    height: 130px;
+  }
+
+  .appetizer-group-node {
+    width: 76px;
+  }
+
+  .appetizer-group-node-btn {
+    width: 64px;
+    height: 64px;
+  }
+
+  .appetizer-sheet-modal {
+    max-width: 100%;
   }
 }
 
-@media screen and (max-height: 500px) {
-  .appetizer-builder {
-    padding: var(--medium-page-padding);
+@media screen and (max-width: 380px) {
+  .appetizer-page {
+    padding: 12px;
   }
 
-  .builder-column-header {
-    font-size: 18px;
+  .appetizer-reel-image-wrapper {
+    max-width: 210px;
   }
 
-  .builder-item {
-    padding: 8px;
-    border-radius: 10px;
+  .appetizer-group-strip {
+    max-width: 100%;
+    height: 110px;
   }
 
-  .builder-item-image {
-    width: 30px;
-    height: 30px;
+  .appetizer-group-node {
+    width: 66px;
   }
 
-  .builder-main-column-grid {
-    grid-template-columns: 1fr 1fr;
+  .appetizer-group-node-btn {
+    width: 56px;
+    height: 56px;
   }
 
-  .builder-main-item {
-    flex-direction: column;
-    padding: 6px;
-    border-radius: 20px;
-    align-items: center;
-    justify-content: center;
+  .appetizer-phase-label {
+    font-size: 12.5px;
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  .appetizer-page {
+    padding: 44px 64px;
   }
 
-  .builder-main-item-image {
-    width: 40px;
-    height: 40px;
+  .appetizer-reel {
+    max-width: 1100px;
+    margin: 0 auto;
   }
 
-  .final-card {
-    gap: 6px;
+  .appetizer-reel-desc {
+    font-size: 15px;
+    max-width: 380px;
   }
 
-  .final-image {
-    width: 80px;
-    height: 80px;
+  .appetizer-reel-image-wrapper {
+    max-width: 520px;
   }
 
-  .final-name,
-  .final-price {
-    font-size: 20px;
+  .appetizer-group-node {
+    width: 108px;
+  }
+
+  .appetizer-group-node-btn {
+    width: 96px;
+    height: 96px;
+  }
+
+  .appetizer-sheet-modal {
+    max-width: 500px;
+  }
+}
+
+@media screen and (max-height: 560px) {
+  .appetizer-reel {
+    height: auto;
+    min-height: 280px;
+  }
+
+  .appetizer-group-strip {
+    height: 100px;
+    margin-bottom: 8px;
+  }
+
+  .appetizer-group-node-btn {
+    width: 52px;
+    height: 52px;
   }
 }

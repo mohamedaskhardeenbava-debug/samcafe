@@ -1,15 +1,15 @@
 :root {
-  --card-bg: var(--bg-main)fff;
-  --primary-hover: #1d4ed8;
-  --color-red-hover: var(--color-error-dark);
-  --shadow-sm: 0 8px 20px rgba(0, 0, 0, 0.06);
+  --fav-combo-line: rgba(0, 0, 0, 0.08);
+  --fav-combo-radius: 18px;
   --shadow-md: 0 18px 45px rgba(0, 0, 0, 0.08);
-  --radius: 18px;
 }
 
 /* PAGE */
 .fav-combo-page {
+  width: 100%;
   min-height: 100vh;
+  padding: 36px;
+  box-sizing: border-box;
   background: transparent;
   color: var(--text-primary);
 }
@@ -18,7 +18,13 @@
 .fav-combo-header {
   display: flex;
   align-items: center;
-  margin-bottom: 22px;
+  gap: 16px;
+  margin-bottom: 26px;
+}
+
+.fav-combo-header-text {
+  flex: 1;
+  min-width: 0;
 }
 
 .fav-combo-header-text h1 {
@@ -29,9 +35,9 @@
 }
 
 .fav-combo-header-text p {
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--text-tertiary);
-  margin: 2px 0 0;
+  margin: 3px 0 0;
 }
 
 /* CONTENT */
@@ -44,20 +50,31 @@
 /* EMPTY STATE */
 .fav-combo-empty {
   background: var(--bg-main);
-  border-radius: var(--radius);
-  padding: 40px 20px;
+  border-radius: var(--fav-combo-radius);
+  padding: 56px 20px;
   text-align: center;
   box-shadow: var(--shadow-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .fav-combo-empty .empty-icon {
-  font-size: 42px;
-  margin-bottom: 10px;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  margin-bottom: 16px;
 }
 
 .fav-combo-empty h3 {
   margin: 0;
   font-size: 18px;
+  font-weight: 700;
   color: var(--text-primary);
 }
 
@@ -65,6 +82,7 @@
   margin-top: 6px;
   font-size: 14px;
   color: var(--text-secondary);
+  max-width: 320px;
 }
 
 /* CARD */
@@ -75,15 +93,50 @@
   gap: 16px;
   background: var(--bg-main);
   padding: 16px 18px;
-  border-radius: var(--radius);
+  border-radius: var(--fav-combo-radius);
   box-shadow: var(--shadow-primary);
   margin: 0;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  border: 1px solid transparent;
+  transition: box-shadow 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
 }
 
 .fav-combo-card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-2px);
+  border-color: var(--fav-combo-line);
+}
+
+.fav-combo-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+/* THUMBNAIL STACK — overlapping circles for starter/main/drink */
+.fav-combo-thumbs {
+  display: flex;
+  flex-shrink: 0;
+  padding-left: 10px;
+}
+
+.fav-combo-thumb {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--bg-secondary, #f3f4f6);
+  border: 2px solid var(--bg-main);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  margin-left: -10px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.fav-combo-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 /* INFO */
@@ -91,12 +144,32 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-width: 0;
 }
 
 .fav-combo-title {
   font-weight: 600;
   font-size: 15px;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fav-combo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.fav-combo-chip {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.04));
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
 }
 
 .fav-combo-meta {
@@ -149,14 +222,30 @@
 /* ACTIONS */
 .fav-combo-actions {
   display: flex;
+  align-items: center;
   gap: 12px;
+  flex-shrink: 0;
 }
 
 /* RESPONSIVE */
+@media (max-width: 992px) {
+  .fav-combo-page {
+    padding: var(--medium-page-padding, 24px);
+  }
+}
+
 @media (max-width: 578px) {
+  .fav-combo-page {
+    padding: var(--mobile-page-padding, 16px);
+  }
+
   .fav-combo-card {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  .fav-combo-main {
+    align-items: flex-start;
   }
 
   .fav-combo-actions {
@@ -169,13 +258,37 @@
   }
 
   .fav-combo-header {
-    margin-bottom: 10px;
+    margin-bottom: 16px;
   }
 
-  .fav-combo-header h2 {
+  .fav-combo-header-text h1 {
     font-size: 18px !important;
     font-weight: 700;
     margin: 0;
     color: var(--text-primary);
+  }
+
+  .fav-combo-thumbs {
+    padding-left: 6px;
+  }
+
+  .fav-combo-thumb {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 380px) {
+  .fav-combo-page {
+    padding: 12px;
+  }
+
+  .fav-combo-chips {
+    gap: 4px;
+  }
+
+  .fav-combo-chip {
+    font-size: 10.5px;
+    padding: 2px 7px;
   }
 }
