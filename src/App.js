@@ -505,9 +505,9 @@ function App() {
 
               <Route path="/favourites/:source/dish/:dishId" element={<motion.div {...motionProps}><FavouriteDishDetail foodData={foodData} handleBack={handleBack} addToBag={addToBag} handleHome={handleHome} currentUser={currentUser} /></motion.div>} />
 
-              <Route path="/combo" element={<motion.div {...motionProps}><ComboPage foodData={foodData} comboOfferRules={foodData.comboOffers || []} addToBag={addToBag} updateBagItem={updateBagItem} handleBack={handleBack} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div>} />
+              <Route path="/combo" element={<motion.div {...motionProps}><ComboPage foodData={foodData} comboOfferRules={foodData.comboOffers || []} addToBag={addToBag} updateBagItem={updateBagItem} handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div>} />
 
-              <Route path="/favourite-combos" element={isAuthenticatedUser ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/favourite-combos" element={isAuthenticatedUser ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
               <Route path="/offers" element={<motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={() => navigate(-1)} handleHome={() => navigate("/categories")} /></motion.div>} />
 

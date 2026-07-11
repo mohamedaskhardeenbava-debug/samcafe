@@ -114,6 +114,7 @@ const sendKotToPrinter = (savedOrder, totalWithGST) => {
     .then((result) => {
       if (!result.success) {
         console.warn("KOT print failed:", result.error);
+        console.log(result);
       }
     })
     .catch((err) => console.warn("KOT print failed:", err));
