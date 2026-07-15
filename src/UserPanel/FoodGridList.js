@@ -7,6 +7,7 @@ import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import { buildDishBagItem } from "./shared/bagUtils";
+import { getActiveOffer, applyOfferToBagItem } from "./shared/offerUtils";
 
 /* ─── Grid container: staggers children on mount/key change ── */
 const gridVariants = {
@@ -71,7 +72,9 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
   const handleAdd = (dish) => (e) => {
     e.stopPropagation();
     const img = e.currentTarget.closest(".food-grid-card")?.querySelector(".food-grid-card-img");
-    addToBag(buildDishBagItem(dish, categoryId, { __pendingImage: true }));
+    const item = buildDishBagItem(dish, categoryId, { __pendingImage: true });
+    const offer = getActiveOffer(dish.id, foodData.offers);
+    addToBag(offer ? applyOfferToBagItem(item, offer, item.unitPrice) : item);
     flyToBag({ imgEl: img, dishId: dish.id, customizationKey: "" });
   };
 
@@ -139,6 +142,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
               <DishCard
                 key={dish.id}
                 dish={dish}
+                offer={getActiveOffer(dish.id, foodData.offers)}
                 onView={() => navigate(`/foods/${categoryId}`, { state: { dishId: dish.id } })}
                 onAdd={handleAdd(dish)}
               />
@@ -151,7 +155,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
 };
 
 /* ── Dish card ──────────────────────────────────────────── */
-const DishCard = ({ dish, onView, onAdd }) => {
+const DishCard = ({ dish, offer, onView, onAdd }) => {
   const [imgLoaded, setImgLoaded] = useState(false);
 
   return (
@@ -174,6 +178,7 @@ const DishCard = ({ dish, onView, onAdd }) => {
           loading="lazy"
           onLoad={() => setImgLoaded(true)}
         />
+        {offer && <span className="food-grid-card-offer-badge">{offer.percentage}% OFF</span>}
       </div>
 
       <div className="food-grid-card-body">
@@ -182,7 +187,16 @@ const DishCard = ({ dish, onView, onAdd }) => {
           <div className="food-grid-card-desc">{dish.description}</div>
         )}
         <div className="food-grid-card-footer">
-          <div className="food-grid-card-price">₹{dish.basePrice}</div>
+          <div className="food-grid-card-price">
+            {offer ? (
+              <>
+                <span>₹{offer.offerPrice}</span>
+                <span className="food-grid-card-price-original">₹{offer.originalPrice}</span>
+              </>
+            ) : (
+              <>₹{dish.basePrice}</>
+            )}
+          </div>
           <button
             className="food-grid-card-add"
             onClick={onAdd}

@@ -562,6 +562,10 @@ button {
   z-index: 9999;
 }
 
+.close-padding {
+  padding: 8px 10px !important;
+}
+
 .floating-bell-wrapper:hover {
   width: 220px;
   box-shadow: var(--shadow-card-red);

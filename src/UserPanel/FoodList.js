@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import { buildDishBagItem } from "./shared/bagUtils";
+import { getActiveOffer, getEffectiveBasePrice, applyOfferToBagItem } from "./shared/offerUtils";
 import { flyToBag } from "../components/flyToBag";
 
 const SLOT_X = [-1000, 0, 420, 700, 900];
@@ -132,7 +133,9 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
       `.dish-image[data-active-dish="${dish.id}"]`
     );
 
-    addToBag(buildDishBagItem(dish, category.id, { selectedSize: null, isCombo: false }));
+    const item = buildDishBagItem(dish, category.id, { selectedSize: null, isCombo: false });
+    const offer = getActiveOffer(dish.id, foodData.offers);
+    addToBag(offer ? applyOfferToBagItem(item, offer, item.unitPrice) : item);
     flyToBag({ imgEl: img, dishId: dish.id });
   };
 
@@ -196,7 +199,17 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
             </h2>
 
             <div className="dish-price">
-              <AnimatedPrice value={visible[1].basePrice} />
+              {(() => {
+                const offer = getActiveOffer(visible[1].id, foodData.offers);
+                if (!offer) return <AnimatedPrice value={visible[1].basePrice} />;
+                return (
+                  <>
+                    <AnimatedPrice value={offer.offerPrice} />
+                    <span className="dish-price-original">₹{offer.originalPrice}</span>
+                    <span className="dish-price-offer-badge">{offer.percentage}% OFF</span>
+                  </>
+                );
+              })()}
             </div>
 
             <p className="dish-description">

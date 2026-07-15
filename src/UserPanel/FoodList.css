@@ -87,6 +87,36 @@
   margin: 10px 0 14px;
 }
 
+/* ── Offer tag — struck original price + "% OFF" pill, shown inline
+   next to the discounted price whenever a dish has an active offer.
+   Shared by both FoodList (swipeable reel) and FoodListExpanded,
+   since both import this stylesheet. ── */
+.dish-price-original {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+  vertical-align: middle;
+}
+
+.dish-price-offer-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-red);
+  color: var(--bg-main);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
 .dish-description {
   font-size: 14px;
   line-height: 1.6;
@@ -555,6 +585,17 @@
   .show-more-btn {
     width: 50%;
     margin: 0;
+  }
+
+  .dish-price-original {
+    font-size: 13px;
+    margin-left: 6px;
+  }
+
+  .dish-price-offer-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    margin-left: 6px;
   }
 
   .dish-nutrition-item {

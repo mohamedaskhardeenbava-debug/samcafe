@@ -12,6 +12,7 @@ import { flyToBag } from "../components/flyToBag";
 import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import { RED_EDGE_GRADIENT, RED_FRONT_STYLE } from "./shared/styles";
+import { getActiveOffer, getEffectiveBasePrice } from "./shared/offerUtils";
 
 /* ─── Constants ───────────────────────────────────────────── */
 const STEP = 10;
@@ -89,6 +90,11 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   const favouriteDish = fromFavouriteCustomize ? favouriteSnapshot : null;
 
+  // Only the "as-is" base dish price is discounted — ingredient add-ons,
+  // sizing, and variant surcharges still stack on top as usual, so a
+  // heavily customized order isn't silently discounted along with it.
+  const activeOffer = useMemo(() => getActiveOffer(dish?.id, foodData?.offers), [dish?.id, foodData?.offers]);
+
   const effectiveDish = useMemo(() => {
     if (isEditMode) return { ...dish, ingredients: bagItem?.ingredients || [] };
     if (fromFavouriteCustomize) return { ...dish, ingredients: favouriteDish?.ingredients || dish?.ingredients };
@@ -105,6 +111,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   const [quantity, setQuantity] = useState(1);
   const [spiciness, setSpiciness] = useState("mild");
   const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedVariant, setSelectedVariant] = useState(null);
   const favouriteId = `${wishlistDish.id}_${selectedSize || "regular"}`;
   const [ingredientQuantities, setIngredientQuantities] = useState({});
   const [selectedOrder, setSelectedOrder] = useState([]);
@@ -125,6 +132,15 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   ), [originalCategory, selectedSize]);
 
   const sizeMultiplier = Number(selectedSizeObj?.priceMultiplier ?? 1);
+
+  /* ── Variant ── */
+  const dishVariants = dish?.variants || effectiveDish?.variants || [];
+
+  const selectedVariantObj = useMemo(() => (
+    dishVariants.find(v => v.name === selectedVariant) || null
+  ), [dishVariants, selectedVariant]);
+
+  const variantExtraCharge = Number(selectedVariantObj?.extraCharge ?? 0);
 
   /* ── Allowed category ingredients ── */
   const categoryIngredients = useMemo(() => {
@@ -171,6 +187,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       setSelectedSize(bagItem.selectedSize || selectedSizeObj?.name?.toLowerCase());
       setSpiciness(bagItem.spiciness || "mild");
       setNotes(bagItem.notes || "");
+      setSelectedVariant(bagItem.selectedVariant || null);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [safeIngredients.length, effectiveDish.id, bagItem?.id, fromFavouriteCustomize]);
@@ -232,7 +249,9 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   /* ── Build bag item (memoized) ── */
   const previewItem = useMemo(() => {
-    const base = Number(dish?.basePrice ?? originalCategory?.basePrice ?? 200) * sizeMultiplier;
+    const rawBasePrice = Number(dish?.basePrice ?? originalCategory?.basePrice ?? 200);
+    const effectiveBasePrice = getEffectiveBasePrice(rawBasePrice, activeOffer);
+    const base = effectiveBasePrice * sizeMultiplier;
 
     const ingredients = Object.entries(ingredientQuantities)
       .filter(([, qty]) => Number(qty) > 0)
@@ -250,13 +269,13 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
     const delta = selectedTotal - baseTotal;
     const ingredientModified = selectedTotal !== baseTotal;
-    const unitPrice = Math.max(0, Math.round(base + delta));
+    const unitPrice = Math.max(0, Math.round(base + delta + variantExtraCharge));
     const qty = Number(quantity || 1);
 
     const customizationKey = (() => {
-      if (!ingredientModified && !notes?.trim() && !selectedSize) return null;
+      if (!ingredientModified && !notes?.trim() && !selectedSize && !selectedVariant) return null;
       const ingSig = ingredients.map(i => `${i.name}:${i.quantity}`).sort().join("|");
-      return [selectedSize || "", spiciness || "", notes?.trim() || "", ingSig].join("__");
+      return [selectedSize || "", spiciness || "", notes?.trim() || "", selectedVariant || "", ingSig].join("__");
     })();
 
     const baseName = dish?.name || favouriteDish?.name || effectiveDish?.name || "Custom Dish";
@@ -269,15 +288,18 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
       categoryId: originalCategory?.id,
       quantity: qty,
       selectedSize,
+      selectedVariant,
+      variantExtraCharge,
       spiciness,
       ingredients,
       unitPrice,
       totalPrice: unitPrice * qty,
       notes: notes?.trim() || "",
       isCustomized: fromFavouriteCustomize ? false : ingredientModified,
-      isFromFavourite: fromFavouriteCustomize === true
+      isFromFavourite: fromFavouriteCustomize === true,
+      ...(activeOffer ? { appliedOffer: { percentage: activeOffer.percentage, originalPrice: rawBasePrice * sizeMultiplier } } : {})
     };
-  }, [ingredientQuantities, quantity, selectedSize, spiciness, notes, dish, effectiveDish, originalCategory, safeIngredients, sizeMultiplier, fromBag, bagItem, fromFavouriteCustomize, favouriteDish]);
+  }, [ingredientQuantities, quantity, selectedSize, selectedVariant, variantExtraCharge, spiciness, notes, dish, effectiveDish, originalCategory, safeIngredients, sizeMultiplier, fromBag, bagItem, fromFavouriteCustomize, favouriteDish, activeOffer]);
 
   const totalPrice = previewItem.totalPrice || 0;
 
@@ -482,6 +504,28 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 ))}
               </div>
             </div>
+
+            {dishVariants.length > 0 && (
+              <div className="size-selector">
+                <div>Variants</div>
+                <div className="size-selector-container">
+                  {dishVariants.map(v => (
+                    <div
+                      key={v.name}
+                      className={`size-selector-item ${selectedVariant === v.name ? "active" : ""}`}
+                      onClick={() => setSelectedVariant(prev => (prev === v.name ? null : v.name))}
+                      role="button"
+                    >
+                      <span className="size-tick" />
+                      <div className="size-selector-item-name">{v.name}</div>
+                      <div className="size-selector-item-description">
+                        {v.extraCharge ? `+₹${v.extraCharge}` : "No extra charge"}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -522,18 +566,6 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
         <div className="top">
           <div className="ingredients-calculation">
             <span>Selected Ingredients</span>
-            <div className="notes-btn" onClick={() => setShowNotes(v => !v)}>
-              <img src={notesIcon} alt="Notes" />
-            </div>
-          </div>
-
-          <div className={`notes-wrapper ${showNotes ? "open" : ""}`}>
-            <textarea
-              className="notes-box"
-              placeholder="Add preparation notes..."
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-            />
           </div>
 
           {previewItem.ingredients.map(ing => {
@@ -580,10 +612,22 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
         </div>
 
         <div className="bottom">
+          <div className={`notes-wrapper ${showNotes ? "open" : ""}`}>
+            <textarea
+              className="notes-box"
+              placeholder="Add preparation notes..."
+              value={notes}
+              onChange={e => setNotes(e.target.value)}
+            />
+          </div>
+
           <div className="price-section">
             <div className="price-label">Total Price</div>
             <div className={`food-item-total-amount ${pricePulse ? "price-pulse" : ""}`}>
               ₹{totalPrice.toFixed(0)}
+              {activeOffer && (
+                <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
+              )}
             </div>
           </div>
 
@@ -596,22 +640,28 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
             </div>
           </div>
 
-          <Button3D
-            className="btn-3d red"
-            onClick={() => {
-              const img = document.querySelector(".food-item-image img");
-              const item = { ...previewItem, isCustomized: previewItem.isCustomized === true, isFromFavourite: fromFavouriteCustomize === true };
-              if (isEditMode) updateBagItem(bagIndex, item);
-              else addToBag(item);
-              flyToBag({
-                imgEl: img,
-                dishId: previewItem.id,
-                customizationKey: previewItem.customizationKey || ""
-              });
-            }}
-          >
-            {isEditMode ? "Update Bag" : "Add to Bag"}
-          </Button3D>
+          <div className="add-to-bag-row">
+            <Button3D className="btn-3d green" onClick={() => setShowNotes(v => !v)}>
+              Add Notes
+            </Button3D>
+
+            <Button3D
+              className="btn-3d red"
+              onClick={() => {
+                const img = document.querySelector(".food-item-image img");
+                const item = { ...previewItem, isCustomized: previewItem.isCustomized === true, isFromFavourite: fromFavouriteCustomize === true };
+                if (isEditMode) updateBagItem(bagIndex, item);
+                else addToBag(item);
+                flyToBag({
+                  imgEl: img,
+                  dishId: previewItem.id,
+                  customizationKey: previewItem.customizationKey || ""
+                });
+              }}
+            >
+              {isEditMode ? "Update Bag" : "Add to Bag"}
+            </Button3D>
+          </div>
         </div>
       </div>
     </div >

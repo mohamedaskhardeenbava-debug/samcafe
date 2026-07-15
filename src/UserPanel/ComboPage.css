@@ -73,12 +73,24 @@
 
 /* ── Compact grouping strip ──────────────────────────────── */
 .combo-group-strip {
-  position: relative;
+  position: absolute;
   width: 100%;
   max-width: 420px;
   height: 180px;
   margin-bottom: 18px;
-  margin-left: 0;
+  left: 30%;
+}
+
+.combo-group-strip-title {
+  position: absolute;
+  top: 350px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  text-align: center;
 }
 
 .combo-group-node {
@@ -88,14 +100,24 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: 96px;
+  width: 210px;
+  height: 210px;
   z-index: 5;
 }
 
 .combo-group-node-btn {
   display: block;
-  width: 84px;
-  height: 84px;
+  width: 210px;
+  height: 210px;
+}
+
+/* Starter keeps the original (larger) node size; main course and
+   beverage scale down from it at every breakpoint so they read as
+   smaller accompaniments next to the starter, without needing a
+   separate width/height override in each media query below. */
+.combo-group-node-btn--main,
+.combo-group-node-btn--drink {
+  transform: scale(0.76);
 }
 
 .combo-group-node-btn .shadow,
@@ -116,8 +138,6 @@
   display: block;
   width: 100%;
   height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
   background: transparent;
 }
 
@@ -125,6 +145,7 @@
   width: 100%;
   height: 100%;
   object-fit: contain;
+  border-radius: 50%;
 }
 
 /* Small circular 3D button — cart-row remove, sheet close */
@@ -177,6 +198,8 @@
   min-height: 200px;
   display: flex;
   align-items: center;
+  justify-content: space-between !important;
+  width: 100%;
   contain: layout;
   overflow: visible;
   touch-action: pan-x;
@@ -232,12 +255,37 @@
   justify-content: center;
 }
 
+/* Up/down buttons that change the active dish, floating over the
+   right edge of the image column so they're reachable without
+   depending on the swipe gesture. */
+.combo-reel-nav {
+  position: absolute;
+  right: 36px;
+  bottom: 0px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 30;
+}
+
 .combo-reel-image-wrapper {
   position: absolute;
-  width: 60%;
-  max-width: 460px;
+  width: 40%;
+  max-width: 300px;
   aspect-ratio: 1 / 1;
-  will-change: transform;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Two of the five reel wrappers exist only to keep the dish two
+   steps away pre-rendered (so its image is already loaded and
+   ready when it swipes into view) — they stay in the DOM but are
+   fully invisible and non-interactive. */
+.combo-reel-image-wrapper--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .combo-reel-image {
@@ -515,7 +563,7 @@
   margin-top: 6px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: var(--color-red);
+  background: var(--color-green);
   box-shadow: 0 10px 24px rgba(217, 68, 45, 0.28);
 }
 
@@ -597,6 +645,16 @@
     max-width: 360px;
     height: 120px;
   }
+
+  .combo-group-node {
+    width: 180px;
+    height: 180px;
+  }
+
+  .combo-group-node-btn {
+    width: 180px;
+    height: 180px;
+  }
 }
 
 /* Small tablets / large phones in landscape — narrow the image
@@ -612,7 +670,17 @@
   }
 
   .combo-reel-image-wrapper {
-    max-width: 340px;
+    max-width: 220px;
+  }
+
+  .combo-group-node {
+    width: 165px;
+    height: 165px;
+  }
+
+  .combo-group-node-btn {
+    width: 165px;
+    height: 165px;
   }
 }
 
@@ -641,7 +709,24 @@
   }
 
   .combo-reel-image-wrapper {
-    max-width: 260px;
+    width: 300px;
+    height: 100%;
+  }
+
+  .combo-group-strip {
+    left: 15%;
+    bottom: 100px;
+  }
+
+  /* .combo-reel switches to column-reverse here (images render
+     above the text), so the nav's old bottom:0 anchor would land
+     it down by the text instead of the images — pin it to the
+     top of the stack (where the image block now sits) instead. */
+  .combo-reel-nav {
+    top: 16px;
+    bottom: auto;
+    right: 16px;
+    transform: none;
   }
 
   .combo-group-strip {
@@ -650,12 +735,13 @@
   }
 
   .combo-group-node {
-    width: 76px;
+    width: 150px;
+    height: 150px;
   }
 
   .combo-group-node-btn {
-    width: 64px;
-    height: 64px;
+    width: 150px;
+    height: 150px;
   }
 
   .combo-sheet-modal {
@@ -670,7 +756,7 @@
   }
 
   .combo-reel-image-wrapper {
-    max-width: 210px;
+    max-width: 140px;
   }
 
   .combo-group-strip {
@@ -679,12 +765,13 @@
   }
 
   .combo-group-node {
-    width: 66px;
+    width: 125px;
+    height: 125px;
   }
 
   .combo-group-node-btn {
-    width: 56px;
-    height: 56px;
+    width: 125px;
+    height: 125px;
   }
 
   .combo-phase-label {
@@ -699,27 +786,23 @@
     padding: 44px 64px;
   }
 
-  .combo-reel {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
   .combo-reel-desc {
     font-size: 15px;
     max-width: 380px;
   }
 
   .combo-reel-image-wrapper {
-    max-width: 520px;
+    max-width: 340px;
   }
 
   .combo-group-node {
-    width: 108px;
+    width: 240px;
+    height: 240px;
   }
 
   .combo-group-node-btn {
-    width: 96px;
-    height: 96px;
+    width: 240px;
+    height: 240px;
   }
 
   .combo-sheet-modal {
@@ -741,8 +824,13 @@
     margin-bottom: 8px;
   }
 
+  .combo-group-node {
+    width: 115px;
+    height: 115px;
+  }
+
   .combo-group-node-btn {
-    width: 52px;
-    height: 52px;
+    width: 115px;
+    height: 115px;
   }
 }

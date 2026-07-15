@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./FoodCategory.css";
 import listIcon from "../assets/icons/list.png";
 import gridIcon from "../assets/icons/grid.png";
+import eventFallbackImg from "../assets/events-fallback.png";
 import Button3D from "./shared/Button3D";
 
 /* ═══════════════════════════════════════════════
@@ -96,11 +97,17 @@ function derivePromoItems({ categories, orders, offers, comboOffers, events }) {
     break;
   }
 
-  /* 3. Published / upcoming events */
+  /* 3. Published events — only ongoing/active right now, or
+     genuinely upcoming (status says so AND the date hasn't passed).
+     Anything completed, cancelled, draft, or a stale "upcoming"
+     with a past date is excluded from the promo rail. */
   const today = new Date().toISOString().slice(0, 10);
+  const ONGOING_STATUSES = ["ongoing", "active"];
   for (const ev of events || []) {
     if (!ev.isPublished) continue;
-    if (ev.status !== "upcoming" && ev.date < today) continue;
+    const isOngoing = ONGOING_STATUSES.includes(ev.status);
+    const isUpcoming = ev.status === "upcoming" && ev.date >= today;
+    if (!isOngoing && !isUpcoming) continue;
     chips.push({
       id: `event-${ev.id}`,
       type: "event",
@@ -262,6 +269,10 @@ function deriveCrowdPicks({ categories, orders }, limit = 10) {
    PROMO CARD
 ═══════════════════════════════════════════════ */
 const PromoCard = ({ item, onClick }) => {
+  // Events can be published without an image; fall back to a generic
+  // calendar/booking illustration instead of a broken/blank media box.
+  const mediaSrc = item.image || (item.type === "event" ? eventFallbackImg : null);
+
   return (
     <button
       className={`pc-card pc-card--${item.type}`}
@@ -270,7 +281,7 @@ const PromoCard = ({ item, onClick }) => {
     >
       {/* Image / icon block */}
       <div className="pc-card__media">
-        <img src={item.image} alt={item.title} loading="lazy" />
+        {mediaSrc && <img src={mediaSrc} alt={item.title} loading="lazy" />}
       </div>
 
       {/* Info */}

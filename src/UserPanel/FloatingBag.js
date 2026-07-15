@@ -99,7 +99,14 @@ const FloatingBag = ({
                 <div className="bag-item-info">
                   <div className="bag-item-name">{item.name}</div>
                   <div className="bag-item-price">
-                    ₹{getUnitPrice(item).toFixed(2)}
+                    {item.appliedOffer ? (
+                      <>
+                        <span className="bag-item-price-offer">₹{getUnitPrice(item).toFixed(2)}</span>
+                        <span className="bag-item-price-original">₹{Number(item.appliedOffer.originalPrice).toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <>₹{getUnitPrice(item).toFixed(2)}</>
+                    )}
                   </div>
                 </div>
 

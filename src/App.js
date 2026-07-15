@@ -307,6 +307,7 @@ function App() {
       }
       return [...prev, item];
     });
+    setIsBagOpen(true);
   };
 
   const increaseQty = (index) => {

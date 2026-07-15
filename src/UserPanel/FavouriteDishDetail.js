@@ -8,6 +8,7 @@ import fatIcon from "../assets/icons/fat.png";
 import { flyToBag } from "../components/flyToBag";
 import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
+import { getActiveOffer, getDiscountedTotal } from "./shared/offerUtils";
 
 const NUTRITION_FIELDS = [
   [caloriesIcon, "Calories", "calories", "kcal"],
@@ -90,19 +91,27 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
 
   const dishPrice = Math.round(dish.totalPrice ?? dish.basePrice ?? 0);
 
+  // Favourites store one flattened total (base + any saved customization),
+  // so there's no separate "base" to discount — apply the offer's
+  // percentage against the whole saved price instead.
+  const activeOffer = getActiveOffer(dish.originalDishId || dish.id, foodData.offers);
+  const discountedPrice = getDiscountedTotal(dishPrice, activeOffer);
+
   const handleAddToBag = () => {
     const img = document.querySelector(
       `.fav-image[data-fav-dish-id="${dish.id}"]`
     );
 
     const price = dish.totalPrice ?? dish.basePrice ?? 0;
+    const finalPrice = activeOffer ? getDiscountedTotal(price, activeOffer) : price;
     addToBag({
       ...dish,
       quantity: 1,
-      unitPrice: price,
-      totalPrice: price,
+      unitPrice: finalPrice,
+      totalPrice: finalPrice,
       isCustomized: false,
-      isFromFavourite: true
+      isFromFavourite: true,
+      ...(activeOffer ? { appliedOffer: { percentage: activeOffer.percentage, originalPrice: price } } : {})
     });
     flyToBag({
       imgEl: img,
@@ -138,7 +147,15 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
             <h2 className="fav-title">{dish.name}</h2>
 
             <div className="fav-price">
-              ₹{dishPrice}
+              {activeOffer ? (
+                <>
+                  ₹{discountedPrice}
+                  <span className="dish-price-original">₹{dishPrice}</span>
+                  <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
+                </>
+              ) : (
+                <>₹{dishPrice}</>
+              )}
             </div>
           </div>
 
