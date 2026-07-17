@@ -38,7 +38,6 @@ import CateringForm from "./UserPanel/CateringForm";
 import PageLoader from "./components/PageLoader";
 
 // ─── Assets ─────────────────────────────────────────────────────────────────
-import bellSound from "./assets/sounds/bell.mp3";
 import bellGif from "./assets/bell/bell.gif";
 import bellStatic from "./assets/bell/bell-static.png";
 import { normalizeBagItem, findMatchingBagIndex } from "./UserPanel/shared/normalizeBagItem";
@@ -91,8 +90,7 @@ function App() {
     events: [],
   });
 
-  const bellAudioRef = useRef(new Audio(bellSound));
-  const bellLoopRef = useRef(null);
+  const bellVibrateRef = useRef(null);
 
   const isExpandedPage = location.pathname.includes("/expanded");
   const isAuthenticatedUser = Boolean(currentUser?.id);
@@ -225,32 +223,30 @@ function App() {
     return () => socket.off("data-change");
   }, []);
 
-  // ─── Bell Audio Helpers ───────────────────────────────────────────────────
-  const startBellAudio = () => {
-    const audio = bellAudioRef.current;
-    if (!audio) return;
+  // ─── Bell Vibration Helpers ───────────────────────────────────────────────
+  // The user panel never plays a sound for the bell — it vibrates the device
+  // in a repeating pattern until the admin panel explicitly turns the bell
+  // off from the topbar (bell-off). The admin panel keeps its own audible
+  // ring, handled separately in the admin app.
+  const VIBRATE_PATTERN = [400, 200]; // vibrate 400ms, pause 200ms, repeat
+  const VIBRATE_REPEAT_MS = 600; // pattern length — re-issue navigator.vibrate on this cadence
 
-    if (bellLoopRef.current) {
-      audio.removeEventListener("ended", bellLoopRef.current);
-      bellLoopRef.current = null;
-    }
+  const startBellVibrate = () => {
+    if (bellVibrateRef.current) return; // already vibrating
+    if (!("vibrate" in navigator)) return; // unsupported device/browser — silently no-op
 
-    const loop = () => { audio.currentTime = 0; audio.play().catch(() => { }); };
-    audio.addEventListener("ended", loop);
-    bellLoopRef.current = loop;
-    audio.currentTime = 0;
-    audio.play().catch(() => { });
+    navigator.vibrate(VIBRATE_PATTERN);
+    bellVibrateRef.current = setInterval(() => {
+      navigator.vibrate(VIBRATE_PATTERN);
+    }, VIBRATE_REPEAT_MS);
   };
 
-  const stopBellAudio = () => {
-    const audio = bellAudioRef.current;
-    if (!audio) return;
-    if (bellLoopRef.current) {
-      audio.removeEventListener("ended", bellLoopRef.current);
-      bellLoopRef.current = null;
+  const stopBellVibrate = () => {
+    if (bellVibrateRef.current) {
+      clearInterval(bellVibrateRef.current);
+      bellVibrateRef.current = null;
     }
-    audio.pause();
-    audio.currentTime = 0;
+    if ("vibrate" in navigator) navigator.vibrate(0); // cancel any in-flight vibration
   };
 
   // ─── Socket: Bell ─────────────────────────────────────────────────────────
@@ -258,13 +254,13 @@ function App() {
     const myTable = localStorage.getItem("tableNo");
 
     const handleSync = (activeBells) => {
-      if (myTable && activeBells[myTable]) { setIsRinging(true); startBellAudio(); }
+      if (myTable && activeBells[myTable]) { setIsRinging(true); startBellVibrate(); }
     };
     const handleBellOff = ({ tableNo }) => {
-      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(false); stopBellAudio(); }
+      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(false); stopBellVibrate(); }
     };
     const handleBellRing = ({ tableNo }) => {
-      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(true); startBellAudio(); }
+      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(true); startBellVibrate(); }
     };
 
     socket.on("bell-sync", handleSync);
@@ -275,6 +271,7 @@ function App() {
       socket.off("bell-sync", handleSync);
       socket.off("bell-off", handleBellOff);
       socket.off("bell-ring", handleBellRing);
+      stopBellVibrate();
     };
   }, []);
 
@@ -360,7 +357,7 @@ function App() {
     if (isRinging) return;
     socket.emit("bell-ring", { tableNo });
     setIsRinging(true);
-    startBellAudio();
+    startBellVibrate();
   };
 
   // ─── Favourites Toggle ────────────────────────────────────────────────────
@@ -437,10 +434,11 @@ function App() {
         {/* Floating Bell — dine-in only */}
         {isDineIn && (
           <div
-            className="floating-bell-wrapper"
+            className={`floating-bell-wrapper${isRinging ? " is-ringing" : ""}`}
             onClick={handleRingBell}
             title={isRinging ? "Attender called – waiting for response" : "Call the attender"}
           >
+            <span className="floating-bell-pulse" aria-hidden="true" />
             <button
               className={`floating-bell ${isRinging ? "ringing" : ""}`}
               disabled={isRinging}
@@ -453,8 +451,13 @@ function App() {
                 className="bell-image"
               />
             </button>
-            <div className="bell-tooltip">
-              {isRinging ? "Attender is on the way!" : "Click to call the attender"}
+            <div className="bell-label">
+              <span className="bell-label-title">
+                {isRinging ? "Attender is on the way!" : "Call Attender"}
+              </span>
+              {isRinging && (
+                <span className="bell-label-sub">Your phone will vibrate until they arrive</span>
+              )}
             </div>
           </div>
         )}

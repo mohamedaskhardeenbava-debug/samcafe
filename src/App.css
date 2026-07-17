@@ -543,22 +543,24 @@ button {
 
 .floating-bell-wrapper {
   position: fixed;
-  align-items: center;
   bottom: 24px;
   left: 24px;
   display: flex;
   align-items: center;
+  gap: 2px;
   cursor: pointer;
   background: var(--bg-main);
   border-radius: 999px;
   box-shadow: var(--shadow-primary);
   border: 2px solid var(--color-red);
-  padding: 6px;
+  padding: 8px;
   overflow: hidden;
-  width: 42px;
+  width: 48px;
+  height: 48px;
   transition:
     width 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.3s ease;
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
   z-index: 9999;
 }
 
@@ -567,18 +569,56 @@ button {
 }
 
 .floating-bell-wrapper:hover {
-  width: 220px;
+  width: 240px;
   box-shadow: var(--shadow-card-red);
 }
 
+.floating-bell-wrapper.is-ringing {
+  width: 240px;
+  border-color: #16a34a;
+  box-shadow: 0 12px 30px rgba(22, 163, 74, 0.32), 0 6px 16px rgba(22, 163, 74, 0.22);
+}
+
+/* Pulsing ring — only visible while actively ringing, gives a clear
+   "something is happening" signal beyond the swapped icon. */
+.floating-bell-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.floating-bell-wrapper.is-ringing .floating-bell-pulse {
+  opacity: 1;
+  animation: bellPulseRing 1.6s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  border: 2px solid #16a34a;
+}
+
+@keyframes bellPulseRing {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
 .floating-bell {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
   border-radius: 50%;
   padding: 0;
   background: transparent;
   border: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .floating-bell img {
@@ -590,25 +630,45 @@ button {
   scale: 1 !important;
 }
 
-.bell-tooltip {
+.bell-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   white-space: nowrap;
-  font-size: 14px;
-  color: var(--text-primary);
   opacity: 0;
   transform: translateX(-10px);
   transition:
     opacity 0.25s ease,
     transform 0.3s ease;
+  min-width: 0;
+  overflow: hidden;
 }
 
-.floating-bell-wrapper:hover .bell-tooltip {
+.bell-label-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.bell-label-sub {
+  font-size: 11px;
+  color: var(--text-primary);
+  opacity: 0.65;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.floating-bell-wrapper:hover .bell-label,
+.floating-bell-wrapper.is-ringing .bell-label {
   opacity: 1;
   transform: translateX(0);
 }
 
 .bell-image {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   filter: var(--filter);
 }
@@ -784,22 +844,32 @@ image {
   .floating-bell-wrapper {
     bottom: 16px;
     left: 16px;
-    width: 28px;
-    height: 28px;
+    width: 40px;
+    height: 40px;
   }
 
-  .floating-bell-wrapper:hover {
-    width: 186px;
+  .floating-bell-wrapper:hover,
+  .floating-bell-wrapper.is-ringing {
+    width: 200px;
   }
 
   .floating-bell {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
   }
 
   .bell-image {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .bell-label-title {
+    font-size: 12px;
+  }
+
+  .bell-label-sub {
+    font-size: 10px;
   }
 }
 

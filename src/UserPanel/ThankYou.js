@@ -31,7 +31,6 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      // 🔥 FULL CLEANUP
       setBag([]);
       setIsBagOpen(false);
       localStorage.removeItem("userId");
@@ -40,11 +39,6 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
 
     return () => clearTimeout(timer);
   }, [navigate, setBag, setIsBagOpen]);
-
-  const totalAmount = bag.reduce(
-    (sum, item) => sum + item.totalPrice,
-    0
-  );
 
   const getDisplayName = (item) =>
     item?.isCustomized ? stripCustomizedPrefix(item.name) : (item?.name || "");
@@ -96,7 +90,6 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
               <tr>
                 <th></th>
                 <th>Dish</th>
-                <th>Price</th>
                 <th>Qty</th>
               </tr>
             </thead>
@@ -134,20 +127,12 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
                       )}
                     </td>
 
-                    <td>₹{Math.round(item.totalPrice)}</td>
-
                     <td>{item.quantity}</td>
                   </motion.tr>
                 ))}
               </AnimatePresence>
             </tbody>
           </table>
-        )}
-
-        {!isBagEmpty && (
-          <div className="order-total">
-            Total: ₹{Math.round(totalAmount)}
-          </div>
         )}
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "16px" }}>

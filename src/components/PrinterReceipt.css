@@ -93,8 +93,8 @@
   display: flex;
   flex-direction: column;
   gap: 0.55em;
-  padding: 20px;
-  width: 260px;
+  padding: 16px;
+  width: 280px;
   min-height: 200px;
   font-size: 0.7em;
   font-family: "Azeret Mono", "Roboto Mono", monospace;
@@ -192,6 +192,7 @@
 .receipt-table th:last-child,
 .receipt-table td:last-child {
   text-align: right;
+  min-width: 90px;
 }
 
 .receipt-table td:last-child::after {
