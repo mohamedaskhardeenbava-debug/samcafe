@@ -55,7 +55,10 @@ const REEL_SLOTS = [
   { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },            // active (front, centered)
   { x: 400, y: -100, scale: 0.5, rotate: 0, blur: 6, zIndex: 2 }     // next (above-right)
 ];
-const REEL_SPRING = { type: "spring", stiffness: 70, damping: 26, mass: 1 };
+const REEL_SPRING = { type: "spring", stiffness: 90, damping: 22, mass: 1.2 };
+/* Faster crossfade for the name/price/description block specifically —
+   snappier than the image reel's swipe so text feels immediate. */
+const REEL_DETAILS_SPRING = { type: "spring", stiffness: 260, damping: 26, mass: 0.7 };
 
 /* Circular motion between slots — the three resting spots above
    happen to sit on a common circle, so instead of tweening straight
@@ -171,59 +174,33 @@ const SLOT_LABELS = { starter: "Starter", main: "Main", drink: "Drink" };
    the main — same angles as the approved prototype, just drawn
    small now since the reel below does the heavy lifting.
 ──────────────────────────────────────────────────────────── */
+/* Angle used to bias which side new dish images sweep in from,
+   kept per phase for the swipeable reel's ambient motion. */
 const ANGLES = { starter: 90, main: 45, drink: 135 };
-const BASE_ANCHOR = { x: 16, y: 82 };
-const STEP = 26;
-
-const dirFor = (deg) => {
-  const r = (deg * Math.PI) / 180;
-  return { dx: Math.cos(r), dy: -Math.sin(r) };
-};
-
-const slotFor = (anchor, angle, i) => {
-  const d = dirFor(angle);
-  return { x: anchor.x + d.dx * STEP * (i + 1), y: anchor.y + d.dy * STEP * (i + 1) };
-};
-
-const buildAnchors = (selectedItems) => {
-  const anchors = [BASE_ANCHOR];
-  if (selectedItems.starter) anchors.push(slotFor(anchors[0], ANGLES.starter, 0));
-  if (selectedItems.main) anchors.push(slotFor(anchors[1], ANGLES.main, 0));
-  if (selectedItems.drink) anchors.push(slotFor(anchors[2], ANGLES.drink, 0));
-  return anchors;
-};
 
 /* Fixed slot lookup for the reel — see REEL_SLOTS above. */
 const reelSlotTransform = (slot) => REEL_SLOTS_5[slot];
 
-const GroupNode = ({ item, anchor, type, onClick }) => (
-  <motion.div
-    className="combo-group-node"
-    style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+const GroupNode = ({ item, type, onClick }) => (
+  <motion.button
+    className={`combo-group-node combo-group-node--${type}`}
     layout
-    initial={{ opacity: 0, scale: 0.4, y: 10 }}
+    initial={{ opacity: 0, scale: 0.5, y: 10 }}
     animate={{ opacity: 1, scale: 1, y: 0 }}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.95 }}
     transition={{ type: "spring", stiffness: 220, damping: 26 }}
+    onClick={onClick}
+    aria-label={`Change ${item.name}`}
   >
-    <button
-      as={motion.button}
-      className={`btn-3d white combo-group-node-btn combo-group-node-btn--${type}`}
-      onClick={onClick}
-      whileHover={{ scale: 1.04 }}
-      whileTap={{ scale: 0.92 }}
-      aria-label={`Change ${item.name}`}
-    >
-      <span className="combo-group-node-img">
-        <motion.img
-          layoutId={`combo-fly-${type}`}
-          src={item.image}
-          alt=""
-          draggable={false}
-          transition={{ type: "spring", stiffness: 140, damping: 20 }}
-        />
-      </span>
-    </button>
-  </motion.div>
+    <motion.img
+      layoutId={`combo-fly-${type}`}
+      src={item.image}
+      alt={item.name}
+      draggable={false}
+      transition={{ type: "spring", stiffness: 140, damping: 20 }}
+    />
+  </motion.button>
 );
 
 /* ─── FoodList-style swipeable reel for the active phase ─────── */
@@ -294,7 +271,8 @@ const ComboReel = ({ items, angle, type, onSelect }) => {
             initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
-            transition={REEL_SPRING}
+            transition={REEL_DETAILS_SPRING}
+            style={{ height: "150px" }}
           >
             <h2 className="combo-reel-name">{active.name}</h2>
             <div className="combo-reel-price">₹{active.price ?? active.basePrice ?? 0}</div>
@@ -307,7 +285,7 @@ const ComboReel = ({ items, angle, type, onSelect }) => {
         </Button3D>
       </div>
 
-      <div className="combo-reel-images">
+      <div className={`combo-reel-images combo-reel-images--${type}`}>
         {visible.map((item, slot) => {
           // slot maps 1:1 onto the 5 circle roles: 0=far-prev,
           // 1=prev, 2=active, 3=next, 4=far-next. The two edges stay
@@ -778,7 +756,6 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   const phaseActiveGroup = phase === "starters" ? activeStarterGroup : phase === "mainCourse" ? activeMainGroup : activeDrinkGroup;
   const setPhaseActiveGroup = phase === "starters" ? setActiveStarterGroup : phase === "mainCourse" ? setActiveMainGroup : setActiveDrinkGroup;
 
-  const anchors = useMemo(() => buildAnchors(selectedItems), [selectedItems]);
 
   return (
     <motion.div className="combo-page" variants={pageVariant} initial="hidden" animate="show">
@@ -832,24 +809,6 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
         </div>
       </div>
 
-      {/* ── Grouping strip — bigger nodes, no connecting lines ── */}
-      {selectedCount > 0 && (
-        <motion.div
-          className="combo-group-strip"
-          layout
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="combo-group-strip-title">
-            {Object.keys(SLOT_LABELS).filter(k => selectedItems[k]).map(k => selectedItems[k].name).join(" + ")}
-          </div>
-          {selectedItems.starter && anchors[1] && <GroupNode item={selectedItems.starter} anchor={anchors[1]} type="starter" onClick={() => handleUndo("starter")} />}
-          {selectedItems.main && anchors[2] && <GroupNode item={selectedItems.main} anchor={anchors[2]} type="main" onClick={() => handleUndo("main")} />}
-          {selectedItems.drink && anchors[3] && <GroupNode item={selectedItems.drink} anchor={anchors[3]} type="drink" onClick={() => handleUndo("drink")} />}
-        </motion.div>
-      )}
-
       {/* ── Group pills for the active phase ── */}
       <AnimatePresence mode="popLayout" initial={false}>
         {phaseGroups.length > 1 && (
@@ -896,7 +855,41 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
         )}
       </AnimatePresence>
 
-      {/* ── Offer hint ── */}
+      {/* ── Grouping strip — lives at page level (not inside the reel)
+           so it survives the reel unmounting once phase === 'done'.
+           Below the reel images while picking; once all 3 dishes are
+           chosen it centers itself over the page via the --complete
+           modifier, sliding back on undo thanks to `layout`. ── */}
+      {selectedCount > 0 && (
+        <motion.div
+          className={`combo-group-strip${selectedCount === 3 ? " combo-group-strip--complete" : ""}`}
+          layout
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        >
+          <div className="combo-group-strip-pricing">
+            {perComboFinalPrice < perComboBasePrice && (
+              <div className="combo-group-strip-regular">
+                <span className="combo-group-strip-regular-label">Regular Price</span>
+                <span className="combo-group-strip-regular-price">₹{perComboBasePrice}/-</span>
+              </div>
+            )}
+            <div className="combo-group-strip-final">
+              <span className="combo-group-strip-final-label">
+                {perComboFinalPrice < perComboBasePrice ? "Combo @ Just" : "Combo Total"}
+              </span>
+              <span className="combo-group-strip-final-price">₹{perComboFinalPrice}/-</span>
+            </div>
+          </div>
+
+          <div className="combo-group-strip-photos">
+            {selectedItems.starter && <GroupNode item={selectedItems.starter} type="starter" onClick={() => handleUndo("starter")} />}
+            {selectedItems.main && <GroupNode item={selectedItems.main} type="main" onClick={() => handleUndo("main")} />}
+            {selectedItems.drink && <GroupNode item={selectedItems.drink} type="drink" onClick={() => handleUndo("drink")} />}
+          </div>
+        </motion.div>
+      )}
       <AnimatePresence mode="wait">
         {offerHint && (
           <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">

@@ -95,72 +95,104 @@
   justify-content: center;
 }
 
-/* ── Compact grouping strip ──────────────────────────────── */
+/* ── Grouping strip — promo banner with dish photos ───────────
+   Mirrors ComboPage's combo-group-strip exactly: a price pill up
+   top, then the selected sauce/main photos layered underneath as
+   plain cutouts. Left-aligned below the reel while picking; once
+   both are chosen it centers over the page via --complete.
+──────────────────────────────────────────────────────────── */
 .appetizer-group-strip {
-  position: absolute;
-  left: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
   width: 100%;
-  max-width: 320px;
-  height: 150px;
-  margin-bottom: 18px;
-  margin-left: 0;
+  max-width: 380px;
+  margin-top: 20px;
 }
 
-.appetizer-group-strip-title {
-  position: absolute;
-  top: -22px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  text-align: center;
+.appetizer-group-strip--complete {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+  z-index: 40;
+  max-width: 420px;
+  padding: 20px 24px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
 }
 
-.appetizer-group-node {
-  position: absolute;
-  transform: translate(-50%, -50%);
+.appetizer-group-strip-pricing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.appetizer-group-strip-final {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  width: 118px;
-  z-index: 5;
+  line-height: 1.3;
+  background: var(--color-red, #e63946);
+  border-radius: 12px;
+  padding: 6px 16px;
 }
 
-.appetizer-group-node-btn {
+.appetizer-group-strip-final-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.appetizer-group-strip-final-price {
+  font-size: 19px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.appetizer-group-strip-photos {
+  display: flex;
+  align-items: flex-end;
+  height: 110px;
+}
+
+.appetizer-group-node {
   display: block;
-  width: 104px;
-  height: 104px;
-}
-
-.appetizer-group-node-btn .shadow,
-.appetizer-group-node-btn .edge {
-  border-radius: 50%;
-}
-
-.appetizer-group-node-btn .front {
-  width: 100%;
-  height: 100%;
-  min-height: 0;
+  width: 90px;
+  height: 90px;
   padding: 0;
-  border-radius: 50%;
-  background: #fff;
-}
-
-.appetizer-group-node-img {
-  display: block;
-  width: 100%;
-  height: 100%;
+  border: none;
   background: transparent;
+  cursor: pointer;
 }
 
-.appetizer-group-node-img img {
+.appetizer-group-node img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 50%;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+}
+
+.appetizer-group-node--sauce {
+  width: 110px;
+  height: 110px;
+  z-index: 2;
+}
+
+.appetizer-group-node--main {
+  width: 90px;
+  height: 90px;
+  margin-left: -18px;
+  z-index: 3;
 }
 
 /* ── Swipeable reel (ComboReel pattern) ──────────────────── */
@@ -199,11 +231,18 @@
   overflow-wrap: break-word;
 }
 
+.appetizer-reel-price {
+  font-size: clamp(18px, 2.2vw, 25px);
+  font-weight: 700;
+  color: var(--color-red);
+  margin: 10px 0 12px;
+}
+
 .appetizer-reel-desc {
   font-size: 14px;
   line-height: 1.6;
   color: var(--text-secondary);
-  margin: 10px 0 0;
+  margin: 0;
   overflow-wrap: break-word;
 }
 
@@ -611,8 +650,7 @@
   }
 
   .appetizer-group-strip {
-    max-width: 280px;
-    height: 130px;
+    max-width: 360px;
   }
 }
 
@@ -658,11 +696,6 @@
     height: 100%;
   }
 
-  .appetizer-group-strip {
-    left: 15%;
-    bottom: 100px;
-  }
-
   /* .appetizer-reel switches to column-reverse here (images render
      above the text), so the nav's old bottom:0 anchor would land
      it down by the text instead of the images — pin it to the
@@ -675,17 +708,17 @@
   }
 
   .appetizer-group-strip {
-    max-width: 260px;
-    height: 150px;
+    max-width: 300px;
+    align-items: center;
   }
 
-  .appetizer-group-node {
-    width: 94px;
+  .appetizer-group-strip-pricing {
+    justify-content: center;
   }
 
-  .appetizer-group-node-btn {
-    width: 80px;
-    height: 80px;
+  .appetizer-group-strip-photos {
+    justify-content: center;
+    width: 100%;
   }
 
   .appetizer-sheet-modal {
@@ -704,14 +737,18 @@
 
   .appetizer-group-strip {
     max-width: 100%;
-    height: 130px;
   }
 
-  .appetizer-group-node {
-    width: 82px;
+  .appetizer-group-strip-photos {
+    height: 85px;
   }
 
-  .appetizer-group-node-btn {
+  .appetizer-group-node--sauce {
+    width: 85px;
+    height: 85px;
+  }
+
+  .appetizer-group-node--main {
     width: 70px;
     height: 70px;
   }
@@ -726,11 +763,6 @@
     padding: 44px 64px;
   }
 
-  .appetizer-reel {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
   .appetizer-reel-desc {
     font-size: 15px;
     max-width: 380px;
@@ -738,15 +770,6 @@
 
   .appetizer-reel-image-wrapper {
     max-width: 340px;
-  }
-
-  .appetizer-group-node {
-    width: 134px;
-  }
-
-  .appetizer-group-node-btn {
-    width: 120px;
-    height: 120px;
   }
 
   .appetizer-sheet-modal {
@@ -761,12 +784,10 @@
   }
 
   .appetizer-group-strip {
-    height: 100px;
-    margin-bottom: 8px;
+    margin-top: 10px;
   }
 
-  .appetizer-group-node-btn {
-    width: 66px;
-    height: 66px;
+  .appetizer-group-strip-photos {
+    height: 80px;
   }
 }

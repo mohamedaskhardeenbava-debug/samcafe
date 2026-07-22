@@ -41,6 +41,9 @@ const REEL_SLOTS = [
   { x: 400, y: -100, scale: 0.5, rotate: 0, blur: 6, zIndex: 2 }     // next (above-right)
 ];
 const REEL_SPRING = { type: "spring", stiffness: 70, damping: 26, mass: 1 };
+/* Faster crossfade for the name/description block specifically —
+   mirrors ComboPage's REEL_DETAILS_SPRING so both builders feel the same. */
+const REEL_DETAILS_SPRING = { type: "spring", stiffness: 260, damping: 26, mass: 0.7 };
 
 /* Circular motion between slots — the three resting spots above
    happen to sit on a common circle, so instead of tweening straight
@@ -143,57 +146,28 @@ const listRow = {
    docks at 45° from the sauce — same angle language as the combo
    builder's starter → main → drink strip, just with two slots.
 ──────────────────────────────────────────────────────────── */
-const ANGLES = { sauce: 90, main: 45 };
-const BASE_ANCHOR = { x: 16, y: 82 };
-const STEP = 26;
-
-const dirFor = (deg) => {
-  const r = (deg * Math.PI) / 180;
-  return { dx: Math.cos(r), dy: -Math.sin(r) };
-};
-
-const slotFor = (anchor, angle, i) => {
-  const d = dirFor(angle);
-  return { x: anchor.x + d.dx * STEP * (i + 1), y: anchor.y + d.dy * STEP * (i + 1) };
-};
-
-const buildAnchors = (selectedSauce, selectedMain) => {
-  const anchors = [BASE_ANCHOR];
-  if (selectedSauce) anchors.push(slotFor(anchors[0], ANGLES.sauce, 0));
-  if (selectedMain) anchors.push(slotFor(anchors[1], ANGLES.main, 0));
-  return anchors;
-};
-
 const SLOT_LABELS = { sauce: "Sauce", main: "Main Ingredient" };
 
-const GroupNode = ({ item, anchor, type, onClick }) => (
-  <motion.div
-    className="appetizer-group-node"
-    style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+const GroupNode = ({ item, type, onClick }) => (
+  <motion.button
+    className={`appetizer-group-node appetizer-group-node--${type}`}
     layout
-    initial={{ opacity: 0, scale: 0.4, y: 10 }}
+    initial={{ opacity: 0, scale: 0.5, y: 10 }}
     animate={{ opacity: 1, scale: 1, y: 0 }}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.95 }}
     transition={{ type: "spring", stiffness: 220, damping: 26 }}
+    onClick={onClick}
+    aria-label={`Change ${item.name}`}
   >
-    <button
-      as={motion.button}
-      className="btn-3d white appetizer-group-node-btn"
-      onClick={onClick}
-      whileHover={{ scale: 1.04 }}
-      whileTap={{ scale: 0.92 }}
-      aria-label={`Change ${item.name}`}
-    >
-      <span className="appetizer-group-node-img">
-        <motion.img
-          layoutId={`appetizer-fly-${type}`}
-          src={item.image}
-          alt=""
-          draggable={false}
-          transition={{ type: "spring", stiffness: 140, damping: 20 }}
-        />
-      </span>
-    </button>
-  </motion.div>
+    <motion.img
+      layoutId={`appetizer-fly-${type}`}
+      src={item.image}
+      alt={item.name}
+      draggable={false}
+      transition={{ type: "spring", stiffness: 140, damping: 20 }}
+    />
+  </motion.button>
 );
 
 /* ─── FoodList-style swipeable reel for the active phase — same
@@ -285,9 +259,12 @@ const AppetizerReel = ({ items, type, onSelect }) => {
             initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
-            transition={REEL_SPRING}
+            transition={REEL_DETAILS_SPRING}
           >
             <h2 className="appetizer-reel-name">{active.name}</h2>
+            {active.price != null || active.basePrice != null ? (
+              <div className="appetizer-reel-price">₹{active.price ?? active.basePrice}</div>
+            ) : null}
             {active.description && <p className="appetizer-reel-desc">{active.description}</p>}
           </motion.div>
         </AnimatePresence>
@@ -579,7 +556,6 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
     if (phase === "done") setShowSheet(true);
   }, [phase]);
 
-  const anchors = useMemo(() => buildAnchors(selectedSauce, selectedMain), [selectedSauce, selectedMain]);
 
   return (
     <motion.div className="appetizer-page" variants={pageVariant} initial="hidden" animate="show">
@@ -632,23 +608,6 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
         </div>
       </div>
 
-      {/* ── Grouping strip — bigger nodes, no connecting lines ── */}
-      {(selectedSauce || selectedMain) && (
-        <motion.div
-          className="appetizer-group-strip"
-          layout
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="appetizer-group-strip-title">
-            {[selectedSauce, selectedMain].filter(Boolean).map(i => i.name).join(", ")}
-          </div>
-          {selectedSauce && anchors[1] && <GroupNode item={selectedSauce} anchor={anchors[1]} type="sauce" onClick={() => handleUndo("sauce")} />}
-          {selectedMain && anchors[2] && <GroupNode item={selectedMain} anchor={anchors[2]} type="main" onClick={() => handleUndo("main")} />}
-        </motion.div>
-      )}
-
       {/* ── Swipeable reel — crossfades between phases, hidden once the
            appetizer is complete since the sheet modal takes over from there ── */}
       <AnimatePresence initial={false} mode="popLayout">
@@ -666,7 +625,37 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
         )}
       </AnimatePresence>
 
-      {/* ── "My Appetizer" sheet — mirrors ComboPage's combo-sheet exactly ── */}
+      {/* ── Grouping strip — lives at page level (not inside the reel)
+           so it survives the reel unmounting once phase === 'done'.
+           Left-aligned below the reel while picking; once both sauce
+           and main are chosen it centers itself over the page via the
+           --complete modifier, sliding back on undo thanks to `layout`.
+           Mirrors ComboPage's combo-group-strip exactly. ── */}
+      {selectedCount > 0 && (
+        <motion.div
+          className={`appetizer-group-strip${selectedCount === 2 ? " appetizer-group-strip--complete" : ""}`}
+          layout
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        >
+          <div className="appetizer-group-strip-pricing">
+            <div className="appetizer-group-strip-final">
+              <span className="appetizer-group-strip-final-label">
+                {finalDish ? "Total" : "Selecting…"}
+              </span>
+              <span className="appetizer-group-strip-final-price">
+                ₹{finalDish ? finalDish.basePrice : 0}
+              </span>
+            </div>
+          </div>
+
+          <div className="appetizer-group-strip-photos">
+            {selectedSauce && <GroupNode item={selectedSauce} type="sauce" onClick={() => handleUndo("sauce")} />}
+            {selectedMain && <GroupNode item={selectedMain} type="main" onClick={() => handleUndo("main")} />}
+          </div>
+        </motion.div>
+      )}
       <AnimatePresence>
         {showSheet && (
           <motion.div
