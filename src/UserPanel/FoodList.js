@@ -94,13 +94,25 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
     setDetailKey(k => k + 1);
   }, [renderIndex]);
 
-  const visible = [
-    slides[(renderIndex - 1 + slides.length) % slides.length], // slot 0 (far-left)
-    slides[renderIndex],                                       // slot 1 (ACTIVE)
-    slides[(renderIndex + 1) % slides.length],                 // slot 2 (NEXT)
-    slides[(renderIndex + 2) % slides.length],                 // slot 3 (LAST)
-    slides[(renderIndex + 3) % slides.length]                  // slot 4 (far-right)
-  ];
+  // Build the 5-slot conveyor, but only include a slot if it maps to a
+  // dish DIFFERENT from every slot already placed. With few dishes (e.g.
+  // a category with just 1 or 2 items), naive modulo wrapping would repeat
+  // the same dish into slot 2/3 ("next" blurred images), making a single
+  // dish appear to duplicate itself 2-3 times in the conveyor. Instead we
+  // stop reusing a dish once it's already occupying another slot.
+  const slotOffsets = [-1, 0, 1, 2, 3]; // slot 0..4 respectively
+  const seenIds = new Set([slides[renderIndex].id]);
+  const visible = slotOffsets.map((offset) => {
+    if (offset === 0) return slides[renderIndex];
+
+    const idx = (renderIndex + offset + slides.length) % slides.length;
+    const dish = slides[idx];
+
+    if (seenIds.has(dish.id)) return null; // would be a visual duplicate
+
+    seenIds.add(dish.id);
+    return dish;
+  });
 
   // FoodList should only render REAL menu categories with at least one dish
   if (!category || slides.length === 0) {
@@ -249,6 +261,7 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
         {/* RIGHT — IMAGE CONVEYOR */}
         <div className="food-images">
           {visible.map((item, slot) => {
+            if (!item) return null; // slot deduped — same dish already shown elsewhere
 
             return (
               <motion.div
@@ -311,15 +324,17 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
         </div>
       </div>
 
-      <div className="carousel-controls">
-        <button
-          className="image-nav-btn backward-btn"
-          onClick={goPrev}
-        />
+      {slides.length > 1 && (
+        <div className="carousel-controls">
+          <button
+            className="image-nav-btn backward-btn"
+            onClick={goPrev}
+          />
 
-        <button className="image-nav-btn forward-btn" onClick={goNext}>
-        </button>
-      </div>
+          <button className="image-nav-btn forward-btn" onClick={goNext}>
+          </button>
+        </div>
+      )}
     </div >
   );
 };

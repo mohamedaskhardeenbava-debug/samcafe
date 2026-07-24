@@ -91,7 +91,9 @@ const sendKotToPrinter = (savedOrder, totalWithGST) => {
       quantity: item.quantity,
       selectedSize: item.selectedSize,
       spiciness: item.spiciness,
-      notes: item.notes
+      notes: item.notes,
+      isCustomized: item.isCustomized,
+      ingredients: Array.isArray(item.ingredients) ? item.ingredients : []
     })),
     totalWithGST
   };
