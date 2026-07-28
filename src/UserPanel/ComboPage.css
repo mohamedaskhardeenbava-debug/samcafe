@@ -33,7 +33,6 @@
 }
 
 .combo-phase-label {
-  flex: 1;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -207,20 +206,32 @@
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
 }
 
-.combo-group-node--starter {
+.combo-group-node--slot-0 {
   width: 110px;
   height: 110px;
   z-index: 2;
 }
 
-.combo-group-node--main {
+.combo-group-node--slot-1 {
   width: 90px;
   height: 90px;
   margin-left: -18px;
   z-index: 3;
 }
 
-.combo-group-node--drink {
+.combo-group-node--slot-2 {
+  width: 78px;
+  height: 100px;
+  margin-left: -14px;
+  z-index: 1;
+}
+
+/* Beyond the original 3 slots — admin can configure more sections
+   via Manage Categories, so keep styling every extra one instead of
+   leaving it unstyled. */
+.combo-group-node--slot-3,
+.combo-group-node--slot-4,
+.combo-group-node--slot-5 {
   width: 78px;
   height: 100px;
   margin-left: -14px;
@@ -261,13 +272,63 @@
 .combo-size-pills {
   display: flex;
   gap: 6px;
-  overflow: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scrollbar-width: none;
 }
 
 .combo-size-pills::-webkit-scrollbar {
   display: none;
+}
+
+.combo-topbar .combo-size-pills {
+  flex: 1;
+}
+
+/* ── Section pills (Dishes / Desserts / Beverages) — now live
+   inline in the topbar next to the phase label, so they read as a
+   compact step indicator rather than a full pill row. Plain progress
+   indicator, not a button, so no hover/tap affordance. ── */
+.combo-topbar-section-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.combo-topbar-section-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.combo-topbar-section-pills .combo-section-pill {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.combo-section-pill {
+  cursor: default;
+  opacity: 0.55;
+  transition: opacity 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.combo-section-pill.active {
+  opacity: 1;
+}
+
+.combo-section-pill--done:not(.active) {
+  opacity: 0.8;
+}
+
+/* Done + upcoming pills are rendered disabled (only the active
+   pill stays live) — make that visually unambiguous and strip any
+   hover/tap affordance Button3D would otherwise add. */
+.combo-section-pill:disabled,
+.combo-section-pill[aria-disabled="true"] {
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(35%);
 }
 
 /* ── Swipeable reel (FoodList pattern) ───────────────────── */
@@ -335,18 +396,24 @@
 }
 
 /* Each phase's reel sits at its own horizontal position instead of
-   all three landing in the same spot: starter stays centered
-   (roughly the middle of the page), main course nudges right of
-   that, and beverages sits further right still. */
-.combo-reel-images--starter {
+   every section landing in the same spot — position nudges right
+   as you move through the admin-configured sections. Slots beyond
+   the first 3 reuse the last offset. */
+.combo-reel-images--slot-0 {
   transform: translateX(-22%);
 }
 
-.combo-reel-images--main {
+.combo-reel-images--slot-1 {
   transform: translateX(-14%);
 }
 
-.combo-reel-images--drink {
+.combo-reel-images--slot-2 {
+  transform: translateX(-6%);
+}
+
+.combo-reel-images--slot-3,
+.combo-reel-images--slot-4,
+.combo-reel-images--slot-5 {
   transform: translateX(-6%);
 }
 
@@ -651,6 +718,12 @@
   color: var(--text-tertiary);
 }
 
+.combo-cart-savings {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-green, #2e9e5b);
+}
+
 .combo-cart-total-row.final {
   font-size: 17px;
   font-weight: 800;
@@ -736,15 +809,15 @@
     width: 62%;
   }
 
-  .combo-reel-images--starter {
+  .combo-reel-images--slot-0 {
     transform: translateX(-16%);
   }
 
-  .combo-reel-images--main {
+  .combo-reel-images--slot-1 {
     transform: translateX(-10%);
   }
 
-  .combo-reel-images--drink {
+  .combo-reel-images--slot-2 {
     transform: translateX(-4%);
   }
 
@@ -767,9 +840,12 @@
 
   /* Below 768px, don't stagger starter/main/beverages horizontally —
      keep the reel in one static, centered position for every phase. */
-  .combo-reel-images--starter,
-  .combo-reel-images--main,
-  .combo-reel-images--drink {
+  .combo-reel-images--slot-0,
+  .combo-reel-images--slot-1,
+  .combo-reel-images--slot-2,
+  .combo-reel-images--slot-3,
+  .combo-reel-images--slot-4,
+  .combo-reel-images--slot-5 {
     transform: translateX(0);
   }
 
@@ -802,9 +878,12 @@
     height: 300px;
   }
 
-  .combo-reel-images--starter,
-  .combo-reel-images--main,
-  .combo-reel-images--drink {
+  .combo-reel-images--slot-0,
+  .combo-reel-images--slot-1,
+  .combo-reel-images--slot-2,
+  .combo-reel-images--slot-3,
+  .combo-reel-images--slot-4,
+  .combo-reel-images--slot-5 {
     transform: translateX(0);
   }
 
@@ -842,6 +921,20 @@
   .combo-sheet-modal {
     max-width: 100%;
   }
+
+  /* Topbar now carries phase label + section pills + actions —
+     let it wrap onto a second line on narrow phones instead of
+     squeezing everything into one cramped row. */
+  .combo-topbar {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .combo-topbar-section-pills {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
 }
 
 /* Extra-small phones — tighten further */
@@ -862,17 +955,24 @@
     height: 85px;
   }
 
-  .combo-group-node--starter {
+  .combo-group-node--slot-0 {
     width: 85px;
     height: 85px;
   }
 
-  .combo-group-node--main {
+  .combo-group-node--slot-1 {
     width: 70px;
     height: 70px;
   }
 
-  .combo-group-node--drink {
+  .combo-group-node--slot-2 {
+    width: 60px;
+    height: 78px;
+  }
+
+  .combo-group-node--slot-3,
+  .combo-group-node--slot-4,
+  .combo-group-node--slot-5 {
     width: 60px;
     height: 78px;
   }
