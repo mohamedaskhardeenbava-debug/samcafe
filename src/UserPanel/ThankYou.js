@@ -5,6 +5,7 @@ import "./ThankYou.css";
 import { AnimatePresence, motion } from "framer-motion";
 import Button3D from "./shared/Button3D";
 import { groupBagItems, sizeNotesBagKey, stripCustomizedPrefix } from "./shared/bagUtils";
+import { endCustomerSession } from "./customerSession";
 
 const AUTO_RESET_MS = 60000; // 1 minute
 
@@ -30,21 +31,22 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
   }, []);
 
   useEffect(() => {
+    // Customers who arrived via a table QR scan (tableNo present) are
+    // mid-visit at their table — auto-logging them out after a minute
+    // would sign them out of their own session while they're still
+    // dining in, forcing them to log back in for their next order.
+    // Still clear the bag and return home for them; just skip the
+    // session logout. Take-away customers (no tableNo) keep the
+    // original full auto-reset-and-logout behavior.
     const timer = setTimeout(() => {
-      // 🔥 FULL CLEANUP
       setBag([]);
       setIsBagOpen(false);
-      localStorage.removeItem("userId");
+      if (!tableNo) endCustomerSession();
       navigate("/");
     }, AUTO_RESET_MS);
 
     return () => clearTimeout(timer);
-  }, [navigate, setBag, setIsBagOpen]);
-
-  const totalAmount = bag.reduce(
-    (sum, item) => sum + item.totalPrice,
-    0
-  );
+  }, [navigate, setBag, setIsBagOpen, tableNo]);
 
   const getDisplayName = (item) =>
     item?.isCustomized ? stripCustomizedPrefix(item.name) : (item?.name || "");
@@ -58,7 +60,7 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
 
   const handleLogout = () => {
     setBag([]);
-    localStorage.removeItem("userId");
+    if (!tableNo) endCustomerSession();
     navigate("/");
   };
 
@@ -96,7 +98,6 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
               <tr>
                 <th></th>
                 <th>Dish</th>
-                <th>Price</th>
                 <th>Qty</th>
               </tr>
             </thead>
@@ -134,20 +135,12 @@ const ThankYou = ({ bag, setBag, setIsBagOpen }) => {
                       )}
                     </td>
 
-                    <td>₹{Math.round(item.totalPrice)}</td>
-
                     <td>{item.quantity}</td>
                   </motion.tr>
                 ))}
               </AnimatePresence>
             </tbody>
           </table>
-        )}
-
-        {!isBagEmpty && (
-          <div className="order-total">
-            Total: ₹{Math.round(totalAmount)}
-          </div>
         )}
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center", marginTop: "16px" }}>

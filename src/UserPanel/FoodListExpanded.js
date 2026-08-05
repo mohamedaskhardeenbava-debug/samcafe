@@ -13,6 +13,7 @@ import { flyToBag } from "../components/flyToBag";
 import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import { buildDishBagItem } from "./shared/bagUtils";
+import { getActiveOffer, applyOfferToBagItem } from "./shared/offerUtils";
 
 /* 🔁 SAME animation config */
 const SOFT_SPRING = {
@@ -136,9 +137,12 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
     return true;
   });
 
+  const activeOffer = getActiveOffer(dish.id, foodData.offers);
+
   const handleAddToBag = () => {
     const img = document.querySelector(".dish-image.image-main");
-    addToBag(buildDishBagItem(dish, resolvedCategoryId));
+    const item = buildDishBagItem(dish, resolvedCategoryId);
+    addToBag(activeOffer ? applyOfferToBagItem(item, activeOffer, item.unitPrice) : item);
     flyToBag({ imgEl: img, dishId: dish.id });
   };
 
@@ -180,7 +184,15 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
             </h2>
 
             <div className="dish-price">
-              <AnimatedPrice value={dish.basePrice} />
+              {activeOffer ? (
+                <>
+                  <AnimatedPrice value={activeOffer.offerPrice} />
+                  <span className="dish-price-original">₹{activeOffer.originalPrice}</span>
+                  <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
+                </>
+              ) : (
+                <AnimatedPrice value={dish.basePrice} />
+              )}
             </div>
           </motion.div>
 

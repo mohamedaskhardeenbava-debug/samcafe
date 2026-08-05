@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import minimizeIcon from "../assets/icons/minimize.png";
 import { placeOrder } from "../components/placeOrder.js";
 import PrinterReceipt from "../components/PrinterReceipt.js";
-import PageLoader from "../components/PageLoader.js";
+import OrderProgressBar from "./OrderProgressBar.js";
 import cartIcon from "../assets/icons/cart.png";
 import Button3D from "./shared/Button3D.js";
 import { groupBagItems, getUnitPrice, getLineTotal, getBagSubtotal, getBagItemCount } from "./shared/bagUtils.js";
@@ -28,6 +28,7 @@ const FloatingBag = ({
   const safeBag = Array.isArray(bag) ? bag : [];
   const [orderForReceipt, setOrderForReceipt] = useState(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
 
   const groupedBag = groupBagItems(safeBag);
   const totalItems = getBagItemCount(safeBag);
@@ -99,7 +100,14 @@ const FloatingBag = ({
                 <div className="bag-item-info">
                   <div className="bag-item-name">{item.name}</div>
                   <div className="bag-item-price">
-                    ₹{getUnitPrice(item).toFixed(2)}
+                    {item.appliedOffer ? (
+                      <>
+                        <span className="bag-item-price-offer">₹{getUnitPrice(item).toFixed(2)}</span>
+                        <span className="bag-item-price-original">₹{Number(item.appliedOffer.originalPrice).toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <>₹{getUnitPrice(item).toFixed(2)}</>
+                    )}
                   </div>
                 </div>
 
@@ -141,8 +149,12 @@ const FloatingBag = ({
             disabled={bag.length === 0 || isPlacingOrder}
             onClick={async () => {
               setIsPlacingOrder(true);
+              setOrderComplete(false);
               try {
                 const newOrder = await placeOrder(bag);
+                setOrderComplete(true);
+                // let the bar visibly hit 100% before handing off to the receipt
+                await new Promise((resolve) => setTimeout(resolve, 300));
                 setIsOpen(false);
                 setOrderForReceipt(newOrder);   // 👈 show printer
               } catch (err) {
@@ -150,6 +162,7 @@ const FloatingBag = ({
                 toast.error("Couldn't place your order. Please try again.");
               } finally {
                 setIsPlacingOrder(false);
+                setOrderComplete(false);
               }
             }}
           >
@@ -158,8 +171,8 @@ const FloatingBag = ({
         </div>
       )}
       {isPlacingOrder && (
-        <div className="place-order-loading-overlay">
-          <PageLoader label="Placing your order…" />
+        <div className="order-progress-overlay">
+          <OrderProgressBar complete={orderComplete} />
         </div>
       )}
       {orderForReceipt && (

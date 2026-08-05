@@ -32,6 +32,17 @@ const PrinterReceipt = ({ order, onDone }) => {
     })()
     : new Date().toLocaleDateString("en-GB");
 
+  const formattedTime = (() => {
+    if (!time) return "";
+    const match = String(time).match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return time;
+    let [, h, m] = match;
+    h = parseInt(h, 10);
+    const suffix = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `${h}:${m} ${suffix}`;
+  })();
+
   const subTotal = totalWithGST?.subTotal ?? totalAmount ?? 0;
   const cgst = totalWithGST?.cgst ?? 0;
   const sgst = totalWithGST?.sgst ?? 0;
@@ -74,7 +85,7 @@ const PrinterReceipt = ({ order, onDone }) => {
                   <div>
                     Order #{id}<br />
                     {tableNo ? `Table: ${tableNo}  |  ` : ""}
-                    {formattedDate} – {time}<br />
+                    {formattedDate} – {formattedTime}<br />
                     Mode: {mode === "dine in" ? "Dine In" : "Take Away"}
                     {userName && userName !== "Guest" && (
                       <><br />Customer: {userName}</>

@@ -198,6 +198,22 @@
   transform: scale(1.06);
 }
 
+/* Offer badge — overlays the top-left corner of the card image */
+.food-grid-card-offer-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--bg-main);
+  background: var(--color-red);
+  padding: 4px 9px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
+  z-index: 2;
+}
+
 /* Card body */
 .food-grid-card-body {
   padding: 10px 12px 12px;
@@ -242,6 +258,16 @@
   font-size: 16px;
   font-weight: 800;
   color: var(--color-red);
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.food-grid-card-price-original {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-decoration: line-through;
 }
 
 .food-grid-card-add {

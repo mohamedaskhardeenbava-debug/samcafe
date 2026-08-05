@@ -465,17 +465,8 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                 </div>
               </div>
 
-              {/* Date, Slot & Time */}
+              {/* Slot → Date → Time (date/time only shown once a slot is picked) */}
               <div className="mat-row">
-                <div className="field-group" style={{ flex: "0 0 auto" }}>
-                  <label>Date <span className="rf-req">*</span></label>
-                  <UserDatePicker
-                    value={form.date}
-                    min={tomorrowStr()}
-                    hasError={!!errors.date}
-                    onChange={handleDateChange}
-                  />
-                </div>
                 <div className="field-group">
                   <label>Dining Slot <span className="rf-req">*</span></label>
                   <div className="slot-groups">
@@ -496,20 +487,32 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                   </div>
                   {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
                 </div>
-                <div className="field-group" style={{ flex: "0 0 auto" }}>
-                  <label>Preferred Time <span className="rf-req">*</span></label>
-                  <UserTimePicker
-                    value={form.time}
-                    hasError={!!errors.time}
-                    onChange={v => set("time", v)}
-                    slotStart={currentSlot?.start}
-                    slotEnd={currentSlot?.end}
-                    disabled={!form.slotGroup}
-                    isToday={isToday}
-                  />
-                  {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
-                  {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
-                </div>
+                {form.slotGroup && (
+                  <div className="field-group" style={{ flex: "0 0 auto" }}>
+                    <label>Date <span className="rf-req">*</span></label>
+                    <UserDatePicker
+                      value={form.date}
+                      min={tomorrowStr()}
+                      hasError={!!errors.date}
+                      onChange={handleDateChange}
+                    />
+                  </div>
+                )}
+                {form.slotGroup && (
+                  <div className="field-group" style={{ flex: "0 0 auto" }}>
+                    <label>Preferred Time <span className="rf-req">*</span></label>
+                    <UserTimePicker
+                      value={form.time}
+                      hasError={!!errors.time}
+                      onChange={v => set("time", v)}
+                      slotStart={currentSlot?.start}
+                      slotEnd={currentSlot?.end}
+                      disabled={!form.slotGroup}
+                      isToday={isToday}
+                    />
+                    {currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
+                  </div>
+                )}
               </div>
 
               {/* Guests — max 20 */}

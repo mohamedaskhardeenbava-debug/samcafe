@@ -365,18 +365,6 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
             <div className="rf-section">
               <div className="section-title">Date &amp; Dining Slot</div>
 
-              {/* Date */}
-              <div className="field-group" style={{ flex: "0 0 auto" }}>
-                <label>Date <span className="rf-req">*</span></label>
-                <UserDatePicker
-                  value={form.date}
-                  min={todayStr()}
-                  hasError={!!errors.date}
-                  onChange={handleDateChange}
-                />
-                {errors.date && <span className="rf-error">{errors.date}</span>}
-              </div>
-
               {/* Dining Slot */}
               <div className="field-group">
                 <label>Dining Slot <span className="rf-req">*</span></label>
@@ -399,21 +387,36 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                 {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
               </div>
 
+              {/* Date — appears once a dining slot is picked */}
+              {form.slotGroup && (
+                <div className="field-group" style={{ flex: "0 0 auto" }}>
+                  <label>Date <span className="rf-req">*</span></label>
+                  <UserDatePicker
+                    value={form.date}
+                    min={todayStr()}
+                    hasError={!!errors.date}
+                    onChange={handleDateChange}
+                  />
+                  {errors.date && <span className="rf-error">{errors.date}</span>}
+                </div>
+              )}
+
               {/* Preferred Time (optional) */}
-              <div className="field-group" style={{ flex: "0 0 auto" }}>
-                <label>Preferred Time <span className="rf-optional">(optional)</span></label>
-                <UserTimePicker
-                  value={form.time}
-                  onChange={v => set("time", v)}
-                  slotStart={currentSlot?.start}
-                  slotEnd={currentSlot?.end}
-                  disabled={!form.slotGroup}
-                  isToday={isToday}
-                  hasError={!!errors.time}
-                />
-                {!form.slotGroup && <span style={{ fontSize: 11, color: "#aaa", marginTop: 4, display: "block" }}>Select a slot first</span>}
-                {form.slotGroup && currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
-              </div>
+              {form.slotGroup && (
+                <div className="field-group" style={{ flex: "0 0 auto" }}>
+                  <label>Preferred Time <span className="rf-optional">(optional)</span></label>
+                  <UserTimePicker
+                    value={form.time}
+                    onChange={v => set("time", v)}
+                    slotStart={currentSlot?.start}
+                    slotEnd={currentSlot?.end}
+                    disabled={!form.slotGroup}
+                    isToday={isToday}
+                    hasError={!!errors.time}
+                  />
+                  {currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
+                </div>
+              )}
             </div>
 
             {/* Notes */}

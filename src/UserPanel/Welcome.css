@@ -235,7 +235,7 @@
 
 .welcome-card-wrapper {
   position: relative;
-  padding: 20px;
+  padding: 10px 20px;
   background-color: #fff;
   opacity: 0.85;
   box-shadow: rgba(100, 135, 137, 0.3) 0px 8px 12px;
@@ -264,7 +264,6 @@
 }
 
 .profile-card {
-  padding: 10px;
   width: 100%;
   height: 300px;
   border-radius: 14px;

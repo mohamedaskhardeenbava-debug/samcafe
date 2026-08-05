@@ -17,6 +17,7 @@ import { useTheme } from "../components/ThemeContext";
 import MatField from "./shared/MatField";
 import Button3D from "./shared/Button3D";
 import { useToast } from "../components/Usetoast";
+import { endCustomerSession } from "./customerSession";
 
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
@@ -98,7 +99,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   };
 
   const handleGuest = () => {
-    localStorage.removeItem("userId");
+    endCustomerSession(); // clears both localStorage and any server-side session cookie
 
     setCurrentUser({
       id: "guest",
@@ -143,29 +144,34 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     if (mobile.length !== 10) e.mobile = "Enter a valid 10-digit mobile number.";
     if (Object.keys(e).length > 0) { setFormErrors(e); return; }
 
-    const matches = users.filter(u => u.mobile === mobile);
+    try {
+      setLoading(true);
+      const res = await api.post("/auth/session-login", { mobile });
+      const user = res.data.user;
 
-    if (matches.length === 0) {
-      setFormErrors({ mobile: "No account exists with this mobile number." });
-      return;
+      localStorage.setItem("userId", user.id);
+
+      // SYNC USER INTO STATE
+      setCurrentUser(user);
+
+      // REFRESH MENU + FAVOURITES
+      fetchMenu();
+      setActiveCard(null);
+      setMobile("");
+      navigate("/categories");
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 404) {
+        setFormErrors({ mobile: "No account exists with this mobile number." });
+      } else if (status === 409) {
+        setFormErrors({ mobile: "Multiple accounts found. Contact support." });
+      } else {
+        console.error("Login failed", err);
+        toast.error("Couldn't log in. Please try again.");
+      }
+    } finally {
+      setLoading(false);
     }
-
-    if (matches.length > 1) {
-      setFormErrors({ mobile: "Multiple accounts found. Contact support." });
-      return;
-    }
-
-    const user = matches[0];
-    localStorage.setItem("userId", user.id);
-
-    // SYNC USER INTO STATE
-    setCurrentUser(user);
-
-    // REFRESH MENU + FAVOURITES
-    fetchMenu();
-    setActiveCard(null);
-    setMobile("");
-    navigate("/categories");
   };
 
   const handleSignup = async () => {
@@ -177,28 +183,9 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     try {
       setLoading(true);
 
-      const res = await api.get("/users");
-      const existingUsers = res.data || [];
+      const res = await api.post("/auth/session-signup", { name: name.trim(), mobile });
+      const newUser = res.data.user;
 
-      const matches = existingUsers.filter(u => u.mobile === mobile);
-
-      if (matches.length > 0) {
-        setFormErrors({ mobile: "An account already exists with this mobile number." });
-        return;
-      }
-
-      const newUser = {
-        id: `user_${mobile}`,
-        name: name.trim(),
-        mobile,
-        favourites: [],
-        combo: [],
-        orders: []
-      };
-
-      await api.post("/users", newUser);
-
-      // login ONLY first time
       localStorage.setItem("userId", newUser.id);
 
       setActiveCard(null);
@@ -210,8 +197,12 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
       navigate("/categories");
 
     } catch (err) {
-      console.error("Signup failed", err);
-      toast.error("Couldn't create your account. Please try again.");
+      if (err.response?.status === 409) {
+        setFormErrors({ mobile: "An account already exists with this mobile number." });
+      } else {
+        console.error("Signup failed", err);
+        toast.error("Couldn't create your account. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

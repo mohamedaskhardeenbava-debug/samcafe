@@ -197,6 +197,21 @@
 .bag-item-price {
   font-size: 13px;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bag-item-price-offer {
+  color: var(--color-red);
+  font-weight: 700;
+}
+
+.bag-item-price-original {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  text-decoration: line-through;
 }
 
 /* ===== QTY ===== */
@@ -366,6 +381,14 @@
 
   .bag-item-row {
     gap: 8px;
+  }
+
+  .bag-item-price {
+    gap: 4px;
+  }
+
+  .bag-item-price-original {
+    font-size: 10px;
   }
 
   .bag-qty {

@@ -571,19 +571,9 @@ const CateringForm = ({ handleBack, handleHome }) => {
               </div>
             </div>
 
-            {/* EVENT DETAILS */}
+            {/* EVENT DETAILS — slot first, then date/time once a slot is picked */}
             <div className="section-title">Event Details</div>
             <div className="ucat-card">
-              <div className="field-group">
-                <label>Event Date <span className="ucat-req">*</span></label>
-                <UserDatePicker
-                  value={form.eventDate}
-                  min={tomorrowStr()}
-                  hasError={!!errors.eventDate}
-                  onChange={v => { setF("eventDate", v); setF("time", ""); setF("slotGroup", ""); }}
-                />
-              </div>
-
               <div className="field-group">
                 <label>Dining Slot <span className="ucat-req">*</span></label>
                 <div className="slot-groups">
@@ -606,28 +596,38 @@ const CateringForm = ({ handleBack, handleHome }) => {
                 {errors.slotGroup && <span className="ucat-field-error">Please select a dining slot</span>}
               </div>
 
-              <div className="field-group">
-                <label>
-                  Preferred Time <span className="ucat-req">*</span>
-                  {form.slotGroup && (() => {
-                    const sg = SLOT_GROUPS.find(s => s.key === form.slotGroup);
-                    return sg ? <span className="ucat-slot-hint-inline">{sg.start} – {sg.end}</span> : null;
-                  })()}
-                </label>
-                <UserTimePicker
-                  value={form.time}
-                  hasError={!!errors.time}
-                  onChange={v => setF("time", v)}
-                  slotStart={SLOT_GROUPS.find(s => s.key === form.slotGroup)?.start}
-                  slotEnd={SLOT_GROUPS.find(s => s.key === form.slotGroup)?.end}
-                  disabled={!form.slotGroup}
-                  isToday={false}
-                  placeholder={!form.slotGroup ? "Select a slot first" : undefined}
-                />
-                {!form.slotGroup && (
-                  <span className="ucat-hint">Select a dining slot above to enable time picker</span>
-                )}
-              </div>
+              {form.slotGroup && (
+                <div className="field-group">
+                  <label>Event Date <span className="ucat-req">*</span></label>
+                  <UserDatePicker
+                    value={form.eventDate}
+                    min={tomorrowStr()}
+                    hasError={!!errors.eventDate}
+                    onChange={v => { setF("eventDate", v); setF("time", ""); }}
+                  />
+                </div>
+              )}
+
+              {form.slotGroup && (
+                <div className="field-group">
+                  <label>
+                    Preferred Time <span className="ucat-req">*</span>
+                    {(() => {
+                      const sg = SLOT_GROUPS.find(s => s.key === form.slotGroup);
+                      return sg ? <span className="ucat-slot-hint-inline">{sg.start} – {sg.end}</span> : null;
+                    })()}
+                  </label>
+                  <UserTimePicker
+                    value={form.time}
+                    hasError={!!errors.time}
+                    onChange={v => setF("time", v)}
+                    slotStart={SLOT_GROUPS.find(s => s.key === form.slotGroup)?.start}
+                    slotEnd={SLOT_GROUPS.find(s => s.key === form.slotGroup)?.end}
+                    disabled={!form.slotGroup}
+                    isToday={false}
+                  />
+                </div>
+              )}
             </div>
 
             {/* ADDRESS */}

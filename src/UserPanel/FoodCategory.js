@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "./FoodCategory.css";
 import listIcon from "../assets/icons/list.png";
 import gridIcon from "../assets/icons/grid.png";
+import eventFallbackImg from "../assets/events-fallback.png";
 import Button3D from "./shared/Button3D";
 
 /* ═══════════════════════════════════════════════
@@ -96,11 +97,17 @@ function derivePromoItems({ categories, orders, offers, comboOffers, events }) {
     break;
   }
 
-  /* 3. Published / upcoming events */
+  /* 3. Published events — only ongoing/active right now, or
+     genuinely upcoming (status says so AND the date hasn't passed).
+     Anything completed, cancelled, draft, or a stale "upcoming"
+     with a past date is excluded from the promo rail. */
   const today = new Date().toISOString().slice(0, 10);
+  const ONGOING_STATUSES = ["ongoing", "active"];
   for (const ev of events || []) {
     if (!ev.isPublished) continue;
-    if (ev.status !== "upcoming" && ev.date < today) continue;
+    const isOngoing = ONGOING_STATUSES.includes(ev.status);
+    const isUpcoming = ev.status === "upcoming" && ev.date >= today;
+    if (!isOngoing && !isUpcoming) continue;
     chips.push({
       id: `event-${ev.id}`,
       type: "event",
@@ -262,6 +269,10 @@ function deriveCrowdPicks({ categories, orders }, limit = 10) {
    PROMO CARD
 ═══════════════════════════════════════════════ */
 const PromoCard = ({ item, onClick }) => {
+  // Events can be published without an image; fall back to a generic
+  // calendar/booking illustration instead of a broken/blank media box.
+  const mediaSrc = item.image || (item.type === "event" ? eventFallbackImg : null);
+
   return (
     <button
       className={`pc-card pc-card--${item.type}`}
@@ -270,7 +281,7 @@ const PromoCard = ({ item, onClick }) => {
     >
       {/* Image / icon block */}
       <div className="pc-card__media">
-        <img src={item.image} alt={item.title} loading="lazy" />
+        {mediaSrc && <img src={mediaSrc} alt={item.title} loading="lazy" />}
       </div>
 
       {/* Info */}
@@ -525,7 +536,7 @@ const PromoCarousel = ({ items, onCardClick }) => {
 /* ═══════════════════════════════════════════════
    FOOD CATEGORY — main component
 ═══════════════════════════════════════════════ */
-const FoodCategory = ({ foodData, currentUser }) => {
+const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
   const [viewMode, setViewMode] = useState("grid");
   const [promoItems, setPromoItems] = useState([]);
   const [popularDishes, setPopularDishes] = useState([]);
@@ -536,18 +547,40 @@ const FoodCategory = ({ foodData, currentUser }) => {
 
   const isAuthenticatedUser = currentUser && currentUser.id !== "guest";
 
+  // Super-Admin-configured overrides (name/image/enabled) for the special
+  // cards below, keyed by card id. A card with no saved override — or no
+  // config saved at all yet — falls back to its hardcoded default here,
+  // so nothing changes until a Super Admin actually edits something via
+  // the admin panel's Category Cards page.
+  const cardOverride = (id) => (categoryCards || []).find((c) => c.id === id);
+  const isCardEnabled = (id) => {
+    const override = cardOverride(id);
+    return override ? override.enabled !== false : true;
+  };
+  const cardName = (id, fallback) => cardOverride(id)?.name || fallback;
+  const cardImage = (id, fallback) => cardOverride(id)?.image || fallback;
+
   /* ── Derive all sections from foodData ── */
   useEffect(() => {
     if (!foodData) return;
     const { categories = [], orders = [], offers = [], comboOffers = [], combo = [], events = [] } = foodData;
     const resolvedComboOffers = comboOffers.length ? comboOffers : combo;
 
-    setPromoItems(derivePromoItems({ categories, orders, offers, comboOffers: resolvedComboOffers, events }));
+    setPromoItems(
+      derivePromoItems({
+        categories,
+        orders,
+        offers: isCardEnabled("offers") ? offers : [],
+        comboOffers: isCardEnabled("combo") ? resolvedComboOffers : [],
+        events: isCardEnabled("events") ? events : [],
+      })
+    );
     setPopularDishes(derivePopularDishes({ categories, orders }));
     setCrowdPicks(deriveCrowdPicks({ categories, orders }));
-    setUpcomingEvents(deriveEvents({ events }));
-    setFavouriteCombos(deriveFavouriteCombos({ orders }));
-  }, [foodData]);
+    setUpcomingEvents(isCardEnabled("events") ? deriveEvents({ events }) : []);
+    setFavouriteCombos(isCardEnabled("combo") ? deriveFavouriteCombos({ orders }) : []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [foodData, categoryCards]);
 
   /* ── Navigation handlers ── */
 
@@ -555,7 +588,7 @@ const FoodCategory = ({ foodData, currentUser }) => {
   const handlePromoClick = (item) => {
     if (item.type === "offer") {
       // Offer → Offers page
-      navigate("/offers");
+      if (isCardEnabled("offers")) navigate("/offers");
     } else if (item.type === "dish" || item.type === "popular" || item.type === "new") {
       // Dish / popular / new arrival → FoodListExpanded so the dish is the focus
       navigate(`/foods/${item.categoryId}/expanded`, {
@@ -563,9 +596,9 @@ const FoodCategory = ({ foodData, currentUser }) => {
       });
     } else if (item.type === "combo") {
       // Combo offer → Combo builder, pre-seeded with that offer
-      navigate("/combo", { state: { comboOffer: item.comboOffer } });
+      if (isCardEnabled("combo")) navigate("/combo", { state: { comboOffer: item.comboOffer } });
     } else if (item.type === "event") {
-      navigate("/events/hosted", { state: { eventId: item.eventId } });
+      if (isCardEnabled("events")) navigate("/events/hosted", { state: { eventId: item.eventId } });
     }
   };
 
@@ -573,21 +606,30 @@ const FoodCategory = ({ foodData, currentUser }) => {
   const categoriesToRender = [];
 
   if (isAuthenticatedUser) {
-    categoriesToRender.push(
-      { id: "my", name: "My Favourites", image: "/assets/category-assets/pizza.png", route: "/favourites/my" },
-      { id: "others", name: "Crowd Picks", image: "/assets/category-assets/crowd.png", route: "/favourites/others" }
-    );
-  } else {
+    if (isCardEnabled("my")) {
+      categoriesToRender.push({ id: "my", name: cardName("my", "My Favourites"), image: cardImage("my", "/assets/category-assets/pizza.png"), route: "/favourites/my" });
+    }
+    if (isCardEnabled("others")) {
+      categoriesToRender.push({ id: "others", name: cardName("others", "Crowd Picks"), image: cardImage("others", "/assets/category-assets/crowd.png"), route: "/favourites/others" });
+    }
+    if (isCardEnabled("my-orders")) {
+      categoriesToRender.push({ id: "my-orders", name: cardName("my-orders", "My Orders"), image: cardImage("my-orders", "/assets/category-assets/offers.png"), route: "/my-orders" });
+    }
+  } else if (isCardEnabled("others")) {
     categoriesToRender.push({
-      id: "others", name: "Crowd Picks", image: "/assets/category-assets/crowd.png", route: "/favourites/others",
+      id: "others", name: cardName("others", "Crowd Picks"), image: cardImage("others", "/assets/category-assets/crowd.png"), route: "/favourites/others",
     });
   }
 
-  categoriesToRender.push(
-    { id: "combo", name: "Combos", image: "/assets/category-assets/combo.png", route: "/combo" },
-    { id: "offers", name: "Offers", image: "/assets/category-assets/offers.png", route: "/offers" },
-    { id: "events", name: "Events & Booking", image: "/assets/category-assets/events.png", route: "/events" }
-  );
+  if (isCardEnabled("combo")) {
+    categoriesToRender.push({ id: "combo", name: cardName("combo", "Combos"), image: cardImage("combo", "/assets/category-assets/combo.png"), route: "/combo" });
+  }
+  if (isCardEnabled("offers")) {
+    categoriesToRender.push({ id: "offers", name: cardName("offers", "Offers"), image: cardImage("offers", "/assets/category-assets/offers.png"), route: "/offers" });
+  }
+  if (isCardEnabled("events")) {
+    categoriesToRender.push({ id: "events", name: cardName("events", "Events & Booking"), image: cardImage("events", "/assets/category-assets/events.png"), route: "/events" });
+  }
 
   (foodData?.categories || []).forEach((category) => {
     const hasSubCategories = Array.isArray(category.subCategories) && category.subCategories.length > 0;
@@ -643,6 +685,7 @@ const FoodCategory = ({ foodData, currentUser }) => {
               ${category.id === "combo" ? "special" : ""}
               ${category.id === "events" ? "special" : ""}
               ${category.id === "offers" ? "special" : ""}
+              ${category.id === "my-orders" ? "special" : ""}
             `}
           >
             <div className="food-category-image">

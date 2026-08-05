@@ -24,6 +24,7 @@ import FavouriteDishList from "./UserPanel/FavouriteDishList";
 import FavouriteDishDetail from "./UserPanel/FavouriteDishDetail";
 import ComboPage from "./UserPanel/ComboPage";
 import FavouriteCombo from "./UserPanel/FavouriteCombo";
+import MyOrders from "./UserPanel/MyOrders";
 import OffersGrid from "./UserPanel/OffersGrid";
 
 // ─── Events ─────────────────────────────────────────────────────────────────
@@ -38,7 +39,6 @@ import CateringForm from "./UserPanel/CateringForm";
 import PageLoader from "./components/PageLoader";
 
 // ─── Assets ─────────────────────────────────────────────────────────────────
-import bellSound from "./assets/sounds/bell.mp3";
 import bellGif from "./assets/bell/bell.gif";
 import bellStatic from "./assets/bell/bell-static.png";
 import { normalizeBagItem, findMatchingBagIndex } from "./UserPanel/shared/normalizeBagItem";
@@ -90,12 +90,33 @@ function App() {
     offers: [],
     events: [],
   });
+  // Super-Admin-configured special cards (My Favourites, Crowd Picks, My
+  // Orders, Combos, Offers, Events & Booking) — name/image/enabled per
+  // card. null while unloaded; FoodCategory falls back to its own
+  // hardcoded defaults (all enabled) whenever a card id isn't present
+  // here, so nothing changes for a fresh install with no saved config.
+  const [categoryCards, setCategoryCards] = useState(null);
 
-  const bellAudioRef = useRef(new Audio(bellSound));
-  const bellLoopRef = useRef(null);
+  const bellVibrateRef = useRef(null);
 
   const isExpandedPage = location.pathname.includes("/expanded");
   const isAuthenticatedUser = Boolean(currentUser?.id);
+
+  // Whether a Super-Admin-configured special card is enabled. A missing
+  // entry (nothing saved yet, or categoryCards still loading) defaults to
+  // enabled — matches current/default behavior so nothing regresses until
+  // a Super Admin actually disables something via the admin panel.
+  const isCardEnabled = (id) => {
+    if (!categoryCards) return true;
+    const card = categoryCards.find((c) => c.id === id);
+    return card ? card.enabled !== false : true;
+  };
+  const isMyFavouritesEnabled = isCardEnabled("my");
+  const isCrowdPicksEnabled = isCardEnabled("others");
+  const isMyOrdersCardEnabled = isCardEnabled("my-orders");
+  const isComboEnabled = isCardEnabled("combo");
+  const isOffersEnabled = isCardEnabled("offers");
+  const isEventsEnabled = isCardEnabled("events");
 
   const motionProps = {
     variants: pageVariants,
@@ -104,6 +125,20 @@ function App() {
     exit: "exit",
     transition: pageTransition,
     custom: direction,
+  };
+
+  // Public, unauthenticated config for the special cards row on the Food
+  // Category page — kept separate from fetchMenu so a failure here (or
+  // simply "nothing saved yet") never blocks the rest of the menu from
+  // loading; FoodCategory treats a missing card entry as "enabled" with
+  // its own default name/image.
+  const fetchCategoryCards = async () => {
+    try {
+      const res = await api.get("/category-cards/public");
+      setCategoryCards(Array.isArray(res.data?.cards) ? res.data.cards : []);
+    } catch {
+      setCategoryCards([]);
+    }
   };
 
   // ─── Data Fetching ────────────────────────────────────────────────────────
@@ -145,8 +180,26 @@ function App() {
   };
 
   // ─── User Init ────────────────────────────────────────────────────────────
+  // Restores the logged-in customer from the server-side session
+  // (httpOnly samcafe_uid cookie) rather than trusting a raw userId
+  // sitting in localStorage — that's what used to make reloads
+  // unreliable (nothing actually validated the id server-side, so any
+  // hiccup on GET /users/:id silently logged the customer out).
   useEffect(() => {
     const initUser = async () => {
+      try {
+        const res = await api.get("/auth/me");
+        setCurrentUser(res.data.user);
+        localStorage.setItem("userId", res.data.user.id); // kept in sync for any legacy reads elsewhere
+        return;
+      } catch {
+        // No valid session cookie (not logged in, or session expired) —
+        // fall through to the old localStorage-based lookup so guest/
+        // legacy users already mid-session before this change aren't
+        // abruptly logged out; a stale/broken value here still gets
+        // cleared below.
+      }
+
       const rawUserId = localStorage.getItem("userId");
       if (!rawUserId) return;
 
@@ -179,6 +232,7 @@ function App() {
 
   useEffect(() => { fetchMenu(); }, []);
   useEffect(() => { fetchMenu(); }, [currentUser]);
+  useEffect(() => { fetchCategoryCards(); }, []);
 
   // Auto-retry the initial connection if it failed, so the user isn't
   // stuck on "Reconnecting…" forever without another attempt being made.
@@ -219,38 +273,37 @@ function App() {
               : prev.orders.map((o) => (o.id === payload.id ? payload : o)),
         }));
       }
+      if (resource === "categoryCards") fetchCategoryCards();
       if (MENU_RESOURCES.includes(resource)) fetchMenu();
     });
 
     return () => socket.off("data-change");
   }, []);
 
-  // ─── Bell Audio Helpers ───────────────────────────────────────────────────
-  const startBellAudio = () => {
-    const audio = bellAudioRef.current;
-    if (!audio) return;
+  // ─── Bell Vibration Helpers ───────────────────────────────────────────────
+  // The user panel never plays a sound for the bell — it vibrates the device
+  // in a repeating pattern until the admin panel explicitly turns the bell
+  // off from the topbar (bell-off). The admin panel keeps its own audible
+  // ring, handled separately in the admin app.
+  const VIBRATE_PATTERN = [400, 200]; // vibrate 400ms, pause 200ms, repeat
+  const VIBRATE_REPEAT_MS = 600; // pattern length — re-issue navigator.vibrate on this cadence
 
-    if (bellLoopRef.current) {
-      audio.removeEventListener("ended", bellLoopRef.current);
-      bellLoopRef.current = null;
-    }
+  const startBellVibrate = () => {
+    if (bellVibrateRef.current) return; // already vibrating
+    if (!("vibrate" in navigator)) return; // unsupported device/browser — silently no-op
 
-    const loop = () => { audio.currentTime = 0; audio.play().catch(() => { }); };
-    audio.addEventListener("ended", loop);
-    bellLoopRef.current = loop;
-    audio.currentTime = 0;
-    audio.play().catch(() => { });
+    navigator.vibrate(VIBRATE_PATTERN);
+    bellVibrateRef.current = setInterval(() => {
+      navigator.vibrate(VIBRATE_PATTERN);
+    }, VIBRATE_REPEAT_MS);
   };
 
-  const stopBellAudio = () => {
-    const audio = bellAudioRef.current;
-    if (!audio) return;
-    if (bellLoopRef.current) {
-      audio.removeEventListener("ended", bellLoopRef.current);
-      bellLoopRef.current = null;
+  const stopBellVibrate = () => {
+    if (bellVibrateRef.current) {
+      clearInterval(bellVibrateRef.current);
+      bellVibrateRef.current = null;
     }
-    audio.pause();
-    audio.currentTime = 0;
+    if ("vibrate" in navigator) navigator.vibrate(0); // cancel any in-flight vibration
   };
 
   // ─── Socket: Bell ─────────────────────────────────────────────────────────
@@ -258,13 +311,13 @@ function App() {
     const myTable = localStorage.getItem("tableNo");
 
     const handleSync = (activeBells) => {
-      if (myTable && activeBells[myTable]) { setIsRinging(true); startBellAudio(); }
+      if (myTable && activeBells[myTable]) { setIsRinging(true); startBellVibrate(); }
     };
     const handleBellOff = ({ tableNo }) => {
-      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(false); stopBellAudio(); }
+      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(false); stopBellVibrate(); }
     };
     const handleBellRing = ({ tableNo }) => {
-      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(true); startBellAudio(); }
+      if (tableNo === localStorage.getItem("tableNo")) { setIsRinging(true); startBellVibrate(); }
     };
 
     socket.on("bell-sync", handleSync);
@@ -275,6 +328,7 @@ function App() {
       socket.off("bell-sync", handleSync);
       socket.off("bell-off", handleBellOff);
       socket.off("bell-ring", handleBellRing);
+      stopBellVibrate();
     };
   }, []);
 
@@ -307,6 +361,7 @@ function App() {
       }
       return [...prev, item];
     });
+    setIsBagOpen(true);
   };
 
   const increaseQty = (index) => {
@@ -359,7 +414,7 @@ function App() {
     if (isRinging) return;
     socket.emit("bell-ring", { tableNo });
     setIsRinging(true);
-    startBellAudio();
+    startBellVibrate();
   };
 
   // ─── Favourites Toggle ────────────────────────────────────────────────────
@@ -436,10 +491,11 @@ function App() {
         {/* Floating Bell — dine-in only */}
         {isDineIn && (
           <div
-            className="floating-bell-wrapper"
+            className={`floating-bell-wrapper${isRinging ? " is-ringing" : ""}`}
             onClick={handleRingBell}
             title={isRinging ? "Attender called – waiting for response" : "Call the attender"}
           >
+            <span className="floating-bell-pulse" aria-hidden="true" />
             <button
               className={`floating-bell ${isRinging ? "ringing" : ""}`}
               disabled={isRinging}
@@ -452,8 +508,13 @@ function App() {
                 className="bell-image"
               />
             </button>
-            <div className="bell-tooltip">
-              {isRinging ? "Attender is on the way!" : "Click to call the attender"}
+            <div className="bell-label">
+              <span className="bell-label-title">
+                {isRinging ? "Attender is on the way!" : "Call Attender"}
+              </span>
+              {isRinging && (
+                <span className="bell-label-sub">Your phone will vibrate until they arrive</span>
+              )}
             </div>
           </div>
         )}
@@ -483,7 +544,7 @@ function App() {
 
               <Route path="/" element={<motion.div {...motionProps}><Welcome handleNavigate={handleNavigate} toCamelCase={toCamelCase} setCurrentUser={setCurrentUser} fetchMenu={fetchMenu} /></motion.div>} />
 
-              <Route path="/categories" element={<motion.div {...motionProps}><FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} /></motion.div>} />
+              <Route path="/categories" element={<motion.div {...motionProps}><FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} categoryCards={categoryCards} /></motion.div>} />
 
               <Route path="/appetizer-builder" element={<AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} />} />
 
@@ -493,30 +554,44 @@ function App() {
 
               <Route path="foods/:categoryId/grid" element={<motion.div {...motionProps}><FoodGridList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div>} />
 
-              <Route path="/food/:id" element={<motion.div {...motionProps}><FoodItem foodData={foodData} onToggleFavourite={onToggleFavourite} addToBag={addToBag} updateBagItem={updateBagItem} setDirection={setDirection} setLastAction={setLastAction} toCamelCase={toCamelCase} handleHome={handleHome} handleBack={handleBack} currentUser={currentUser} /></motion.div>} />
+              <Route path="/food/:id" element={<motion.div {...motionProps}><FoodItem foodData={foodData} onToggleFavourite={onToggleFavourite} addToBag={addToBag} updateBagItem={updateBagItem} setDirection={setDirection} setLastAction={setLastAction} toCamelCase={toCamelCase} handleHome={handleHome} handleBack={handleBack} currentUser={currentUser} isWishlistEnabled={isMyFavouritesEnabled && isCrowdPicksEnabled} /></motion.div>} />
 
               <Route path="/ingredient/:id" element={<motion.div {...motionProps}><IngredientDetail handleBack={handleBack} foodData={foodData} handleNavigate={handleNavigate} /></motion.div>} />
 
               <Route path="/thank-you" element={<motion.div {...motionProps}><ThankYou bag={bag} setBag={setBag} setIsBagOpen={setIsBagOpen} /></motion.div>} />
 
-              <Route path="/favourites/:source" element={<motion.div {...motionProps}><FavouriteCategories foodData={foodData} currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
+              <Route path="/favourites/:source" element={
+                (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
+                  ? <motion.div {...motionProps}><FavouriteCategories foodData={foodData} currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>
+                  : <Navigate to="/categories" replace />
+              } />
 
-              <Route path="/favourites/:source/category/:categoryId" element={<motion.div {...motionProps}><FavouriteDishList foodData={foodData} currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
+              <Route path="/favourites/:source/category/:categoryId" element={
+                (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
+                  ? <motion.div {...motionProps}><FavouriteDishList foodData={foodData} currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>
+                  : <Navigate to="/categories" replace />
+              } />
 
-              <Route path="/favourites/:source/dish/:dishId" element={<motion.div {...motionProps}><FavouriteDishDetail foodData={foodData} handleBack={handleBack} addToBag={addToBag} handleHome={handleHome} currentUser={currentUser} /></motion.div>} />
+              <Route path="/favourites/:source/dish/:dishId" element={
+                (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
+                  ? <motion.div {...motionProps}><FavouriteDishDetail foodData={foodData} handleBack={handleBack} addToBag={addToBag} handleHome={handleHome} currentUser={currentUser} /></motion.div>
+                  : <Navigate to="/categories" replace />
+              } />
 
-              <Route path="/combo" element={<motion.div {...motionProps}><ComboPage foodData={foodData} comboOfferRules={foodData.comboOffers || []} addToBag={addToBag} updateBagItem={updateBagItem} handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div>} />
+              <Route path="/combo" element={isComboEnabled ? <motion.div {...motionProps}><ComboPage foodData={foodData} comboOfferRules={foodData.comboOffers || []} addToBag={addToBag} updateBagItem={updateBagItem} handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/favourite-combos" element={isAuthenticatedUser ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/favourite-combos" element={isAuthenticatedUser && isComboEnabled ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/offers" element={<motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={() => navigate(-1)} handleHome={() => navigate("/categories")} /></motion.div>} />
+              <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/events" element={<motion.div {...motionProps}><EventHome handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
-              <Route path="/events/hosted" element={<motion.div {...motionProps}><EventsPage handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} /></motion.div>} />
-              <Route path="/events/reservation" element={<motion.div {...motionProps}><ReservationForm foodData={foodData} bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
-              <Route path="/events/celebration" element={<motion.div {...motionProps}><CelebrationForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} navigateToCatering={() => handleNavigate("/events/catering")} /></motion.div>} />
-              <Route path="/events/prebooking" element={<motion.div {...motionProps}><PreBooking bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
-              <Route path="/events/catering" element={<motion.div {...motionProps}><CateringForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
+              <Route path="/offers" element={isOffersEnabled ? <motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={() => navigate(-1)} handleHome={() => navigate("/categories")} /></motion.div> : <Navigate to="/categories" replace />} />
+
+              <Route path="/events" element={isEventsEnabled ? <motion.div {...motionProps}><EventHome handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/events/hosted" element={isEventsEnabled ? <motion.div {...motionProps}><EventsPage handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/events/reservation" element={isEventsEnabled ? <motion.div {...motionProps}><ReservationForm foodData={foodData} bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/events/celebration" element={isEventsEnabled ? <motion.div {...motionProps}><CelebrationForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} navigateToCatering={() => handleNavigate("/events/catering")} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/events/prebooking" element={isEventsEnabled ? <motion.div {...motionProps}><PreBooking bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/events/catering" element={isEventsEnabled ? <motion.div {...motionProps}><CateringForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
             </Routes>
           </AnimatePresence>

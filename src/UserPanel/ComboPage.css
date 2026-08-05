@@ -33,7 +33,6 @@
 }
 
 .combo-phase-label {
-  flex: 1;
   font-size: 15px;
   font-weight: 600;
   color: var(--text-secondary);
@@ -71,60 +70,172 @@
   line-height: 1;
 }
 
-/* ── Compact grouping strip ──────────────────────────────── */
+/* ── Grouping strip — promo banner with dish photos ───────────
+   Mirrors the reference banner: a price row up top (struck-through
+   "Regular Price" beside a red "Combo @ Just" pill), then the
+   selected dish photos layered underneath as plain cutouts —
+   larger main dish in the middle, smaller sides overlapping it.
+──────────────────────────────────────────────────────────── */
 .combo-group-strip {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
   width: 100%;
-  max-width: 420px;
-  height: 180px;
-  margin-bottom: 18px;
-  margin-left: 0;
+  max-width: 380px;
+  justify-content: center;
+  padding: 16px 12px;
+  border-radius: 20px;
+  background-color: var(--color-pale-red);
 }
 
-.combo-group-node {
-  position: absolute;
-  transform: translate(-50%, -50%);
+/* All three dishes picked — lift the strip out of the details
+   column and center it over the page as a completion banner.
+   `layout` on the motion.div (see ComboPage.js) animates the
+   jump from in-flow to fixed automatically; undoing a pick just
+   drops this class and the same layout animation sends it back. */
+.combo-group-strip--complete {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+  z-index: 40;
+  max-width: 420px;
+  padding: 20px 24px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.22);
+}
+
+.combo-group-strip-pricing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.combo-group-strip-regular,
+.combo-group-strip-final {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  width: 96px;
-  z-index: 5;
+  line-height: 1.3;
 }
 
-.combo-group-node-btn {
-  display: block;
-  width: 84px;
-  height: 84px;
+.combo-group-strip-regular {
+  padding: 6px 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.04);
 }
 
-.combo-group-node-btn .shadow,
-.combo-group-node-btn .edge {
-  border-radius: 50%;
+.combo-group-strip-regular-label,
+.combo-group-strip-final-label {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
 
-.combo-group-node-btn .front {
+.combo-group-strip-regular-label {
+  color: var(--text-secondary);
+}
+
+.combo-group-strip-final-label {
+  color: #fff;
+}
+
+.combo-group-strip-regular-price {
+  position: relative;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.combo-group-strip-regular-price::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  right: -3px;
+  top: 50%;
+  height: 2px;
+  background: var(--color-red, #e63946);
+  transform: rotate(-8deg);
+}
+
+.combo-group-strip-final {
+  background: var(--color-red, #e63946);
+  border-radius: 12px;
+  padding: 6px 16px;
+}
+
+.combo-group-strip-final-price {
+  font-size: 19px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.combo-group-strip-photos {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   width: 100%;
-  height: 100%;
-  min-height: 0;
+  height: 110px !important;
+}
+
+.combo-group-node {
+  display: block;
+  width: 90px;
+  height: 90px;
   padding: 0;
-  border-radius: 50%;
-  background: #fff;
-}
-
-.combo-group-node-img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  overflow: hidden;
+  border: none;
   background: transparent;
+  cursor: pointer;
 }
 
-.combo-group-node-img img {
+.combo-group-node img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+}
+
+.combo-group-node--slot-0 {
+  width: 110px;
+  height: 110px;
+  z-index: 2;
+}
+
+.combo-group-node--slot-1 {
+  width: 90px;
+  height: 90px;
+  margin-left: -18px;
+  z-index: 3;
+}
+
+.combo-group-node--slot-2 {
+  width: 78px;
+  height: 100px;
+  margin-left: -14px;
+  z-index: 1;
+}
+
+/* Beyond the original 3 slots — admin can configure more sections
+   via Manage Categories, so keep styling every extra one instead of
+   leaving it unstyled. */
+.combo-group-node--slot-3,
+.combo-group-node--slot-4,
+.combo-group-node--slot-5 {
+  width: 78px;
+  height: 100px;
+  margin-left: -14px;
+  z-index: 1;
 }
 
 /* Small circular 3D button — cart-row remove, sheet close */
@@ -154,7 +265,6 @@
 
 /* ── Group pills (subcategory switch) — uses the shared .chip ─ */
 .combo-size-row {
-  margin: 14px 0;
   position: relative;
   z-index: 999;
 }
@@ -162,13 +272,63 @@
 .combo-size-pills {
   display: flex;
   gap: 6px;
-  overflow: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   scrollbar-width: none;
 }
 
 .combo-size-pills::-webkit-scrollbar {
   display: none;
+}
+
+.combo-topbar .combo-size-pills {
+  flex: 1;
+}
+
+/* ── Section pills (Dishes / Desserts / Beverages) — now live
+   inline in the topbar next to the phase label, so they read as a
+   compact step indicator rather than a full pill row. Plain progress
+   indicator, not a button, so no hover/tap affordance. ── */
+.combo-topbar-section-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.combo-topbar-section-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.combo-topbar-section-pills .combo-section-pill {
+  padding: 6px 14px;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.combo-section-pill {
+  cursor: default;
+  opacity: 0.55;
+  transition: opacity 0.25s ease, background 0.25s ease, color 0.25s ease;
+}
+
+.combo-section-pill.active {
+  opacity: 1;
+}
+
+.combo-section-pill--done:not(.active) {
+  opacity: 0.8;
+}
+
+/* Done + upcoming pills are rendered disabled (only the active
+   pill stays live) — make that visually unambiguous and strip any
+   hover/tap affordance Button3D would otherwise add. */
+.combo-section-pill:disabled,
+.combo-section-pill[aria-disabled="true"] {
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(35%);
 }
 
 /* ── Swipeable reel (FoodList pattern) ───────────────────── */
@@ -177,6 +337,8 @@
   min-height: 200px;
   display: flex;
   align-items: center;
+  justify-content: space-between !important;
+  width: 100%;
   contain: layout;
   overflow: visible;
   touch-action: pan-x;
@@ -230,14 +392,62 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.4s ease;
+}
+
+/* Each phase's reel sits at its own horizontal position instead of
+   every section landing in the same spot — position nudges right
+   as you move through the admin-configured sections. Slots beyond
+   the first 3 reuse the last offset. */
+.combo-reel-images--slot-0 {
+  transform: translateX(-22%);
+}
+
+.combo-reel-images--slot-1 {
+  transform: translateX(-14%);
+}
+
+.combo-reel-images--slot-2 {
+  transform: translateX(-6%);
+}
+
+.combo-reel-images--slot-3,
+.combo-reel-images--slot-4,
+.combo-reel-images--slot-5 {
+  transform: translateX(-6%);
+}
+
+/* Up/down buttons that change the active dish, floating over the
+   right edge of the image column so they're reachable without
+   depending on the swipe gesture. */
+.combo-reel-nav {
+  position: absolute;
+  right: 36px;
+  bottom: 0px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  z-index: 30;
 }
 
 .combo-reel-image-wrapper {
   position: absolute;
-  width: 60%;
-  max-width: 460px;
+  width: 40%;
+  max-width: 300px;
   aspect-ratio: 1 / 1;
-  will-change: transform;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Two of the five reel wrappers exist only to keep the dish two
+   steps away pre-rendered (so its image is already loaded and
+   ready when it swipes into view) — they stay in the DOM but are
+   fully invisible and non-interactive. */
+.combo-reel-image-wrapper--hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .combo-reel-image {
@@ -508,6 +718,12 @@
   color: var(--text-tertiary);
 }
 
+.combo-cart-savings {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--color-green, #2e9e5b);
+}
+
 .combo-cart-total-row.final {
   font-size: 17px;
   font-weight: 800;
@@ -515,7 +731,7 @@
   margin-top: 6px;
   padding: 12px 14px;
   border-radius: 14px;
-  background: var(--color-red);
+  background: var(--color-green);
   box-shadow: 0 10px 24px rgba(217, 68, 45, 0.28);
 }
 
@@ -593,9 +809,20 @@
     width: 62%;
   }
 
+  .combo-reel-images--slot-0 {
+    transform: translateX(-16%);
+  }
+
+  .combo-reel-images--slot-1 {
+    transform: translateX(-10%);
+  }
+
+  .combo-reel-images--slot-2 {
+    transform: translateX(-4%);
+  }
+
   .combo-group-strip {
     max-width: 360px;
-    height: 120px;
   }
 }
 
@@ -611,8 +838,19 @@
     width: 58%;
   }
 
+  /* Below 768px, don't stagger starter/main/beverages horizontally —
+     keep the reel in one static, centered position for every phase. */
+  .combo-reel-images--slot-0,
+  .combo-reel-images--slot-1,
+  .combo-reel-images--slot-2,
+  .combo-reel-images--slot-3,
+  .combo-reel-images--slot-4,
+  .combo-reel-images--slot-5 {
+    transform: translateX(0);
+  }
+
   .combo-reel-image-wrapper {
-    max-width: 340px;
+    max-width: 220px;
   }
 }
 
@@ -640,26 +878,62 @@
     height: 300px;
   }
 
+  .combo-reel-images--slot-0,
+  .combo-reel-images--slot-1,
+  .combo-reel-images--slot-2,
+  .combo-reel-images--slot-3,
+  .combo-reel-images--slot-4,
+  .combo-reel-images--slot-5 {
+    transform: translateX(0);
+  }
+
   .combo-reel-image-wrapper {
-    max-width: 260px;
+    width: 300px;
+    height: 100%;
+  }
+
+  /* .combo-reel switches to column-reverse here (images render
+     above the text), so the nav's old bottom:0 anchor would land
+     it down by the text instead of the images — pin it to the
+     top of the stack (where the image block now sits) instead. */
+  .combo-reel-nav {
+    top: 16px;
+    bottom: auto;
+    right: 16px;
+    transform: none;
   }
 
   .combo-group-strip {
     max-width: 300px;
-    height: 170px;
+    align-items: center;
+    margin: 16px auto;
   }
 
-  .combo-group-node {
-    width: 76px;
+  .combo-group-strip-pricing {
+    justify-content: center;
   }
 
-  .combo-group-node-btn {
-    width: 64px;
-    height: 64px;
+  .combo-group-strip-photos {
+    justify-content: center;
+    width: 100%;
   }
 
   .combo-sheet-modal {
     max-width: 100%;
+  }
+
+  /* Topbar now carries phase label + section pills + actions —
+     let it wrap onto a second line on narrow phones instead of
+     squeezing everything into one cramped row. */
+  .combo-topbar {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+
+  .combo-topbar-section-pills {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: flex-start;
   }
 }
 
@@ -670,21 +944,37 @@
   }
 
   .combo-reel-image-wrapper {
-    max-width: 210px;
+    max-width: 140px;
   }
 
   .combo-group-strip {
     max-width: 100%;
-    height: 150px;
   }
 
-  .combo-group-node {
-    width: 66px;
+  .combo-group-strip-photos {
+    height: 85px;
   }
 
-  .combo-group-node-btn {
-    width: 56px;
-    height: 56px;
+  .combo-group-node--slot-0 {
+    width: 85px;
+    height: 85px;
+  }
+
+  .combo-group-node--slot-1 {
+    width: 70px;
+    height: 70px;
+  }
+
+  .combo-group-node--slot-2 {
+    width: 60px;
+    height: 78px;
+  }
+
+  .combo-group-node--slot-3,
+  .combo-group-node--slot-4,
+  .combo-group-node--slot-5 {
+    width: 60px;
+    height: 78px;
   }
 
   .combo-phase-label {
@@ -699,27 +989,13 @@
     padding: 44px 64px;
   }
 
-  .combo-reel {
-    max-width: 1100px;
-    margin: 0 auto;
-  }
-
   .combo-reel-desc {
     font-size: 15px;
     max-width: 380px;
   }
 
   .combo-reel-image-wrapper {
-    max-width: 520px;
-  }
-
-  .combo-group-node {
-    width: 108px;
-  }
-
-  .combo-group-node-btn {
-    width: 96px;
-    height: 96px;
+    max-width: 340px;
   }
 
   .combo-sheet-modal {
@@ -737,12 +1013,10 @@
   }
 
   .combo-group-strip {
-    height: 120px;
-    margin-bottom: 8px;
+    margin-top: 10px;
   }
 
-  .combo-group-node-btn {
-    width: 52px;
-    height: 52px;
+  .combo-group-strip-photos {
+    height: 80px;
   }
 }

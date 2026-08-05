@@ -58,6 +58,33 @@
   font-weight: 600;
   margin: 0;
   color: var(--color-red);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.fav-price .dish-price-original {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.fav-price .dish-price-offer-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--color-red);
+  color: var(--bg-main);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
 }
 
 .fav-description {
@@ -246,6 +273,15 @@
 
   .fav-price {
     font-size: 26px;
+  }
+
+  .fav-price .dish-price-original {
+    font-size: 14px;
+  }
+
+  .fav-price .dish-price-offer-badge {
+    font-size: 10px;
+    padding: 2px 8px;
   }
 }
 

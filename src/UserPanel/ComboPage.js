@@ -45,123 +45,179 @@ const listRow = {
   show: { opacity: 1, x: 0, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }
 };
 
-const REEL_SLOT_DIST = [-820, 0, 260, 430, 560];
+// Fixed 3-image diagonal cascade — active image centered and full
+// size, with the upcoming dish sitting above-right and the previous
+// dish below-left, both noticeably large (not just faint background
+// layers). Offsets/scale below are lifted directly from the approved
+// reference layout.
+const REEL_SLOTS = [
+  { x: -150, y: 300, scale: 0.4, rotate: 0, blur: 8, zIndex: 1 },   // previous (below-left)
+  { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },            // active (front, centered)
+  { x: 400, y: -100, scale: 0.5, rotate: 0, blur: 6, zIndex: 2 }     // next (above-right)
+];
 const REEL_SPRING = { type: "spring", stiffness: 90, damping: 22, mass: 1.2 };
+/* Faster crossfade for the name/price/description block specifically —
+   snappier than the image reel's swipe so text feels immediate. */
+const REEL_DETAILS_SPRING = { type: "spring", stiffness: 260, damping: 26, mass: 0.7 };
+
+/* Circular motion between slots — the three resting spots above
+   happen to sit on a common circle, so instead of tweening straight
+   between them, each transition is sampled along that circle's arc
+   (a real curved/circular path) rather than a straight line. */
+const circumcircleOf = (A, B, C) => {
+  const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+  const cx = ((A.x ** 2 + A.y ** 2) * (B.y - C.y) + (B.x ** 2 + B.y ** 2) * (C.y - A.y) + (C.x ** 2 + C.y ** 2) * (A.y - B.y)) / d;
+  const cy = ((A.x ** 2 + A.y ** 2) * (C.x - B.x) + (B.x ** 2 + B.y ** 2) * (A.x - C.x) + (C.x ** 2 + C.y ** 2) * (B.x - A.x)) / d;
+  return { cx, cy, r: Math.hypot(A.x - cx, A.y - cy) };
+};
+
+const REEL_CIRCLE = circumcircleOf(REEL_SLOTS[0], REEL_SLOTS[1], REEL_SLOTS[2]);
+const angleOfSlot = (p) => Math.atan2(p.y - REEL_CIRCLE.cy, p.x - REEL_CIRCLE.cx) * (180 / Math.PI);
+const posOnCircle = (deg) => {
+  const rad = (deg * Math.PI) / 180;
+  return { x: REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad), y: REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad) };
+};
+
+let REEL_ANGLE_PREV = angleOfSlot(REEL_SLOTS[0]);
+let REEL_ANGLE_ACTIVE = angleOfSlot(REEL_SLOTS[1]);
+let REEL_ANGLE_NEXT = angleOfSlot(REEL_SLOTS[2]);
+while (REEL_ANGLE_ACTIVE < REEL_ANGLE_PREV) REEL_ANGLE_ACTIVE += 360;
+while (REEL_ANGLE_NEXT < REEL_ANGLE_ACTIVE) REEL_ANGLE_NEXT += 360;
+
+// The two off-display wrappers keep going around the SAME circle,
+// one step further out each side — so they sit outside the visible
+// display but still on the circular path, ready to sweep smoothly
+// into view instead of just fading in from a fixed, unrelated spot.
+const REEL_ANGLE_FAR_PREV = REEL_ANGLE_PREV - (REEL_ANGLE_ACTIVE - REEL_ANGLE_PREV);
+const REEL_ANGLE_FAR_NEXT = REEL_ANGLE_NEXT + (REEL_ANGLE_NEXT - REEL_ANGLE_ACTIVE);
+const REEL_FAR_PREV_POS = posOnCircle(REEL_ANGLE_FAR_PREV);
+const REEL_FAR_NEXT_POS = posOnCircle(REEL_ANGLE_FAR_NEXT);
+
+// All 5 wrapper roles, in circle order: far-prev, prev, active, next,
+// far-next. Only the middle 3 are ever opaque/interactive; the outer
+// two exist purely so their dish is pre-loaded and already sitting in
+// its correct circular spot the moment it needs to sweep into view.
+const REEL_SLOTS_5 = [
+  { x: REEL_FAR_PREV_POS.x, y: REEL_FAR_PREV_POS.y, scale: REEL_SLOTS[0].scale * 0.75, rotate: 0, blur: REEL_SLOTS[0].blur + 4, zIndex: 0, opacity: 0 },
+  { ...REEL_SLOTS[0], opacity: 1 },
+  { ...REEL_SLOTS[1], opacity: 1 },
+  { ...REEL_SLOTS[2], opacity: 1 },
+  { x: REEL_FAR_NEXT_POS.x, y: REEL_FAR_NEXT_POS.y, scale: REEL_SLOTS[2].scale * 0.75, rotate: 0, blur: REEL_SLOTS[2].blur + 4, zIndex: 0, opacity: 0 }
+];
+const REEL_ANGLES_5 = [REEL_ANGLE_FAR_PREV, REEL_ANGLE_PREV, REEL_ANGLE_ACTIVE, REEL_ANGLE_NEXT, REEL_ANGLE_FAR_NEXT];
+
+const ARC_STEPS = 32;
+const arcPath = (fromDeg, toDeg) => {
+  const x = [], y = [];
+  for (let i = 0; i <= ARC_STEPS; i++) {
+    const deg = fromDeg + (toDeg - fromDeg) * (i / ARC_STEPS);
+    const rad = (deg * Math.PI) / 180;
+    x.push(REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad));
+    y.push(REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad));
+  }
+  return { x, y };
+};
+
+// A hand-off happens between every adjacent pair of the 5 circle
+// positions (not just the visible 3) — e.g. on "next", the item
+// sitting off-display in the far-next spot sweeps in to become the
+// new next dish. Built once as curved paths along REEL_CIRCLE.
+const REEL_ARCS = {};
+for (let i = 0; i < REEL_ANGLES_5.length - 1; i++) {
+  REEL_ARCS[`${i + 1}-${i}`] = arcPath(REEL_ANGLES_5[i + 1], REEL_ANGLES_5[i]);
+  REEL_ARCS[`${i}-${i + 1}`] = arcPath(REEL_ANGLES_5[i], REEL_ANGLES_5[i + 1]);
+}
+const REEL_ARC_TWEEN = { duration: 0.55, ease: [0.65, 0, 0.35, 1] };
 
 /* ─── Helpers ─────────────────────────────────────────────── */
-const getOfferHint = (starter, main, rules = []) => {
-  if (starter && !main) {
-    const rule = rules.find(r => r.condition.starter === starter.name);
-    if (rule) return { message: `Add "${rule.condition.main}" to unlock ${rule.label}`, targetType: "main", targetName: rule.condition.main };
-  }
-  if (!starter && main) {
-    const rule = rules.find(r => r.condition.main === main.name);
-    if (rule) return { message: `Add "${rule.condition.starter}" to unlock ${rule.label}`, targetType: "starter", targetName: rule.condition.starter };
-  }
-  return null;
+/* SLOT_LABELS / ANGLES are now derived at runtime from
+   comboSectionConfig.sections (see buildSlotMeta below) instead of
+   being hardcoded to starter/main/drink. */
+const SLOT_ANGLE_CYCLE = [90, 45, 135, 60, 120];
+const buildSlotMeta = (sections) => {
+  const labels = {};
+  const angles = {};
+  sections.forEach((s, i) => {
+    labels[s.key] = s.label;
+    angles[s.key] = SLOT_ANGLE_CYCLE[i % SLOT_ANGLE_CYCLE.length];
+  });
+  return { labels, angles };
 };
 
-const SLOT_LABELS = { starter: "Starter", main: "Main", drink: "Drink" };
-const SLOT_ICONS = { starter: "🥗", main: "🍛", drink: "🥤" };
+/* Fixed slot lookup for the reel — see REEL_SLOTS above. */
+const reelSlotTransform = (slot) => REEL_SLOTS_5[slot];
 
-/* ─── Grouping geometry (compact progress strip) ─────────────
-   Starter docks straight up (90°) from the base, main course
-   docks at 45° from the starter, beverage docks at 135° from
-   the main — same angles as the approved prototype, just drawn
-   small now since the reel below does the heavy lifting.
-──────────────────────────────────────────────────────────── */
-const ANGLES = { starter: 90, main: 45, drink: 135 };
-const BASE_ANCHOR = { x: 16, y: 82 };
-const STEP = 26;
-
-const dirFor = (deg) => {
-  const r = (deg * Math.PI) / 180;
-  return { dx: Math.cos(r), dy: -Math.sin(r) };
-};
-
-const slotFor = (anchor, angle, i) => {
-  const d = dirFor(angle);
-  return { x: anchor.x + d.dx * STEP * (i + 1), y: anchor.y + d.dy * STEP * (i + 1) };
-};
-
-const buildAnchors = (selectedItems) => {
-  const anchors = [BASE_ANCHOR];
-  if (selectedItems.starter) anchors.push(slotFor(anchors[0], ANGLES.starter, 0));
-  if (selectedItems.main) anchors.push(slotFor(anchors[1], ANGLES.main, 0));
-  if (selectedItems.drink) anchors.push(slotFor(anchors[2], ANGLES.drink, 0));
-  return anchors;
-};
-
-/* Reel recede direction — same dirFor() the grouping strip uses,
-   just applied to the browsing stack itself so the "one by one,
-   behind, at Xdeg" motion is visible while picking, not only after. */
-const reelSlotTransform = (slot, angleDeg) => {
-  const d = dirFor(angleDeg);
-  const dist = REEL_SLOT_DIST[slot];
-  return { x: d.dx * dist, y: d.dy * dist };
-};
-
-const GroupNode = ({ item, anchor, onClick }) => (
-  <motion.div
-    className="combo-group-node"
-    style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+const GroupNode = ({ item, type, slotIndex, onClick }) => (
+  <motion.button
+    className={`combo-group-node combo-group-node--slot-${slotIndex}`}
     layout
-    initial={{ opacity: 0, scale: 0.4, y: 10 }}
+    initial={{ opacity: 0, scale: 0.5, y: 10 }}
     animate={{ opacity: 1, scale: 1, y: 0 }}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.95 }}
     transition={{ type: "spring", stiffness: 220, damping: 26 }}
+    onClick={onClick}
+    aria-label={`Change ${item.name}`}
   >
-    <button
-      as={motion.button}
-      className="btn-3d white combo-group-node-btn"
-      onClick={onClick}
-      whileHover={{ scale: 1.04 }}
-      whileTap={{ scale: 0.92 }}
-      aria-label={`Change ${item.name}`}
-    >
-      <span className="combo-group-node-img">
-        <img src={item.image} alt="" draggable={false} />
-      </span>
-    </button>
-  </motion.div>
+    <motion.img
+      layoutId={`combo-fly-${type}`}
+      src={item.image}
+      alt={item.name}
+      draggable={false}
+      transition={{ type: "spring", stiffness: 140, damping: 20 }}
+    />
+  </motion.button>
 );
 
 /* ─── FoodList-style swipeable reel for the active phase ─────── */
-const ComboReel = ({ items, angle, onSelect }) => {
+const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
   const [renderIndex, setRenderIndex] = useState(0);
+  const [direction, setDirection] = useState(null); // 'next' | 'prev' | null
   const startX = useRef(0);
   const startY = useRef(0);
   const isPointerDown = useRef(false);
 
-  useEffect(() => { setRenderIndex(0); }, [items]);
+  useEffect(() => { setRenderIndex(0); setDirection(null); }, [items]);
 
   if (!items.length) {
     return <div className="combo-reel-empty">Nothing here yet — check back soon.</div>;
   }
 
+  // 5 slots total: [farPrev, prev, active, next, farNext]. Only the
+  // middle 3 (prev/active/next) are ever visible — farPrev/farNext
+  // stay in the DOM purely so their dish's image is already loaded
+  // by the time it swipes into view, avoiding a pop-in flash.
+  const n = items.length;
   const visible = [
-    items[(renderIndex - 1 + items.length) % items.length],
+    items[(renderIndex - 2 + n * 2) % n],
+    items[(renderIndex - 1 + n) % n],
     items[renderIndex],
-    items[(renderIndex + 1) % items.length],
-    items[(renderIndex + 2) % items.length],
-    items[(renderIndex + 3) % items.length]
+    items[(renderIndex + 1) % n],
+    items[(renderIndex + 2) % n]
   ];
 
-  const goNext = () => setRenderIndex(i => (i + 1) % items.length);
-  const goPrev = () => setRenderIndex(i => (i - 1 + items.length) % items.length);
-  const active = visible[1];
+  const goNext = () => {
+    setDirection("next");
+    setRenderIndex(i => (i + 1) % items.length);
+  };
+  const goPrev = () => {
+    setDirection("prev");
+    setRenderIndex(i => (i - 1 + items.length) % items.length);
+  };
+  const active = visible[2];
 
   return (
     <div
       className="combo-reel"
       onPointerDown={(e) => {
-        if (e.target.closest("button")) return;
+        if (n === 1 || e.target.closest("button")) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         startX.current = e.clientX;
         startY.current = e.clientY;
         isPointerDown.current = true;
       }}
       onPointerUp={(e) => {
-        if (!isPointerDown.current) return;
+        if (n === 1 || !isPointerDown.current) return;
         isPointerDown.current = false;
         const dy = startY.current - e.clientY;
         const dx = Math.abs(startX.current - e.clientX);
@@ -181,7 +237,8 @@ const ComboReel = ({ items, angle, onSelect }) => {
             initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
-            transition={REEL_SPRING}
+            transition={REEL_DETAILS_SPRING}
+            style={{ height: "150px" }}
           >
             <h2 className="combo-reel-name">{active.name}</h2>
             <div className="combo-reel-price">₹{active.price ?? active.basePrice ?? 0}</div>
@@ -194,28 +251,59 @@ const ComboReel = ({ items, angle, onSelect }) => {
         </Button3D>
       </div>
 
-      <div className="combo-reel-images">
+      <div className={`combo-reel-images combo-reel-images--slot-${slotIndex}`}>
         {visible.map((item, slot) => {
-          const t = reelSlotTransform(slot, angle);
+          // slot maps 1:1 onto the 5 circle roles: 0=far-prev,
+          // 1=prev, 2=active, 3=next, 4=far-next. The two edges stay
+          // fully off-display (opacity 0, non-interactive) but sit
+          // in their real circular position, so when an item's role
+          // shifts into view it sweeps in along the arc instead of
+          // just fading in from nowhere.
+          const isActive = slot === 2;
+
+          // With only one item, every "role" resolves to that same
+          // dish (n === 1 modulo wraps every index to 0) — rendering
+          // all 5 would visibly duplicate the single image on either
+          // side of center. Skip every non-active role in that case.
+          if (n === 1 && !isActive) return null;
+
+          const t = reelSlotTransform(slot);
+          const isEdge = slot === 0 || slot === 4;
+
+          // Which arc this slot is sweeping along right now — every
+          // adjacent pair of the 5 circle roles hands off on each
+          // nav action, including the two off-display ones.
+          const arcKey =
+            direction === "next" ? (slot < 4 ? `${slot + 1}-${slot}` : null)
+              : direction === "prev" ? (slot > 0 ? `${slot - 1}-${slot}` : null)
+                : null;
+          const arc = arcKey ? REEL_ARCS[arcKey] : null;
+
           return (
             <motion.div
-              key={item.id}
-              className="combo-reel-image-wrapper"
-              initial={{ x: t.x, y: t.y, scale: slot === 1 ? 0.9 : slot === 2 ? 0.6 : slot === 3 ? 0.35 : 0.28, opacity: 0 }}
+              key={`${item.id}-slot-${slot}`}
+              className={`combo-reel-image-wrapper${isEdge ? " combo-reel-image-wrapper--hidden" : ""}`}
+              aria-hidden={isEdge ? "true" : undefined}
+              initial={{ x: t.x, y: t.y, rotate: t.rotate, scale: t.scale * 0.9, opacity: 0 }}
               animate={{
-                x: t.x,
-                y: t.y,
-                scale: slot === 1 ? 1 : slot === 2 ? 0.7 : slot === 3 ? 0.4 : 0.3,
-                zIndex: slot === 1 ? 3 : slot === 2 ? 2 : slot === 3 ? 1 : 0,
-                opacity: 1
+                x: arc ? arc.x : t.x,
+                y: arc ? arc.y : t.y,
+                rotate: t.rotate,
+                scale: t.scale,
+                zIndex: t.zIndex,
+                opacity: t.opacity
               }}
-              transition={REEL_SPRING}
+              transition={arc ? REEL_ARC_TWEEN : REEL_SPRING}
+              onAnimationComplete={() => {
+                if (isActive && direction) setDirection(null);
+              }}
             >
               <motion.img
                 src={item.image}
                 alt={item.name}
                 className="combo-reel-image"
-                animate={{ filter: slot === 1 ? "blur(0px)" : slot === 2 ? "blur(6px)" : slot === 3 ? "blur(10px)" : "blur(14px)" }}
+                layoutId={isActive ? `combo-fly-${type}` : undefined}
+                animate={{ filter: `blur(${t.blur}px)` }}
                 transition={REEL_SPRING}
                 draggable={false}
               />
@@ -223,6 +311,13 @@ const ComboReel = ({ items, angle, onSelect }) => {
           );
         })}
       </div>
+
+      {n > 1 && (
+        <div className="combo-reel-nav">
+          <Button3D className="btn-3d white" onClick={goPrev} aria-label="Previous dish">▲</Button3D>
+          <Button3D className="btn-3d white" onClick={goNext} aria-label="Next dish">▼</Button3D>
+        </div>
+      )}
     </div>
   );
 };
@@ -230,21 +325,22 @@ const ComboReel = ({ items, angle, onSelect }) => {
 /* ─── Cart / "My Combo" list content (clone of "My Order") ──── */
 const MyComboContent = ({
   selectedItems,
+  slotLabels,
   quantity,
   setQuantity,
-  appliedOffer,
   originalTotal,
   discountedPrice,
   savings,
+  matchedOffer,
   isComboComplete,
   onDelete
 }) => (
   <div className="combo-cart-content">
     <motion.div className="combo-cart-list" variants={listStagger} initial="hidden" animate="show">
       <AnimatePresence initial={false}>
-        {Object.keys(SLOT_LABELS).map(key => {
+        {Object.keys(slotLabels).map(key => {
           const item = selectedItems[key];
-          const label = SLOT_LABELS[key];
+          const label = slotLabels[key];
           return (
             <motion.div
               key={key}
@@ -255,7 +351,6 @@ const MyComboContent = ({
               exit={{ opacity: 0, x: -14, transition: { duration: 0.18 } }}
               className={`combo-cart-row ${item ? "filled" : "empty"}`}
             >
-              <div className="combo-cart-row-icon" aria-hidden="true">{SLOT_ICONS[key]}</div>
               <div className="combo-cart-row-text">
                 <span className="combo-cart-row-label">{label}</span>
                 <span className="combo-cart-row-name">{item ? item.name : "Not selected"}</span>
@@ -265,10 +360,11 @@ const MyComboContent = ({
                   <span className="combo-cart-row-price">₹{item.price ?? item.basePrice ?? 0}</span>
                   <Button3D
                     as={motion.button}
-                    className="home-btn home-btn-icon"
+                    className="btn-3d white"
                     onClick={() => onDelete(key)}
                     aria-label={`Remove ${label}`}
                     whileTap={{ scale: 0.8 }}
+                    frontClassName="close-padding"
                   >
                     <img style={{ width: "14px", height: "14px" }} src={closeIcon} alt="Remove" />
                   </Button3D>
@@ -317,9 +413,9 @@ const MyComboContent = ({
             <span>Subtotal</span>
             <span>₹{originalTotal}</span>
           </div>
-          {appliedOffer && (
-            <div className="combo-cart-total-row muted">
-              <span>{appliedOffer.label}</span>
+          {matchedOffer && savings > 0 && (
+            <div className="combo-cart-total-row combo-cart-savings">
+              <span>{matchedOffer.label || "Offer applied"}</span>
               <span>−₹{savings}</span>
             </div>
           )}
@@ -392,34 +488,90 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   const editQuantity = location.state?.quantity;
   const editIndex = location.state?.bagIndex;
 
-  /* ── Offer rules (fetched from db, kept live via socket) ── */
-  const [comboOfferRules, setComboOfferRules] = useState([]);
+  /* ── Section config (Dishes/Desserts/Beverages etc., configured
+     via Manage Categories in the admin Combo Offers page) — fetched
+     live, never hardcoded. Each section's categoryIds is matched
+     against foodData.categories, and only dishes flagged
+     eventField === "yes" are included. ── */
+  const [sectionConfig, setSectionConfig] = useState({ sections: [] });
+
+  /* ── Admin-configured discount rules (Manage → Combo Offers tab).
+     Each offer's `condition` maps section key → exact dish name (plus
+     that dish's price at save-time, used only as a display fallback).
+     Fetched + kept live the same way as sectionConfig, so an admin
+     adding/editing/deleting an offer reflects here without a reload. ── */
+  const [comboOffers, setComboOffers] = useState([]);
+
   useEffect(() => {
-    const fetchComboOfferRules = () => {
-      api.get("/combo_offers")
-        .then(res => setComboOfferRules(res.data || []))
-        .catch(() => setComboOfferRules([]));
+    const fetchSectionConfig = () => {
+      api.get("/comboSectionConfig")
+        .then(res => setSectionConfig(res.data || { sections: [] }))
+        .catch(() => setSectionConfig({ sections: [] }));
     };
-    fetchComboOfferRules();
+    const fetchComboOffers = () => {
+      api.get("/combo_offers")
+        .then(res => setComboOffers(Array.isArray(res.data) ? res.data : []))
+        .catch(() => setComboOffers([]));
+    };
+    fetchSectionConfig();
+    fetchComboOffers();
     const handler = ({ resource }) => {
-      if (resource === "combo_offers") fetchComboOfferRules();
+      if (resource === "comboSectionConfig") fetchSectionConfig();
+      if (resource === "combo_offers") fetchComboOffers();
     };
     socket.on("data-change", handler);
-    return () => socket.off("data-change", handler);
+    socket.on("combo-update", handler);
+    return () => {
+      socket.off("data-change", handler);
+      socket.off("combo-update", handler);
+    };
   }, []);
 
-  /* ── Data ── */
-  const combo = useMemo(() => (Array.isArray(foodData?.combo) ? foodData.combo : []), [foodData]);
+  const configSections = useMemo(() => sectionConfig.sections || [], [sectionConfig]);
+  const { labels: slotLabels, angles: slotAngles } = useMemo(() => buildSlotMeta(configSections), [configSections]);
 
-  const startersSection = useMemo(() => combo.find(c => c.type === "starters") || { groups: [] }, [combo]);
-  const mainSection = useMemo(() => combo.find(c => c.type === "mainCourse") || { groups: [] }, [combo]);
-  const beveragesSection = useMemo(() => combo.find(c => c.type === "beverages") || { groups: [] }, [combo]);
+  /* ── Data: build one "section" per configured slot, each holding
+     its matched categories (e.g. Dishes → Pizza/Burger/Sandwich),
+     and within each category its subCategory groups (e.g.
+     Beverages → Cold Coffee/Iced Tea/...). Items are restricted to
+     eventField === "yes" dishes only. ── */
+  const categories = useMemo(() => (Array.isArray(foodData?.categories) ? foodData.categories : []), [foodData]);
+
+  const sections = useMemo(() => {
+    return configSections.map(cfg => {
+      const matchedCats = categories.filter(c => (cfg.categoryIds || []).includes(c.id));
+      const sectionCategories = matchedCats.map(cat => {
+        let groups;
+        if (Array.isArray(cat.subCategories) && cat.subCategories.length) {
+          groups = cat.subCategories
+            .map(sub => ({
+              id: `${cat.id}__${sub.id}`,
+              title: sub.name,
+              items: (sub.dishes || []).filter(d => d.eventField === "yes")
+            }))
+            .filter(g => g.items.length);
+        } else {
+          const items = (cat.dishes || []).filter(d => d.eventField === "yes");
+          groups = items.length ? [{ id: `${cat.id}__all`, title: cat.name, items }] : [];
+        }
+        return { id: cat.id, title: cat.name, groups };
+      }).filter(c => c.groups.length);
+
+      // Flat list of every group across every category in this
+      // section — used as the fallback "all groups" view when no
+      // category has been chosen yet, and for backward-compat call
+      // sites that just want groups regardless of category.
+      const groups = sectionCategories.flatMap(c => c.groups);
+
+      return { key: cfg.key, label: cfg.label, categories: sectionCategories, groups };
+    });
+  }, [configSections, categories]);
+
+  const sectionByKey = useCallback((key) => sections.find(s => s.key === key) || { groups: [], categories: [] }, [sections]);
 
   /* ── State ── */
-  const [activeStarterGroup, setActiveStarterGroup] = useState(() => startersSection.groups?.[0]?.id || null);
-  const [activeMainGroup, setActiveMainGroup] = useState(null);
-  const [activeDrinkGroup, setActiveDrinkGroup] = useState(null);
-  const [offerHint, setOfferHint] = useState(null);
+  const [activeCategoryBySection, setActiveCategoryBySection] = useState({});
+  const [activeGroupBySection, setActiveGroupBySection] = useState({});
   const [showAddFavConfirm, setShowAddFavConfirm] = useState(false);
   const [showDuplicateOverlay, setShowDuplicateOverlay] = useState(false);
   const [isSavingFav, setIsSavingFav] = useState(false);
@@ -429,102 +581,236 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
 
   const [selectedItems, setSelectedItems] = useState(() => {
     if (location.state?.comboItems) return location.state.comboItems;
-    return { starter: null, main: null, drink: null };
+    return {};
   });
 
-  /* ── Find item by name ── */
-  const findComboItemByName = useCallback((type, name) => {
-    const section = type === "starter" ? startersSection : type === "main" ? mainSection : beveragesSection;
-    for (const group of (section.groups || [])) {
-      const found = (group.items || []).find(i => i.name === name);
-      if (found) return found;
-    }
-    return null;
-  }, [startersSection, mainSection, beveragesSection]);
-
+  /* ── Keep selectedItems keyed to whatever sections are currently
+     configured (drop stale keys if the admin removes a section,
+     add fresh empty slots for newly added ones). ── */
   useEffect(() => {
-    const offer = location.state?.comboOffer;
-    if (!offer?.condition) return;
+    setSelectedItems(prev => {
+      const next = {};
+      let changed = false;
+      for (const s of sections) {
+        next[s.key] = prev[s.key] || null;
+        if (prev[s.key] !== next[s.key]) changed = true;
+      }
+      if (Object.keys(prev).length !== Object.keys(next).length) changed = true;
+      return changed ? next : prev;
+    });
+  }, [sections]);
 
-    const { starter: starterName, main: mainName } = offer.condition;
-    let resolved = { starter: null, main: null, drink: null };
+  const getActiveCategory = useCallback((key) => {
+    const section = sectionByKey(key);
+    return activeCategoryBySection[key] || section.categories?.[0]?.id || null;
+  }, [activeCategoryBySection, sectionByKey]);
 
-    if (starterName) {
-      const item = findComboItemByName("starter", starterName);
-      if (item) resolved.starter = item;
-    }
-    if (mainName) {
-      const item = findComboItemByName("main", mainName);
-      if (item) resolved.main = item;
-    }
+  const setActiveCategory = useCallback((key, categoryId) => {
+    setActiveCategoryBySection(prev => ({ ...prev, [key]: categoryId }));
+    // Switching category resets the subcategory pick to that
+    // category's first group, so the two tiers never mismatch.
+    setActiveGroupBySection(prev => {
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }, []);
 
-    if (resolved.starter || resolved.main) {
-      setSelectedItems(resolved);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [findComboItemByName]);
+  const getActiveCategoryObj = useCallback((key) => {
+    const section = sectionByKey(key);
+    const catId = getActiveCategory(key);
+    return (section.categories || []).find(c => c.id === catId) || { groups: [] };
+  }, [sectionByKey, getActiveCategory]);
 
-  const appliedOffer = useMemo(() => {
-    const sName = selectedItems.starter?.name;
-    const mName = selectedItems.main?.name;
-    if (!sName || !mName) return null;
-    return comboOfferRules.find(r => r.condition.starter === sName && r.condition.main === mName) || null;
-  }, [selectedItems.starter?.name, selectedItems.main?.name, comboOfferRules]);
+  const getActiveGroup = useCallback((key) => {
+    const catObj = getActiveCategoryObj(key);
+    return activeGroupBySection[key] || catObj.groups?.[0]?.id || null;
+  }, [activeGroupBySection, getActiveCategoryObj]);
 
-  useEffect(() => {
-    const hint = getOfferHint(selectedItems.starter, selectedItems.main, comboOfferRules);
-    setOfferHint(hint);
-  }, [selectedItems.starter?.name, selectedItems.main?.name, comboOfferRules]);
+  const setActiveGroup = useCallback((key, groupId) => {
+    setActiveGroupBySection(prev => ({ ...prev, [key]: groupId }));
+  }, []);
 
   const perComboBasePrice = useMemo(() => (
     Object.values(selectedItems).filter(Boolean).reduce((s, i) => s + Number(i.price ?? i.basePrice ?? 0), 0)
   ), [selectedItems]);
 
+  /* ── Match the current selection against admin-configured combo
+     offers. An offer's `condition` only lists the section keys it
+     cares about (e.g. an offer might only require dishes+beverages,
+     ignoring desserts) — so a match requires every key present in
+     the offer's condition to have a currently-selected dish with the
+     exact same name; any selected sections the offer doesn't mention
+     are simply irrelevant to it. Ties (more than one matching offer)
+     go to whichever gives the customer the bigger discount. ── */
+  const matchedOffer = useMemo(() => {
+    if (!comboOffers.length) return null;
+
+    const conditionKeys = (offer) =>
+      Object.keys(offer.condition || {}).filter(k => !k.endsWith("Price"));
+
+    const isMatch = (offer) => {
+      const keys = conditionKeys(offer);
+      if (!keys.length) return false;
+      return keys.every(k => {
+        const picked = selectedItems[k];
+        return picked && picked.name === offer.condition[k];
+      });
+    };
+
+    const calcFinal = (base, type, value) => {
+      if (type === "PERCENT") return Math.max(0, base - (base * value) / 100);
+      if (type === "FLAT") return Math.max(0, base - value);
+      return base;
+    };
+
+    let best = null;
+    let bestFinal = perComboBasePrice;
+    for (const offer of comboOffers) {
+      if (!isMatch(offer)) continue;
+      const final = calcFinal(perComboBasePrice, offer.type, Number(offer.value) || 0);
+      if (!best || final < bestFinal) {
+        best = offer;
+        bestFinal = final;
+      }
+    }
+    return best;
+  }, [comboOffers, selectedItems, perComboBasePrice]);
+
   const perComboFinalPrice = useMemo(() => {
-    if (!appliedOffer) return perComboBasePrice;
-    if (appliedOffer.type === "FLAT") return Math.max(perComboBasePrice - appliedOffer.value, 0);
-    if (appliedOffer.type === "PERCENT") return Math.round(perComboBasePrice * (1 - appliedOffer.value / 100));
+    if (!matchedOffer) return perComboBasePrice;
+    const value = Number(matchedOffer.value) || 0;
+    if (matchedOffer.type === "PERCENT") return Math.max(0, perComboBasePrice - (perComboBasePrice * value) / 100);
+    if (matchedOffer.type === "FLAT") return Math.max(0, perComboBasePrice - value);
     return perComboBasePrice;
-  }, [perComboBasePrice, appliedOffer]);
+  }, [matchedOffer, perComboBasePrice]);
 
   const originalTotal = perComboBasePrice * quantity;
   const discountedPrice = perComboFinalPrice * quantity;
   const savings = originalTotal - discountedPrice;
 
-  const isComboComplete = !!(selectedItems.starter && selectedItems.main && selectedItems.drink);
-  const selectedCount = [selectedItems.starter, selectedItems.main, selectedItems.drink].filter(Boolean).length;
+  const sectionKeys = useMemo(() => sections.map(s => s.key), [sections]);
+  const isComboComplete = sectionKeys.length > 0 && sectionKeys.every(k => !!selectedItems[k]);
+  const selectedCount = sectionKeys.filter(k => !!selectedItems[k]).length;
+
+  /* ── Offer hint (suggestion modal) — ported from the earlier
+     starter/main/drink build, generalised to work over however many
+     dynamic sections are configured today.
+
+     Fires only when exactly one section is filled: at that point we
+     look for any offer whose condition includes the picked dish under
+     the matching section key, then suggest whichever *other* dish that
+     same offer requires — provided it can actually be found in that
+     other section's current menu (categories can change, so a name
+     saved on the offer might no longer resolve to a real item). ── */
+  const findComboItemByName = useCallback((sectionKey, name) => {
+    const section = sectionByKey(sectionKey);
+    for (const group of (section.groups || [])) {
+      const found = (group.items || []).find(i => i.name === name);
+      if (found) return found;
+    }
+    return null;
+  }, [sectionByKey]);
+
+  const getOfferHint = useCallback(() => {
+    if (selectedCount !== 1 || !comboOffers.length) return null;
+
+    const filledKey = sectionKeys.find(k => selectedItems[k]);
+    if (!filledKey) return null;
+    const filledItem = selectedItems[filledKey];
+
+    for (const offer of comboOffers) {
+      const condition = offer.condition || {};
+      if (condition[filledKey] !== filledItem.name) continue;
+
+      // Find the first other section key this offer also requires,
+      // that isn't filled yet — that's what we suggest adding next.
+      const targetKey = sectionKeys.find(k =>
+        k !== filledKey && condition[k] && !selectedItems[k]
+      );
+      if (!targetKey) continue;
+
+      const targetName = condition[targetKey];
+      const targetItem = findComboItemByName(targetKey, targetName);
+      if (!targetItem) continue; // offer references a dish no longer in that section
+
+      return {
+        message: `Add "${targetName}" to unlock ${offer.label}`,
+        targetKey,
+        targetItem,
+      };
+    }
+    return null;
+  }, [selectedCount, comboOffers, sectionKeys, selectedItems, findComboItemByName]);
+
+  const [offerHint, setOfferHint] = useState(null);
+  useEffect(() => {
+    setOfferHint(getOfferHint());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCount, JSON.stringify(Object.fromEntries(sectionKeys.map(k => [k, selectedItems[k]?.name || null]))), comboOffers]);
 
   const comboTitle = useMemo(() => {
     if (!isComboComplete) return "";
-    return [selectedItems.starter.name, selectedItems.main.name, selectedItems.drink.name].join(" + ");
-  }, [selectedItems, isComboComplete]);
+    return sectionKeys.map(k => selectedItems[k].name).join(" + ");
+  }, [selectedItems, isComboComplete, sectionKeys]);
 
-  const phase = !selectedItems.starter ? "starters" : !selectedItems.main ? "mainCourse" : !selectedItems.drink ? "beverages" : "done";
-  const phaseTypeKey = phase === "starters" ? "starter" : phase === "mainCourse" ? "main" : phase === "beverages" ? "drink" : null;
+  const phase = sectionKeys.find(k => !selectedItems[k]) || (sectionKeys.length ? "done" : null);
+  const phaseTypeKey = phase && phase !== "done" ? phase : null;
 
   const handlePick = useCallback((type, item) => {
-    setSelectedItems(prev => ({ ...prev, [type]: item }));
-    if (type === "starter") setActiveMainGroup(null);
-    else if (type === "main") setActiveDrinkGroup(null);
-  }, []);
+    setSelectedItems(prev => {
+      const idx = sectionKeys.indexOf(type);
+      const next = { ...prev, [type]: item };
+      // Picking a slot resets any later slots (matches prior undo cascade behaviour).
+      sectionKeys.slice(idx + 1).forEach(k => { next[k] = null; });
+      return next;
+    });
+    setActiveGroupBySection(prev => {
+      const idx = sectionKeys.indexOf(type);
+      const next = { ...prev };
+      sectionKeys.slice(idx + 1).forEach(k => { delete next[k]; });
+      return next;
+    });
+    setActiveCategoryBySection(prev => {
+      const idx = sectionKeys.indexOf(type);
+      const next = { ...prev };
+      sectionKeys.slice(idx + 1).forEach(k => { delete next[k]; });
+      return next;
+    });
+  }, [sectionKeys]);
 
-  /* ── Open "My Combo" sheet automatically once the last item
-     (drink) completes the combo, instead of waiting for the
-     cart icon tap. Only fires on the false → true transition,
-     so manually closing the sheet afterwards won't reopen it. ── */
+  /* ── Open "My Combo" sheet automatically once the last section
+     completes the combo, instead of waiting for the cart icon tap.
+     Only fires on the false → true transition, so manually closing
+     the sheet afterwards won't reopen it. ── */
   useEffect(() => {
     if (isComboComplete) setShowCart(true);
   }, [isComboComplete]);
 
   const handleUndo = useCallback((type) => {
+    const idx = sectionKeys.indexOf(type);
     setSelectedItems(prev => {
-      if (type === "starter") return { starter: null, main: null, drink: null };
-      if (type === "main") return { ...prev, main: null, drink: null };
-      return { ...prev, drink: null };
+      const next = { ...prev };
+      sectionKeys.slice(idx).forEach(k => { next[k] = null; });
+      return next;
     });
-    if (type === "starter") { setActiveMainGroup(null); setActiveDrinkGroup(null); }
-    else if (type === "main") setActiveDrinkGroup(null);
-  }, []);
+    setActiveGroupBySection(prev => {
+      const next = { ...prev };
+      sectionKeys.slice(idx).forEach(k => { delete next[k]; });
+      return next;
+    });
+    setActiveCategoryBySection(prev => {
+      const next = { ...prev };
+      sectionKeys.slice(idx).forEach(k => { delete next[k]; });
+      return next;
+    });
+  }, [sectionKeys]);
+
+  const handleHintAdd = useCallback(() => {
+    if (!offerHint) return;
+    handlePick(offerHint.targetKey, offerHint.targetItem);
+    setOfferHint(null);
+  }, [offerHint, handlePick]);
 
   const handleAddToBag = useCallback(() => {
     const comboItem = {
@@ -537,14 +823,13 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
       perComboFinalPrice,
       totalPrice: perComboFinalPrice * quantity,
       originalPrice: originalTotal,
-      appliedOffer,
       comboItems: selectedItems,
       isCombo: true
     };
     if (isEditMode) updateBagItem(editIndex, comboItem);
     else addToBag(comboItem);
     setJustAdded(true);
-  }, [comboTitle, quantity, perComboFinalPrice, perComboBasePrice, originalTotal, appliedOffer, selectedItems, isEditMode, editIndex, addToBag, updateBagItem]);
+  }, [comboTitle, quantity, perComboFinalPrice, perComboBasePrice, originalTotal, selectedItems, isEditMode, editIndex, addToBag, updateBagItem]);
 
   const handleCloseConfirmation = useCallback(() => {
     setJustAdded(false);
@@ -557,34 +842,27 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
     handleHome?.();
   }, [handleCloseConfirmation, handleHome]);
 
-  const handleHintAdd = useCallback(() => {
-    if (!offerHint) return;
-    const item = findComboItemByName(offerHint.targetType, offerHint.targetName);
-    if (item) handlePick(offerHint.targetType, item);
-    setOfferHint(null);
-  }, [offerHint, findComboItemByName, handlePick]);
-
   const handleConfirmAddFav = useCallback(async () => {
     if (!currentUser || !isComboComplete) return;
     setIsSavingFav(true);
 
+    const itemsByLabel = {};
+    sectionKeys.forEach(k => { itemsByLabel[k] = selectedItems[k].name; });
+
     const newCombo = {
       id: `favcombo_${Date.now()}`,
       title: comboTitle,
-      items: { starter: selectedItems.starter.name, main: selectedItems.main.name, drink: selectedItems.drink.name },
+      items: itemsByLabel,
       comboItems: selectedItems,
       originalPrice: originalTotal,
       perComboFinalPrice,
       totalPrice: discountedPrice,
-      appliedOffer,
       createdAt: new Date().toISOString()
     };
 
     const existingCombos = currentUser.combo || [];
     const isDuplicate = existingCombos.some(c =>
-      c.items.starter === newCombo.items.starter &&
-      c.items.main === newCombo.items.main &&
-      c.items.drink === newCombo.items.drink
+      sectionKeys.every(k => c.items?.[k] === newCombo.items[k])
     );
 
     if (isDuplicate) { setIsSavingFav(false); setShowAddFavConfirm(false); setShowDuplicateOverlay(true); return; }
@@ -601,26 +879,49 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
     } finally {
       setIsSavingFav(false);
     }
-  }, [currentUser, isComboComplete, comboTitle, selectedItems, originalTotal, perComboFinalPrice, discountedPrice, appliedOffer, setCurrentUser, toast]);
+  }, [currentUser, isComboComplete, comboTitle, selectedItems, originalTotal, perComboFinalPrice, discountedPrice, sectionKeys, setCurrentUser, toast]);
 
-  /* ── Items / groups feeding the active reel ── */
-  const starterItems = useMemo(() => (startersSection.groups || []).find(g => g.id === activeStarterGroup)?.items || [], [startersSection, activeStarterGroup]);
-  const mainItems = useMemo(() => (mainSection.groups || []).find(g => g.id === activeMainGroup)?.items || [], [mainSection, activeMainGroup]);
-  const drinkItems = useMemo(() => (beveragesSection.groups || []).find(g => g.id === activeDrinkGroup)?.items || [], [beveragesSection, activeDrinkGroup]);
+  /* ── Items / groups feeding the active reel, for whichever
+     section key is currently active — resolved through the active
+     category first (Pizza/Burger/Sandwich), then the active
+     subcategory group within it (Cold Coffee/Iced Tea/...). ── */
+  const activeSection = phaseTypeKey ? sectionByKey(phaseTypeKey) : { groups: [], categories: [] };
+  const phaseCategories = activeSection.categories || [];
+  const phaseActiveCategoryId = phaseTypeKey ? getActiveCategory(phaseTypeKey) : null;
+  const activeCategoryObj = phaseTypeKey ? getActiveCategoryObj(phaseTypeKey) : { groups: [] };
+  const activeGroupId = phaseTypeKey ? getActiveGroup(phaseTypeKey) : null;
+  const activeItems = useMemo(() => (
+    (activeCategoryObj.groups || []).find(g => g.id === activeGroupId)?.items || []
+  ), [activeCategoryObj, activeGroupId]);
 
-  useEffect(() => { if (!activeMainGroup) setActiveMainGroup(mainSection.groups?.[0]?.id || null); }, [mainSection, activeMainGroup]);
-  useEffect(() => { if (!activeDrinkGroup) setActiveDrinkGroup(beveragesSection.groups?.[0]?.id || null); }, [beveragesSection, activeDrinkGroup]);
+  useEffect(() => {
+    if (!phaseTypeKey) return;
+    if (!activeCategoryBySection[phaseTypeKey] && phaseCategories[0]?.id) {
+      setActiveCategory(phaseTypeKey, phaseCategories[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phaseTypeKey, phaseCategories]);
 
-  const activeItems = phase === "starters" ? starterItems : phase === "mainCourse" ? mainItems : phase === "beverages" ? drinkItems : [];
+  useEffect(() => {
+    if (!phaseTypeKey) return;
+    if (!activeGroupBySection[phaseTypeKey] && activeCategoryObj.groups?.[0]?.id) {
+      setActiveGroup(phaseTypeKey, activeCategoryObj.groups[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phaseTypeKey, activeCategoryObj]);
 
-  const phaseGroups = phase === "starters" ? startersSection.groups || []
-    : phase === "mainCourse" ? mainSection.groups || []
-      : phase === "beverages" ? beveragesSection.groups || []
-        : [];
-  const phaseActiveGroup = phase === "starters" ? activeStarterGroup : phase === "mainCourse" ? activeMainGroup : activeDrinkGroup;
-  const setPhaseActiveGroup = phase === "starters" ? setActiveStarterGroup : phase === "mainCourse" ? setActiveMainGroup : setActiveDrinkGroup;
+  const phaseGroups = activeCategoryObj.groups || [];
+  const phaseActiveGroup = activeGroupId;
+  const setPhaseActiveGroup = useCallback((groupId) => {
+    if (phaseTypeKey) setActiveGroup(phaseTypeKey, groupId);
+  }, [phaseTypeKey, setActiveGroup]);
 
-  const anchors = useMemo(() => buildAnchors(selectedItems), [selectedItems]);
+  const setPhaseActiveCategory = useCallback((categoryId) => {
+    if (phaseTypeKey) setActiveCategory(phaseTypeKey, categoryId);
+  }, [phaseTypeKey, setActiveCategory]);
+
+  const phaseSlotIndex = phaseTypeKey ? sectionKeys.indexOf(phaseTypeKey) : 0;
+  const phaseLabel = phaseTypeKey ? slotLabels[phaseTypeKey] : null;
 
   return (
     <motion.div className="combo-page" variants={pageVariant} initial="hidden" animate="show">
@@ -630,11 +931,37 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
         <motion.button className="back-button" onClick={handleBack} aria-label="Back" whileTap={{ scale: 0.85, x: -2 }} />
 
         <div className="combo-phase-label">
-          {phase === "starters" && "Swipe up or down to browse, pick a starter"}
-          {phase === "mainCourse" && "Now swipe up or down and pick a main course"}
-          {phase === "beverages" && "Now swipe up or down and pick a beverage"}
-          {phase === "done" && "Your combo is grouped"}
+          {phase === "done"
+            ? "Your combo is grouped"
+            : phaseLabel
+              ? `Swipe up or down to browse, pick a ${phaseLabel.toLowerCase()}`
+              : "No combo sections configured yet"}
         </div>
+
+        {/* ── Section pills (Dishes / Desserts / Beverages) — pure
+             progress indicator, matches the sequential picking order
+             and is NOT clickable to jump ahead or back. ── */}
+        {sections.length > 1 && (
+          <div className="combo-size-pills">
+            {sections.map(s => {
+              const isDone = !!selectedItems[s.key];
+              const isCurrent = s.key === phaseTypeKey;
+              const isDisabled = !isCurrent; // done + upcoming are locked; only the active pill stays live
+              return (
+                <Button3D
+                  key={s.key}
+                  className={`chip combo-section-pill${isCurrent ? " active" : ""}${isDone ? " combo-section-pill--done" : ""}`}
+                  aria-current={isCurrent ? "step" : undefined}
+                  disabled={isDisabled}
+                  aria-disabled={isDisabled}
+                  tabIndex={isDisabled ? -1 : 0}
+                >
+                  {s.label}
+                </Button3D>
+              );
+            })}
+          </div>
+        )}
 
         <div className="combo-topbar-actions">
           {currentUser && currentUser.id !== "guest" && (
@@ -674,26 +1001,43 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
         </div>
       </div>
 
-      {/* ── Grouping strip — bigger nodes, no connecting lines ── */}
-      {selectedCount > 0 && (
-        <motion.div
-          className="combo-group-strip"
-          layout
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {selectedItems.starter && anchors[1] && <GroupNode item={selectedItems.starter} anchor={anchors[1]} onClick={() => handleUndo("starter")} />}
-          {selectedItems.main && anchors[2] && <GroupNode item={selectedItems.main} anchor={anchors[2]} onClick={() => handleUndo("main")} />}
-          {selectedItems.drink && anchors[3] && <GroupNode item={selectedItems.drink} anchor={anchors[3]} onClick={() => handleUndo("drink")} />}
-        </motion.div>
-      )}
+      {/* ── Category pills for the active section (e.g. Dishes →
+           Pizza / Burger / Sandwich) — freely clickable, only
+           shown when the section maps to more than one category. ── */}
+      <AnimatePresence mode="popLayout" initial={false}>
+        {phaseCategories.length > 1 && (
+          <motion.div
+            key={`cat-${phase}`}
+            className="combo-size-row"
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <div className="combo-size-pills">
+              {phaseCategories.map(c => (
+                <Button3D
+                  key={c.id}
+                  as={motion.button}
+                  className={`chip ${phaseActiveCategoryId === c.id ? "active" : ""}`}
+                  onClick={() => setPhaseActiveCategory(c.id)}
+                  whileTap={{ scale: 0.95 }}
+                  style={{ marginTop: "10px", marginBottom: "10px" }}
+                >
+                  {c.title}
+                </Button3D>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* ── Group pills for the active phase ── */}
+      {/* ── Group pills for the active phase (subcategory, e.g.
+           Beverages → Cold Coffee / Iced Tea / Hot Coffee) ── */}
       <AnimatePresence mode="popLayout" initial={false}>
         {phaseGroups.length > 1 && (
           <motion.div
-            key={phase}
+            key={`grp-${phase}-${phaseActiveCategoryId}`}
             className="combo-size-row"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -730,19 +1074,71 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             style={{ width: "100%" }}
           >
-            <ComboReel items={activeItems} angle={ANGLES[phaseTypeKey] ?? 90} onSelect={(item) => handlePick(phaseTypeKey, item)} />
+            <ComboReel
+              items={activeItems}
+              angle={phaseTypeKey ? (slotAngles[phaseTypeKey] ?? 90) : 90}
+              type={phaseTypeKey}
+              slotIndex={phaseSlotIndex}
+              onSelect={(item) => handlePick(phaseTypeKey, item)}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Offer hint ── */}
+      {/* ── Grouping strip — lives at page level (not inside the reel)
+           so it survives the reel unmounting once phase === 'done'.
+           Below the reel images while picking; once every configured
+           section is filled it centers itself over the page via the
+           --complete modifier, sliding back on undo thanks to `layout`. ── */}
+      {selectedCount > 0 && (
+        <motion.div
+          className={`combo-group-strip${isComboComplete ? " combo-group-strip--complete" : ""}`}
+          layout
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        >
+          <div className="combo-group-strip-pricing">
+            {perComboFinalPrice < perComboBasePrice && (
+              <div className="combo-group-strip-regular">
+                <span className="combo-group-strip-regular-label">Regular Price</span>
+                <span className="combo-group-strip-regular-price">₹{perComboBasePrice}/-</span>
+              </div>
+            )}
+            <div className="combo-group-strip-final">
+              <span className="combo-group-strip-final-label">
+                {perComboFinalPrice < perComboBasePrice ? "Combo @ Just" : "Combo Total"}
+              </span>
+              <span className="combo-group-strip-final-price">₹{perComboFinalPrice}/-</span>
+            </div>
+          </div>
+
+          <div className="combo-group-strip-photos">
+            {sectionKeys.map((key, idx) => (
+              selectedItems[key] && (
+                <GroupNode
+                  key={key}
+                  item={selectedItems[key]}
+                  type={key}
+                  slotIndex={idx}
+                  onClick={() => handleUndo(key)}
+                />
+              )
+            ))}
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Add to fav confirm ── */}
+      {/* ── Offer hint (suggestion) modal ── */}
       <AnimatePresence mode="wait">
         {offerHint && (
           <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
             <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+              <h3 className="combo-modal-title">Unlock a Combo Offer</h3>
               <p className="combo-modal-text">{offerHint.message}</p>
               <div className="combo-modal-actions">
-                <Button3D as={motion.button} className="btn-3d white" onClick={() => setOfferHint(null)} whileTap={{ scale: 0.96 }}>No, thanks</Button3D>
+                <Button3D as={motion.button} className="btn-3d white" onClick={() => setOfferHint(null)} whileTap={{ scale: 0.96 }}>Skip for now</Button3D>
                 <Button3D as={motion.button} className="btn-3d green" onClick={handleHintAdd} whileTap={{ scale: 0.96 }}>Add Item</Button3D>
               </div>
             </motion.div>
@@ -750,7 +1146,6 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
         )}
       </AnimatePresence>
 
-      {/* ── Add to fav confirm ── */}
       <AnimatePresence mode="wait">
         {showAddFavConfirm && (
           <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
@@ -820,7 +1215,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                 <>
                   <div className="combo-sheet-header">
                     <h3>Receipt</h3>
-                    <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close"><img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" /></Button3D>
+                    <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close" frontClassName="close-padding"><img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" /></Button3D>
                   </div>
                   <AddedConfirmation
                     comboTitle={comboTitle}
@@ -832,18 +1227,19 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                 <>
                   <div className="combo-sheet-header">
                     <h3>My Combo</h3>
-                    <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={() => setShowCart(false)} whileTap={{ scale: 0.85 }} aria-label="Close"><img style={{ width: "20px", height: "20px" }} src={closeIcon} alt="Close" /></Button3D>
+                    <Button3D as={motion.button} className="btn-3d red" onClick={() => setShowCart(false)} whileTap={{ scale: 0.85 }} aria-label="Close" frontClassName="close-padding"><img style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} src={closeIcon} alt="Close" /></Button3D>
                   </div>
 
                   <div className="combo-sheet-body">
                     <MyComboContent
                       selectedItems={selectedItems}
+                      slotLabels={slotLabels}
                       quantity={quantity}
                       setQuantity={setQuantity}
-                      appliedOffer={appliedOffer}
                       originalTotal={originalTotal}
                       discountedPrice={discountedPrice}
                       savings={savings}
+                      matchedOffer={matchedOffer}
                       isComboComplete={isComboComplete}
                       onDelete={handleUndo}
                     />
@@ -863,11 +1259,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                   <Button3D
                     as={motion.button}
                     className="btn-3d red combo-checkout-bar"
+                    style={{ width: "170px", alignSelf: "end" }}
                     disabled={!isComboComplete}
                     onClick={handleAddToBag}
                     whileTap={{ scale: 0.97 }}
-                    style={{ width: "100%" }}
-                    frontStyle={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+                    frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
                   >
                     <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
                     <AnimatePresence mode="wait">

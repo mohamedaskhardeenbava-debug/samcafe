@@ -489,18 +489,9 @@ const PreBooking = ({ handleBack, handleHome }) => {
           {/* ════ RIGHT COLUMN ════ */}
           <div className="pbp-col">
 
-            {/* SCHEDULE */}
+            {/* SCHEDULE — slot first, then date/time once a slot is picked */}
             <div className="section-title">Date &amp; Dining Slot</div>
             <div className="pbp-card">
-              <div className="field-group pbp-schedule-date">
-                <label>Date <span className="pbp-req">*</span></label>
-                <UserDatePicker
-                  value={form.date}
-                  min={tomorrowStr()}
-                  hasError={!!errors.date}
-                  onChange={v => { setF("date", v); setF("time", ""); }}
-                />
-              </div>
               <div className="field-group pbp-schedule-slots">
                 <label>Dining Slot <span className="pbp-req">*</span></label>
                 <div className="slot-groups">
@@ -521,20 +512,32 @@ const PreBooking = ({ handleBack, handleHome }) => {
                 </div>
                 {errors.slotGroup && <span className="pbp-field-error">Pick a dining slot</span>}
               </div>
-              <div className="field-group pbp-schedule-time">
-                <label>Preferred Time <span className="pbp-req">*</span></label>
-                <UserTimePicker
-                  value={form.time}
-                  hasError={!!errors.time}
-                  onChange={v => setF("time", v)}
-                  slotStart={activeSlot?.start}
-                  slotEnd={activeSlot?.end}
-                  isToday={form.date === todayStr()}
-                  disabled={!form.slotGroup}
-                />
-                {!form.slotGroup && <span className="pbp-time-hint">Select a slot first</span>}
-                {form.slotGroup && activeSlot && <span className="pbp-time-hint">{activeSlot.start} – {activeSlot.end}</span>}
-              </div>
+              {form.slotGroup && (
+                <div className="field-group pbp-schedule-date">
+                  <label>Date <span className="pbp-req">*</span></label>
+                  <UserDatePicker
+                    value={form.date}
+                    min={tomorrowStr()}
+                    hasError={!!errors.date}
+                    onChange={v => { setF("date", v); setF("time", ""); }}
+                  />
+                </div>
+              )}
+              {form.slotGroup && (
+                <div className="field-group pbp-schedule-time">
+                  <label>Preferred Time <span className="pbp-req">*</span></label>
+                  <UserTimePicker
+                    value={form.time}
+                    hasError={!!errors.time}
+                    onChange={v => setF("time", v)}
+                    slotStart={activeSlot?.start}
+                    slotEnd={activeSlot?.end}
+                    isToday={form.date === todayStr()}
+                    disabled={!form.slotGroup}
+                  />
+                  {activeSlot && <span className="pbp-time-hint">{activeSlot.start} – {activeSlot.end}</span>}
+                </div>
+              )}
             </div>
 
             {/* PRE-ORDER FOODS */}

@@ -33,8 +33,89 @@ const phaseTransition = {
   }
 };
 
-const REEL_SLOT_DIST = [-820, 0, 260, 430, 560];
-const REEL_SPRING = { type: "spring", stiffness: 90, damping: 22, mass: 1.2 };
+// Fixed 3-image diagonal cascade — same resting positions as
+// ComboPage's reel, so both builders look and move identically.
+const REEL_SLOTS = [
+  { x: -150, y: 300, scale: 0.4, rotate: 0, blur: 8, zIndex: 1 },   // previous (below-left)
+  { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },            // active (front, centered)
+  { x: 400, y: -100, scale: 0.5, rotate: 0, blur: 6, zIndex: 2 }     // next (above-right)
+];
+const REEL_SPRING = { type: "spring", stiffness: 70, damping: 26, mass: 1 };
+/* Faster crossfade for the name/description block specifically —
+   mirrors ComboPage's REEL_DETAILS_SPRING so both builders feel the same. */
+const REEL_DETAILS_SPRING = { type: "spring", stiffness: 260, damping: 26, mass: 0.7 };
+
+/* Circular motion between slots — the three resting spots above
+   happen to sit on a common circle, so instead of tweening straight
+   between them, each transition is sampled along that circle's arc
+   (a real curved/circular path) rather than a straight line. */
+const circumcircleOf = (A, B, C) => {
+  const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+  const ux = ((A.x ** 2 + A.y ** 2) * (B.y - C.y) + (B.x ** 2 + B.y ** 2) * (C.y - A.y) + (C.x ** 2 + C.y ** 2) * (A.y - B.y)) / d;
+  const uy = ((A.x ** 2 + A.y ** 2) * (C.x - B.x) + (B.x ** 2 + B.y ** 2) * (A.x - C.x) + (C.x ** 2 + C.y ** 2) * (B.x - A.x)) / d;
+  return { cx: ux, cy: uy, r: Math.hypot(A.x - ux, A.y - uy) };
+};
+
+const REEL_CIRCLE = circumcircleOf(REEL_SLOTS[0], REEL_SLOTS[1], REEL_SLOTS[2]);
+const angleOfSlot = (p) => Math.atan2(p.y - REEL_CIRCLE.cy, p.x - REEL_CIRCLE.cx) * (180 / Math.PI);
+const posOnCircle = (deg) => {
+  const rad = (deg * Math.PI) / 180;
+  return { x: REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad), y: REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad) };
+};
+
+let REEL_ANGLE_PREV = angleOfSlot(REEL_SLOTS[0]);
+let REEL_ANGLE_ACTIVE = angleOfSlot(REEL_SLOTS[1]);
+let REEL_ANGLE_NEXT = angleOfSlot(REEL_SLOTS[2]);
+while (REEL_ANGLE_ACTIVE < REEL_ANGLE_PREV) REEL_ANGLE_ACTIVE += 360;
+while (REEL_ANGLE_NEXT < REEL_ANGLE_ACTIVE) REEL_ANGLE_NEXT += 360;
+
+// The two off-display wrappers keep going around the SAME circle,
+// one step further out each side — so they sit outside the visible
+// display but still on the circular path, ready to sweep smoothly
+// into view instead of just fading in from a fixed, unrelated spot.
+const REEL_ANGLE_FAR_PREV = REEL_ANGLE_PREV - (REEL_ANGLE_ACTIVE - REEL_ANGLE_PREV);
+const REEL_ANGLE_FAR_NEXT = REEL_ANGLE_NEXT + (REEL_ANGLE_NEXT - REEL_ANGLE_ACTIVE);
+const REEL_FAR_PREV_POS = posOnCircle(REEL_ANGLE_FAR_PREV);
+const REEL_FAR_NEXT_POS = posOnCircle(REEL_ANGLE_FAR_NEXT);
+
+// All 5 wrapper roles, in circle order: far-prev, prev, active, next,
+// far-next. Only the middle 3 are ever opaque/interactive; the outer
+// two exist purely so their dish is pre-loaded and already sitting in
+// its correct circular spot the moment it needs to sweep into view.
+const REEL_SLOTS_5 = [
+  { x: REEL_FAR_PREV_POS.x, y: REEL_FAR_PREV_POS.y, scale: REEL_SLOTS[0].scale * 0.75, rotate: 0, blur: REEL_SLOTS[0].blur + 4, zIndex: 0, opacity: 0 },
+  { ...REEL_SLOTS[0], opacity: 1 },
+  { ...REEL_SLOTS[1], opacity: 1 },
+  { ...REEL_SLOTS[2], opacity: 1 },
+  { x: REEL_FAR_NEXT_POS.x, y: REEL_FAR_NEXT_POS.y, scale: REEL_SLOTS[2].scale * 0.75, rotate: 0, blur: REEL_SLOTS[2].blur + 4, zIndex: 0, opacity: 0 }
+];
+const REEL_ANGLES_5 = [REEL_ANGLE_FAR_PREV, REEL_ANGLE_PREV, REEL_ANGLE_ACTIVE, REEL_ANGLE_NEXT, REEL_ANGLE_FAR_NEXT];
+
+const ARC_STEPS = 32;
+const arcPath = (fromDeg, toDeg) => {
+  const x = [], y = [];
+  for (let i = 0; i <= ARC_STEPS; i++) {
+    const deg = fromDeg + (toDeg - fromDeg) * (i / ARC_STEPS);
+    const rad = (deg * Math.PI) / 180;
+    x.push(REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad));
+    y.push(REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad));
+  }
+  return { x, y };
+};
+
+// A hand-off happens between every adjacent pair of the 5 circle
+// positions (not just the visible 3) — e.g. on "next", the item
+// sitting off-display in the far-next spot sweeps in to become the
+// new next dish. Built once as curved paths along REEL_CIRCLE.
+const REEL_ARCS = {};
+for (let i = 0; i < REEL_ANGLES_5.length - 1; i++) {
+  REEL_ARCS[`${i + 1}-${i}`] = arcPath(REEL_ANGLES_5[i + 1], REEL_ANGLES_5[i]);
+  REEL_ARCS[`${i}-${i + 1}`] = arcPath(REEL_ANGLES_5[i], REEL_ANGLES_5[i + 1]);
+}
+const REEL_ARC_TWEEN = { duration: 0.55, ease: [0.65, 0, 0.35, 1] };
+
+/* Fixed slot lookup for the reel — see REEL_SLOTS_5 above. */
+const reelSlotTransform = (slot) => REEL_SLOTS_5[slot];
 
 const overlayAnim = {
   hidden: { opacity: 0 },
@@ -65,83 +146,90 @@ const listRow = {
    docks at 45° from the sauce — same angle language as the combo
    builder's starter → main → drink strip, just with two slots.
 ──────────────────────────────────────────────────────────── */
-const ANGLES = { sauce: 90, main: 45 };
-const BASE_ANCHOR = { x: 16, y: 82 };
-const STEP = 26;
-
-const dirFor = (deg) => {
-  const r = (deg * Math.PI) / 180;
-  return { dx: Math.cos(r), dy: -Math.sin(r) };
-};
-
-const slotFor = (anchor, angle, i) => {
-  const d = dirFor(angle);
-  return { x: anchor.x + d.dx * STEP * (i + 1), y: anchor.y + d.dy * STEP * (i + 1) };
-};
-
-const buildAnchors = (selectedSauce, selectedMain) => {
-  const anchors = [BASE_ANCHOR];
-  if (selectedSauce) anchors.push(slotFor(anchors[0], ANGLES.sauce, 0));
-  if (selectedMain) anchors.push(slotFor(anchors[1], ANGLES.main, 0));
-  return anchors;
-};
-
-const reelSlotTransform = (slot, angleDeg) => {
-  const d = dirFor(angleDeg);
-  const dist = REEL_SLOT_DIST[slot];
-  return { x: d.dx * dist, y: d.dy * dist };
-};
-
 const SLOT_LABELS = { sauce: "Sauce", main: "Main Ingredient" };
 
-const GroupNode = ({ item, anchor, onClick }) => (
-  <motion.div
-    className="appetizer-group-node"
-    style={{ left: `${anchor.x}%`, top: `${anchor.y}%` }}
+const GroupNode = ({ item, type, onClick }) => (
+  <motion.button
+    className={`appetizer-group-node appetizer-group-node--${type}`}
     layout
-    initial={{ opacity: 0, scale: 0.4, y: 10 }}
+    initial={{ opacity: 0, scale: 0.5, y: 10 }}
     animate={{ opacity: 1, scale: 1, y: 0 }}
+    whileHover={{ scale: 1.03 }}
+    whileTap={{ scale: 0.95 }}
     transition={{ type: "spring", stiffness: 220, damping: 26 }}
+    onClick={onClick}
+    aria-label={`Change ${item.name}`}
   >
-    <button
-      as={motion.button}
-      className="btn-3d white appetizer-group-node-btn"
-      onClick={onClick}
-      whileHover={{ scale: 1.04 }}
-      whileTap={{ scale: 0.92 }}
-      aria-label={`Change ${item.name}`}
-    >
-      <span className="appetizer-group-node-img">
-        <img src={item.image} alt="" draggable={false} />
-      </span>
-    </button>
-  </motion.div>
+    <motion.img
+      layoutId={`appetizer-fly-${type}`}
+      src={item.image}
+      alt={item.name}
+      draggable={false}
+      transition={{ type: "spring", stiffness: 140, damping: 20 }}
+    />
+  </motion.button>
 );
 
-/* ─── FoodList-style swipeable reel for the active phase ─────── */
-const AppetizerReel = ({ items, angle, onSelect }) => {
+/* ─── FoodList-style swipeable reel for the active phase — same
+   circular-motion system as ComboPage's reel (see REEL_SLOTS_5 /
+   REEL_ARCS above) so both builders move identically. ──────── */
+const AppetizerReel = ({ items, type, onSelect }) => {
   const [renderIndex, setRenderIndex] = useState(0);
+  const [direction, setDirection] = useState(null); // 'next' | 'prev' | null
   const startX = useRef(0);
   const startY = useRef(0);
   const isPointerDown = useRef(false);
 
-  useEffect(() => { setRenderIndex(0); }, [items]);
+  useEffect(() => { setRenderIndex(0); setDirection(null); }, [items]);
 
   if (!items.length) {
     return <div className="appetizer-reel-empty">Nothing here yet — check back soon.</div>;
   }
 
-  const visible = [
-    items[(renderIndex - 1 + items.length) % items.length],
-    items[renderIndex],
-    items[(renderIndex + 1) % items.length],
-    items[(renderIndex + 2) % items.length],
-    items[(renderIndex + 3) % items.length]
+  // 5 slots total: [farPrev, prev, active, next, farNext]. Only the
+  // middle 3 (prev/active/next) are ever visible — farPrev/farNext
+  // stay in the DOM purely so their dish's image is already loaded
+  // by the time it swipes into view, avoiding a pop-in flash.
+  const n = items.length;
+  const modIndices = [
+    (renderIndex - 2 + n * 2) % n,
+    (renderIndex - 1 + n) % n,
+    renderIndex,
+    (renderIndex + 1) % n,
+    (renderIndex + 2) % n
   ];
+  const visible = modIndices.map(idx => items[idx]);
 
-  const goNext = () => setRenderIndex(i => (i + 1) % items.length);
-  const goPrev = () => setRenderIndex(i => (i - 1 + items.length) % items.length);
-  const active = visible[1];
+  // With fewer than 5 items in the category, some of the 5 circle
+  // roles land on the very same dish (e.g. with 4 items, farPrev and
+  // farNext are literally the same dish). Rendering that dish twice
+  // under the same key confuses Framer Motion into treating two
+  // different roles as one moving element, which is what caused the
+  // far-edge image to visibly slide across the whole display instead
+  // of quietly fading in. So each unique dish only ever gets ONE
+  // wrapper — the nearer/most-visible role wins the slot, and the
+  // duplicate far-edge role (which exists purely to preload) is
+  // simply skipped.
+  const slotPriority = [2, 1, 3, 0, 4];
+  const claimed = new Set();
+  const renderSlot = [false, false, false, false, false];
+  slotPriority.forEach(slot => {
+    const idx = modIndices[slot];
+    if (!claimed.has(idx)) {
+      claimed.add(idx);
+      renderSlot[slot] = true;
+    }
+  });
+
+  const goNext = () => {
+    setDirection("next");
+    setRenderIndex(i => (i + 1) % items.length);
+  };
+  const goPrev = () => {
+    setDirection("prev");
+    setRenderIndex(i => (i - 1 + items.length) % items.length);
+  };
+  const active = visible[2];
 
   return (
     <div
@@ -171,9 +259,12 @@ const AppetizerReel = ({ items, angle, onSelect }) => {
             initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={{ opacity: 0, y: -14, filter: "blur(6px)" }}
-            transition={REEL_SPRING}
+            transition={REEL_DETAILS_SPRING}
           >
             <h2 className="appetizer-reel-name">{active.name}</h2>
+            {active.price != null || active.basePrice != null ? (
+              <div className="appetizer-reel-price">₹{active.price ?? active.basePrice}</div>
+            ) : null}
             {active.description && <p className="appetizer-reel-desc">{active.description}</p>}
           </motion.div>
         </AnimatePresence>
@@ -185,26 +276,52 @@ const AppetizerReel = ({ items, angle, onSelect }) => {
 
       <div className="appetizer-reel-images">
         {visible.map((item, slot) => {
-          const t = reelSlotTransform(slot, angle);
+          // slot maps 1:1 onto the 5 circle roles: 0=far-prev,
+          // 1=prev, 2=active, 3=next, 4=far-next. The two edges stay
+          // fully off-display (opacity 0, non-interactive) but sit
+          // in their real circular position, so when an item's role
+          // shifts into view it sweeps in along the arc instead of
+          // just fading in from nowhere.
+          const t = reelSlotTransform(slot);
+          const isActive = slot === 2;
+          const isEdge = slot === 0 || slot === 4;
+
+          if (!renderSlot[slot]) return null;
+
+          // Which arc this slot is sweeping along right now — every
+          // adjacent pair of the 5 circle roles hands off on each
+          // nav action, including the two off-display ones.
+          const arcKey =
+            direction === "next" ? (slot < 4 ? `${slot + 1}-${slot}` : null)
+              : direction === "prev" ? (slot > 0 ? `${slot - 1}-${slot}` : null)
+                : null;
+          const arc = arcKey ? REEL_ARCS[arcKey] : null;
+
           return (
             <motion.div
               key={item.id}
-              className="appetizer-reel-image-wrapper"
-              initial={{ x: t.x, y: t.y, scale: slot === 1 ? 0.9 : slot === 2 ? 0.6 : slot === 3 ? 0.35 : 0.28, opacity: 0 }}
+              className={`appetizer-reel-image-wrapper${isEdge ? " appetizer-reel-image-wrapper--hidden" : ""}`}
+              aria-hidden={isEdge ? "true" : undefined}
+              initial={{ x: t.x, y: t.y, rotate: t.rotate, scale: t.scale * 0.9, opacity: 0 }}
               animate={{
-                x: t.x,
-                y: t.y,
-                scale: slot === 1 ? 1 : slot === 2 ? 0.7 : slot === 3 ? 0.4 : 0.3,
-                zIndex: slot === 1 ? 3 : slot === 2 ? 2 : slot === 3 ? 1 : 0,
-                opacity: 1
+                x: arc ? arc.x : t.x,
+                y: arc ? arc.y : t.y,
+                rotate: t.rotate,
+                scale: t.scale,
+                zIndex: t.zIndex,
+                opacity: t.opacity
               }}
-              transition={REEL_SPRING}
+              transition={arc ? REEL_ARC_TWEEN : REEL_SPRING}
+              onAnimationComplete={() => {
+                if (isActive && direction) setDirection(null);
+              }}
             >
               <motion.img
                 src={item.image}
                 alt={item.name}
                 className="appetizer-reel-image"
-                animate={{ filter: slot === 1 ? "blur(0px)" : slot === 2 ? "blur(6px)" : slot === 3 ? "blur(10px)" : "blur(14px)" }}
+                layoutId={isActive ? `appetizer-fly-${type}` : undefined}
+                animate={{ filter: `blur(${t.blur}px)` }}
                 transition={REEL_SPRING}
                 draggable={false}
               />
@@ -212,13 +329,18 @@ const AppetizerReel = ({ items, angle, onSelect }) => {
           );
         })}
       </div>
+
+      <div className="appetizer-reel-nav">
+        <Button3D className="btn-3d white" onClick={goPrev} aria-label="Previous item">▲</Button3D>
+        <Button3D className="btn-3d white" onClick={goNext} aria-label="Next item">▼</Button3D>
+      </div>
     </div>
   );
 };
 
 const ROW_ICONS = { sauce: "🌶️", main: "🍢" };
 
-/* ─── Sheet list content (clone of ComboPage's "My Combo" list) ─ */
+/* ─── Sheet list content (mirrors ComboPage's "My Combo" list) ─ */
 const AppetizerContent = ({ selectedSauce, selectedMain, qty, setQty, finalDish, isComplete, onDelete }) => (
   <div className="appetizer-cart-content">
     <motion.div className="appetizer-cart-list" variants={listStagger} initial="hidden" animate="show">
@@ -236,19 +358,22 @@ const AppetizerContent = ({ selectedSauce, selectedMain, qty, setQty, finalDish,
               exit={{ opacity: 0, x: -14, transition: { duration: 0.18 } }}
               className={`appetizer-cart-row ${item ? "filled" : "empty"}`}
             >
-              <div className="appetizer-cart-row-icon" aria-hidden="true">{ROW_ICONS[key]}</div>
+              <div className="appetizer-cart-row-icon" aria-hidden="true">
+                {item ? <img src={item.image} alt="" draggable={false} /> : ROW_ICONS[key]}
+              </div>
               <div className="appetizer-cart-row-text">
                 <span className="appetizer-cart-row-label">{label}</span>
-                <span className="appetizer-cart-row-name">{item ? item.name : "Not selected"}</span>
+                <span className="appetizer-cart-row-name">{item ? item.name : "Not selected yet"}</span>
               </div>
               {item ? (
                 <div className="appetizer-cart-row-right">
                   <Button3D
                     as={motion.button}
-                    className="home-btn home-btn-icon"
+                    className="btn-3d white"
                     onClick={() => onDelete(key)}
                     aria-label={`Remove ${label}`}
                     whileTap={{ scale: 0.8 }}
+                    frontClassName="close-padding"
                   >
                     <img style={{ width: "14px", height: "14px" }} src={closeIcon} alt="Remove" />
                   </Button3D>
@@ -263,23 +388,27 @@ const AppetizerContent = ({ selectedSauce, selectedMain, qty, setQty, finalDish,
     </motion.div>
 
     {isComplete && finalDish && (
-      <>
+      <div className="appetizer-cart-summary">
         <div className="appetizer-cart-qty">
           <span>Quantity</span>
           <div className="stepper-ctrl">
             <button
+              as={motion.button}
               className="stepper-btn"
               onClick={() => setQty(q => Math.max(1, q - 1))}
               disabled={qty === 1}
               aria-label="Decrease quantity"
+              whileTap={{ scale: 0.85 }}
             >
               −
             </button>
             <span className="stepper-val">{qty}</span>
             <button
+              as={motion.button}
               className="stepper-btn"
               onClick={() => setQty(q => q + 1)}
               aria-label="Increase quantity"
+              whileTap={{ scale: 0.85 }}
             >
               +
             </button>
@@ -294,7 +423,7 @@ const AppetizerContent = ({ selectedSauce, selectedMain, qty, setQty, finalDish,
             <span>₹{finalDish.basePrice * qty}</span>
           </div>
         </div>
-      </>
+      </div>
     )}
   </div>
 );
@@ -427,7 +556,6 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
     if (phase === "done") setShowSheet(true);
   }, [phase]);
 
-  const anchors = useMemo(() => buildAnchors(selectedSauce, selectedMain), [selectedSauce, selectedMain]);
 
   return (
     <motion.div className="appetizer-page" variants={pageVariant} initial="hidden" animate="show">
@@ -480,20 +608,6 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
         </div>
       </div>
 
-      {/* ── Grouping strip — bigger nodes, no connecting lines ── */}
-      {(selectedSauce || selectedMain) && (
-        <motion.div
-          className="appetizer-group-strip"
-          layout
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          {selectedSauce && anchors[1] && <GroupNode item={selectedSauce} anchor={anchors[1]} onClick={() => handleUndo("sauce")} />}
-          {selectedMain && anchors[2] && <GroupNode item={selectedMain} anchor={anchors[2]} onClick={() => handleUndo("main")} />}
-        </motion.div>
-      )}
-
       {/* ── Swipeable reel — crossfades between phases, hidden once the
            appetizer is complete since the sheet modal takes over from there ── */}
       <AnimatePresence initial={false} mode="popLayout">
@@ -506,12 +620,42 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
             exit="exit"
             style={{ position: "relative" }}
           >
-            <AppetizerReel items={activeItems} angle={ANGLES[phaseTypeKey] ?? 90} onSelect={(item) => handlePick(phaseTypeKey, item)} />
+            <AppetizerReel items={activeItems} type={phaseTypeKey} onSelect={(item) => handlePick(phaseTypeKey, item)} />
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── "My Appetizer" sheet — mirrors ComboPage's combo-sheet exactly ── */}
+      {/* ── Grouping strip — lives at page level (not inside the reel)
+           so it survives the reel unmounting once phase === 'done'.
+           Left-aligned below the reel while picking; once both sauce
+           and main are chosen it centers itself over the page via the
+           --complete modifier, sliding back on undo thanks to `layout`.
+           Mirrors ComboPage's combo-group-strip exactly. ── */}
+      {selectedCount > 0 && (
+        <motion.div
+          className={`appetizer-group-strip${selectedCount === 2 ? " appetizer-group-strip--complete" : ""}`}
+          layout
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 28 }}
+        >
+          <div className="appetizer-group-strip-pricing">
+            <div className="appetizer-group-strip-final">
+              <span className="appetizer-group-strip-final-label">
+                {finalDish ? "Total" : "Selecting…"}
+              </span>
+              <span className="appetizer-group-strip-final-price">
+                ₹{finalDish ? finalDish.basePrice : 0}
+              </span>
+            </div>
+          </div>
+
+          <div className="appetizer-group-strip-photos">
+            {selectedSauce && <GroupNode item={selectedSauce} type="sauce" onClick={() => handleUndo("sauce")} />}
+            {selectedMain && <GroupNode item={selectedMain} type="main" onClick={() => handleUndo("main")} />}
+          </div>
+        </motion.div>
+      )}
       <AnimatePresence>
         {showSheet && (
           <motion.div
@@ -542,7 +686,7 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                 <>
                   <div className="appetizer-sheet-header">
                     <h3>Receipt</h3>
-                    <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close">
+                    <Button3D as={motion.button} frontClassName="close-padding" className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close">
                       <img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" />
                     </Button3D>
                   </div>
@@ -556,8 +700,8 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                 <>
                   <div className="appetizer-sheet-header">
                     <h3>My Appetizer</h3>
-                    <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={() => setShowSheet(false)} whileTap={{ scale: 0.85 }} aria-label="Close">
-                      <img style={{ width: "20px", height: "20px" }} src={closeIcon} alt="Close" />
+                    <Button3D as={motion.button} className="btn-3d red" frontClassName="close-padding" onClick={() => setShowSheet(false)} whileTap={{ scale: 0.85 }} aria-label="Close">
+                      <img style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} src={closeIcon} alt="Close" />
                     </Button3D>
                   </div>
 
@@ -596,8 +740,8 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
                     disabled={!finalDish}
                     onClick={addDishToBag}
                     whileTap={{ scale: 0.97 }}
-                    style={{ width: "100%" }}
-                    frontStyle={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}
+                    style={{ width: "170px", alignSelf: "end" }}
+                    frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
                   >
                     <span>Add to Bag</span>
                     <AnimatePresence mode="wait">
