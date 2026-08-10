@@ -122,6 +122,18 @@
   margin-bottom: 12px;
 }
 
+.welcome-branch-name {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slidesUp 0.8s ease 1s forwards;
+  margin-bottom: 8px;
+}
+
 @keyframes slidesUp {
   from {
     opacity: 0;

@@ -229,6 +229,10 @@ function App() {
       localStorage.setItem("tableNo", table);
       setIsDineIn(true);
     }
+    const branch = params.get("branch");
+    if (branch) {
+      localStorage.setItem("branchId", branch);
+    }
   }, []);
 
   useEffect(() => { fetchMenu(); }, []);
@@ -585,9 +589,9 @@ function App() {
 
               <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/my-orders/:orderId" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><OrderDetails handleBack={() => navigate("/my-orders")} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/my-orders/:orderId" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><OrderDetails handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/offers" element={isOffersEnabled ? <motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={() => navigate(-1)} handleHome={() => navigate("/categories")} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/offers" element={isOffersEnabled ? <motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
               <Route path="/events" element={isEventsEnabled ? <motion.div {...motionProps}><EventHome handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
               <Route path="/events/hosted" element={isEventsEnabled ? <motion.div {...motionProps}><EventsPage handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} /></motion.div> : <Navigate to="/categories" replace />} />

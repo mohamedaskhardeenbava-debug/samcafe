@@ -12,7 +12,7 @@ import { fmtDate, fmtDateTime, STATUS_LABELS, STATUS_ICONS, dishCount } from "./
 // is handled separately since it isn't a step on the happy path.
 const STATUS_STEPS = ["pending", "preparing", "ready", "completed"];
 
-const MyOrderDetails = ({ currentUser, handleHome }) => {
+const MyOrderDetails = ({ currentUser, handleHome, handleBack }) => {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);

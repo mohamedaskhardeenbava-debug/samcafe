@@ -26,6 +26,7 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const [enableAutocomplete, setEnableAutocomplete] = useState(true);
   const [formErrors, setFormErrors] = useState({});
   const [activeCard, setActiveCard] = useState(null);
+  const [branchName, setBranchName] = useState("");
 
   const { theme } = useTheme();
   const { toast } = useToast();
@@ -59,6 +60,24 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     };
 
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const branchId = params.get("branch") || localStorage.getItem("branchId");
+    if (!branchId) return;
+
+    const fetchBranch = async () => {
+      try {
+        const res = await api.get("/venues/public");
+        const venue = (res.data || []).find(v => v.id === branchId);
+        if (venue?.name) setBranchName(venue.name);
+      } catch (err) {
+        console.error("Failed to fetch branch", err);
+      }
+    };
+
+    fetchBranch();
   }, []);
 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 576);
@@ -264,6 +283,10 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
         <div className="welcome-slogan">
           Where every bite feels right
         </div>
+
+        {branchName && (
+          <div className="welcome-branch-name">{branchName}</div>
+        )}
 
         <div className="welcome-card-wrapper">
           <div className="welcome-btn-container">
