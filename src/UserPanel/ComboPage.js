@@ -1243,7 +1243,9 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                       isComboComplete={isComboComplete}
                       onDelete={handleUndo}
                     />
+                  </div>
 
+                  <div className="add-to-bag-row">
                     {isComboComplete && currentUser && currentUser.id !== "guest" && (
                       <Button3D
                         as={motion.button}
@@ -1254,31 +1256,29 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                         Save to Favourites
                       </Button3D>
                     )}
-                  </div>
 
-                  <Button3D
-                    as={motion.button}
-                    className="btn-3d red combo-checkout-bar"
-                    style={{ width: "170px", alignSelf: "end" }}
-                    disabled={!isComboComplete}
-                    onClick={handleAddToBag}
-                    whileTap={{ scale: 0.97 }}
-                    frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
-                  >
-                    <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={discountedPrice}
-                        className="combo-checkout-amount"
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.18 }}
-                      >
-                        ₹{discountedPrice}
-                      </motion.span>
-                    </AnimatePresence>
-                  </Button3D>
+                    <Button3D
+                      as={motion.button}
+                      className="btn-3d red combo-checkout-bar"
+                      disabled={!isComboComplete}
+                      onClick={handleAddToBag}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={discountedPrice}
+                          className="combo-checkout-amount"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.18 }}
+                        >
+                          ₹{discountedPrice}
+                        </motion.span>
+                      </AnimatePresence>
+                    </Button3D>
+                  </div>
                 </>
               )}
             </motion.div>
