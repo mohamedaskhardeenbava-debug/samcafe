@@ -7,13 +7,13 @@ import closeIcon from "../assets/icons/close.png";
 import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import PageLoader from "../components/PageLoader";
+import { fmtDate as fmtDateNumeric } from "../utils/dateUtils";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const formatDate = (iso) => {
   if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-IN", {
-    weekday: "short", day: "2-digit", month: "short", year: "numeric",
-  });
+  const weekday = new Date(iso).toLocaleDateString("en-IN", { weekday: "short" });
+  return `${weekday}, ${fmtDateNumeric(iso)}`;
 };
 
 const formatTime = (t) => {

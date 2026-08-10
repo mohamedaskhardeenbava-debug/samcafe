@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import api from "../api";
 import "./FoodCategory.css";
 import "./MyOrders.css";
 import PageHeader from "./shared/PageHeader";
-import CloseButton from "./shared/CloseButton";
+import { fmtDate as fmtDateNumeric } from "../utils/dateUtils";
 
-/** Format "YYYY-MM-DD" → "Mon, DD Mmm YYYY" */
+/** Format "YYYY-MM-DD" -> "Mon, 31-07-2026" */
 function fmtDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr;
-  return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const weekday = d.toLocaleDateString("en-IN", { weekday: "short" });
+  return `${weekday}, ${fmtDateNumeric(dateStr)}`;
 }
 
 const STATUS_LABELS = {
@@ -22,84 +23,24 @@ const STATUS_LABELS = {
   cancelled: "Cancelled",
 };
 
-const overlayVariant = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-const modalVariant = {
-  hidden: { y: 60, opacity: 0, scale: 0.96 },
-  show: { y: 0, opacity: 1, scale: 1, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
-  exit: { y: 40, opacity: 0, scale: 0.96, transition: { duration: 0.2 } },
+const STATUS_ICONS = {
+  pending: "⏳",
+  preparing: "👨‍🍳",
+  ready: "🔔",
+  completed: "✅",
+  cancelled: "✕",
 };
 
 /** Total dish count for an order, respecting each item's quantity. */
 function dishCount(order) {
-  return (order.items || []).reduce((sum, item) => sum + (item.quantity || 1), 0);
+  return (order.items || []).reduce((sum, item) => sum + (item.quantity ?? item.qty ?? 1), 0);
 }
 
-const OrderDetailsModal = ({ order, onClose }) => {
-  if (!order) return null;
-  const items = order.items || [];
-
-  return (
-    <motion.div
-      className="my-order-overlay"
-      variants={overlayVariant}
-      initial="hidden"
-      animate="show"
-      exit="exit"
-      onClick={onClose}
-    >
-      <motion.div
-        className="my-order-modal"
-        variants={modalVariant}
-        initial="hidden"
-        animate="show"
-        exit="exit"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="my-order-modal-header">
-          <div className="my-order-meta">
-            <span className="my-order-id">#{order.id}</span>
-            <span className="my-order-date">{fmtDate(order.date || order.createdAt)}</span>
-          </div>
-          <CloseButton onClick={onClose} />
-        </div>
-
-        <div className="my-order-modal-body">
-          <span className={`my-order-status my-order-status--${order.status || "pending"}`}>
-            {STATUS_LABELS[order.status] || order.status || "Pending"}
-          </span>
-
-          <div className="my-order-modal-list">
-            {items.map((item, i) => (
-              <div key={i} className="my-order-item">
-                <span className="my-order-item-name">
-                  {item.dishName || item.name}
-                  {item.quantity > 1 && <span className="my-order-item-qty"> × {item.quantity}</span>}
-                </span>
-                <span className="my-order-item-price">₹{item.totalPrice ?? item.unitPrice ?? 0}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="my-order-card-bottom my-order-modal-footer">
-          <span>Total</span>
-          <span className="my-order-total">₹{order.totalAmount ?? 0}</span>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
 const MyOrders = ({ currentUser, handleBack, handleHome }) => {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState(null);
 
   useEffect(() => {
     if (!currentUser || currentUser.id === "guest") {
@@ -140,7 +81,14 @@ const MyOrders = ({ currentUser, handleBack, handleHome }) => {
   return (
     <div className="food-list my-orders-page">
       <PageHeader
-        title="My Orders"
+        title={
+          <span className="my-orders-title-row">
+            My Orders
+            {!loading && !error && orders.length > 0 && (
+              <span className="my-orders-count-badge">{orders.length}</span>
+            )}
+          </span>
+        }
         wrapperClassName="food-header"
         titleClassName="food-list-title"
         onBack={handleBack}
@@ -149,24 +97,25 @@ const MyOrders = ({ currentUser, handleBack, handleHome }) => {
 
       <div className="food-category" style={{ padding: "0px" }}>
         {loading && (
-          <div className="fav-empty fav-empty-page">
-            <h3 className="fav-empty-title">Loading your orders…</h3>
+          <div className="my-orders-state">
+            <div className="my-orders-state-icon my-orders-state-icon--loading">🧾</div>
+            <h3 className="my-orders-state-title">Loading your orders…</h3>
           </div>
         )}
 
         {!loading && error && (
-          <div className="fav-empty fav-empty-page">
-            <div className="fav-empty-icon">⚠️</div>
-            <h3 className="fav-empty-title">Couldn't load your orders</h3>
-            <p className="fav-empty-sub">Please try again in a moment.</p>
+          <div className="my-orders-state">
+            <div className="my-orders-state-icon my-orders-state-icon--error">⚠️</div>
+            <h3 className="my-orders-state-title">Couldn't load your orders</h3>
+            <p className="my-orders-state-sub">Please try again in a moment.</p>
           </div>
         )}
 
         {!loading && !error && orders.length === 0 && (
-          <div className="fav-empty fav-empty-page">
-            <div className="fav-empty-icon">🧾</div>
-            <h3 className="fav-empty-title">No orders yet</h3>
-            <p className="fav-empty-sub">Orders you place will show up here.</p>
+          <div className="my-orders-state">
+            <div className="my-orders-state-icon my-orders-state-icon--empty">🧾</div>
+            <h3 className="my-orders-state-title">No orders yet</h3>
+            <p className="my-orders-state-sub">Orders you place will show up here.</p>
           </div>
         )}
 
@@ -177,28 +126,32 @@ const MyOrders = ({ currentUser, handleBack, handleHome }) => {
                 <button
                   key={order.id}
                   type="button"
-                  className="my-order-card"
-                  onClick={() => setSelectedOrder(order)}
+                  className={`my-order-card my-order-status--${order.status || "pending"}`}
+                  onClick={() => navigate(`/my-orders/${order.id}`)}
                 >
+                  <span className="my-order-card-accent" />
+
                   <div className="my-order-card-top">
                     <div className="my-order-meta">
                       <span className="my-order-id">#{order.id}</span>
                       <span className="my-order-date">{fmtDate(order.date || order.createdAt)}</span>
                     </div>
                     <span className={`my-order-status my-order-status--${order.status || "pending"}`}>
+                      <span className="my-order-status-icon">{STATUS_ICONS[order.status] || STATUS_ICONS.pending}</span>
                       {STATUS_LABELS[order.status] || order.status || "Pending"}
                     </span>
                   </div>
 
                   <div className="my-order-items">
                     <span className="my-order-dish-count">
-                      {dishCount(order)} {dishCount(order) === 1 ? "dish" : "dishes"}
+                      🍽️ {dishCount(order)} {dishCount(order) === 1 ? "dish" : "dishes"}
                     </span>
                   </div>
 
                   <div className="my-order-card-bottom">
                     <span>Total</span>
                     <span className="my-order-total">₹{order.totalAmount ?? 0}</span>
+                    <span className="my-order-card-arrow" aria-hidden="true">→</span>
                   </div>
                 </button>
               ))}
@@ -206,12 +159,6 @@ const MyOrders = ({ currentUser, handleBack, handleHome }) => {
           </div>
         )}
       </div>
-
-      <AnimatePresence>
-        {selectedOrder && (
-          <OrderDetailsModal order={selectedOrder} onClose={() => setSelectedOrder(null)} />
-        )}
-      </AnimatePresence>
     </div>
   );
 };

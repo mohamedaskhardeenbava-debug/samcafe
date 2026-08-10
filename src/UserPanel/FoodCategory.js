@@ -5,6 +5,7 @@ import listIcon from "../assets/icons/list.png";
 import gridIcon from "../assets/icons/grid.png";
 import eventFallbackImg from "../assets/events-fallback.png";
 import Button3D from "./shared/Button3D";
+import { fmtDate as fmtDateNumeric } from "../utils/dateUtils";
 
 /* ═══════════════════════════════════════════════
    DATA HELPERS
@@ -38,11 +39,12 @@ function buildOrderCount(orders = []) {
   return count;
 }
 
-/** Format "YYYY-MM-DD" → "Mon, DD Mmm" */
+/** Format "YYYY-MM-DD" → "Mon, 31-07-2026" */
 function fmtDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
-  return d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" });
+  const weekday = d.toLocaleDateString("en-IN", { weekday: "short" });
+  return `${weekday}, ${fmtDateNumeric(dateStr)}`;
 }
 
 /* ─────────────────────────────────────────────

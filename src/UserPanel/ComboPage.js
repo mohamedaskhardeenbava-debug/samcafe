@@ -504,12 +504,12 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
 
   useEffect(() => {
     const fetchSectionConfig = () => {
-      api.get("/comboSectionConfig")
+      api.get("/combo-section-config/public")
         .then(res => setSectionConfig(res.data || { sections: [] }))
         .catch(() => setSectionConfig({ sections: [] }));
     };
     const fetchComboOffers = () => {
-      api.get("/combo_offers")
+      api.get("/combo-offers/public")
         .then(res => setComboOffers(Array.isArray(res.data) ? res.data : []))
         .catch(() => setComboOffers([]));
     };
@@ -685,8 +685,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
     return perComboBasePrice;
   }, [matchedOffer, perComboBasePrice]);
 
-  const originalTotal = perComboBasePrice * quantity;
-  const discountedPrice = perComboFinalPrice * quantity;
+  // Round every customer-facing figure — total, discount, and final
+  // amount all display and save as whole rupees, never fractional paise.
+  const originalTotal = Math.round(perComboBasePrice * quantity);
+  const discountedPrice = Math.round(perComboFinalPrice * quantity);
   const savings = originalTotal - discountedPrice;
 
   const sectionKeys = useMemo(() => sections.map(s => s.key), [sections]);
@@ -760,24 +762,39 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   const handlePick = useCallback((type, item) => {
     setSelectedItems(prev => {
       const idx = sectionKeys.indexOf(type);
+      const wasAlreadyFilled = !!prev[type];
+      const isActualChange = wasAlreadyFilled && prev[type].name !== item.name;
       const next = { ...prev, [type]: item };
-      // Picking a slot resets any later slots (matches prior undo cascade behaviour).
-      sectionKeys.slice(idx + 1).forEach(k => { next[k] = null; });
+      // Only cascade-clear later slots when this pick genuinely changes
+      // an already-filled section — that's the case where downstream
+      // choices (picked based on the old value) may no longer make
+      // sense. Filling a slot that was still empty (e.g. picking
+      // category2 after an offer hint already filled category3 out of
+      // order) must never wipe sections that were already chosen.
+      if (isActualChange) {
+        sectionKeys.slice(idx + 1).forEach(k => { next[k] = null; });
+      }
       return next;
     });
     setActiveGroupBySection(prev => {
       const idx = sectionKeys.indexOf(type);
+      const wasAlreadyFilled = !!selectedItems[type];
+      const isActualChange = wasAlreadyFilled && selectedItems[type].name !== item.name;
+      if (!isActualChange) return prev;
       const next = { ...prev };
       sectionKeys.slice(idx + 1).forEach(k => { delete next[k]; });
       return next;
     });
     setActiveCategoryBySection(prev => {
       const idx = sectionKeys.indexOf(type);
+      const wasAlreadyFilled = !!selectedItems[type];
+      const isActualChange = wasAlreadyFilled && selectedItems[type].name !== item.name;
+      if (!isActualChange) return prev;
       const next = { ...prev };
       sectionKeys.slice(idx + 1).forEach(k => { delete next[k]; });
       return next;
     });
-  }, [sectionKeys]);
+  }, [sectionKeys, selectedItems]);
 
   /* ── Open "My Combo" sheet automatically once the last section
      completes the combo, instead of waiting for the cart icon tap.
@@ -813,15 +830,20 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   }, [offerHint, handlePick]);
 
   const handleAddToBag = useCallback(() => {
+    // Round every price on the bag/order line item — this is what gets
+    // persisted with the order, so rounding here (not just on screen)
+    // is what keeps the database free of fractional-rupee amounts.
+    const roundedFinal = Math.round(perComboFinalPrice);
+    const roundedBase = Math.round(perComboBasePrice);
     const comboItem = {
       id: `combo_${Date.now()}`,
       name: comboTitle,
       categoryId: "combo",
       quantity,
-      unitPrice: perComboFinalPrice,
-      perComboBasePrice,
-      perComboFinalPrice,
-      totalPrice: perComboFinalPrice * quantity,
+      unitPrice: roundedFinal,
+      perComboBasePrice: roundedBase,
+      perComboFinalPrice: roundedFinal,
+      totalPrice: discountedPrice,
       originalPrice: originalTotal,
       comboItems: selectedItems,
       isCombo: true
@@ -829,7 +851,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
     if (isEditMode) updateBagItem(editIndex, comboItem);
     else addToBag(comboItem);
     setJustAdded(true);
-  }, [comboTitle, quantity, perComboFinalPrice, perComboBasePrice, originalTotal, selectedItems, isEditMode, editIndex, addToBag, updateBagItem]);
+  }, [comboTitle, quantity, perComboFinalPrice, perComboBasePrice, originalTotal, discountedPrice, selectedItems, isEditMode, editIndex, addToBag, updateBagItem]);
 
   const handleCloseConfirmation = useCallback(() => {
     setJustAdded(false);
@@ -855,7 +877,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
       items: itemsByLabel,
       comboItems: selectedItems,
       originalPrice: originalTotal,
-      perComboFinalPrice,
+      perComboFinalPrice: Math.round(perComboFinalPrice),
       totalPrice: discountedPrice,
       createdAt: new Date().toISOString()
     };
@@ -1102,14 +1124,14 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
             {perComboFinalPrice < perComboBasePrice && (
               <div className="combo-group-strip-regular">
                 <span className="combo-group-strip-regular-label">Regular Price</span>
-                <span className="combo-group-strip-regular-price">₹{perComboBasePrice}/-</span>
+                <span className="combo-group-strip-regular-price">₹{Math.round(perComboBasePrice)}/-</span>
               </div>
             )}
             <div className="combo-group-strip-final">
               <span className="combo-group-strip-final-label">
                 {perComboFinalPrice < perComboBasePrice ? "Combo @ Just" : "Combo Total"}
               </span>
-              <span className="combo-group-strip-final-price">₹{perComboFinalPrice}/-</span>
+              <span className="combo-group-strip-final-price">₹{Math.round(perComboFinalPrice)}/-</span>
             </div>
           </div>
 

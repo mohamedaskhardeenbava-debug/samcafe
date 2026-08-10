@@ -25,6 +25,7 @@ import FavouriteDishDetail from "./UserPanel/FavouriteDishDetail";
 import ComboPage from "./UserPanel/ComboPage";
 import FavouriteCombo from "./UserPanel/FavouriteCombo";
 import MyOrders from "./UserPanel/MyOrders";
+import OrderDetails from "./UserPanel/OrderDetails";
 import OffersGrid from "./UserPanel/OffersGrid";
 
 // ─── Events ─────────────────────────────────────────────────────────────────
@@ -583,6 +584,8 @@ function App() {
               <Route path="/favourite-combos" element={isAuthenticatedUser && isComboEnabled ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
               <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+
+              <Route path="/my-orders/:orderId" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><OrderDetails handleBack={() => navigate("/my-orders")} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
               <Route path="/offers" element={isOffersEnabled ? <motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={() => navigate(-1)} handleHome={() => navigate("/categories")} /></motion.div> : <Navigate to="/categories" replace />} />
 

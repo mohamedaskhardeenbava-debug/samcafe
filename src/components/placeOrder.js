@@ -4,14 +4,15 @@ import api from "../api";
 import socket from "../socket";
 import { printKot } from "../printUtils";
 import { stripCustomizedPrefix } from "../UserPanel/shared/bagUtils";
+import { fmtDate } from "../utils/dateUtils";
 
 const CGST_RATE = 0.025;
 const SGST_RATE = 0.025;
 
-/** Formats an ISO date string as DD/MM/YYYY for the receipt printer. */
+/** Formats an ISO date string as DD-MM-YYYY for the receipt printer. */
 const formatForPrinter = (iso) => {
   if (!iso) return "";
-  return new Date(iso).toLocaleDateString("en-GB");
+  return fmtDate(iso);
 };
 
 /** Computes subtotal + CGST/SGST + grand total (all rounded) for a bag. */

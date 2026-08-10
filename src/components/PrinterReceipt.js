@@ -1,5 +1,6 @@
 import "./PrinterReceipt.css";
 import { useRef } from "react";
+import { fmtDate, fmtTime } from "../utils/dateUtils";
 
 const LETTERS = "Printing...".split("");
 
@@ -25,22 +26,13 @@ const PrinterReceipt = ({ order, onDone }) => {
     totalWithGST,
   } = order;
 
-  const formattedDate = date
-    ? (() => {
-      const d = new Date(date);
-      return isNaN(d) ? date : d.toLocaleDateString("en-GB");
-    })()
-    : new Date().toLocaleDateString("en-GB");
+  const formattedDate = date ? fmtDate(date) : fmtDate(new Date().toISOString());
 
   const formattedTime = (() => {
     if (!time) return "";
     const match = String(time).match(/^(\d{1,2}):(\d{2})/);
     if (!match) return time;
-    let [, h, m] = match;
-    h = parseInt(h, 10);
-    const suffix = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-    return `${h}:${m} ${suffix}`;
+    return fmtTime(`${match[1]}:${match[2]}`);
   })();
 
   const subTotal = totalWithGST?.subTotal ?? totalAmount ?? 0;
