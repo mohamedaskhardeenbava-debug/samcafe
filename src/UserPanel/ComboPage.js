@@ -757,24 +757,48 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   const phase = sectionKeys.find(k => !selectedItems[k]) || (sectionKeys.length ? "done" : null);
   const phaseTypeKey = phase && phase !== "done" ? phase : null;
 
-  const handlePick = useCallback((type, item) => {
+  // Slots filled out of the normal left-to-right order (currently only via
+  // the offer-hint "Add Item" shortcut, which can fill a slot ahead of the
+  // section the user is actively browsing). Slots picked this way are
+  // exempt from the "picking an earlier slot clears later slots" cascade
+  // below — see handlePick.
+  const outOfOrderKeysRef = useRef(new Set());
+
+  const handlePick = useCallback((type, item, { outOfOrder = false } = {}) => {
+    const idx = sectionKeys.indexOf(type);
+
+    if (outOfOrder) {
+      outOfOrderKeysRef.current.add(type);
+    } else {
+      outOfOrderKeysRef.current.delete(type);
+    }
+
+    // Picking a slot resets any later slot — unless that later slot was
+    // filled out of order (e.g. via the offer hint) rather than as a
+    // consequence of the flow through this slot. Re-picking an earlier
+    // slot shouldn't wipe an out-of-order pick that has nothing to do
+    // with it.
+    const shouldClear = (k) => !outOfOrderKeysRef.current.has(k);
+
     setSelectedItems(prev => {
-      const idx = sectionKeys.indexOf(type);
       const next = { ...prev, [type]: item };
-      // Picking a slot resets any later slots (matches prior undo cascade behaviour).
-      sectionKeys.slice(idx + 1).forEach(k => { next[k] = null; });
+      sectionKeys.slice(idx + 1).forEach(k => {
+        if (shouldClear(k)) next[k] = null;
+      });
       return next;
     });
     setActiveGroupBySection(prev => {
-      const idx = sectionKeys.indexOf(type);
       const next = { ...prev };
-      sectionKeys.slice(idx + 1).forEach(k => { delete next[k]; });
+      sectionKeys.slice(idx + 1).forEach(k => {
+        if (shouldClear(k)) delete next[k];
+      });
       return next;
     });
     setActiveCategoryBySection(prev => {
-      const idx = sectionKeys.indexOf(type);
       const next = { ...prev };
-      sectionKeys.slice(idx + 1).forEach(k => { delete next[k]; });
+      sectionKeys.slice(idx + 1).forEach(k => {
+        if (shouldClear(k)) delete next[k];
+      });
       return next;
     });
   }, [sectionKeys]);
@@ -789,6 +813,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
 
   const handleUndo = useCallback((type) => {
     const idx = sectionKeys.indexOf(type);
+    // Undoing a slot always clears it and everything after it, regardless
+    // of how those later slots were filled — an explicit undo tap is an
+    // intentional reset, unlike the cascade in handlePick which needs to
+    // spare out-of-order picks.
+    sectionKeys.slice(idx).forEach(k => { outOfOrderKeysRef.current.delete(k); });
     setSelectedItems(prev => {
       const next = { ...prev };
       sectionKeys.slice(idx).forEach(k => { next[k] = null; });
@@ -808,7 +837,11 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
 
   const handleHintAdd = useCallback(() => {
     if (!offerHint) return;
-    handlePick(offerHint.targetKey, offerHint.targetItem);
+    // This can fill a slot ahead of the section the user is currently
+    // browsing (e.g. filling category 3 while category 1 is still being
+    // picked) — mark it out-of-order so a later pick in an earlier
+    // section doesn't cascade-clear it.
+    handlePick(offerHint.targetKey, offerHint.targetItem, { outOfOrder: true });
     setOfferHint(null);
   }, [offerHint, handlePick]);
 
@@ -1243,9 +1276,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                       isComboComplete={isComboComplete}
                       onDelete={handleUndo}
                     />
-                  </div>
 
-                  <div className="add-to-bag-row">
                     {isComboComplete && currentUser && currentUser.id !== "guest" && (
                       <Button3D
                         as={motion.button}
@@ -1256,29 +1287,31 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                         Save to Favourites
                       </Button3D>
                     )}
-
-                    <Button3D
-                      as={motion.button}
-                      className="btn-3d red combo-checkout-bar"
-                      disabled={!isComboComplete}
-                      onClick={handleAddToBag}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
-                      <AnimatePresence mode="wait">
-                        <motion.span
-                          key={discountedPrice}
-                          className="combo-checkout-amount"
-                          initial={{ opacity: 0, y: 6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.18 }}
-                        >
-                          ₹{discountedPrice}
-                        </motion.span>
-                      </AnimatePresence>
-                    </Button3D>
                   </div>
+
+                  <Button3D
+                    as={motion.button}
+                    className="btn-3d red combo-checkout-bar"
+                    style={{ width: "170px", alignSelf: "end" }}
+                    disabled={!isComboComplete}
+                    onClick={handleAddToBag}
+                    whileTap={{ scale: 0.97 }}
+                    frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
+                  >
+                    <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        key={discountedPrice}
+                        className="combo-checkout-amount"
+                        initial={{ opacity: 0, y: 6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.18 }}
+                      >
+                        ₹{discountedPrice}
+                      </motion.span>
+                    </AnimatePresence>
+                  </Button3D>
                 </>
               )}
             </motion.div>
