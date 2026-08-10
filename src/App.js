@@ -148,14 +148,14 @@ function App() {
     try {
       const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
         await Promise.all([
-          api.get("/categories"),
-          api.get("/ingredients"),
-          api.get("/favourites"),
-          api.get("/combo"),
-          api.get("/offers"),
-          api.get("/tables"),
-          api.get("/events").catch(() => ({ data: [] })),
-          api.get("/orders").catch(() => ({ data: [] })),
+          api.get("/categories/public"),
+          api.get("/ingredients/public"),
+          api.get("/favourites/public"),
+          api.get("/combo/public"),
+          api.get("/offers/public"),
+          api.get("/tables/public"),
+          api.get("/events/public").catch(() => ({ data: [] })),
+          api.get("/orders/mine").catch(() => ({ data: [] })),
         ]);
 
       setFoodData((prev) => ({
@@ -443,7 +443,7 @@ function App() {
       const userFavourites = Array.isArray(user.favourites) ? user.favourites : [];
       const existsInUser = userFavourites.some((f) => f.id === enrichedDish.id);
 
-      const favsRes = await api.get("/favourites");
+      const favsRes = await api.get("/favourites/public");
       const menuFavourites = Array.isArray(favsRes.data) ? favsRes.data : [];
       const existsInMenu = menuFavourites.some((f) => f.id === enrichedDish.id);
 
