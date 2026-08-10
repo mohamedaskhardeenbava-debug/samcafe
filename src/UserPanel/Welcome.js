@@ -54,8 +54,12 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
         const res = await api.get("/users");
         setUsers(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
-        console.error("Failed to fetch users", err);
-        toast.error("Couldn't connect. Please check your connection and reload.");
+        // Only powers the mobile-number autocomplete <datalist> below —
+        // not essential to logging in or using the page, and (being
+        // admin-gated, same as /categories etc. used to be) this always
+        // 401s for a guest with no admin session. Fail quietly instead
+        // of surfacing a scary "couldn't connect" toast on page load.
+        console.error("Failed to fetch users for autocomplete", err);
       }
     };
 
