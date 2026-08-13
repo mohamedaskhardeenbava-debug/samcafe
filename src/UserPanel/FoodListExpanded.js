@@ -14,6 +14,7 @@ import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import { buildDishBagItem } from "./shared/bagUtils";
 import { getActiveOffer, applyOfferToBagItem } from "./shared/offerUtils";
+import WishlistButton from "./shared/WishlistButton";
 
 /* 🔁 SAME animation config */
 const SOFT_SPRING = {
@@ -50,7 +51,7 @@ const NUTRITION_FIELDS = [
   [fatIcon, "Fat", "fat", "g"]
 ];
 
-const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
+const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentUser, onToggleFavourite }) => {
   const navigate = useNavigate();
   const { state } = useLocation();
   const { dishId } = state || {};
@@ -168,6 +169,16 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack }) => {
             layoutId={`dish-${dish.id}`}
             transition={SLOW_SPRING}
           />
+          {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
+            <WishlistButton
+              className="food-list-expanded-wishlist"
+              size="md"
+              dish={dish}
+              categoryId={resolvedCategoryId}
+              currentUser={currentUser}
+              onToggleFavourite={onToggleFavourite}
+            />
+          )}
         </div>
 
         {/* RIGHT — DETAILS */}

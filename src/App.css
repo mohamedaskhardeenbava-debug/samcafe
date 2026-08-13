@@ -15,6 +15,10 @@ body {
   font-family: "Geom", system-ui, sans-serif !important;
 }
 
+.App, body, html, #root {
+  height: stretch;
+}
+
 /* Restore the tap-delay/double-tap-zoom fix for interactive controls only —
    applying `manipulation` globally (as `*`) overrides swipe surfaces like
    .combo-reel / .appetizer-reel that need `touch-action: pan-x` (or their

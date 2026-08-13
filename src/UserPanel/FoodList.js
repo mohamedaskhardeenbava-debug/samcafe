@@ -8,6 +8,7 @@ import Button3D from "./shared/Button3D";
 import { buildDishBagItem } from "./shared/bagUtils";
 import { getActiveOffer, getEffectiveBasePrice, applyOfferToBagItem } from "./shared/offerUtils";
 import { flyToBag } from "../components/flyToBag";
+import WishlistButton from "./shared/WishlistButton";
 
 const SLOT_X = [-1000, 0, 420, 700, 900];
 const FOODLIST_EXIT_DURATION = 750;
@@ -45,7 +46,7 @@ const DETAIL_EXIT_VARIANT = {
   filter: "blur(10px)"
 };
 
-const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
+const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onToggleFavourite }) => {
   const { categoryId } = useParams();
   const location = useLocation();
   const initialDishId = location.state?.dishId;
@@ -206,9 +207,21 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome }) => {
             variants={DETAIL_VARIANTS}
             transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
           >
-            <h2 className="dish-name">
-              {visible[1].name}
-            </h2>
+            <div className="dish-name-div">
+              <h2 className="dish-name">
+                {visible[1].name}
+              </h2>
+              {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
+                <WishlistButton
+                  className="food-list-wishlist"
+                  size="md"
+                  dish={visible[1]}
+                  categoryId={category.id}
+                  currentUser={currentUser}
+                  onToggleFavourite={onToggleFavourite}
+                />
+              )}
+            </div>
 
             <div className="dish-price">
               {(() => {

@@ -36,59 +36,44 @@ const calculateTotals = (bag) => {
   };
 };
 
-/** Fetches the logged-in user's name/mobile, or "Guest" if none is stored
- *  or the lookup fails (e.g. a guest's synthetic id can't be resolved
- *  through the admin-gated /users/:id route — that's expected, not an
- *  error, so it shouldn't block placing the order). */
+/** Fetches the logged-in user's name/mobile, or "Guest" if none is stored. */
 const resolveUser = async (userId) => {
   if (!userId) return { userName: "Guest", mobileNo: null };
 
-  try {
-    const userRes = await api.get(`/users/${userId}`);
-    return {
-      userName: userRes.data?.name || "Guest",
-      mobileNo: userRes.data?.mobile || null
-    };
-  } catch (err) {
-    console.warn("Could not resolve user for order, falling back to Guest:", err.message);
-    return { userName: "Guest", mobileNo: null };
-  }
+  const userRes = await api.get(`/users/${userId}`);
+  return {
+    userName: userRes.data?.name || "Guest",
+    mobileNo: userRes.data?.mobile || null
+  };
 };
 
-/** Deducts the ingredients consumed by this order from the stock collection.
- *  Best-effort: the order is already saved by the time this runs, so a
- *  stock-update failure shouldn't make the order look like it failed to
- *  the customer — logged and swallowed instead of thrown. */
+/** Deducts the ingredients consumed by this order from the stock collection. */
 const updateIngredientStock = async (bag) => {
-  try {
-    const ingredientsRes = await api.get("/ingredients/public");
-    const allIngredients = ingredientsRes.data;
+  const ingredientsRes = await api.get("/ingredients");
+  const allIngredients = ingredientsRes.data;
 
-    const stockUpdates = allIngredients
-      .map((ing) => {
-        let usedKg = 0;
-        bag.forEach((item) => {
-          (item.ingredients || []).forEach((i) => {
-            if (i.name === ing.name) {
-              usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
-            }
-          });
+  const stockUpdates = allIngredients
+    .map((ing) => {
+      let usedKg = 0;
+      bag.forEach((item) => {
+        (item.ingredients || []).forEach((i) => {
+          if (i.name === ing.name) {
+            usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
+          }
         });
+      });
 
-        if (usedKg <= 0) return null;
+      if (usedKg <= 0) return null;
 
-        const updated = {
-          ...ing,
-          stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
-        };
-        return api.put(`/ingredients/${ing.id}`, updated);
-      })
-      .filter(Boolean);
+      const updated = {
+        ...ing,
+        stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
+      };
+      return api.put(`/ingredients/${ing.id}`, updated);
+    })
+    .filter(Boolean);
 
-    await Promise.all(stockUpdates);
-  } catch (err) {
-    console.warn("Could not update ingredient stock for order:", err.message);
-  }
+  await Promise.all(stockUpdates);
 };
 
 /** Best-effort KOT print request over the socket.io relay — failures are

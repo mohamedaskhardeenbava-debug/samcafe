@@ -126,16 +126,18 @@
   min-height: 0;
   /* ✅ critical: lets flex child shrink below content size so scroll works */
   overflow-y: auto;
-  overflow-x: hidden;
   /* ✅ clips images that poke out horizontally too */
 }
 
 .bag-item-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 6px;
   padding: 10px 0;
   animation: slideInRight 0.35s cubic-bezier(.22, 1, .36, 1);
+  border-bottom: 1px solid var(--text-tertiary);
 }
 
 @keyframes slideInRight {
@@ -155,10 +157,13 @@
 }
 
 .bag-item-row img {
+  grid-column: 1;
+  grid-row: 1;
   width: 46px;
   aspect-ratio: 1 / 1;
   object-fit: contain;
   border-radius: 8px;
+  align-self: center;
 }
 
 /* hidden during flight */
@@ -186,7 +191,9 @@
 }
 
 .bag-item-info {
-  flex: 1;
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
 }
 
 .bag-item-name {
@@ -216,6 +223,8 @@
 
 /* ===== QTY ===== */
 .bag-qty {
+  grid-column: 1;
+  grid-row: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -224,6 +233,8 @@
   border-radius: 20px;
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-list);
+
+  z-index: 999;
 }
 
 .bag-qty button {
@@ -234,15 +245,17 @@
 }
 
 .bag-item-total {
+  grid-column: 2;
+  grid-row: 2;
   font-size: 16px;
   font-weight: 600;
-  width: 100px;
+  width: auto;
   text-align: end;
+  align-self: center;
 }
 
 /* ===== SUMMARY ===== */
 .bag-summary {
-  border-top: 1px solid var(--text-tertiary);
   flex-shrink: 0;
   padding: 10px;
 }
@@ -380,7 +393,8 @@
   }
 
   .bag-item-row {
-    gap: 8px;
+    column-gap: 8px;
+    row-gap: 4px;
   }
 
   .bag-item-price {
@@ -395,9 +409,5 @@
     gap: 2px;
     justify-content: start;
     width: fit-content;
-  }
-
-  .bag-item-total {
-    width: 72px;
   }
 }

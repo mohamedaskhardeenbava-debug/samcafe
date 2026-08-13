@@ -198,10 +198,12 @@
   transform: scale(1.06);
 }
 
-/* Offer badge — overlays the top-left corner of the card image */
+/* Offer badge — sits below the wishlist button in the top-left
+   corner of the card image (wishlist now occupies top:10px so the
+   badge is pushed down to clear it, see .food-grid-card-wishlist). */
 .food-grid-card-offer-badge {
   position: absolute;
-  top: 10px;
+  top: 48px;
   left: 10px;
   font-size: 10px;
   font-weight: 800;
@@ -212,6 +214,19 @@
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
   z-index: 2;
+}
+
+/* Wishlist toggle — top-left corner of the card, parallel to the
+   View hint on the top-right. Positioned against .food-grid-card
+   (not .food-grid-card-img-wrap) so it always renders correctly
+   whether or not the dish has an image — the image wrap clips its
+   contents via overflow: hidden, which could hide/misplace an
+   absolutely-positioned child anchored to it. */
+.food-grid-card-wishlist {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 3;
 }
 
 /* Card body */

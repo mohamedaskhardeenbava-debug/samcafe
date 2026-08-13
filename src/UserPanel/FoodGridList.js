@@ -8,6 +8,7 @@ import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import { buildDishBagItem } from "./shared/bagUtils";
 import { getActiveOffer, applyOfferToBagItem } from "./shared/offerUtils";
+import WishlistButton from "./shared/WishlistButton";
 
 /* ─── Grid container: staggers children on mount/key change ── */
 const gridVariants = {
@@ -30,7 +31,7 @@ const SORT_OPTIONS = [
   { val: "name", label: "A → Z" }
 ];
 
-const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
+const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onToggleFavourite }) => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -142,9 +143,12 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
               <DishCard
                 key={dish.id}
                 dish={dish}
+                categoryId={categoryId}
                 offer={getActiveOffer(dish.id, foodData.offers)}
                 onView={() => navigate(`/foods/${categoryId}`, { state: { dishId: dish.id } })}
                 onAdd={handleAdd(dish)}
+                currentUser={currentUser}
+                onToggleFavourite={onToggleFavourite}
               />
             ))}
           </motion.div>
@@ -155,8 +159,9 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome }) => {
 };
 
 /* ── Dish card ──────────────────────────────────────────── */
-const DishCard = ({ dish, offer, onView, onAdd }) => {
+const DishCard = ({ dish, categoryId, offer, onView, onAdd, currentUser, onToggleFavourite }) => {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const isAuthenticatedUser = currentUser && currentUser.id !== "guest";
 
   return (
     <motion.div
@@ -180,6 +185,16 @@ const DishCard = ({ dish, offer, onView, onAdd }) => {
         />
         {offer && <span className="food-grid-card-offer-badge">{offer.percentage}% OFF</span>}
       </div>
+
+      {isAuthenticatedUser && onToggleFavourite && (
+        <WishlistButton
+          className="food-grid-card-wishlist"
+          dish={dish}
+          categoryId={categoryId}
+          currentUser={currentUser}
+          onToggleFavourite={onToggleFavourite}
+        />
+      )}
 
       <div className="food-grid-card-body">
         <div className="food-grid-card-name">{dish.name}</div>

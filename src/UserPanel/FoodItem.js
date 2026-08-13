@@ -641,8 +641,24 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           </div>
 
           <div className="add-to-bag-row">
-            <Button3D className="btn-3d green" onClick={() => setShowNotes(v => !v)}>
-              Add Notes
+            <Button3D
+              className="btn-3d green"
+              onClick={() => {
+                if (showNotes) {
+                  // Currently open — "Save Notes" was clicked. Trim and
+                  // close; the button's own label switches to "Edit
+                  // Notes" once notes.trim() is non-empty (see label
+                  // logic below), or back to "Add Notes" if left blank.
+                  setNotes((n) => n.trim());
+                  setShowNotes(false);
+                } else {
+                  // Currently closed — "Add Notes" or "Edit Notes" was
+                  // clicked. Either way, open the textarea for input.
+                  setShowNotes(true);
+                }
+              }}
+            >
+              {showNotes ? "Save Notes" : notes.trim() ? "Edit Notes" : "Add Notes"}
             </Button3D>
 
             <Button3D

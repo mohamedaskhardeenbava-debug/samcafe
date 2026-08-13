@@ -56,23 +56,12 @@ const FavouriteDishList = ({
 
     try {
       if (currentUser) {
-        const updatedFavourites =
-          (currentUser.favourites || []).filter(
-            (f) => f.id !== dishToDelete.id
-          );
-
-        const updatedUser = {
-          ...currentUser,
-          favourites: updatedFavourites
-        };
-
-        await api.put(`/users/${currentUser.id}`, updatedUser);
-
-        // Re-fetch the user from the server so we always have the
-        // authoritative copy — avoids stale-closure overwrites from
-        // any concurrent socket data-change events.
-        const refreshed = await api.get(`/users/${currentUser.id}`);
-        setCurrentUser(refreshed.data);
+        // PATCH /users/me/favourites is customer-auth-gated and returns
+        // the updated user doc directly — no need for the separate
+        // PUT-then-GET round trip the admin-gated /users/:id route would
+        // have required (and which a customer session can't reach anyway).
+        const res = await api.patch("/users/me/favourites", { id: dishToDelete.id, _remove: true });
+        setCurrentUser(res.data);
 
         // Clear dialog state only after state is committed
         setShowDeleteConfirm(false);

@@ -6,6 +6,7 @@
   padding: 36px;
   font-family: "Geom", system-ui, sans-serif;
   box-sizing: border-box;
+  height: stretch;
 }
 
 .food-list>* {
@@ -72,6 +73,12 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.dish-name-div {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .dish-name {

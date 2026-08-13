@@ -11,6 +11,7 @@ import FoodCategory from "./UserPanel/FoodCategory";
 import AppetizerBuilder from "./UserPanel/AppetizerBuilder";
 import SubCategoryPage from "./UserPanel/SubCategoryPage";
 import FoodGridList from "./UserPanel/FoodGridList";
+import BestSellers from "./UserPanel/BestSellers";
 import FoodList from "./UserPanel/FoodList";
 import FoodListExpanded from "./UserPanel/FoodListExpanded";
 import FoodItem from "./UserPanel/FoodItem";
@@ -148,14 +149,14 @@ function App() {
     try {
       const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
         await Promise.all([
-          api.get("/categories/public"),
-          api.get("/ingredients/public"),
-          api.get("/favourites/public"),
-          api.get("/combo/public"),
-          api.get("/offers/public"),
-          api.get("/tables/public"),
-          api.get("/events/public").catch(() => ({ data: [] })),
-          api.get("/orders/mine").catch(() => ({ data: [] })),
+          api.get("/categories"),
+          api.get("/ingredients"),
+          api.get("/favourites"),
+          api.get("/combo"),
+          api.get("/offers"),
+          api.get("/tables"),
+          api.get("/events").catch(() => ({ data: [] })),
+          api.get("/orders").catch(() => ({ data: [] })),
         ]);
 
       setFoodData((prev) => ({
@@ -423,47 +424,54 @@ function App() {
   };
 
   // ─── Favourites Toggle ────────────────────────────────────────────────────
+  // Optimistic update: flip currentUser.favourites (and so the heart icon,
+  // which derives isWishlisted from it) immediately on click, then fire the
+  // PATCH in the background. Previously the heart didn't update until the
+  // full request/response round trip resolved, which is why the toggle felt
+  // slow — the UI was waiting on the network + DB write instead of just
+  // reflecting the click. If the request actually fails, the optimistic
+  // change is rolled back and the error is surfaced.
   const onToggleFavourite = async (dish) => {
+    const userId = localStorage.getItem("userId");
+
+    // Guest user — localStorage only, already instant, no round trip to wait on
+    if (!userId) {
+      const guestFavs = JSON.parse(localStorage.getItem("guestFavourites")) || [];
+      const exists = guestFavs.some((f) => f.id === dish.id);
+      const updated = exists ? guestFavs.filter((f) => f.id !== dish.id) : [...guestFavs, dish];
+      localStorage.setItem("guestFavourites", JSON.stringify(updated));
+      return;
+    }
+
+    const previousFavourites = Array.isArray(currentUser?.favourites) ? currentUser.favourites : [];
+    const existsInUser = previousFavourites.some((f) => f.id === dish.id);
+
+    const enrichedDish = existsInUser
+      ? { id: dish.id, _remove: true }
+      : { ...dish, userId, customerName: currentUser?.name || "Guest" };
+
+    // Apply the change locally right away — this is what makes the heart
+    // flip instantly instead of waiting on the server.
+    const optimisticFavourites = existsInUser
+      ? previousFavourites.filter((f) => f.id !== dish.id)
+      : [...previousFavourites, enrichedDish];
+    setCurrentUser((prev) => (prev ? { ...prev, favourites: optimisticFavourites } : prev));
+
     try {
-      const userId = localStorage.getItem("userId");
-
-      // Guest user — localStorage only
-      if (!userId) {
-        const guestFavs = JSON.parse(localStorage.getItem("guestFavourites")) || [];
-        const exists = guestFavs.some((f) => f.id === dish.id);
-        const updated = exists ? guestFavs.filter((f) => f.id !== dish.id) : [...guestFavs, dish];
-        localStorage.setItem("guestFavourites", JSON.stringify(updated));
-        return;
-      }
-
-      const userRes = await api.get(`/users/${userId}`);
-      const user = userRes.data;
-      const enrichedDish = { ...dish, userId, customerName: user.name || "Guest" };
-
-      const userFavourites = Array.isArray(user.favourites) ? user.favourites : [];
-      const existsInUser = userFavourites.some((f) => f.id === enrichedDish.id);
-
-      const favsRes = await api.get("/favourites/public");
-      const menuFavourites = Array.isArray(favsRes.data) ? favsRes.data : [];
-      const existsInMenu = menuFavourites.some((f) => f.id === enrichedDish.id);
-
-      if (existsInUser || existsInMenu) {
-        if (existsInMenu) await api.delete(`/favourites/${enrichedDish.id}`);
-        setFoodData((prev) => ({ ...prev, favourites: menuFavourites.filter((f) => f.id !== enrichedDish.id) }));
-        const updatedUser = { ...user, favourites: userFavourites.filter((f) => f.id !== enrichedDish.id) };
-        await api.put(`/users/${userId}`, updatedUser);
-        setCurrentUser(updatedUser);
-      } else {
-        if (!existsInMenu) {
-          await api.post("/favourites", enrichedDish);
-          setFoodData((prev) => ({ ...prev, favourites: [...menuFavourites, enrichedDish] }));
-        }
-        const updatedUser = { ...user, favourites: [...userFavourites, enrichedDish] };
-        await api.put(`/users/${userId}`, updatedUser);
-        setCurrentUser(updatedUser);
-      }
+      const res = await api.patch("/users/me/favourites", enrichedDish);
+      // Reconcile with the server's actual state in the background — covers
+      // edge cases like a concurrent change from another tab/device — but
+      // the visible toggle already happened above, so this doesn't block
+      // anything the user sees.
+      setCurrentUser(res.data);
     } catch (err) {
+      // Roll back the optimistic change on genuine failure, so the heart
+      // doesn't lie about what's actually saved.
+      setCurrentUser((prev) => (prev ? { ...prev, favourites: previousFavourites } : prev));
       console.error("Favourite toggle failed:", err);
+      if (err?.response?.status === 401) {
+        alert("Please log in again to use your wishlist.");
+      }
     }
   };
 
@@ -537,6 +545,8 @@ function App() {
                       addToBag={addToBag}
                       handleBack={handleBack}
                       handleHome={handleHome}
+                      currentUser={currentUser}
+                      onToggleFavourite={onToggleFavourite}
                     />
                   </div>
                 }
@@ -553,11 +563,13 @@ function App() {
 
               <Route path="/appetizer-builder" element={<AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} />} />
 
-              <Route path="/foods/:categoryId" element={<motion.div {...motionProps}><FoodList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div>} />
+              <Route path="/foods/:categoryId" element={<motion.div {...motionProps}><FoodList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
 
               <Route path="/subcategory/:categoryId" element={<motion.div {...motionProps}><SubCategoryPage foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
 
-              <Route path="foods/:categoryId/grid" element={<motion.div {...motionProps}><FoodGridList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div>} />
+              <Route path="foods/:categoryId/grid" element={<motion.div {...motionProps}><FoodGridList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
+
+              <Route path="/best-sellers" element={<motion.div {...motionProps}><BestSellers foodData={foodData} currentUser={currentUser} onToggleFavourite={onToggleFavourite} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
 
               <Route path="/food/:id" element={<motion.div {...motionProps}><FoodItem foodData={foodData} onToggleFavourite={onToggleFavourite} addToBag={addToBag} updateBagItem={updateBagItem} setDirection={setDirection} setLastAction={setLastAction} toCamelCase={toCamelCase} handleHome={handleHome} handleBack={handleBack} currentUser={currentUser} isWishlistEnabled={isMyFavouritesEnabled && isCrowdPicksEnabled} /></motion.div>} />
 

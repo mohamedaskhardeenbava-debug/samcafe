@@ -12,6 +12,7 @@
   width: 70%;
   z-index: 0;
   isolation: isolate;
+  height: stretch;
 }
 
 /* Soft ambient glow blob — sits behind the dish image */
@@ -33,6 +34,17 @@
 .food-images-expanded img::after {
   content: "";
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.72) 0%, rgba(43, 43, 43, 0.38) 50%, transparent 75%);
+}
+
+/* Wishlist toggle — overlays the top-right corner of the dish image,
+   product-page style. .food-images-expanded already has position:
+   relative + isolation: isolate, so this sits safely above the
+   ambient glow blob (z-index: -1) without extra stacking-context work. */
+.food-list-expanded-wishlist {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
 }
 
 .food-details-expanded {

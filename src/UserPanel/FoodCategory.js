@@ -626,6 +626,9 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
   if (isCardEnabled("combo")) {
     categoriesToRender.push({ id: "combo", name: cardName("combo", "Combos"), image: cardImage("combo", "/assets/category-assets/combo.png"), route: "/combo" });
   }
+  if (isCardEnabled("best-sellers")) {
+    categoriesToRender.push({ id: "best-sellers", name: cardName("best-sellers", "Best Sellers"), image: cardImage("best-sellers", "/assets/category-assets/offers.png"), route: "/best-sellers" });
+  }
   if (isCardEnabled("offers")) {
     categoriesToRender.push({ id: "offers", name: cardName("offers", "Offers"), image: cardImage("offers", "/assets/category-assets/offers.png"), route: "/offers" });
   }
@@ -688,6 +691,7 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
               ${category.id === "events" ? "special" : ""}
               ${category.id === "offers" ? "special" : ""}
               ${category.id === "my-orders" ? "special" : ""}
+              ${category.id === "best-sellers" ? "special" : ""}
             `}
           >
             <div className="food-category-image">

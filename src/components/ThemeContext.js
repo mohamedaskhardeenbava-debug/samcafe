@@ -76,7 +76,7 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await api.get("/theme/public");
+        const res = await api.get("/theme");
         const saved = Array.isArray(res.data) ? res.data[0] : res.data;
         if (!saved) return;
 
