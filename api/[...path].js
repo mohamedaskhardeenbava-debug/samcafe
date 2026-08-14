@@ -43,10 +43,13 @@ module.exports = async (req, res) => {
     return;
   }
 
-  // req.url already includes everything after the Vercel function's own
-  // mount point, e.g. "/orders?venueId=..." — Vercel strips the leading
-  // "/api" for us because this file itself lives at /api/[...path].js.
-  const targetUrl = `${BACKEND_ORIGIN}${req.url}`;
+  // req.url is the full incoming path as Vercel's Node runtime received it,
+  // e.g. "/api/orders?venueId=..." — it does NOT get the "/api" prefix
+  // stripped automatically. Strip it explicitly here so the backend
+  // receives the bare resource path it actually expects (e.g. "/orders"),
+  // matching what a plain vercel.json rewrite would have produced.
+  const strippedUrl = req.url.replace(/^\/api(?=\/|$|\?)/, "") || "/";
+  const targetUrl = `${BACKEND_ORIGIN}${strippedUrl}`;
 
   const outgoingHeaders = {};
   for (const [key, value] of Object.entries(req.headers)) {
