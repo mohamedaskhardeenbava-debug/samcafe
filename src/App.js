@@ -149,13 +149,13 @@ function App() {
     try {
       const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
         await Promise.all([
-          api.get("/categories"),
-          api.get("/ingredients"),
-          api.get("/favourites"),
-          api.get("/combo"),
-          api.get("/offers"),
-          api.get("/tables"),
-          api.get("/events").catch(() => ({ data: [] })),
+          api.get("/public/categories"),
+          api.get("/public/ingredients"),
+          api.get("/favourites").catch(() => ({ data: [] })),
+          api.get("/public/combo"),
+          api.get("/public/offers"),
+          api.get("/public/tables"),
+          api.get("/public/events").catch(() => ({ data: [] })),
           api.get("/orders").catch(() => ({ data: [] })),
         ]);
 
