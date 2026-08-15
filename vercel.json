@@ -1,6 +1,8 @@
 {
   "functions": {
-    "api/[...path].js": {}
+    "api/[...path].js": {
+      "maxDuration": 30
+    }
   },
   "rewrites": [
     {
