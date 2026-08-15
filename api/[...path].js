@@ -56,14 +56,14 @@ const HOP_BY_HOP = new Set([
 const REQUEST_ONLY_STRIP = new Set(["accept-encoding"]);
 
 module.exports = async (req, res) => {
-  // Temporary debug escape hatch: hit /api/__debug directly in the browser
-  // to see exactly what Vercel's runtime provides as req.url for this
-  // function, without guessing. Remove once the /api-stripping behavior
-  // is confirmed correct.
+  // Temporary debug escape hatch: hit /api/__debug or /api/__debug/nested
+  // directly in the browser to see exactly what Vercel's runtime provides
+  // as req.url for this function at different path depths, without
+  // guessing. Remove once the /api-stripping behavior is confirmed correct.
   if (req.url.startsWith("/api/__debug") || req.url.startsWith("/__debug")) {
     res.statusCode = 200;
     res.setHeader("content-type", "application/json");
-    res.end(JSON.stringify({ rawUrl: req.url, method: req.method }, null, 2));
+    res.end(JSON.stringify({ rawUrl: req.url, method: req.method, segments: req.url.split("?")[0].split("/").filter(Boolean) }, null, 2));
     return;
   }
 
