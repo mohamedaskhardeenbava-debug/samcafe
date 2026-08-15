@@ -22,8 +22,7 @@ import { endCustomerSession } from "./customerSession";
 const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const navigate = useNavigate();
   const mobileInputRef = useRef(null);
-  const [users, setUsers] = useState([]);
-  const [enableAutocomplete, setEnableAutocomplete] = useState(true);
+  const [enableAutocomplete, setEnableAutocomplete] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [activeCard, setActiveCard] = useState(null);
   const [branchName, setBranchName] = useState("");
@@ -36,10 +35,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
   const [mobile, setMobile] = useState("");
   const [loading, setLoading] = useState(false);
   const [animateCards, setAnimateCards] = useState(false);
-  const filteredMobiles = users
-    .map(u => u.mobile)
-    .filter(m => m.startsWith(mobile))
-    .sort();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -48,19 +43,18 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await api.get("/users");
-        setUsers(Array.isArray(res.data) ? res.data : []);
-      } catch (err) {
-        console.error("Failed to fetch users", err);
-        toast.error("Couldn't connect. Please check your connection and reload.");
-      }
-    };
-
-    fetchUsers();
-  }, []);
+  /**
+   * NOTE: this used to fetch every registered customer's mobile number
+   * (GET /users, admin-only) to power a browser <datalist> autocomplete
+   * on the login field. Beyond now correctly 401ing for a customer
+   * session, showing another customer's phone number as a login
+   * suggestion was a real privacy leak in its own right — there's no
+   * safe way to "autocomplete" someone else's number. Removed rather
+   * than replaced 1:1; enableAutocomplete is left wired through to the
+   * <MatField> below (currently forced false) in case a *self-only*
+   * version — e.g. remembering just this device's last-used number via
+   * localStorage — is wanted later.
+   */
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -266,11 +260,6 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
         <div className="welcome-wave" />
       </div>
       <ThemeToggle />
-      <datalist id="user-mobiles">
-        {filteredMobiles.map((m) => (
-          <option key={m} value={m} />
-        ))}
-      </datalist>
 
       <div className="welcome-container">
         <div className="welcome-title">
