@@ -47,34 +47,16 @@ const resolveUser = async (userId) => {
   };
 };
 
-/** Deducts the ingredients consumed by this order from the stock collection. */
-const updateIngredientStock = async (bag) => {
-  const ingredientsRes = await api.get("/ingredients");
-  const allIngredients = ingredientsRes.data;
-
-  const stockUpdates = allIngredients
-    .map((ing) => {
-      let usedKg = 0;
-      bag.forEach((item) => {
-        (item.ingredients || []).forEach((i) => {
-          if (i.name === ing.name) {
-            usedKg += ((i.quantity || 0) * (item.quantity || 1)) / 1000;
-          }
-        });
-      });
-
-      if (usedKg <= 0) return null;
-
-      const updated = {
-        ...ing,
-        stockRemaining: Math.max(0, ing.stockRemaining - usedKg)
-      };
-      return api.put(`/ingredients/${ing.id}`, updated);
-    })
-    .filter(Boolean);
-
-  await Promise.all(stockUpdates);
-};
+/**
+ * NOTE: ingredient stock deduction used to happen here, client-side —
+ * the browser would fetch the full ingredients collection and push
+ * writes back to it directly. That's now handled server-side inside
+ * POST /orders (see server.js), atomically, using the same order
+ * payload already being sent. Removed here since (a) it required
+ * customer-session write access to inventory data it has no business
+ * touching directly, and (b) admin routes are now properly
+ * session-gated, so this call would just 401 for every order anyway.
+ */
 
 /** Best-effort KOT print request over the socket.io relay — failures are
  *  logged but never block the caller; placing the order already succeeded
@@ -182,8 +164,7 @@ export const placeOrder = async (bag) => {
   const savedRes = await api.post("/orders", newOrder);
   const savedOrder = savedRes.data;
 
-  /* UPDATE INGREDIENT STOCK */
-  await updateIngredientStock(bag);
+  /* Ingredient stock deduction now happens server-side, inside POST /orders */
 
   /* SEND KOT (best effort) */
   sendKotToPrinter(savedOrder, totalWithGST);
