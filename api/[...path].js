@@ -33,6 +33,15 @@ const HOP_BY_HOP = new Set([
   "upgrade",
   "host",
   "content-length", // recalculated by the runtime for the outgoing response
+  // fetch() transparently gunzips/inflates the response body for us before
+  // we ever see it (arrayBuffer() always returns decoded bytes) — but the
+  // origin's own content-encoding header describes the *original* wire
+  // format, not what we're actually sending. Forwarding it verbatim tells
+  // the browser "this body is still gzipped" when it's plain JSON, so the
+  // browser's own decompression then fails on already-decoded bytes
+  // (net::ERR_CONTENT_DECODING_FAILED). Since we always forward decoded
+  // bytes, this header must never be forwarded.
+  "content-encoding",
 ]);
 
 module.exports = async (req, res) => {
