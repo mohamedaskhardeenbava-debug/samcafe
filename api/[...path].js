@@ -40,9 +40,20 @@ const HOP_BY_HOP = new Set([
   // the browser "this body is still gzipped" when it's plain JSON, so the
   // browser's own decompression then fails on already-decoded bytes
   // (net::ERR_CONTENT_DECODING_FAILED). Since we always forward decoded
-  // bytes, this header must never be forwarded.
+  // bytes, this header must never be forwarded on the response side.
   "content-encoding",
 ]);
+
+// Also stripped specifically from the OUTGOING request to the backend
+// (not response headers, hence separate from HOP_BY_HOP): forwarding the
+// browser's original accept-encoding (e.g. "gzip, deflate, br") lets the
+// backend choose to compress its response, which fetch() then decodes
+// for us — an unnecessary round trip, and if fetch's auto-decoding ever
+// doesn't kick in for some response shape, it reintroduces the exact
+// content-encoding mismatch this proxy exists to avoid. Omitting the
+// header lets fetch() negotiate (or skip) encoding on its own terms,
+// which we already correctly account for on the way back out.
+const REQUEST_ONLY_STRIP = new Set(["accept-encoding"]);
 
 module.exports = async (req, res) => {
   if (!BACKEND_ORIGIN) {
@@ -62,7 +73,8 @@ module.exports = async (req, res) => {
 
   const outgoingHeaders = {};
   for (const [key, value] of Object.entries(req.headers)) {
-    if (HOP_BY_HOP.has(key.toLowerCase())) continue;
+    const lower = key.toLowerCase();
+    if (HOP_BY_HOP.has(lower) || REQUEST_ONLY_STRIP.has(lower)) continue;
     outgoingHeaders[key] = value;
   }
 
