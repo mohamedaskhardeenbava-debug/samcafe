@@ -227,7 +227,7 @@ export const bookingCrud = {
     if (!userId) return empty;
 
     try {
-      const res = await api.get(`/users/${userId}`);
+      const res = await api.get(`/users/me`);
       return {
         name:   res.data?.name   ?? "",
         mobile: res.data?.mobile ?? "",

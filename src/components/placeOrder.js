@@ -40,7 +40,7 @@ const calculateTotals = (bag) => {
 const resolveUser = async (userId) => {
   if (!userId) return { userName: "Guest", mobileNo: null };
 
-  const userRes = await api.get(`/users/${userId}`);
+  const userRes = await api.get(`/users/me`);
   return {
     userName: userRes.data?.name || "Guest",
     mobileNo: userRes.data?.mobile || null

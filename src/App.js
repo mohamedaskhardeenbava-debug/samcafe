@@ -147,23 +147,33 @@ function App() {
   const fetchMenu = async () => {
     setMenuLoading(true);
     try {
-      const [categoriesRes, ingredientsRes, favouritesRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
+      const [categoriesRes, ingredientsRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
         await Promise.all([
           api.get("/public/categories"),
           api.get("/public/ingredients"),
-          api.get("/favourites").catch(() => ({ data: [] })),
           api.get("/public/combo"),
           api.get("/public/offers"),
           api.get("/public/tables"),
           api.get("/public/events").catch(() => ({ data: [] })),
-          api.get("/orders").catch(() => ({ data: [] })),
+          api.get("/orders/mine").catch(() => ({ data: [] })),
         ]);
+
+      // Favourites live embedded on the customer's own user doc, not a
+      // separate collection — /favourites is the admin-only master list
+      // (401s for a customer session), so pull them from /auth/me instead.
+      let favourites = [];
+      try {
+        const meRes = await api.get("/auth/me");
+        favourites = meRes.data?.user?.favourites || [];
+      } catch {
+        // Not logged in, or session expired — no favourites to show.
+      }
 
       setFoodData((prev) => ({
         ...prev,
         categories: categoriesRes.data || [],
         ingredients: ingredientsRes.data || [],
-        favourites: favouritesRes.data || [],
+        favourites,
         combo: comboRes.data || [],
         comboOffers: comboRes.data || [],
         offers: offersRes.data || [],
@@ -205,10 +215,8 @@ function App() {
       const rawUserId = localStorage.getItem("userId");
       if (!rawUserId) return;
 
-      const userId = rawUserId.replace(/^user_/, "");
-
       try {
-        const res = await api.get(`/users/${userId}`);
+        const res = await api.get(`/users/me`);
         setCurrentUser(res.data);
       } catch {
         localStorage.removeItem("userId");

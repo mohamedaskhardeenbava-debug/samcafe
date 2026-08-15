@@ -46,8 +46,8 @@ const FavouriteCombo = ({
     const updatedCombos = favCombos.filter(c => c.id !== comboId);
 
     try {
-      await api.put(`/users/${currentUser.id}`, { ...currentUser, combo: updatedCombos });
-      const refreshed = await api.get(`/users/${currentUser.id}`);
+      await api.patch(`/users/me`, { combo: updatedCombos });
+      const refreshed = await api.get(`/users/me`);
       setCurrentUser(refreshed.data);
     } catch (err) {
       console.error("Failed to delete favourite combo", err);
