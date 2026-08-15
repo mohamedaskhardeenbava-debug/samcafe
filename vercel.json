@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "api/[...path].js": {}
+  },
   "rewrites": [
     {
       "source": "/((?!api/).*)",
