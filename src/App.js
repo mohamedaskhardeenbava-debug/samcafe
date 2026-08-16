@@ -147,6 +147,13 @@ function App() {
   const fetchMenu = async () => {
     setMenuLoading(true);
     try {
+      // Purely a console-noise reduction: skip /orders/mine and /auth/me
+      // (for favourites) up front on a device that's never logged in,
+      // rather than firing them and silently catching the expected 401.
+      // Server-side auth is unaffected either way — a stale/wrong flag
+      // here only means an extra network call, never a false result.
+      const everLoggedIn = !!localStorage.getItem("userId");
+
       const [categoriesRes, ingredientsRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
         await Promise.all([
           api.get("/public/categories"),
@@ -155,18 +162,20 @@ function App() {
           api.get("/public/offers"),
           api.get("/public/tables"),
           api.get("/public/events").catch(() => ({ data: [] })),
-          api.get("/orders/mine").catch(() => ({ data: [] })),
+          everLoggedIn ? api.get("/orders/mine").catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
         ]);
 
       // Favourites live embedded on the customer's own user doc, not a
       // separate collection — /favourites is the admin-only master list
       // (401s for a customer session), so pull them from /auth/me instead.
       let favourites = [];
-      try {
-        const meRes = await api.get("/auth/me");
-        favourites = meRes.data?.user?.favourites || [];
-      } catch {
-        // Not logged in, or session expired — no favourites to show.
+      if (everLoggedIn) {
+        try {
+          const meRes = await api.get("/auth/me");
+          favourites = meRes.data?.user?.favourites || [];
+        } catch {
+          // Not logged in, or session expired — no favourites to show.
+        }
       }
 
       setFoodData((prev) => ({
@@ -199,17 +208,27 @@ function App() {
   // hiccup on GET /users/:id silently logged the customer out).
   useEffect(() => {
     const initUser = async () => {
-      try {
-        const res = await api.get("/auth/me");
-        setCurrentUser(res.data.user);
-        localStorage.setItem("userId", res.data.user.id); // kept in sync for any legacy reads elsewhere
-        return;
-      } catch {
-        // No valid session cookie (not logged in, or session expired) —
-        // fall through to the old localStorage-based lookup so guest/
-        // legacy users already mid-session before this change aren't
-        // abruptly logged out; a stale/broken value here still gets
-        // cleared below.
+      // Purely a console-noise reduction, not a security check: if this
+      // device has never logged in (userId was never set, or was cleared
+      // on logout), skip the first /auth/me attempt entirely rather than
+      // firing it and silently catching the expected 401. Anyone who HAS
+      // logged in before still always hits /auth/me — the actual
+      // session validity is still decided server-side by the httpOnly
+      // cookie, never by this flag; a stale/wrong localStorage value
+      // here can only cause an extra network call, never a false login.
+      if (localStorage.getItem("userId")) {
+        try {
+          const res = await api.get("/auth/me");
+          setCurrentUser(res.data.user);
+          localStorage.setItem("userId", res.data.user.id); // kept in sync for any legacy reads elsewhere
+          return;
+        } catch {
+          // No valid session cookie (not logged in, or session expired) —
+          // fall through to the old localStorage-based lookup so guest/
+          // legacy users already mid-session before this change aren't
+          // abruptly logged out; a stale/broken value here still gets
+          // cleared below.
+        }
       }
 
       const rawUserId = localStorage.getItem("userId");
