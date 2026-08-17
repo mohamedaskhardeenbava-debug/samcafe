@@ -17,11 +17,12 @@
  *   import PageLoader from "../components/PageLoader";
  *   // or "../../components/PageLoader" for deeper folders
  *
- *   // 1. Simple — show while data isn't ready yet
- *   if (!adminData.staff?.length) return <PageLoader />;
+ *   // 1. Simple — show while data isn't ready yet (fill the page, not
+ *   //    the viewport — this is a per-page state, not the initial load)
+ *   if (!adminData.staff?.length) return <PageLoader fill />;
  *
  *   // 2. With a custom label
- *   if (loading) return <PageLoader label="Loading theme settings…" />;
+ *   if (loading) return <PageLoader fill label="Loading theme settings…" />;
  *
  *   // 3. Inline (inside a section, not full-page) — shows simple spinner
  *   if (loading) return <PageLoader inline />;
@@ -29,9 +30,14 @@
  *   // 4. Wrap the whole page so the shell (header) still shows
  *   return (
  *     <div className="dishes-page">
- *       {loading ? <PageLoader label="Loading dishes…" /> : <YourContent />}
+ *       {loading ? <PageLoader fill label="Loading dishes…" /> : <YourContent />}
  *     </div>
  *   );
+ *
+ *   // 5. The ONE exception: the true initial app load, before the app
+ *   //    shell (sidebar/topbar) has rendered at all — omit `fill` so it
+ *   //    covers the full viewport, since there's no page container yet.
+ *   if (isAuthLoading) return <PageLoader label="Checking session…" />;
  *
  * ─────────────────────────────────────────────────────────────────
  * Props
@@ -41,6 +47,18 @@
  * @prop {boolean} [inline]  — When true, renders a compact centred row
  *                             with a simple spinner ring instead of the
  *                             cooking animation. Use inside cards/panels.
+ *                             Default: false
+ * @prop {boolean} [fill]    — When true, fills the nearest positioned
+ *                             ancestor (the page/content container) instead
+ *                             of the whole viewport. Use this for anything
+ *                             that isn't the very first app load — a
+ *                             per-page loading state, a venue switch, a
+ *                             re-fetch — so the sidebar/topbar stay visible
+ *                             instead of being blanked out along with the
+ *                             content. Reserve the default (viewport-fixed)
+ *                             behavior for the one true full-page loader:
+ *                             the initial session check before the app
+ *                             shell has rendered at all.
  *                             Default: false
  */
 
@@ -313,8 +331,8 @@ function startVegetableCutterLoop(refs) {
   let sweepOffsetX = 0;
 
   function spawnSlice(cutX, cutY, targetX, targetY, r) {
-    const shadowEl = createSVG("ellipse", { class: "fx-slice-shadow" });
-    const g = createSVG("g", { class: "fx-slice" });
+    const shadowEl = createSVG("ellipse", { class: "fx-slice-shadow", cx: cutX, cy: cutY, rx: r * 0.92, ry: r * 0.92 });
+    const g = createSVG("g", { class: "fx-slice", transform: `translate(${cutX}, ${cutY})` });
     renderCoin(g, r);
     fxLayer.appendChild(shadowEl);
     fxLayer.appendChild(g);
@@ -350,6 +368,7 @@ function startVegetableCutterLoop(refs) {
       const el = createSVG("polygon", {
         class: "fx-crumb",
         points: crumbPoints(size),
+        transform: `translate(${x}, ${y})`,
         style: Math.random() < 0.5 ? "" : "fill:var(--carrot-dark)",
       });
       fxLayer.appendChild(el);
@@ -752,7 +771,7 @@ function VegetableCutterScene() {
   );
 }
 
-export default function PageLoader({ label = "Loading…", inline = false }) {
+export default function PageLoader({ label = "Loading…", inline = false, fill = false }) {
   if (inline) {
     return (
       <div className="pl-inline" role="status" aria-label={label}>
@@ -763,7 +782,7 @@ export default function PageLoader({ label = "Loading…", inline = false }) {
   }
 
   return (
-    <div className="pl-page" role="status" aria-label={label}>
+    <div className={fill ? "pl-page pl-page-fill" : "pl-page"} role="status" aria-label={label}>
       <div className="loader-card">
         <VegetableCutterScene />
         <p className="pl-label">

@@ -65,6 +65,17 @@ export const UserDatePicker = ({
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Escape closes the popup too, same as the close button / backdrop
+  // click.
+  useEffect(() => {
+    if (!open) return undefined;
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
   const minD = min ? new Date(min + "T00:00:00") : null;
   const maxD = max ? new Date(max + "T00:00:00") : null;
 
@@ -138,6 +149,14 @@ export const UserDatePicker = ({
       {open && !disabled && (
         <div className="udp-overlay" onMouseDown={() => setOpen(false)}>
           <div className="udp-popup" onMouseDown={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className="udp-close-btn"
+              aria-label="Close"
+              onClick={() => setOpen(false)}
+            >
+              ×
+            </button>
 
             {/* Navigation */}
             <div className="udp-nav">

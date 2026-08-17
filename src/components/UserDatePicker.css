@@ -193,6 +193,29 @@
   box-sizing: border-box;
 }
 
+.udp-close-btn {
+  position: absolute;
+  top: 16px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-lighter);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(231, 76, 60, 0.1);
+    color: var(--color-red, var(--color-red));
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.udp-close-btn:hover {
+  background: var(--color-red, var(--color-red));
+  color: #fff;
+}
+
 @keyframes udpFadeIn {
   from {
     opacity: 0;
@@ -211,6 +234,8 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 12px;
+  /* Room for the absolutely-positioned close button in the corner */
+  padding-right: 30px;
 }
 
 .udp-nav-btn {
