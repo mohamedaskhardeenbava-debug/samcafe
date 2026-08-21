@@ -223,8 +223,7 @@ const FavouriteCombo = ({
                     </div>
 
                     <Button3D
-                      className="btn-3d red"
-                      style={{ width: "fit-content" }}
+                      className="btn-3d red width100"
                       frontStyle={{ padding: "0 10px" }}
                       onClick={() => handleDelete(combo.id)}
                     >
@@ -232,9 +231,8 @@ const FavouriteCombo = ({
                     </Button3D>
 
                     <Button3D
-                      className="btn-3d green"
+                      className="btn-3d green width100"
                       frontStyle={{ padding: "0 10px" }}
-                      style={{ width: "fit-content" }}
                       onClick={() => handleAddToBag(combo)}
                     >
                       Add to Bag

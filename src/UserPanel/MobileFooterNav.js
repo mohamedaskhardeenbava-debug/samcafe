@@ -16,12 +16,23 @@ import Orders from "../assets/icons/footer-orders.png";
  * Bag opens the existing slide-up bag sheet (same as the floating bag
  * button) rather than navigating to a route, since the app doesn't have
  * a dedicated "bag page" — it's a sheet overlay everywhere else too.
+ * Tapping it again while the sheet is already open closes it (toggles
+ * isBagOpen rather than always forcing it open), matching how tapping
+ * an already-active tab elsewhere in the app doesn't need a second
+ * dedicated close action.
  *
  * The active tab is highlighted with the same "liquid" sliding pill
  * used by the admin panel's Permissions/Roles switch (useTabLiquid +
  * .app-tab-pill-liquid in Common.css there) — ported here as
  * .mobile-footer-tab-liquid so the highlight glides between tabs
  * instead of the background/color just snapping on the new one.
+ *
+ * Every tab's `active` class is derived from the single `activeKey`
+ * below, never from re-checking its own route match independently —
+ * that used to let two tabs end up "active" at once (e.g. Home still
+ * matching /categories while Bag was also active from isBagOpen),
+ * which showed as two separate highlight boxes since each carried its
+ * own static background on top of the one sliding thumb.
  */
 const MobileFooterNav = ({
   currentUser,
@@ -63,7 +74,7 @@ const MobileFooterNav = ({
 
       <button
         type="button"
-        className={`mobile-footer-tab ${isActive("/categories") ? "active" : ""}`}
+        className={`mobile-footer-tab ${activeKey === "home" ? "active" : ""}`}
         onClick={() => handleNavigate("/categories")}
         aria-label="Home"
       >
@@ -74,7 +85,7 @@ const MobileFooterNav = ({
       {isRealAccount && isMyFavouritesEnabled && (
         <button
           type="button"
-          className={`mobile-footer-tab ${isActive("/favourites/my") ? "active" : ""}`}
+          className={`mobile-footer-tab ${activeKey === "favourites" ? "active" : ""}`}
           onClick={() => handleNavigate("/favourites/my")}
           aria-label="My Favourites"
         >
@@ -85,8 +96,8 @@ const MobileFooterNav = ({
 
       <button
         type="button"
-        className={`mobile-footer-tab ${isBagOpen ? "active" : ""}`}
-        onClick={() => setIsBagOpen(true)}
+        className={`mobile-footer-tab ${activeKey === "bag" ? "active" : ""}`}
+        onClick={() => setIsBagOpen((prev) => !prev)}
         aria-label="Bag"
       >
         <span className="mobile-footer-tab-icon mobile-footer-tab-icon--bag">
@@ -101,7 +112,7 @@ const MobileFooterNav = ({
       {isRealAccount && isMyOrdersCardEnabled && (
         <button
           type="button"
-          className={`mobile-footer-tab ${isActive("/my-orders") ? "active" : ""}`}
+          className={`mobile-footer-tab ${activeKey === "orders" ? "active" : ""}`}
           onClick={() => handleNavigate("/my-orders")}
           aria-label="My Orders"
         >
@@ -112,7 +123,7 @@ const MobileFooterNav = ({
 
       <button
         type="button"
-        className={`mobile-footer-tab ${isActive("/profile") ? "active" : ""}`}
+        className={`mobile-footer-tab ${activeKey === "profile" ? "active" : ""}`}
         onClick={() => handleNavigate("/profile")}
         aria-label="Profile"
       >

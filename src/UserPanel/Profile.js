@@ -6,6 +6,9 @@ import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import { endCustomerSession } from "./customerSession";
 
+import Fav from "../assets/icons/footer-fav.png";
+import Orders from "../assets/icons/footer-orders.png";
+
 /** First letter of the customer's name, for the avatar circle. */
 function initial(name) {
   const trimmed = (name || "").trim();
@@ -54,7 +57,6 @@ const Profile = ({
           <div className="profile-name">{currentUser.name || "Guest"}</div>
           {currentUser.mobile && (
             <div className="profile-mobile">
-              <span className="profile-mobile-icon" aria-hidden="true">📱</span>
               +91 {currentUser.mobile}
             </div>
           )}
@@ -73,12 +75,12 @@ const Profile = ({
                 className="profile-link-row"
                 onClick={() => navigate("/my-orders")}
               >
-                <span className="profile-link-icon profile-link-icon--orders" aria-hidden="true">🧾</span>
+                <span className="profile-link-icon profile-link-icon--orders" aria-hidden="true"><img className="footer" src={Orders} alt="Orders" /></span>
                 <span className="profile-link-text">
                   <span className="profile-link-title">My Orders</span>
                   <span className="profile-link-sub">Track and review your past orders</span>
                 </span>
-                <span className="profile-link-arrow" aria-hidden="true">→</span>
+                <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
               </button>
             )}
 
@@ -88,12 +90,12 @@ const Profile = ({
                 className="profile-link-row"
                 onClick={() => navigate("/favourites/my")}
               >
-                <span className="profile-link-icon profile-link-icon--favourites" aria-hidden="true">❤️</span>
+                <span className="profile-link-icon profile-link-icon--favourites" aria-hidden="true"><img src={Fav} alt="Favourites" /></span>
                 <span className="profile-link-text">
                   <span className="profile-link-title">My Favourites</span>
                   <span className="profile-link-sub">Dishes you've favourited</span>
                 </span>
-                <span className="profile-link-arrow" aria-hidden="true">→</span>
+                <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
               </button>
             )}
           </div>

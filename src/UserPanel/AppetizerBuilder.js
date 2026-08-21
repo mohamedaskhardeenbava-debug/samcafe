@@ -44,10 +44,12 @@ const phaseTransition = {
 // smaller offsets instead of being clipped by .appetizer-page's
 // overflow-x: hidden, with the resting position and its swipe-arc
 // always derived from the SAME scaled circle (no snap/mismatch).
-const buildReelGeometry = (xyScale, neighborScaleMult = 1) => {
+// activeScaleMult (mirrors ComboPage.js) scales the ACTIVE (centered)
+// dish's own base 0.8 scale independently of neighborScaleMult.
+const buildReelGeometry = (xyScale, neighborScaleMult = 1, activeScaleMult = 1) => {
   const REEL_SLOTS = [
     { x: -195 * xyScale, y: 390 * xyScale, scale: 0.4 * neighborScaleMult, rotate: 0, blur: 8, zIndex: 1 },   // previous (below-left)
-    { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },                              // active (front, centered)
+    { x: 0, y: 0, scale: 0.8 * activeScaleMult, rotate: 0, blur: 0, zIndex: 3 },                              // active (front, centered)
     { x: 520 * xyScale, y: -130 * xyScale, scale: 0.5 * neighborScaleMult, rotate: 0, blur: 6, zIndex: 2 }    // next (above-right)
   ];
 
@@ -106,14 +108,24 @@ const buildReelGeometry = (xyScale, neighborScaleMult = 1) => {
   return { REEL_SLOTS_5, REEL_ARCS };
 };
 
-// Same 0.17 mobile scale + 0.7 neighborScaleMult as ComboPage.js
-// (math-verified against the wrapper's own visual scale so the
-// peeking dishes land fully inside a 375px-wide phone viewport with
-// a bigger visible gap around the active dish — see ComboPage.js's
-// comment for the full derivation), for visual consistency between
+// Same mobile scale + neighborScaleMult as ComboPage.js (math-verified
+// against the wrapper's own visual scale so the peeking dishes land
+// fully inside a 375px-wide phone viewport with a bigger visible gap
+// around the active dish — see ComboPage.js's comment for the full
+// derivation, including the 0.17→0.2→0.22 xyScale bumps and the
+// 0.7→0.6 neighborScaleMult pulldown), for visual consistency between
 // the two builders.
 const DESKTOP_REEL_GEOMETRY = buildReelGeometry(1);
-const MOBILE_REEL_GEOMETRY = buildReelGeometry(0.17, 0.7);
+const MOBILE_REEL_GEOMETRY = buildReelGeometry(0.22, 0.6);
+
+// Tablet variant — same values and derivation as ComboPage.js
+// (AppetizerBuilder.css mirrors the same 578px/992px/768px breakpoints
+// and reel-column percentages verbatim, so the same geometry is safe
+// here too): fixes prev/next being positioned entirely outside the
+// visible reel column at tablet widths, widens the gap between
+// prev/current/next, and grows the active dish ~20% — see
+// ComboPage.js's comment for the full margin math.
+const TABLET_REEL_GEOMETRY = buildReelGeometry(0.21, 0.42, 1.2);
 
 const REEL_SPRING = { type: "spring", stiffness: 70, damping: 26, mass: 1 };
 /* Faster crossfade for the name/description block specifically —
@@ -189,18 +201,30 @@ const AppetizerReel = ({ items, type, onSelect }) => {
   const startY = useRef(0);
   const isPointerDown = useRef(false);
 
-  // Below 578px, switch to the pre-built mobile geometry set so the
-  // peeking prev/next dishes' x/y offsets fit inside the narrower
-  // viewport instead of being clipped by the page's overflow-x: hidden.
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" && window.innerWidth <= 578
-  );
+  // Three-tier breakpoint matching AppetizerBuilder.css's own bands
+  // (578px phone cutoff, 992px tablet cutoff), same fix and reasoning
+  // as ComboPage.js — the tablet band previously fell through to
+  // DESKTOP_REEL_GEOMETRY's full-size offsets inside a much narrower
+  // reel column, pushing prev/next outside the visible area.
+  const getTier = () => {
+    if (typeof window === "undefined") return "desktop";
+    const w = window.innerWidth;
+    if (w <= 578) return "mobile";
+    if (w <= 992) return "tablet";
+    return "desktop";
+  };
+  const [tier, setTier] = useState(getTier);
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 578);
+    const onResize = () => setTier(getTier());
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const geometry = isMobile ? MOBILE_REEL_GEOMETRY : DESKTOP_REEL_GEOMETRY;
+  const geometry =
+    tier === "mobile"
+      ? MOBILE_REEL_GEOMETRY
+      : tier === "tablet"
+        ? TABLET_REEL_GEOMETRY
+        : DESKTOP_REEL_GEOMETRY;
 
   useEffect(() => { setRenderIndex(0); setDirection(null); }, [items]);
 

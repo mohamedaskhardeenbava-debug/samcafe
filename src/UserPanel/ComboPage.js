@@ -59,16 +59,20 @@ const listRow = {
 // every arc path stays derived from the SAME scaled circle as its
 // matching resting position, so there's no mismatch/snap between the
 // two at the end of a swipe transition.
-// buildReelGeometry(xyScale, neighborScaleMult = 1) — neighborScaleMult
-// shrinks JUST the prev/next slots' own visual `scale` (not their x/y
-// position), so their rendered footprint gets smaller and a visible
-// gap opens up around the active dish — used on mobile, where xyScale
-// alone can only pull them so close to the active dish before they'd
-// clip off the phone's edge again.
-const buildReelGeometry = (xyScale, neighborScaleMult = 1) => {
+// buildReelGeometry(xyScale, neighborScaleMult = 1, activeScaleMult = 1)
+// — neighborScaleMult shrinks JUST the prev/next slots' own visual
+// `scale` (not their x/y position), so their rendered footprint gets
+// smaller and a visible gap opens up around the active dish — used on
+// mobile/tablet, where xyScale alone can only pull them so close to
+// the active dish before they'd clip off the viewport edge again.
+// activeScaleMult scales the ACTIVE (centered) dish's own base 0.8
+// scale independently of the neighbors — added so tablet can render a
+// bigger centered dish without that also inflating (or being coupled
+// to) prev/next's size.
+const buildReelGeometry = (xyScale, neighborScaleMult = 1, activeScaleMult = 1) => {
   const REEL_SLOTS = [
     { x: -195 * xyScale, y: 390 * xyScale, scale: 0.4 * neighborScaleMult, rotate: 0, blur: 8, zIndex: 1 },   // previous (below-left)
-    { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },                              // active (front, centered)
+    { x: 0, y: 0, scale: 0.8 * activeScaleMult, rotate: 0, blur: 0, zIndex: 3 },                              // active (front, centered)
     { x: 520 * xyScale, y: -130 * xyScale, scale: 0.5 * neighborScaleMult, rotate: 0, blur: 6, zIndex: 2 }    // next (above-right)
   ];
 
@@ -161,8 +165,41 @@ const buildReelGeometry = (xyScale, neighborScaleMult = 1) => {
 // neighborScaleMult shrinks prev/next's own footprint further
 // (independent of their position), opening a visible gap around the
 // active dish instead of them looking like they're touching it.
+//
+// xyScale bumped 0.17→0.2→0.22 across two rounds to widen the gap
+// further per request ("more distance between prev/current/next on
+// mobile"). Pushing xyScale alone past ~0.2 starts eating into the
+// margin fast (0.24 alone would put the next dish's right edge at
+// 177px, past the 171px bound), so this round also pulled
+// neighborScaleMult down 0.7→0.6 — shrinking prev/next's own visual
+// footprint a bit — to buy back room: next dish center offset
+// 520*0.22=114.4px, visual half-width 300*0.5*0.6/2=45px, right edge
+// ≈159.4px — still inside the 171px bound with ~11.6px to spare.
 const DESKTOP_REEL_GEOMETRY = buildReelGeometry(1);
-const MOBILE_REEL_GEOMETRY = buildReelGeometry(0.17, 0.7);
+const MOBILE_REEL_GEOMETRY = buildReelGeometry(0.22, 0.6);
+
+// Tablet variant — the 578-992px band was previously falling straight
+// through to DESKTOP_REEL_GEOMETRY's raw (xyScale=1) offsets, which
+// are sized against the desktop-width reel column. At tablet widths
+// .combo-reel-images shrinks to 58-62% of a much narrower .combo-page
+// (see ComboPage.css's 992px/768px blocks), so those same raw offsets
+// (next dish at x:520) massively overflowed the actual available
+// column — prev/next were rendering, just positioned entirely outside
+// the visible area.
+//
+// xyScale=0.18/neighborScaleMult=0.5 fixed the overflow; bumped to
+// 0.21/0.42 to also widen the gap further per request ("increase
+// distance between prev/current/next"): at the tightest point of the
+// band (579px width, 768px CSS block active: reel 58%, wrapper cap
+// 220px), next dish right edge ≈135px vs a 154px available
+// half-width — 19px margin (down from 30px at the old values, but
+// still safely inside). At the wide end (991px), margin is far more
+// generous. activeScaleMult=1.2 grows the centered active dish ~20%
+// (base 0.8→0.96) per the "increase image size" request — verified
+// against the same tightest width: active dish visual half-width
+// ≈59px, next dish offset ≈109px at that width, leaving a clean 50px
+// gap between them (no visual overlap).
+const TABLET_REEL_GEOMETRY = buildReelGeometry(0.21, 0.42, 1.2);
 
 const REEL_SPRING = { type: "spring", stiffness: 90, damping: 22, mass: 1.2 };
 /* Faster crossfade for the name/price/description block specifically —
@@ -218,19 +255,35 @@ const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
   const startY = useRef(0);
   const isPointerDown = useRef(false);
 
-  // Below 578px (ComboPage.css's phone breakpoint), switch to the
-  // pre-built mobile geometry set so the peeking prev/next dishes'
-  // x/y offsets fit inside the narrower viewport instead of being
-  // clipped by .combo-page's overflow-x: hidden.
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== "undefined" && window.innerWidth <= 578
-  );
+  // Three-tier breakpoint matching ComboPage.css's own bands (578px
+  // phone cutoff, 992px tablet cutoff) so the reel's JS geometry
+  // always matches whichever CSS layout is actually active — previously
+  // this was a straight mobile/desktop split, so the whole 578-992px
+  // tablet band fell through to DESKTOP_REEL_GEOMETRY's raw offsets,
+  // sized for the full desktop-width column. At tablet widths
+  // .combo-reel-images is only 58-62% of a much narrower page, so
+  // those offsets pushed prev/next entirely outside the visible
+  // column — not clipped by overflow so much as positioned off in
+  // space beyond it.
+  const getTier = () => {
+    if (typeof window === "undefined") return "desktop";
+    const w = window.innerWidth;
+    if (w <= 578) return "mobile";
+    if (w <= 992) return "tablet";
+    return "desktop";
+  };
+  const [tier, setTier] = useState(getTier);
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth <= 578);
+    const onResize = () => setTier(getTier());
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-  const geometry = isMobile ? MOBILE_REEL_GEOMETRY : DESKTOP_REEL_GEOMETRY;
+  const geometry =
+    tier === "mobile"
+      ? MOBILE_REEL_GEOMETRY
+      : tier === "tablet"
+        ? TABLET_REEL_GEOMETRY
+        : DESKTOP_REEL_GEOMETRY;
 
   useEffect(() => { setRenderIndex(0); setDirection(null); }, [items]);
 

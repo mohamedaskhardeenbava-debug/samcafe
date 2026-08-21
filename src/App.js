@@ -671,6 +671,7 @@ function App() {
           <MobileFooterNav
             currentUser={currentUser}
             bag={bag}
+            isBagOpen={isBagOpen}
             setIsBagOpen={setIsBagOpen}
             handleNavigate={handleNavigate}
             isMyOrdersCardEnabled={isMyOrdersCardEnabled}

@@ -151,7 +151,7 @@
   font-weight: 600;
   font-size: 15px;
   color: var(--text-primary);
-  white-space: nowrap;
+  white-space: wrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -245,7 +245,7 @@
   }
 
   .fav-combo-main {
-    align-items: flex-start;
+    flex-direction: column;
   }
 
   .fav-combo-actions {

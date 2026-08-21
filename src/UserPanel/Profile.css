@@ -23,8 +23,8 @@
   box-sizing: border-box;
   border-radius: 20px;
   background: linear-gradient(180deg,
-    color-mix(in srgb, var(--color-red) 8%, var(--bg-main)) 0%,
-    var(--bg-main) 100%);
+      color-mix(in srgb, var(--color-red) 8%, var(--bg-main)) 0%,
+      var(--bg-main) 100%);
   box-shadow: var(--shadow-list);
 }
 
@@ -39,8 +39,8 @@
   font-weight: 700;
   color: #fff;
   background: linear-gradient(135deg,
-    var(--color-red),
-    color-mix(in srgb, var(--color-red) 70%, black));
+      var(--color-red),
+      color-mix(in srgb, var(--color-red) 70%, black));
   box-shadow: 0 4px 14px color-mix(in srgb, var(--color-red) 35%, transparent);
   margin-bottom: 4px;
 }
@@ -135,8 +135,13 @@
   background: color-mix(in srgb, var(--color-red) 10%, transparent);
 }
 
+.profile-link-icon img {
+  width: 24px;
+  height: 24px;
+}
+
 .profile-link-icon--favourites {
-  background: color-mix(in srgb, #e0245e 12%, transparent);
+  background: color-mix(in srgb, var(--color-red) 12%, transparent);
 }
 
 .profile-link-text {
@@ -174,7 +179,7 @@
 .floating-profile-btn {
   position: fixed;
   right: 16px;
-  bottom: 92px;
+  bottom: 70px;
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -194,6 +199,39 @@
 
 .floating-profile-btn:active {
   transform: scale(0.94);
+}
+
+.profile-nav-button {
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.profile-forward-btn {
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+}
+
+.profile-forward-btn::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: 20%;
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid var(--text-tertiary);
+  border-top: 3px solid var(--text-tertiary);
+  transform: translateY(-100%) rotate(45deg);
 }
 
 @media (max-width: 480px) {

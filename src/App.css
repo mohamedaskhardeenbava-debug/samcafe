@@ -2085,6 +2085,10 @@ image {
   .mat-row-inline {
     flex-direction: column;
   }
+
+  .width100 {
+    width: 100%;
+  }
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2182,7 +2186,7 @@ image {
     font-family: inherit;
     color: var(--text-secondary, #888);
     padding: 5px 0;
-    border-radius: 20px;
+    border-radius: 10px;
     width: 70px;
     /* Color settles on the same slower timing as the liquid thumb's
        slide, matching the admin panel's .app-tab-pill (color 0.35s)
@@ -2197,6 +2201,14 @@ image {
 
   .mobile-footer-tab.active {
     color: var(--color-red);
+    /* No background-color here — the sliding .mobile-footer-tab-liquid
+       thumb above is the only highlight now. This used to also set
+       its own pale-red background, which (combined with the
+       className bug fixed in MobileFooterNav.js, where every tab
+       independently re-checked its own route match) could leave two
+       tabs "active" at once — e.g. Home still matching /categories
+       while Bag was active from isBagOpen — showing as two separate
+       highlight boxes instead of one sliding between them. */
   }
 
   .mobile-footer-tab-icon {
