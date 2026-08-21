@@ -36,11 +36,33 @@ function dishCount(order) {
   return (order.items || []).reduce((sum, item) => sum + (item.quantity ?? item.qty ?? 1), 0);
 }
 
-const MyOrders = ({ currentUser, handleBack, handleHome }) => {
+const sortOrders = (list) =>
+  [...(list || [])].sort((a, b) => {
+    const at = new Date(a.createdAt || a.date || 0).getTime();
+    const bt = new Date(b.createdAt || b.date || 0).getTime();
+    return bt - at;
+  });
+
+// App.js already fetches every logged-in customer's orders once on app
+// load (part of fetchMenu's initial Promise.all batch) and keeps them
+// live via Socket.IO. This page used to ignore that and re-fetch
+// /orders/mine from scratch on every visit — a full network round trip
+// (plus Render cold-start latency) just to show a spinner over data the
+// app already had. Now it renders instantly from `initialOrders` and
+// only hits the network as a silent background refresh, never blocking
+// the UI.
+const MyOrders = ({ currentUser, initialOrders, handleBack, handleHome }) => {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const hasInitial = Array.isArray(initialOrders);
+  const [orders, setOrders] = useState(() => sortOrders(initialOrders));
+  const [loading, setLoading] = useState(!hasInitial);
   const [error, setError] = useState(false);
+
+  // Keep in sync if the parent's global orders update (e.g. via socket).
+  useEffect(() => {
+    if (hasInitial) setOrders(sortOrders(initialOrders));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialOrders]);
 
   useEffect(() => {
     if (!currentUser || currentUser.id === "guest") {
@@ -49,28 +71,26 @@ const MyOrders = ({ currentUser, handleBack, handleHome }) => {
     }
 
     let cancelled = false;
-    setLoading(true);
+    // Only show the loading state if we had nothing to render yet —
+    // otherwise this is a silent background refresh over existing data.
+    if (!hasInitial) setLoading(true);
     setError(false);
 
     api
       .get("/orders/mine")
       .then((res) => {
         if (cancelled) return;
-        const sorted = [...(res.data || [])].sort((a, b) => {
-          const at = new Date(a.createdAt || a.date || 0).getTime();
-          const bt = new Date(b.createdAt || b.date || 0).getTime();
-          return bt - at;
-        });
-        setOrders(sorted);
+        setOrders(sortOrders(res.data));
       })
       .catch(() => {
-        if (!cancelled) setError(true);
+        if (!cancelled && !hasInitial) setError(true);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
 
     return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   // BLOCK GUEST ACCESS

@@ -1,0 +1,20 @@
+/* Reuses .floating-btn's base look (see FloatingBag.css) and repositions
+   it directly above the bag pill, same right-edge alignment. */
+.floating-profile-btn {
+  bottom: 78px;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+@media (max-width: 576px) {
+  .floating-profile-btn {
+    bottom: 74px;
+  }
+}

@@ -50,83 +50,124 @@ const listRow = {
 // dish below-left, both noticeably large (not just faint background
 // layers). Offsets/scale below are lifted directly from the approved
 // reference layout.
-const REEL_SLOTS = [
-  { x: -150, y: 300, scale: 0.4, rotate: 0, blur: 8, zIndex: 1 },   // previous (below-left)
-  { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },            // active (front, centered)
-  { x: 400, y: -100, scale: 0.5, rotate: 0, blur: 6, zIndex: 2 }     // next (above-right)
-];
+//
+// buildReelGeometry(xyScale) builds the FULL geometry pipeline (base
+// slots → circle → angles → far-slots → arc paths) for a given x/y
+// offset scale. Called once for desktop (scale 1) and once for phones
+// (a smaller scale) below, so mobile gets genuinely smaller offsets —
+// not a CSS transform fighting the page's overflow clipping — while
+// every arc path stays derived from the SAME scaled circle as its
+// matching resting position, so there's no mismatch/snap between the
+// two at the end of a swipe transition.
+// buildReelGeometry(xyScale, neighborScaleMult = 1) — neighborScaleMult
+// shrinks JUST the prev/next slots' own visual `scale` (not their x/y
+// position), so their rendered footprint gets smaller and a visible
+// gap opens up around the active dish — used on mobile, where xyScale
+// alone can only pull them so close to the active dish before they'd
+// clip off the phone's edge again.
+const buildReelGeometry = (xyScale, neighborScaleMult = 1) => {
+  const REEL_SLOTS = [
+    { x: -195 * xyScale, y: 390 * xyScale, scale: 0.4 * neighborScaleMult, rotate: 0, blur: 8, zIndex: 1 },   // previous (below-left)
+    { x: 0, y: 0, scale: 0.8, rotate: 0, blur: 0, zIndex: 3 },                              // active (front, centered)
+    { x: 520 * xyScale, y: -130 * xyScale, scale: 0.5 * neighborScaleMult, rotate: 0, blur: 6, zIndex: 2 }    // next (above-right)
+  ];
+
+  // Circular motion between slots — the three resting spots above
+  // happen to sit on a common circle, so instead of tweening straight
+  // between them, each transition is sampled along that circle's arc
+  // (a real curved/circular path) rather than a straight line.
+  const circumcircleOf = (A, B, C) => {
+    const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
+    const cx = ((A.x ** 2 + A.y ** 2) * (B.y - C.y) + (B.x ** 2 + B.y ** 2) * (C.y - A.y) + (C.x ** 2 + C.y ** 2) * (A.y - B.y)) / d;
+    const cy = ((A.x ** 2 + A.y ** 2) * (C.x - B.x) + (B.x ** 2 + B.y ** 2) * (A.x - C.x) + (C.x ** 2 + C.y ** 2) * (B.x - A.x)) / d;
+    return { cx, cy, r: Math.hypot(A.x - cx, A.y - cy) };
+  };
+
+  const REEL_CIRCLE = circumcircleOf(REEL_SLOTS[0], REEL_SLOTS[1], REEL_SLOTS[2]);
+  const angleOfSlot = (p) => Math.atan2(p.y - REEL_CIRCLE.cy, p.x - REEL_CIRCLE.cx) * (180 / Math.PI);
+  const posOnCircle = (deg) => {
+    const rad = (deg * Math.PI) / 180;
+    return { x: REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad), y: REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad) };
+  };
+
+  let REEL_ANGLE_PREV = angleOfSlot(REEL_SLOTS[0]);
+  let REEL_ANGLE_ACTIVE = angleOfSlot(REEL_SLOTS[1]);
+  let REEL_ANGLE_NEXT = angleOfSlot(REEL_SLOTS[2]);
+  while (REEL_ANGLE_ACTIVE < REEL_ANGLE_PREV) REEL_ANGLE_ACTIVE += 360;
+  while (REEL_ANGLE_NEXT < REEL_ANGLE_ACTIVE) REEL_ANGLE_NEXT += 360;
+
+  // The two off-display wrappers keep going around the SAME circle,
+  // one step further out each side — so they sit outside the visible
+  // display but still on the circular path, ready to sweep smoothly
+  // into view instead of just fading in from a fixed, unrelated spot.
+  const REEL_ANGLE_FAR_PREV = REEL_ANGLE_PREV - (REEL_ANGLE_ACTIVE - REEL_ANGLE_PREV);
+  const REEL_ANGLE_FAR_NEXT = REEL_ANGLE_NEXT + (REEL_ANGLE_NEXT - REEL_ANGLE_ACTIVE);
+  const REEL_FAR_PREV_POS = posOnCircle(REEL_ANGLE_FAR_PREV);
+  const REEL_FAR_NEXT_POS = posOnCircle(REEL_ANGLE_FAR_NEXT);
+
+  // All 5 wrapper roles, in circle order: far-prev, prev, active, next,
+  // far-next. Only the middle 3 are ever opaque/interactive; the outer
+  // two exist purely so their dish is pre-loaded and already sitting in
+  // its correct circular spot the moment it needs to sweep into view.
+  const REEL_SLOTS_5 = [
+    { x: REEL_FAR_PREV_POS.x, y: REEL_FAR_PREV_POS.y, scale: REEL_SLOTS[0].scale * 0.75, rotate: 0, blur: REEL_SLOTS[0].blur + 4, zIndex: 0, opacity: 0 },
+    { ...REEL_SLOTS[0], opacity: 1 },
+    { ...REEL_SLOTS[1], opacity: 1 },
+    { ...REEL_SLOTS[2], opacity: 1 },
+    { x: REEL_FAR_NEXT_POS.x, y: REEL_FAR_NEXT_POS.y, scale: REEL_SLOTS[2].scale * 0.75, rotate: 0, blur: REEL_SLOTS[2].blur + 4, zIndex: 0, opacity: 0 }
+  ];
+  const REEL_ANGLES_5 = [REEL_ANGLE_FAR_PREV, REEL_ANGLE_PREV, REEL_ANGLE_ACTIVE, REEL_ANGLE_NEXT, REEL_ANGLE_FAR_NEXT];
+
+  const ARC_STEPS = 32;
+  const arcPath = (fromDeg, toDeg) => {
+    const x = [], y = [];
+    for (let i = 0; i <= ARC_STEPS; i++) {
+      const deg = fromDeg + (toDeg - fromDeg) * (i / ARC_STEPS);
+      const rad = (deg * Math.PI) / 180;
+      x.push(REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad));
+      y.push(REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad));
+    }
+    return { x, y };
+  };
+
+  // A hand-off happens between every adjacent pair of the 5 circle
+  // positions (not just the visible 3) — e.g. on "next", the item
+  // sitting off-display in the far-next spot sweeps in to become the
+  // new next dish. Built once as curved paths along REEL_CIRCLE.
+  const REEL_ARCS = {};
+  for (let i = 0; i < REEL_ANGLES_5.length - 1; i++) {
+    REEL_ARCS[`${i + 1}-${i}`] = arcPath(REEL_ANGLES_5[i + 1], REEL_ANGLES_5[i]);
+    REEL_ARCS[`${i}-${i + 1}`] = arcPath(REEL_ANGLES_5[i], REEL_ANGLES_5[i + 1]);
+  }
+
+  return { REEL_SLOTS_5, REEL_ARCS };
+};
+
+// Built once at module load: full desktop-scale geometry, and a
+// mobile variant with smaller x/y offsets so the peeking prev/next
+// dishes land inside a phone-width viewport instead of being clipped
+// by .combo-page's overflow-x: hidden. xyScale is sized against the
+// wrapper's OWN visual scale too (each slot's `scale` field shrinks
+// its 300px box independently, e.g. "next" renders at 150px wide) —
+// so what matters is offset*xyScale + visibleHalfWidth staying under
+// the ~171px half-viewport available on a 375px phone after the
+// existing phone-breakpoint padding (see ComboPage.css's 578px
+// block). The base REEL_SLOTS x offsets were widened (150→195,
+// 400→520) to open a bigger visual gap between active/prev/next, so
+// mobile's xyScale was nudged down (0.2→0.17) to keep the same
+// on-screen offset and safety margin: next dish center offset
+// 520*0.17≈88px, visual half-width 300*0.5*0.7/2=52.5px, right edge
+// ≈140.5px — still comfortably inside the 171px bound. The 0.7
+// neighborScaleMult shrinks prev/next's own footprint further
+// (independent of their position), opening a visible gap around the
+// active dish instead of them looking like they're touching it.
+const DESKTOP_REEL_GEOMETRY = buildReelGeometry(1);
+const MOBILE_REEL_GEOMETRY = buildReelGeometry(0.17, 0.7);
+
 const REEL_SPRING = { type: "spring", stiffness: 90, damping: 22, mass: 1.2 };
 /* Faster crossfade for the name/price/description block specifically —
    snappier than the image reel's swipe so text feels immediate. */
 const REEL_DETAILS_SPRING = { type: "spring", stiffness: 260, damping: 26, mass: 0.7 };
-
-/* Circular motion between slots — the three resting spots above
-   happen to sit on a common circle, so instead of tweening straight
-   between them, each transition is sampled along that circle's arc
-   (a real curved/circular path) rather than a straight line. */
-const circumcircleOf = (A, B, C) => {
-  const d = 2 * (A.x * (B.y - C.y) + B.x * (C.y - A.y) + C.x * (A.y - B.y));
-  const cx = ((A.x ** 2 + A.y ** 2) * (B.y - C.y) + (B.x ** 2 + B.y ** 2) * (C.y - A.y) + (C.x ** 2 + C.y ** 2) * (A.y - B.y)) / d;
-  const cy = ((A.x ** 2 + A.y ** 2) * (C.x - B.x) + (B.x ** 2 + B.y ** 2) * (A.x - C.x) + (C.x ** 2 + C.y ** 2) * (B.x - A.x)) / d;
-  return { cx, cy, r: Math.hypot(A.x - cx, A.y - cy) };
-};
-
-const REEL_CIRCLE = circumcircleOf(REEL_SLOTS[0], REEL_SLOTS[1], REEL_SLOTS[2]);
-const angleOfSlot = (p) => Math.atan2(p.y - REEL_CIRCLE.cy, p.x - REEL_CIRCLE.cx) * (180 / Math.PI);
-const posOnCircle = (deg) => {
-  const rad = (deg * Math.PI) / 180;
-  return { x: REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad), y: REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad) };
-};
-
-let REEL_ANGLE_PREV = angleOfSlot(REEL_SLOTS[0]);
-let REEL_ANGLE_ACTIVE = angleOfSlot(REEL_SLOTS[1]);
-let REEL_ANGLE_NEXT = angleOfSlot(REEL_SLOTS[2]);
-while (REEL_ANGLE_ACTIVE < REEL_ANGLE_PREV) REEL_ANGLE_ACTIVE += 360;
-while (REEL_ANGLE_NEXT < REEL_ANGLE_ACTIVE) REEL_ANGLE_NEXT += 360;
-
-// The two off-display wrappers keep going around the SAME circle,
-// one step further out each side — so they sit outside the visible
-// display but still on the circular path, ready to sweep smoothly
-// into view instead of just fading in from a fixed, unrelated spot.
-const REEL_ANGLE_FAR_PREV = REEL_ANGLE_PREV - (REEL_ANGLE_ACTIVE - REEL_ANGLE_PREV);
-const REEL_ANGLE_FAR_NEXT = REEL_ANGLE_NEXT + (REEL_ANGLE_NEXT - REEL_ANGLE_ACTIVE);
-const REEL_FAR_PREV_POS = posOnCircle(REEL_ANGLE_FAR_PREV);
-const REEL_FAR_NEXT_POS = posOnCircle(REEL_ANGLE_FAR_NEXT);
-
-// All 5 wrapper roles, in circle order: far-prev, prev, active, next,
-// far-next. Only the middle 3 are ever opaque/interactive; the outer
-// two exist purely so their dish is pre-loaded and already sitting in
-// its correct circular spot the moment it needs to sweep into view.
-const REEL_SLOTS_5 = [
-  { x: REEL_FAR_PREV_POS.x, y: REEL_FAR_PREV_POS.y, scale: REEL_SLOTS[0].scale * 0.75, rotate: 0, blur: REEL_SLOTS[0].blur + 4, zIndex: 0, opacity: 0 },
-  { ...REEL_SLOTS[0], opacity: 1 },
-  { ...REEL_SLOTS[1], opacity: 1 },
-  { ...REEL_SLOTS[2], opacity: 1 },
-  { x: REEL_FAR_NEXT_POS.x, y: REEL_FAR_NEXT_POS.y, scale: REEL_SLOTS[2].scale * 0.75, rotate: 0, blur: REEL_SLOTS[2].blur + 4, zIndex: 0, opacity: 0 }
-];
-const REEL_ANGLES_5 = [REEL_ANGLE_FAR_PREV, REEL_ANGLE_PREV, REEL_ANGLE_ACTIVE, REEL_ANGLE_NEXT, REEL_ANGLE_FAR_NEXT];
-
-const ARC_STEPS = 32;
-const arcPath = (fromDeg, toDeg) => {
-  const x = [], y = [];
-  for (let i = 0; i <= ARC_STEPS; i++) {
-    const deg = fromDeg + (toDeg - fromDeg) * (i / ARC_STEPS);
-    const rad = (deg * Math.PI) / 180;
-    x.push(REEL_CIRCLE.cx + REEL_CIRCLE.r * Math.cos(rad));
-    y.push(REEL_CIRCLE.cy + REEL_CIRCLE.r * Math.sin(rad));
-  }
-  return { x, y };
-};
-
-// A hand-off happens between every adjacent pair of the 5 circle
-// positions (not just the visible 3) — e.g. on "next", the item
-// sitting off-display in the far-next spot sweeps in to become the
-// new next dish. Built once as curved paths along REEL_CIRCLE.
-const REEL_ARCS = {};
-for (let i = 0; i < REEL_ANGLES_5.length - 1; i++) {
-  REEL_ARCS[`${i + 1}-${i}`] = arcPath(REEL_ANGLES_5[i + 1], REEL_ANGLES_5[i]);
-  REEL_ARCS[`${i}-${i + 1}`] = arcPath(REEL_ANGLES_5[i], REEL_ANGLES_5[i + 1]);
-}
 const REEL_ARC_TWEEN = { duration: 0.55, ease: [0.65, 0, 0.35, 1] };
 
 /* ─── Helpers ─────────────────────────────────────────────── */
@@ -145,7 +186,7 @@ const buildSlotMeta = (sections) => {
 };
 
 /* Fixed slot lookup for the reel — see REEL_SLOTS above. */
-const reelSlotTransform = (slot) => REEL_SLOTS_5[slot];
+const reelSlotTransform = (geometry, slot) => geometry.REEL_SLOTS_5[slot];
 
 const GroupNode = ({ item, type, slotIndex, onClick }) => (
   <motion.button
@@ -176,6 +217,20 @@ const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
   const startX = useRef(0);
   const startY = useRef(0);
   const isPointerDown = useRef(false);
+
+  // Below 578px (ComboPage.css's phone breakpoint), switch to the
+  // pre-built mobile geometry set so the peeking prev/next dishes'
+  // x/y offsets fit inside the narrower viewport instead of being
+  // clipped by .combo-page's overflow-x: hidden.
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== "undefined" && window.innerWidth <= 578
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 578);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const geometry = isMobile ? MOBILE_REEL_GEOMETRY : DESKTOP_REEL_GEOMETRY;
 
   useEffect(() => { setRenderIndex(0); setDirection(null); }, [items]);
 
@@ -267,7 +322,7 @@ const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
           // side of center. Skip every non-active role in that case.
           if (n === 1 && !isActive) return null;
 
-          const t = reelSlotTransform(slot);
+          const t = reelSlotTransform(geometry, slot);
           const isEdge = slot === 0 || slot === 4;
 
           // Which arc this slot is sweeping along right now — every
@@ -277,7 +332,7 @@ const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
             direction === "next" ? (slot < 4 ? `${slot + 1}-${slot}` : null)
               : direction === "prev" ? (slot > 0 ? `${slot - 1}-${slot}` : null)
                 : null;
-          const arc = arcKey ? REEL_ARCS[arcKey] : null;
+          const arc = arcKey ? geometry.REEL_ARCS[arcKey] : null;
 
           return (
             <motion.div

@@ -43,13 +43,23 @@ const FavouriteCombo = ({
   const handleDelete = async (comboId) => {
     if (!currentUser) return;
 
+    const previousCombos = favCombos;
     const updatedCombos = favCombos.filter(c => c.id !== comboId);
 
+    // Remove it from the list immediately — the card was previously stuck
+    // on screen for the full PATCH+GET round trip (two sequential requests)
+    // before anything visibly changed. Roll back on failure.
+    setCurrentUser((prev) => (prev ? { ...prev, combo: updatedCombos } : prev));
+
     try {
-      await api.patch(`/users/me`, { combo: updatedCombos });
-      const refreshed = await api.get(`/users/me`);
-      setCurrentUser(refreshed.data);
+      // PATCH /users/me already returns the fully updated user document
+      // (findOneAndUpdate ... returnDocument: "after"), so the follow-up
+      // GET /users/me was a wasted second round trip — use the PATCH
+      // response directly instead.
+      const res = await api.patch(`/users/me`, { combo: updatedCombos });
+      setCurrentUser(res.data);
     } catch (err) {
+      setCurrentUser((prev) => (prev ? { ...prev, combo: previousCombos } : prev));
       console.error("Failed to delete favourite combo", err);
       toast.error("Failed to delete favourite combo");
     }

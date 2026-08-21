@@ -608,14 +608,8 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
   const categoriesToRender = [];
 
   if (isAuthenticatedUser) {
-    if (isCardEnabled("my")) {
-      categoriesToRender.push({ id: "my", name: cardName("my", "My Favourites"), image: cardImage("my", "/assets/category-assets/pizza.png"), route: "/favourites/my" });
-    }
     if (isCardEnabled("others")) {
       categoriesToRender.push({ id: "others", name: cardName("others", "Crowd Picks"), image: cardImage("others", "/assets/category-assets/crowd.png"), route: "/favourites/others" });
-    }
-    if (isCardEnabled("my-orders")) {
-      categoriesToRender.push({ id: "my-orders", name: cardName("my-orders", "My Orders"), image: cardImage("my-orders", "/assets/category-assets/offers.png"), route: "/my-orders" });
     }
   } else if (isCardEnabled("others")) {
     categoriesToRender.push({
@@ -625,9 +619,6 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
 
   if (isCardEnabled("combo")) {
     categoriesToRender.push({ id: "combo", name: cardName("combo", "Combos"), image: cardImage("combo", "/assets/category-assets/combo.png"), route: "/combo" });
-  }
-  if (isCardEnabled("best-sellers")) {
-    categoriesToRender.push({ id: "best-sellers", name: cardName("best-sellers", "Best Sellers"), image: cardImage("best-sellers", "/assets/category-assets/offers.png"), route: "/best-sellers" });
   }
   if (isCardEnabled("offers")) {
     categoriesToRender.push({ id: "offers", name: cardName("offers", "Offers"), image: cardImage("offers", "/assets/category-assets/offers.png"), route: "/offers" });

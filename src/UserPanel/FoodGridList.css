@@ -127,7 +127,6 @@
 .food-grid-card {
   background: var(--bg-main);
   border-radius: 20px;
-  overflow: hidden;
   border: 1px solid transparent;
   box-shadow: var(--shadow-card-normal);
   cursor: pointer;
@@ -157,7 +156,6 @@
   aspect-ratio: 1 / 1;
   position: relative;
   background: var(--bg-primary);
-  overflow: hidden;
 }
 
 .food-grid-img-skeleton {
@@ -180,7 +178,7 @@
 
 .food-grid-card-img {
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1/1;
   object-fit: contain;
   padding: 8px;
   box-sizing: border-box;
@@ -196,6 +194,35 @@
 
 .food-grid-card:hover .food-grid-card-img.loaded {
   transform: scale(1.06);
+}
+
+/* Veg / Non-Veg indicator — small square icon, bottom-left corner of
+   the card image (top-left is already used by wishlist + offer badge,
+   top-right by the hover-only "View →" hint). */
+.veg-icon-badge {
+  position: absolute;
+  bottom: 0px;
+  left: 8px;
+  width: 16px;
+  height: 16px;
+  z-index: 2;
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Best Seller badge — image-based rosette, top-right corner of the
+   card image. Swapped with the "View →" hint (now bottom-right, see
+   .food-grid-card-view-hint--bottom below) so the badge takes the
+   more prominent top corner. Sits above the wishlist button's row
+   (top-left) with no overlap since they're on opposite sides. */
+.food-grid-card-best-seller {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 46px;
+  height: auto;
+  z-index: 3;
+  pointer-events: none;
 }
 
 /* Offer badge — sits below the wishlist button in the top-left
@@ -224,17 +251,17 @@
    absolutely-positioned child anchored to it. */
 .food-grid-card-wishlist {
   position: absolute;
-  top: 10px;
-  left: 10px;
+  bottom: 0px;
+  right: 8px;
   z-index: 3;
 }
 
 /* Card body */
 .food-grid-card-body {
-  padding: 10px 12px 12px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
   flex: 1;
 }
 
@@ -312,11 +339,11 @@
   transform: scale(0.94) rotate(90deg);
 }
 
-/* View hint — appears on hover */
+/* View hint — appears on hover. Now sits bottom-right of the card
+   image (previously top-right, swapped with the Best Seller badge
+   which now takes that corner — see .food-grid-card-best-seller). */
 .food-grid-card-view-hint {
   position: absolute;
-  top: 10px;
-  right: 10px;
   font-size: 10px;
   font-weight: 700;
   color: var(--color-red);
@@ -328,6 +355,12 @@
   transform: translateY(-4px);
   transition: opacity 0.2s ease, transform 0.2s ease;
   pointer-events: none;
+}
+
+.food-grid-card-view-hint--top {
+  top: 8px;
+  right: 8px;
+  z-index: 2;
 }
 
 .food-grid-card:hover .food-grid-card-view-hint {

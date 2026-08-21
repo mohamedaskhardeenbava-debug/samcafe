@@ -443,3 +443,39 @@
   }
 
 }
+/* Dish name block — grid layout, same structural pattern as FoodList's
+   .dish-name-div: veg icon + name share a top row, the best-seller
+   ribbon gets its own row directly underneath, left-aligned with the
+   name rather than crowding the flex row horizontally. */
+.food-list-veg-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 10px;
+  row-gap: 8px;
+  align-items: center;
+}
+
+.food-list-veg-row .food-list-veg-badge {
+  grid-column: 1;
+  grid-row: 1;
+  position: static;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.food-list-veg-row .dish-name {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+}
+
+.food-list-veg-row .food-list-best-seller-badge {
+  grid-column: 2;
+  grid-row: 2;
+  position: static;
+  width: 130px;
+  height: auto;
+  justify-self: start;
+}

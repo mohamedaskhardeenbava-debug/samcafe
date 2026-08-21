@@ -9,6 +9,9 @@ import MatField from "./shared/MatField";
 import { buildDishBagItem } from "./shared/bagUtils";
 import { getActiveOffer, applyOfferToBagItem } from "./shared/offerUtils";
 import WishlistButton from "./shared/WishlistButton";
+import VegBadge from "./shared/VegBadge";
+import BestSellerBadge from "./shared/BestSellerBadge";
+import { getBestSellerId } from "./shared/bestSellerUtils";
 
 /* ─── Grid container: staggers children on mount/key change ── */
 const gridVariants = {
@@ -49,6 +52,11 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
   })();
 
   const dishes = category?.dishes || [];
+
+  const bestSellerId = useMemo(
+    () => getBestSellerId(dishes, foodData?.orders),
+    [dishes, foodData?.orders]
+  );
 
   const filtered = useMemo(() => {
     if (!category) return [];
@@ -145,6 +153,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
                 dish={dish}
                 categoryId={categoryId}
                 offer={getActiveOffer(dish.id, foodData.offers)}
+                isBestSeller={dish.id === bestSellerId}
                 onView={() => navigate(`/foods/${categoryId}`, { state: { dishId: dish.id } })}
                 onAdd={handleAdd(dish)}
                 currentUser={currentUser}
@@ -159,7 +168,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
 };
 
 /* ── Dish card ──────────────────────────────────────────── */
-const DishCard = ({ dish, categoryId, offer, onView, onAdd, currentUser, onToggleFavourite }) => {
+const DishCard = ({ dish, categoryId, offer, isBestSeller, onView, onAdd, currentUser, onToggleFavourite }) => {
   const [imgLoaded, setImgLoaded] = useState(false);
   const isAuthenticatedUser = currentUser && currentUser.id !== "guest";
 
@@ -175,6 +184,20 @@ const DishCard = ({ dish, categoryId, offer, onView, onAdd, currentUser, onToggl
       whileTap={{ scale: 0.97, transition: { duration: 0.1 } }}
     >
       <div className="food-grid-card-img-wrap">
+        <div className="food-grid-card-view-hint food-grid-card-view-hint--top">
+          View →
+        </div>
+
+        {isAuthenticatedUser && onToggleFavourite && (
+          <WishlistButton
+            className="food-grid-card-wishlist"
+            dish={dish}
+            categoryId={categoryId}
+            currentUser={currentUser}
+            onToggleFavourite={onToggleFavourite}
+          />
+        )}
+
         {!imgLoaded && <div className="food-grid-img-skeleton" />}
         <img
           className={`food-grid-card-img ${imgLoaded ? "loaded" : ""}`}
@@ -183,18 +206,13 @@ const DishCard = ({ dish, categoryId, offer, onView, onAdd, currentUser, onToggl
           loading="lazy"
           onLoad={() => setImgLoaded(true)}
         />
-        {offer && <span className="food-grid-card-offer-badge">{offer.percentage}% OFF</span>}
-      </div>
 
-      {isAuthenticatedUser && onToggleFavourite && (
-        <WishlistButton
-          className="food-grid-card-wishlist"
-          dish={dish}
-          categoryId={categoryId}
-          currentUser={currentUser}
-          onToggleFavourite={onToggleFavourite}
-        />
-      )}
+        {offer && <span className="food-grid-card-offer-badge">{offer.percentage}% OFF</span>}
+        <VegBadge isVeg={dish.isVeg} />
+        {isBestSeller && (
+          <BestSellerBadge variant="rosette" className="food-grid-card-best-seller" />
+        )}
+      </div>
 
       <div className="food-grid-card-body">
         <div className="food-grid-card-name">{dish.name}</div>
@@ -221,8 +239,6 @@ const DishCard = ({ dish, categoryId, offer, onView, onAdd, currentUser, onToggl
           </button>
         </div>
       </div>
-
-      <div className="food-grid-card-view-hint">View →</div>
     </motion.div>
   );
 };

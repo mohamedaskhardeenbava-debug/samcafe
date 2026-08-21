@@ -142,7 +142,7 @@ const BestSellerCard = ({ dish, count, offer, onView, currentUser, onToggleFavou
           loading="lazy"
           onLoad={() => setImgLoaded(true)}
         />
-        <span className="best-seller-badge">🏆 {dish._topCatName}</span>
+        <span className="best-seller-badge">{dish._topCatName}</span>
         {isAuthenticatedUser && onToggleFavourite && (
           <WishlistButton
             className="food-grid-card-wishlist"

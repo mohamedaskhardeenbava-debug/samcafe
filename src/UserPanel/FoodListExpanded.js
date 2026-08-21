@@ -15,6 +15,9 @@ import Button3D from "./shared/Button3D";
 import { buildDishBagItem } from "./shared/bagUtils";
 import { getActiveOffer, applyOfferToBagItem } from "./shared/offerUtils";
 import WishlistButton from "./shared/WishlistButton";
+import VegBadge from "./shared/VegBadge";
+import BestSellerBadge from "./shared/BestSellerBadge";
+import { getBestSellerId } from "./shared/bestSellerUtils";
 
 /* 🔁 SAME animation config */
 const SOFT_SPRING = {
@@ -117,6 +120,8 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
 
   if (!dish) return null;
 
+  const bestSellerId = getBestSellerId(category?.dishes || [], foodData?.orders);
+
   const filteredIngredients = (dish.ingredients || []).filter((ing) => {
     const full = foodData.ingredients.find(i =>
       i.id === ing.id ||
@@ -190,9 +195,15 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
             variants={DETAIL_VARIANTS}
             transition={SOFT_SPRING}
           >
-            <h2 className="dish-name">
-              {dish.name}
-            </h2>
+            <div className="food-list-veg-row">
+              <VegBadge isVeg={dish.isVeg} className="food-list-veg-badge" />
+              <h2 className="dish-name">
+                {dish.name}
+              </h2>
+              {dish.id === bestSellerId && (
+                <BestSellerBadge variant="ribbon" className="food-list-best-seller-badge" />
+              )}
+            </div>
 
             <div className="dish-price">
               {activeOffer ? (

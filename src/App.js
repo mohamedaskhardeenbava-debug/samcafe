@@ -1,4 +1,5 @@
 import "./App.css";
+import "./UserPanel/Profile.css";
 import { useEffect, useState, useRef } from "react";
 import { Routes, Route, useNavigate, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence, motion, LayoutGroup } from "framer-motion";
@@ -18,6 +19,8 @@ import FoodItem from "./UserPanel/FoodItem";
 import IngredientDetail from "./UserPanel/IngredientDetail";
 import ThankYou from "./UserPanel/ThankYou";
 import FloatingBag from "./UserPanel/FloatingBag";
+import Profile from "./UserPanel/Profile";
+import MobileFooterNav from "./UserPanel/MobileFooterNav";
 
 // ─── Favourites ─────────────────────────────────────────────────────────────
 import FavouriteCategories from "./UserPanel/FavouriteCategories";
@@ -121,6 +124,7 @@ function App() {
   const isEventsEnabled = isCardEnabled("events");
 
   const motionProps = {
+    className: "page-transition-wrapper",
     variants: pageVariants,
     initial: "initial",
     animate: "animate",
@@ -154,7 +158,14 @@ function App() {
       // here only means an extra network call, never a false result.
       const everLoggedIn = !!localStorage.getItem("userId");
 
-      const [categoriesRes, ingredientsRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes] =
+      // Favourites live embedded on the customer's own user doc, not a
+      // separate collection — /favourites is the admin-only master list
+      // (401s for a customer session), so pull them from /auth/me instead.
+      // Fired in the SAME Promise.all batch as everything else (previously
+      // this ran as its own sequential await AFTER the batch resolved,
+      // which tacked a full extra network round-trip onto every load for
+      // logged-in users before the app could render).
+      const [categoriesRes, ingredientsRes, comboRes, offersRes, tablesRes, eventsRes, ordersRes, meRes] =
         await Promise.all([
           api.get("/public/categories"),
           api.get("/public/ingredients"),
@@ -163,20 +174,10 @@ function App() {
           api.get("/public/tables"),
           api.get("/public/events").catch(() => ({ data: [] })),
           everLoggedIn ? api.get("/orders/mine").catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
+          everLoggedIn ? api.get("/auth/me").catch(() => null) : Promise.resolve(null),
         ]);
 
-      // Favourites live embedded on the customer's own user doc, not a
-      // separate collection — /favourites is the admin-only master list
-      // (401s for a customer session), so pull them from /auth/me instead.
-      let favourites = [];
-      if (everLoggedIn) {
-        try {
-          const meRes = await api.get("/auth/me");
-          favourites = meRes.data?.user?.favourites || [];
-        } catch {
-          // Not logged in, or session expired — no favourites to show.
-        }
-      }
+      const favourites = meRes?.data?.user?.favourites || [];
 
       setFoodData((prev) => ({
         ...prev,
@@ -528,6 +529,21 @@ function App() {
           />
         )}
 
+        {/* Floating Profile bubble — logged-in users only, hidden on
+            Welcome/Thank You (per request) and on the Profile page
+            itself (nothing to navigate to from there) */}
+        {isAuthenticatedUser &&
+          !["/", "/thank-you", "/profile"].includes(location.pathname) && (
+            <button
+              type="button"
+              className="floating-profile-btn"
+              onClick={() => handleNavigate("/profile")}
+              aria-label="Profile"
+            >
+              {(currentUser?.name || "?").trim().charAt(0).toUpperCase() || "?"}
+            </button>
+          )}
+
         {/* Floating Bell — dine-in only */}
         {isDineIn && (
           <div
@@ -566,7 +582,7 @@ function App() {
               <Route
                 path="/foods/:categoryId/expanded"
                 element={
-                  <div>
+                  <div className="page-transition-wrapper">
                     <FoodListExpanded
                       foodData={foodData}
                       addToBag={addToBag}
@@ -588,7 +604,7 @@ function App() {
 
               <Route path="/categories" element={<motion.div {...motionProps}><FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} categoryCards={categoryCards} /></motion.div>} />
 
-              <Route path="/appetizer-builder" element={<AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} />} />
+              <Route path="/appetizer-builder" element={<div className="page-transition-wrapper"><AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></div>} />
 
               <Route path="/foods/:categoryId" element={<motion.div {...motionProps}><FoodList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
 
@@ -603,6 +619,12 @@ function App() {
               <Route path="/ingredient/:id" element={<motion.div {...motionProps}><IngredientDetail handleBack={handleBack} foodData={foodData} handleNavigate={handleNavigate} /></motion.div>} />
 
               <Route path="/thank-you" element={<motion.div {...motionProps}><ThankYou bag={bag} setBag={setBag} setIsBagOpen={setIsBagOpen} /></motion.div>} />
+
+              <Route path="/profile" element={
+                isAuthenticatedUser
+                  ? <motion.div {...motionProps}><Profile currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} isMyFavouritesEnabled={isMyFavouritesEnabled} isMyOrdersCardEnabled={isMyOrdersCardEnabled} /></motion.div>
+                  : <Navigate to="/categories" replace />
+              } />
 
               <Route path="/favourites/:source" element={
                 (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
@@ -626,7 +648,7 @@ function App() {
 
               <Route path="/favourite-combos" element={isAuthenticatedUser && isComboEnabled ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+              <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} initialOrders={foodData.orders} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
               <Route path="/my-orders/:orderId" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><OrderDetails handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
@@ -641,6 +663,20 @@ function App() {
 
             </Routes>
           </AnimatePresence>
+        )}
+
+        {/* Mobile bottom nav — CSS-hidden above 600px width, hidden on
+            Welcome per request (every other page shows it). */}
+        {location.pathname !== "/" && (
+          <MobileFooterNav
+            currentUser={currentUser}
+            bag={bag}
+            setIsBagOpen={setIsBagOpen}
+            handleNavigate={handleNavigate}
+            isMyOrdersCardEnabled={isMyOrdersCardEnabled}
+            isMyFavouritesEnabled={isMyFavouritesEnabled}
+            activePath={location.pathname}
+          />
         )}
 
       </div>

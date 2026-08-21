@@ -15,7 +15,10 @@ body {
   font-family: "Geom", system-ui, sans-serif !important;
 }
 
-.App, body, html, #root {
+.App,
+body,
+html,
+#root {
   height: stretch;
 }
 
@@ -2081,5 +2084,156 @@ image {
 
   .mat-row-inline {
     flex-direction: column;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MOBILE BOTTOM NAV — MobileFooterNav.js
+   Hidden by default; shown only under 600px width, on every
+   page except Welcome (gating for the latter lives in App.js).
+═══════════════════════════════════════════════════════ */
+.mobile-footer-nav {
+  display: none;
+}
+
+@media (max-width: 600px) {
+
+  /* .App is pinned to the viewport height and laid out as a flex column
+     so the footer nav is a normal (non-fixed) flex item that always
+     ends up at the bottom of the *screen* — not just the bottom of
+     whatever content happens to render above it. The routed page
+     content is the flexible item and scrolls internally; the nav
+     itself never shrinks and never gets scrolled past or covered. */
+  .App {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* Direct child of .App rendered by react-router for the current
+     route (AnimatePresence itself renders no DOM node, so this is
+     the actual flex item sitting above the footer nav). */
+  .App>.page-transition-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Floating bag/profile buttons are replaced by the Bag/Profile tabs
+     in the footer nav at this width, so they're hidden entirely here
+     rather than repositioned above the nav. */
+  #floating-bag-btn,
+  .floating-profile-btn {
+    display: none !important;
+  }
+
+  .floating-bell-wrapper {
+    bottom: 88px !important;
+  }
+
+  .mobile-footer-nav {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    height: 64px;
+    background: var(--bg-main);
+    border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    z-index: 500;
+    flex: 0 0 auto;
+    padding: 5px;
+  }
+
+  /* Liquid sliding highlight behind the active tab — same mechanism
+     and timing as the admin panel's .app-tab-pill-liquid (Common.css),
+     powered here by useTabLiquid measuring the active
+     .mobile-footer-tab in the DOM. Sits behind the tab buttons
+     (z-index 1 vs their default stacking) and glides to whichever tab
+     is active instead of the background just snapping on. */
+  .mobile-footer-tab-liquid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 10px;
+    background-color: var(--color-pale-red);
+    pointer-events: none;
+    z-index: 1;
+    transition:
+      transform 0.55s cubic-bezier(0.22, 0.9, 0.25, 1),
+      width 0.55s cubic-bezier(0.22, 0.9, 0.25, 1),
+      height 0.55s cubic-bezier(0.22, 0.9, 0.25, 1),
+      opacity 0.2s ease;
+  }
+
+  .mobile-footer-tab {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+    color: var(--text-secondary, #888);
+    padding: 5px 0;
+    border-radius: 20px;
+    width: 70px;
+    /* Color settles on the same slower timing as the liquid thumb's
+       slide, matching the admin panel's .app-tab-pill (color 0.35s)
+       so the label doesn't snap ahead of the highlight sliding under
+       it. */
+    transition: color 0.35s ease, transform 0.2s ease;
+  }
+
+  .mobile-footer-tab:active {
+    transform: scale(0.97);
+  }
+
+  .mobile-footer-tab.active {
+    color: var(--color-red);
+  }
+
+  .mobile-footer-tab-icon {
+    font-size: 18px;
+    line-height: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 20px;
+  }
+
+  .mobile-footer-tab-icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+  }
+
+  .mobile-footer-tab-badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    border-radius: 999px;
+    background: var(--color-red);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-footer-tab-label {
+    font-size: 10px;
+    font-weight: 600;
   }
 }

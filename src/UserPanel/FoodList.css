@@ -75,16 +75,47 @@
   justify-content: center;
 }
 
+/* Dish name block — grid layout so the veg badge, name, best-seller
+   ribbon, and wishlist button each get a defined slot instead of
+   fighting for space in one flex row:
+     [veg]  [dish name···········]  [wishlist]
+     [ · ]  [best-seller ribbon··]  [   ·    ]
+   Column 1 (veg icon) and column 3 (wishlist) are fixed-width so the
+   name column flexibly fills whatever's left and wraps cleanly. The
+   ribbon sits on its own row directly under the name, left-aligned
+   with it (not the veg icon), rather than fighting for horizontal
+   space next to a potentially long dish name. */
 .dish-name-div {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  row-gap: 6px;
+  align-items: center;
+}
+
+.food-list-veg-badge {
+  grid-column: 1;
+  grid-row: 1;
 }
 
 .dish-name {
+  grid-column: 2;
+  grid-row: 1;
   font-size: 32px;
   font-weight: 700;
   margin: 0;
+  align-self: center;
+}
+
+.food-list-wishlist {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+.food-list-best-seller-badge {
+  grid-column: 2;
+  grid-row: 2;
 }
 
 .dish-price {
@@ -624,4 +655,26 @@
     padding: 0 12px;
     box-sizing: border-box;
   }
+}
+/* Veg badge + Best Seller ribbon sizing — override the absolute
+   positioning .veg-icon-badge/.best-seller-badge use elsewhere (grid
+   card corners); here they're grid-placed inline with the dish name
+   (see .dish-name-div above). */
+.food-list-veg-badge {
+  position: static;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.food-list-best-seller-badge {
+  position: static;
+  width: 110px;
+  height: auto;
+  justify-self: start;
+}
+
+.food-list-wishlist {
+  position: static;
+  flex-shrink: 0;
 }

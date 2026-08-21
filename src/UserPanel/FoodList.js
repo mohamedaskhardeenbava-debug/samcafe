@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import "./FoodList.css";
 import AnimatedPrice from "./AnimatedPrice";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -9,6 +9,9 @@ import { buildDishBagItem } from "./shared/bagUtils";
 import { getActiveOffer, getEffectiveBasePrice, applyOfferToBagItem } from "./shared/offerUtils";
 import { flyToBag } from "../components/flyToBag";
 import WishlistButton from "./shared/WishlistButton";
+import VegBadge from "./shared/VegBadge";
+import BestSellerBadge from "./shared/BestSellerBadge";
+import { getBestSellerId } from "./shared/bestSellerUtils";
 
 const SLOT_X = [-1000, 0, 420, 700, 900];
 const FOODLIST_EXIT_DURATION = 750;
@@ -72,6 +75,11 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
   const isPointerDown = useRef(false);
   const slides = category?.dishes || [];
   const imageRefs = useRef({});
+
+  const bestSellerId = useMemo(
+    () => getBestSellerId(slides, foodData?.orders),
+    [slides, foodData?.orders]
+  );
 
   useEffect(() => {
     return () => {
@@ -208,9 +216,13 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
             transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
           >
             <div className="dish-name-div">
+              <VegBadge isVeg={visible[1].isVeg} className="food-list-veg-badge" />
               <h2 className="dish-name">
                 {visible[1].name}
               </h2>
+              {visible[1].id === bestSellerId && (
+                <BestSellerBadge variant="ribbon" className="food-list-best-seller-badge" />
+              )}
               {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
                 <WishlistButton
                   className="food-list-wishlist"
