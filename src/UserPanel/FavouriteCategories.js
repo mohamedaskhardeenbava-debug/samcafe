@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import "./FoodCategory.css";
 import "./FavouriteCategories.css";
 import HomeButton from "./shared/HomeButton";
+import PageHeader from "./shared/PageHeader";
 
 const FavouriteCategories = ({
   foodData,
@@ -47,14 +48,10 @@ const FavouriteCategories = ({
     .filter(Boolean);
 
   return (
-    <div className="food-list fav-category-list">
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">Favourites</div>
-        <HomeButton onClick={handleHome} />
-      </div>
+    <div className="no-padding">
+      <PageHeader title="Favourites" onBack={handleBack} onHome={handleHome} />
 
-      <div className="food-category" style={{ padding: "0px" }}>
+      <div className="pl-body">
         <div className="food-category-container">
           {categories.length === 0 && (
             <div className="fav-empty fav-empty-page">

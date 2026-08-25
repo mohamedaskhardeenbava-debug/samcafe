@@ -228,6 +228,38 @@
   }
 }
 
+/* ── Exit animations — mirror of the entry keyframes above, played
+   while the popup is still mounted during its closing grace period. ── */
+.udp-overlay.udp-closing {
+  animation: udpOverlayFadeOut 0.17s ease forwards;
+}
+
+@keyframes udpOverlayFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.udp-popup.udp-closing {
+  animation: udpFadeOut 0.17s ease forwards;
+}
+
+@keyframes udpFadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
 /* ── Nav bar ── */
 .udp-nav {
   display: flex;

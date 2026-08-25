@@ -153,7 +153,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
   };
 
   return (
-    <div className="food-list">
+    <div className="no-padding">
       {/* HEADER */}
       <PageHeader
         title={dish.name}
@@ -163,6 +163,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
         onHome={handleHome}
       />
 
+      <div className="pl-body food-list">
       {/* MAIN */}
       <div className="food-reel-expanded">
 
@@ -293,6 +294,7 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
             </Button3D>
           </motion.div>
         </div>
+      </div>
       </div>
     </div>
   );

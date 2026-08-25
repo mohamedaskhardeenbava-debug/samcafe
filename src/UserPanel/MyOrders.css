@@ -25,9 +25,7 @@
 /* List scrolls independently within the page shell rather than growing
    the whole page — matches "only the list and modal body scroll". */
 .my-orders-list-scroll {
-  max-height: calc(100vh - 160px);
   overflow-y: auto;
-  padding: 10px 14px;
 }
 
 .my-orders-list {

@@ -1,14 +1,14 @@
 /* user panel */
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker, todayStr } from "../components/UserDatePicker";
 import { UserTimePicker } from "../components/UserTimePicker";
 import "./CelebrationForm.css";
 import "./ReservationForm.css";
 import "./PreviewModal.css";
-import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
+import PageHeader from "./shared/PageHeader";
 import { useToast } from "../components/Usetoast";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -150,10 +150,21 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
   });
 
   const [errors, setErrors] = useState({});
+  const [flashField, setFlashField] = useState(""); // briefly highlights the field scrolled to on validation failure
+
+  /* One ref per field the submit validation can flag, in form order,
+     so a failed submit can scroll straight to the first invalid one. */
+  const fieldRefs = {
+    name: useRef(null), mobile: useRef(null), date: useRef(null),
+    slotGroup: useRef(null), time: useRef(null), guests: useRef(null),
+    birthdayPersonName: useRef(null),
+  };
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bookingId, setBookingId] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const [modalClosing, setModalClosing] = useState(false);
+  const modalCloseTimerRef = useRef(null);
 
   useEffect(() => {
     bookingCrud.resolveUser().then(({ name, mobile, email }) => {
@@ -203,7 +214,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
   const estimatedTotal = calcTotal(form);
 
   const handleSlotChange = (key) => { set("slotGroup", key); set("time", ""); };
-  const handleDateChange = (d) => { set("date", d); set("time", ""); };
+  const handleDateChange = (d) => { set("date", d); set("slotGroup", ""); set("time", ""); };
 
   /* Guest cap: max 20 for celebrations */
   const setGuests = (n) => {
@@ -226,7 +237,22 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
   const handleSubmit = async () => {
     const validationErrors = validate();
-    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      // Scroll to and briefly flash the first invalid field, in form
+      // order, so the person lands right on what needs fixing.
+      const order = ["name", "mobile", "date", "slotGroup", "time", "guests", "birthdayPersonName"];
+      const firstErrorKey = order.find(k => validationErrors[k]);
+      if (firstErrorKey) {
+        const node = fieldRefs[firstErrorKey]?.current;
+        if (node) {
+          node.scrollIntoView({ behavior: "smooth", block: "center" });
+          setFlashField(firstErrorKey);
+          setTimeout(() => setFlashField(""), 1100);
+        }
+      }
+      return;
+    }
     try {
       setLoading(true);
       const saved = await bookingCrud.create("celebrations", {
@@ -282,7 +308,20 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
     setShowPreview(true);
   };
 
-  /* ─── Preview Modal ─── */
+  /* ─── Preview Modal — closes with a brief exit animation before
+     unmounting, matching rf-modal-fade-out/rf-modal-slide-down. ─── */
+  const closePreview = () => {
+    if (modalClosing) return;
+    setModalClosing(true);
+    clearTimeout(modalCloseTimerRef.current);
+    modalCloseTimerRef.current = setTimeout(() => {
+      setShowPreview(false);
+      setModalClosing(false);
+    }, 220);
+  };
+
+  useEffect(() => () => clearTimeout(modalCloseTimerRef.current), []);
+
   const PreviewModal = () => {
     const typeObj = CELEBRATION_TYPES.find(t => t.value === form.type);
     const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
@@ -303,8 +342,8 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
       rows.push(["Birthday Person", form.birthdayPersonName + (form.birthdayPersonAge ? `, Age ${form.birthdayPersonAge}` : "")]);
     }
     return (
-      <div className="rf-modal-overlay" onClick={() => setShowPreview(false)}>
-        <div className="rf-modal" onClick={e => e.stopPropagation()}>
+      <div className={`rf-modal-overlay${modalClosing ? " rf-modal-closing" : ""}`} onClick={closePreview}>
+        <div className={`rf-modal${modalClosing ? " rf-modal-closing" : ""}`} onClick={e => e.stopPropagation()}>
           <div className="rf-modal-title">Confirm Celebration Booking</div>
           <div className="rf-modal-subtitle">Review your details before confirming.</div>
           <div className="rf-modal-grid">
@@ -328,10 +367,10 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
             </div>
           )}
           <div className="rf-modal-actions">
-            <Button3D className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+            <Button3D className="btn-3d white" onClick={closePreview}>
               Edit
             </Button3D>
-            <Button3D className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+            <Button3D className="btn-3d red" onClick={handleSubmit} disabled={loading}>
               {loading ? <span className="rf-spinner" /> : "Confirm"}
             </Button3D>
           </div>
@@ -344,12 +383,9 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
   if (submitted) {
     const typeObj = CELEBRATION_TYPES.find(t => t.value === form.type);
     return (
-      <div className="rf-page">
-        <div className="food-header">
-          <button className="back-button" onClick={handleBack} />
-          <div className="food-list-title">Celebration</div>
-          <HomeButton onClick={handleHome} />
-        </div>
+      <div className="no-padding">
+        <PageHeader title="Celebration" onBack={handleBack} onHome={handleHome} />
+        <div className="pl-body">
         <div className="rf-success-screen">
           <div className="rf-success-icon">
             <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
@@ -379,27 +415,25 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
               </div>
             ))}
           </div>
-          <Button3D className="form-action-btn submit" onClick={resetForm}>
+          <Button3D className="btn-3d red" onClick={resetForm}>
             Book Another
           </Button3D>
 
-          <Button3D className="form-action-btn submit" onClick={handleHome}>
+          <Button3D className="btn-3d red" onClick={handleHome}>
             Back to Home
           </Button3D>
+        </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="rf-page">
+    <div className="no-padding">
       {showPreview && <PreviewModal />}
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">Celebration</div>
-        <HomeButton onClick={handleHome} />
-      </div>
+      <PageHeader title="Celebration" onBack={handleBack} onHome={handleHome} />
 
+      <div className="pl-body">
       <div className="clp-container">
         {/* ── LEFT COLUMN ── */}
         <div className="clp-section">
@@ -423,7 +457,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
             <div className="section-title">Your Details</div>
             <div className="clp-card">
               {/* Full Name */}
-              <div className="field-group">
+              <div className={`field-group${flashField === "name" ? " rf-error-flash" : ""}`} ref={fieldRefs.name}>
                 <MatField
                   label={<>Full Name <span className="rf-req">*</span></>}
                   value={form.name}
@@ -436,7 +470,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
               <div className="mat-row">
                 {/* Mobile */}
-                <div className="field-group" style={{ flex: 1.4 }}>
+                <div className={`field-group${flashField === "mobile" ? " rf-error-flash" : ""}`} style={{ flex: 1.4 }} ref={fieldRefs.mobile}>
                   <div className="mat-input-prefix-wrap">
                     <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
                     <MatField
@@ -465,9 +499,21 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                 </div>
               </div>
 
-              {/* Slot → Date → Time (date/time only shown once a slot is picked) */}
-              <div className="mat-row">
-                <div className="field-group">
+              {/* Date → Slot → Time (each field appears once the
+                  previous one is picked) */}
+              <div className={`field-group${flashField === "date" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.date}>
+                <label>Date <span className="rf-req">*</span></label>
+                <UserDatePicker
+                  value={form.date}
+                  min={tomorrowStr()}
+                  hasError={!!errors.date}
+                  onChange={handleDateChange}
+                />
+                {errors.date && <span className="rf-error">{errors.date}</span>}
+              </div>
+
+              {form.date && (
+                <div className={`field-group rf-field-reveal${flashField === "slotGroup" ? " rf-error-flash" : ""}`} ref={fieldRefs.slotGroup}>
                   <label>Dining Slot <span className="rf-req">*</span></label>
                   <div className="slot-groups">
                     {SLOT_GROUPS.map(sg => {
@@ -487,36 +533,26 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
                   </div>
                   {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
                 </div>
-                {form.slotGroup && (
-                  <div className="field-group" style={{ flex: "0 0 auto" }}>
-                    <label>Date <span className="rf-req">*</span></label>
-                    <UserDatePicker
-                      value={form.date}
-                      min={tomorrowStr()}
-                      hasError={!!errors.date}
-                      onChange={handleDateChange}
-                    />
-                  </div>
-                )}
-                {form.slotGroup && (
-                  <div className="field-group" style={{ flex: "0 0 auto" }}>
-                    <label>Preferred Time <span className="rf-req">*</span></label>
-                    <UserTimePicker
-                      value={form.time}
-                      hasError={!!errors.time}
-                      onChange={v => set("time", v)}
-                      slotStart={currentSlot?.start}
-                      slotEnd={currentSlot?.end}
-                      disabled={!form.slotGroup}
-                      isToday={isToday}
-                    />
-                    {currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
-                  </div>
-                )}
-              </div>
+              )}
+
+              {form.slotGroup && (
+                <div className={`field-group rf-field-reveal${flashField === "time" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.time}>
+                  <label>Preferred Time <span className="rf-req">*</span></label>
+                  <UserTimePicker
+                    value={form.time}
+                    hasError={!!errors.time}
+                    onChange={v => set("time", v)}
+                    slotStart={currentSlot?.start}
+                    slotEnd={currentSlot?.end}
+                    disabled={!form.slotGroup}
+                    isToday={isToday}
+                  />
+                  {currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
+                </div>
+              )}
 
               {/* Guests — max 20 */}
-              <div className="field-group">
+              <div className={`field-group${flashField === "guests" ? " rf-error-flash" : ""}`} ref={fieldRefs.guests}>
                 <label>Number of Guests <span className="rf-req">*</span></label>
                 <div className="stepper-ctrl">
                   <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests - 1)}>−</button>
@@ -548,7 +584,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
               <div className="section-title">Birthday Details</div>
               <div className="clp-card">
                 <div className="mat-row">
-                  <div className="field-group" style={{ flex: 1.5 }}>
+                  <div className={`field-group${flashField === "birthdayPersonName" ? " rf-error-flash" : ""}`} style={{ flex: 1.5 }} ref={fieldRefs.birthdayPersonName}>
                     <MatField
                       label={<>Birthday Person's Name <span className="rf-req">*</span></>}
                       value={form.birthdayPersonName}
@@ -595,7 +631,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
           {/* Anniversary Extras */}
           {form.type === "anniversary" && (
             <div className="clp-block">
-              <div className="section-title">Anniversary Extras</div>
+              <div className="section-title ">Anniversary Extras</div>
               <div className="clp-card">
                 <div className="clp-check-grid">{renderExtrasWithMention(ANNIVERSARY_EXTRAS)}</div>
               </div>
@@ -605,7 +641,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
           {/* Candle Light Dinner Extras */}
           {form.type === "candlelightdinner" && (
             <div className="clp-block">
-              <div className="section-title">Candle Light Dinner Add-ons</div>
+              <div className="section-title ">Candle Light Dinner Add-ons</div>
               <div className="clp-card">
                 <div className="clp-check-grid">{renderExtrasWithMention(CANDLELIGHT_EXTRAS)}</div>
               </div>
@@ -621,7 +657,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
           {/* Audio & Video (skip if meeting — already there) */}
           {form.type !== "meeting" && (
             <div className="clp-block">
-              <div className="section-title">Audio &amp; Video</div>
+              <div className="section-title ">Audio &amp; Video</div>
               <div className="clp-card">
                 <div className="clp-check-grid">
                   <CheckCard label="Microphone" price={500} checked={form.mic} onChange={v => set("mic", v)} />
@@ -636,7 +672,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
           {/* Special Note */}
           <div className="clp-block">
-            <div className="section-title">Special Notes</div>
+            <div className="section-title ">Special Notes</div>
             <div className="clp-card">
               <div className="field-group">
                 <textarea
@@ -654,7 +690,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
           {/* Price Summary */}
           {estimatedTotal > 0 && (
             <div className="clp-block clp-price-summary">
-              <div className="section-title">Estimated Cost</div>
+              <div className="section-title ">Estimated Cost</div>
               <div className="clp-card">
                 {form.decoration && (
                   <div className="clp-price-row">
@@ -684,7 +720,7 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
 
           <div className="form-btn-row">
             <Button3D
-              className="form-action-btn cancel"
+              className="btn-3d white"
               type="button"
               disabled={loading}
               onClick={() => {
@@ -710,13 +746,14 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
               Cancel
             </Button3D>
 
-            <Button3D className={`form-action-btn submit${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
+            <Button3D className={`btn-3d red${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
               {loading ? "Processing..." : "Review & Confirm"}
             </Button3D>
 
           </div>
 
         </div>
+      </div>
       </div>
     </div>
   );

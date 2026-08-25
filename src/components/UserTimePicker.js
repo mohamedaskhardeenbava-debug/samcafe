@@ -64,9 +64,11 @@ export const UserTimePicker = ({
   placeholder,
 }) => {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [mode, setMode] = useState("hour");
   const ref = useRef(null);
   const svgRef = useRef(null);
+  const closeTimerRef = useRef(null);
 
   const selRef = useRef(parseTime(value));
   const [sel, setSel] = useState(parseTime(value));
@@ -85,17 +87,30 @@ export const UserTimePicker = ({
 
   useEffect(() => { modeRef.current = mode; }, [mode]);
 
+  // Plays the exit animation before actually unmounting the popup —
+  // 170ms matches utpFadeOut/utpOverlayFadeOut below.
+  const requestClose = () => {
+    if (!open || closing) return;
+    setClosing(true);
+    clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+      setMode("hour");
+      modeRef.current = "hour";
+    }, 170);
+  };
+
+  useEffect(() => () => clearTimeout(closeTimerRef.current), []);
+
   // Close on outside click
   useEffect(() => {
     const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) {
-        setOpen(false);
-        setMode("hour");
-      }
+      if (ref.current && !ref.current.contains(e.target)) requestClose();
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  }, [open, closing]);
 
   // ── Slot / today constraint helpers ──────────────
   const slotH24Start = slotStart ? parseInt(slotStart.split(":")[0], 10) : null;
@@ -169,7 +184,7 @@ export const UserTimePicker = ({
     isDragging.current = false;
     applyVal(valueFromEvent(e));
     if (modeRef.current === "hour") { modeRef.current = "minute"; setMode("minute"); }
-    else { setOpen(false); modeRef.current = "hour"; setMode("hour"); }
+    else { requestClose(); }
   };
 
   // ── Tap handlers ─────────────────────────────────
@@ -183,7 +198,7 @@ export const UserTimePicker = ({
     if (isMinDis(m)) return;
     const ns = { ...selRef.current, m };
     selRef.current = ns; setSel({ ...ns }); emit(ns);
-    setOpen(false); setMode("hour");
+    requestClose();
   };
   const tapAmpm = (ap) => {
     const ns = { ...selRef.current, ampm: ap };
@@ -226,7 +241,7 @@ export const UserTimePicker = ({
       <button
         type="button"
         className={`utp-trigger${hasError ? " utp-error" : ""}${disabled ? " utp-disabled" : ""}`}
-        onClick={() => { if (!disabled) setOpen(o => !o); }}
+        onClick={() => { if (!disabled) { if (open) requestClose(); else setOpen(true); } }}
       >
         <span className={`utp-val${!value ? " utp-ph" : ""}`}>{value ? displayVal : ""}</span>
         <span className="utp-arrow">▾</span>
@@ -237,8 +252,8 @@ export const UserTimePicker = ({
 
       {/* Popup */}
       {open && !disabled && (
-        <div className="utp-overlay" onMouseDown={() => { setOpen(false); setMode("hour"); }}>
-          <div className="utp-popup" onMouseDown={(e) => e.stopPropagation()}>
+        <div className={`utp-overlay${closing ? " utp-closing" : ""}`} onMouseDown={requestClose}>
+          <div className={`utp-popup${closing ? " utp-closing" : ""}`} onMouseDown={(e) => e.stopPropagation()}>
 
             {/* Red header */}
             <div className="utp-header">
@@ -326,11 +341,11 @@ export const UserTimePicker = ({
             {/* Footer */}
             <div className="utp-footer">
               <Button3D type="button" className="form-action-btn cancel" frontClassName="sm-padding"
-                onClick={() => { setOpen(false); setMode("hour"); }}>
+                onClick={requestClose}>
                 Cancel
               </Button3D>
               <Button3D type="button" className="form-action-btn submit" frontClassName="sm-padding"
-                onClick={() => { emit(selRef.current); setOpen(false); setMode("hour"); }}>
+                onClick={() => { emit(selRef.current); requestClose(); }}>
                 Ok
               </Button3D>
             </div>

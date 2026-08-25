@@ -78,7 +78,7 @@ const FavouriteDishList = ({
   /* ---------------- RENDER ---------------- */
 
   return (
-    <div className="food-list fav-dish-page">
+    <div className="no-padding">
       {/* HEADER */}
       <PageHeader
         title={category?.name || "Favourites"}
@@ -88,6 +88,7 @@ const FavouriteDishList = ({
         onHome={handleHome}
       />
 
+      <div className="pl-body food-list fav-dish-page">
       {/* LIST */}
       <div className="food-category" style={{ padding: "0px" }}>
         <div className="food-category-container">
@@ -102,7 +103,7 @@ const FavouriteDishList = ({
           {dishes.map((dish) => (
             <div
               key={dish.id}
-              className="food-category-items"
+              className="fav-food-category-items"
               role="button"
               onClick={() =>
                 navigate(`/favourites/${source}/dish/${dish.id}`, {
@@ -113,10 +114,10 @@ const FavouriteDishList = ({
                 })
               }
             >
-              <div className="food-category-image">
+              <div className="fav-food-category-image">
                 <img src={dish.image} alt={dish.name} loading="lazy" decoding="async" />
               </div>
-              <div className="food-category-name">
+              <div className="fav-food-category-name">
                 {dish.name}
               </div>
 
@@ -142,6 +143,7 @@ const FavouriteDishList = ({
             </div>
           ))}
         </div>
+      </div>
       </div>
 
       {/* DELETE CONFIRM OVERLAY */}

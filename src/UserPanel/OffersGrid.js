@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { flyToBag } from "../components/flyToBag";
 import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
+import PageHeader from "./shared/PageHeader";
 
 const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
   const navigate = useNavigate();
@@ -41,93 +42,93 @@ const OffersGrid = ({ foodData, addToBag, handleBack, handleHome }) => {
   }).filter(Boolean);
 
   return (
-    <div className="offers-grid-page">
+    <div className="no-padding">
 
-      {/* HEADER */}
-      <div className="offers-grid-header">
-        <button className="back-button" onClick={handleBack} />
 
-        <div className="offers-grid-title">Offers</div>
+      <PageHeader
+        title="Offers"
+        onBack={handleBack}
+        onHome={handleHome}
+      />
 
-        <HomeButton onClick={handleHome} />
-      </div>
-
-      {/* GRID */}
-      <div className="food-category-container">
-        {offerDishes.length === 0 && (
-          <div className="fav-empty fav-empty-page">
-            <div className="fav-empty-icon">🍽️</div>
-            <h3 className="fav-empty-title">No offers right now</h3>
-            <p className="fav-empty-sub">Check back later for new deals and discounts.</p>
-          </div>
-        )}
-        {offerDishes.map(dish => (
-          <div
-            key={dish.id}
-            className="offers-card"
-          >
-
-            {/* IMAGE */}
-            <div className="offers-card-image">
-              <img src={dish.image} alt={dish.name} />
+      <div className="pl-body">
+        {/* GRID */}
+        <div className="food-category-container">
+          {offerDishes.length === 0 && (
+            <div className="fav-empty fav-empty-page">
+              <div className="fav-empty-icon">🍽️</div>
+              <h3 className="fav-empty-title">No offers right now</h3>
+              <p className="fav-empty-sub">Check back later for new deals and discounts.</p>
             </div>
-
-            {/* INFO */}
-            <div className="offers-card-info">
-
-              <div className="offers-card-name">
-                {dish.name}
-              </div>
-
-              <div className="offers-card-price">
-                ₹{dish.offerPrice}
-
-                <span className="offers-card-original">
-                  ₹{dish.originalPrice}
-                </span>
-              </div>
-
-              <div className="offers-card-badge">
-                {dish.percentage}% OFF
-              </div>
-
-            </div>
-
-            {/* ADD BUTTON */}
-            <Button3D
-              className="btn-3d red"
-              frontStyle={{ padding: "0 10px" }}
-              onClick={(e) => {
-                e.stopPropagation();
-
-                const img = e.currentTarget
-                  .closest(".offers-card")
-                  .querySelector("img");
-
-                addToBag({
-                  id: dish.id,
-                  name: dish.name,
-                  image: dish.image,
-                  categoryId: dish.categoryId,
-                  quantity: 1,
-                  unitPrice: dish.offerPrice,
-                  totalPrice: dish.offerPrice,
-                  appliedOffer: {
-                    percentage: dish.percentage,
-                    originalPrice: dish.originalPrice
-                  }
-                });
-
-                flyToBag({
-                  imgEl: img,
-                  dishId: dish.id
-                });
-              }}
+          )}
+          {offerDishes.map(dish => (
+            <div
+              key={dish.id}
+              className="offers-card"
             >
-              Add to Bag
-            </Button3D>
-          </div>
-        ))}
+
+              {/* IMAGE */}
+              <div className="offers-card-image">
+                <img src={dish.image} alt={dish.name} />
+              </div>
+
+              {/* INFO */}
+              <div className="offers-card-info">
+
+                <div className="offers-card-name">
+                  {dish.name}
+                </div>
+
+                <div className="offers-card-price">
+                  ₹{dish.offerPrice}
+
+                  <span className="offers-card-original">
+                    ₹{dish.originalPrice}
+                  </span>
+                </div>
+
+                <div className="offers-card-badge">
+                  {dish.percentage}% OFF
+                </div>
+
+              </div>
+
+              {/* ADD BUTTON */}
+              <Button3D
+                className="btn-3d red"
+                frontStyle={{ padding: "0 10px" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+
+                  const img = e.currentTarget
+                    .closest(".offers-card")
+                    .querySelector("img");
+
+                  addToBag({
+                    id: dish.id,
+                    name: dish.name,
+                    image: dish.image,
+                    categoryId: dish.categoryId,
+                    quantity: 1,
+                    unitPrice: dish.offerPrice,
+                    totalPrice: dish.offerPrice,
+                    appliedOffer: {
+                      percentage: dish.percentage,
+                      originalPrice: dish.originalPrice
+                    }
+                  });
+
+                  flyToBag({
+                    imgEl: img,
+                    dishId: dish.id
+                  });
+                }}
+              >
+                Add to Bag
+              </Button3D>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

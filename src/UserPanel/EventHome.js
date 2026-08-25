@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import "./EventHome.css";
 import HomeButton from "./shared/HomeButton";
+import { useScrollHeader } from "./shared/useScrollHeader";
 
 const EventHome = ({ handleBack, handleHome }) => {
   const navigate = useNavigate();
+  const { headerRef, scrolled } = useScrollHeader();
 
   const options = [
     {
@@ -49,49 +51,51 @@ const EventHome = ({ handleBack, handleHome }) => {
   ];
 
   return (
-    <div className="ehome-page">
+    <div className="no-padding">
       {/* Header */}
-      <div className="ehome-topbar">
+      <div ref={headerRef} className={`pl-header${scrolled ? " header-scrolled" : ""}`}>
         <button className="back-button" onClick={handleBack} aria-label="Back" />
         <h1 className="ehome-page-title">Events & Bookings</h1>
         <HomeButton onClick={handleHome} />
       </div>
 
-      {/* Hero */}
-      <div className="ehome-hero">
-        <div className="ehome-hero-bg">
-          <div className="ehome-hero-orb ehome-orb-1" />
-          <div className="ehome-hero-orb ehome-orb-2" />
+      <div className="pl-body">
+        {/* Hero */}
+        <div className="ehome-hero">
+          <div className="ehome-hero-bg">
+            <div className="ehome-hero-orb ehome-orb-1" />
+            <div className="ehome-hero-orb ehome-orb-2" />
+          </div>
+          <div className="ehome-hero-content">
+            <span className="ehome-hero-tag">✦ Sam Cafe</span>
+            <h2 className="ehome-hero-title">Plan Your<br />Perfect Experience</h2>
+            <p className="ehome-hero-sub">From intimate dinners to grand celebrations — we've got you covered.</p>
+          </div>
         </div>
-        <div className="ehome-hero-content">
-          <span className="ehome-hero-tag">✦ Sam Cafe</span>
-          <h2 className="ehome-hero-title">Plan Your<br />Perfect Experience</h2>
-          <p className="ehome-hero-sub">From intimate dinners to grand celebrations — we've got you covered.</p>
-        </div>
-      </div>
 
-      {/* Options */}
-      <div className="ehome-section">
-        <p className="ehome-section-label">Choose a Service</p>
-        <div className="ehome-options-list">
-          {options.map((opt, index) => (
-            <div
-              key={opt.name}
-              className="ehome-option-card"
-              onClick={() => navigate(opt.path)}
-              style={{ "--accent": opt.accent, "--accentLight": opt.accentLight, animationDelay: `${index * 0.06}s` }}
-            >
-              <div className="ehome-option-text">
-                <h3 className="ehome-option-name">{opt.name}</h3>
-                <p className="ehome-option-desc">{opt.description}</p>
+        {/* Options */}
+        <div className="ehome-section">
+          <p className="ehome-section-label">Choose a Service</p>
+          <div className="ehome-options-list">
+            {options.map((opt, index) => (
+              <div
+                key={opt.name}
+                className="ehome-option-card"
+                onClick={() => navigate(opt.path)}
+                style={{ "--accent": opt.accent, "--accentLight": opt.accentLight, animationDelay: `${index * 0.06}s` }}
+              >
+                <div className="ehome-option-text">
+                  <h3 className="ehome-option-name">{opt.name}</h3>
+                  <p className="ehome-option-desc">{opt.description}</p>
+                </div>
+                <div className="ehome-option-arrow">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
               </div>
-              <div className="ehome-option-arrow">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </div>

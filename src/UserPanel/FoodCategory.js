@@ -5,6 +5,7 @@ import listIcon from "../assets/icons/list.png";
 import gridIcon from "../assets/icons/grid.png";
 import eventFallbackImg from "../assets/events-fallback.png";
 import Button3D from "./shared/Button3D";
+import QuickLinksFab from "./QuickLinksFab";
 import { fmtDate as fmtDateNumeric } from "../utils/dateUtils";
 
 /* ═══════════════════════════════════════════════
@@ -547,8 +548,6 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
   const [favouriteCombos, setFavouriteCombos] = useState([]);
   const navigate = useNavigate();
 
-  const isAuthenticatedUser = currentUser && currentUser.id !== "guest";
-
   // Super-Admin-configured overrides (name/image/enabled) for the special
   // cards below, keyed by card id. A card with no saved override — or no
   // config saved at all yet — falls back to its hardcoded default here,
@@ -604,28 +603,11 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
     }
   };
 
-  /* ── Build category list ── */
+  /* ── Build category list ──
+     The special cards (Crowd Picks / Combo / Offers / Events) used to
+     lead the grid here — they now live in the "…" quick-menu FAB
+     instead, so the grid only shows actual food categories. */
   const categoriesToRender = [];
-
-  if (isAuthenticatedUser) {
-    if (isCardEnabled("others")) {
-      categoriesToRender.push({ id: "others", name: cardName("others", "Crowd Picks"), image: cardImage("others", "/assets/category-assets/crowd.png"), route: "/favourites/others" });
-    }
-  } else if (isCardEnabled("others")) {
-    categoriesToRender.push({
-      id: "others", name: cardName("others", "Crowd Picks"), image: cardImage("others", "/assets/category-assets/crowd.png"), route: "/favourites/others",
-    });
-  }
-
-  if (isCardEnabled("combo")) {
-    categoriesToRender.push({ id: "combo", name: cardName("combo", "Combos"), image: cardImage("combo", "/assets/category-assets/combo.png"), route: "/combo" });
-  }
-  if (isCardEnabled("offers")) {
-    categoriesToRender.push({ id: "offers", name: cardName("offers", "Offers"), image: cardImage("offers", "/assets/category-assets/offers.png"), route: "/offers" });
-  }
-  if (isCardEnabled("events")) {
-    categoriesToRender.push({ id: "events", name: cardName("events", "Events & Booking"), image: cardImage("events", "/assets/category-assets/events.png"), route: "/events" });
-  }
 
   (foodData?.categories || []).forEach((category) => {
     const hasSubCategories = Array.isArray(category.subCategories) && category.subCategories.length > 0;
@@ -692,6 +674,17 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
           </Link>
         ))}
       </div>
+
+      {/* Quick Links "…" FAB — Crowd Picks / Combo / Offers / Events &
+          Bookings shortcuts, this page only. Each link auto-hides if
+          its Super-Admin card toggle is off, and the whole button
+          hides if every link it would show is disabled. */}
+      <QuickLinksFab
+        isCrowdPicksEnabled={isCardEnabled("others")}
+        isComboEnabled={isCardEnabled("combo")}
+        isOffersEnabled={isCardEnabled("offers")}
+        isEventsEnabled={isCardEnabled("events")}
+      />
     </div>
   );
 };

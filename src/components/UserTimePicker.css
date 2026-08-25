@@ -209,6 +209,38 @@
   }
 }
 
+/* ── Exit animations — mirror of the entry keyframes above, played
+   while the popup is still mounted during its closing grace period. ── */
+.utp-overlay.utp-closing {
+  animation: utpOverlayFadeOut 0.17s ease forwards;
+}
+
+@keyframes utpOverlayFadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.utp-popup.utp-closing {
+  animation: utpFadeOut 0.17s ease forwards;
+}
+
+@keyframes utpFadeOut {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+}
+
 /* ── Header — red accent ── */
 .utp-header {
   background: var(--color-red, var(--color-red));

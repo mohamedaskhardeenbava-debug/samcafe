@@ -99,7 +99,7 @@ const MyOrders = ({ currentUser, initialOrders, handleBack, handleHome }) => {
   }
 
   return (
-    <div className="food-list my-orders-page">
+    <div className="no-padding">
       <PageHeader
         title={
           <span className="my-orders-title-row">
@@ -115,11 +115,11 @@ const MyOrders = ({ currentUser, initialOrders, handleBack, handleHome }) => {
         onHome={handleHome}
       />
 
-      <div className="food-category" style={{ padding: "0px" }}>
+      <div className="pl-body">
         {loading && (
           <div className="my-orders-state">
             <div className="my-orders-state-icon my-orders-state-icon--loading">🧾</div>
-            <h3 className="my-orders-state-title">Loading your orders…</h3>
+            <h3 className="my-orders-state-title">Loading your orders</h3>
           </div>
         )}
 
@@ -178,6 +178,7 @@ const MyOrders = ({ currentUser, initialOrders, handleBack, handleHome }) => {
             </div>
           </div>
         )}
+      
       </div>
     </div>
   );

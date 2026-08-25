@@ -52,7 +52,7 @@
   padding: 20px;
   box-sizing: border-box;
   z-index: 500;
-  background: #fff;
+  background: var(--bg-main);
 }
 
 /* ── Card wrapping the scene + label ──────────── */
@@ -236,7 +236,7 @@
   font-weight: 500;
   font-size: clamp(15px, 2.6vw, 19px);
   letter-spacing: 0.01em;
-  color: #6b6b6b;
+  color: var(--text-secondary);
   text-align: center;
 }
 
@@ -254,7 +254,7 @@
 .pl-dots span {
   display: inline-block;
   opacity: 0;
-  color: #c9832f;
+  color: var(--text-secondary);
   animation: pl-dot-blink 1.4s infinite;
 }
 

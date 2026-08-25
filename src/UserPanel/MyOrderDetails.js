@@ -48,11 +48,13 @@ const MyOrderDetails = ({ currentUser, handleHome, handleBack }) => {
 
   if (loading) {
     return (
-      <div className="food-list my-order-details-page">
+      <div className="no-padding">
         <PageHeader title="Order Details" wrapperClassName="food-header" titleClassName="food-list-title" onBack={handleBackToList} onHome={handleHome} />
+        <div className="pl-body food-list my-order-details-page">
         <div className="my-orders-state">
           <div className="my-orders-state-icon my-orders-state-icon--loading">🧾</div>
-          <h3 className="my-orders-state-title">Loading order…</h3>
+          <h3 className="my-orders-state-title">Loading order</h3>
+        </div>
         </div>
       </div>
     );
@@ -60,13 +62,15 @@ const MyOrderDetails = ({ currentUser, handleHome, handleBack }) => {
 
   if (error || !order) {
     return (
-      <div className="food-list my-order-details-page">
+      <div className="no-padding">
         <PageHeader title="Order Details" wrapperClassName="food-header" titleClassName="food-list-title" onBack={handleBackToList} onHome={handleHome} />
+        <div className="pl-body food-list my-order-details-page">
         <div className="my-orders-state">
           <div className="my-orders-state-icon my-orders-state-icon--error">⚠️</div>
           <h3 className="my-orders-state-title">Order not found</h3>
           <p className="my-orders-state-sub">It may have been removed, or the link is out of date.</p>
           <Button3D className="mod-back-to-orders-btn" onClick={handleBackToList}>Back to My Orders</Button3D>
+        </div>
         </div>
       </div>
     );
@@ -80,7 +84,7 @@ const MyOrderDetails = ({ currentUser, handleHome, handleBack }) => {
   const extras = (order.totalAmount ?? subtotal) - subtotal; // taxes/fees/discount, if the total differs from item sum
 
   return (
-    <div className="food-list my-order-details-page">
+    <div className="no-padding">
       <PageHeader
         title="Order Details"
         wrapperClassName="food-header"
@@ -89,6 +93,7 @@ const MyOrderDetails = ({ currentUser, handleHome, handleBack }) => {
         onHome={handleHome}
       />
 
+      <div className="pl-body food-list my-order-details-page">
       <div className="food-category mod-scroll" style={{ padding: "0px" }}>
         <div className="mod-hero">
           <div className="mod-hero-top">
@@ -191,6 +196,7 @@ const MyOrderDetails = ({ currentUser, handleHome, handleBack }) => {
         <Button3D className="mod-back-to-orders-btn" onClick={handleBackToList}>
           Back to My Orders
         </Button3D>
+      </div>
       </div>
     </div>
   );

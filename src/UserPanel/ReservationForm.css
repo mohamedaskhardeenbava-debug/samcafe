@@ -5,18 +5,75 @@
 /* user panel */
 
 .rf-page {
-  padding: 36px;
-  min-height: 100vh;
-  height: 100vh;
   font-family: "Geom", system-ui, sans-serif;
   display: flex;
   flex-direction: column;
   gap: 0;
-  overflow: hidden;
   box-sizing: border-box;
 }
 
+/* ReservationForm's two-column layout (.rf-col) scrolls independently
+   inside a locked-to-viewport shell rather than letting the whole page
+   scroll — these two classes restore that bounded-height chain now
+   that the page lives inside PageLayout's .pl-body instead of owning
+   its own height:100vh/overflow:hidden directly (moving to the shared
+   no-padding/PageHeader/pl-body shell dropped that lock from .rf-page
+   itself, so .rf-single-form's flex:1/.rf-form-grid's height:100% had
+   nothing to bound against without it). Scoped to Reservation only —
+   Catering/Celebration/PreBooking anchor their grids with their own
+   calc(100vh - Npx) instead and don't need this. */
+.rf-fixed-page {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.rf-fixed-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sticky, translucent page header — shared by all 4 booking forms
+   (ReservationForm/CateringForm/CelebrationForm/PreBooking all import
+   this file). None of them import FoodList.css, where the *other*
+   .food-header definition lives, so without this override the header
+   here just scrolls away with the rest of the page instead of
+   staying pinned. Transparent at all times (not just once scrolled)
+   with a blur so content passing underneath is illegible rather than
+   fully visible through it. */
+.food-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0,0,0,0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.rf-header-title-block {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1;
+  min-width: 0;
+}
+
 .rf-page-title {
+  display: block;
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
@@ -24,6 +81,7 @@
 }
 
 .rf-page-sub {
+  display: block;
   font-size: 12px;
   color: var(--text-secondary);
   margin-top: 2px;
@@ -1230,18 +1288,53 @@
 .section-title {
   display: flex;
   justify-content: space-between;
-  alsign-items: center;
-  font-size: 13px;
+  align-items: center;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--text-lighter);
+  color: var(--text-primary);
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
+  border-bottom: 1px solid var(--text-tertiary);
+}
+
+/* ── Cascading field reveal (date → slot → time) ──
+   Each newly-revealed field animates in with a smooth drop+fade
+   instead of just popping into the layout. */
+@keyframes rf-field-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 400px;
+  }
+}
+
+.rf-field-reveal {
+  animation: rf-field-reveal 0.38s cubic-bezier(0.22, 1, 0.36, 1);
+  overflow: hidden;
 }
 
 .rf-submit-btn {
   margin-top: 8px;
   width: 100%;
+}
+
+/* Briefly highlights whichever field the submit-validation scrolled
+   to, so the eye lands on it immediately rather than having to
+   re-scan the whole form for the red error text. */
+@keyframes rf-error-flash {
+  0%, 100% { box-shadow: none; }
+  25%, 75% { box-shadow: 0 0 0 3px var(--color-error-bg); }
+}
+
+.rf-error-flash {
+  animation: rf-error-flash 1.1s ease;
+  border-radius: 10px;
 }
 
 /* ── Slot disabled ── */
@@ -1727,6 +1820,15 @@
     overflow: visible !important;
   }
 
+  .rf-fixed-page {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .rf-fixed-body {
+    overflow: visible !important;
+  }
+
   .rf-single-form {
     overflow: visible !important;
   }
@@ -1902,4 +2004,50 @@
   gap: 14px;
   flex-wrap: wrap;
   margin-top: 4px;
+}
+
+/* ── Mobile: pin the Cancel/Submit row to the bottom of the screen,
+   the same way .mobile-footer-nav and the FoodItem/FoodList fixed
+   bars are pinned — position: fixed rather than sticky.
+   Sticky was tried first (relative to .pl-body, the page's real
+   scroll container), but .pl-body only actually stretches to fill
+   the viewport when its flex ancestors resolve a definite height
+   all the way up (.no-padding's `height: stretch`, .page-transition-
+   wrapper, .App). That chain doesn't hold reliably here — Catering/
+   Celebration/PreBooking/Reservation each render their own
+   `.no-padding` shell directly (not through the shared PageLayout
+   component) — so .pl-body ends up sized to its own content instead
+   of the viewport, and a sticky child then has no extra room to
+   "stick" within: it just sits at the natural end of the content,
+   stranded mid-page instead of glued to the bottom. Fixed
+   positioning sidesteps that fragility entirely by anchoring to the
+   viewport directly, exactly like the other bars already do. */
+@media (max-width: 600px) {
+  .form-btn-row {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px var(--mobile-page-padding);
+    background: var(--bg-main);
+    border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+  }
+
+  /* .form-btn-row is now fixed (out of flow), so whichever of the
+     four pages' scroll containers holds it needs the matching space
+     reserved at its own end — otherwise the last section (address
+     fields, decoration cards, etc.) renders straight through where
+     the bar now floats. :has() targets .pl-body itself here rather
+     than four separate per-page wrapper selectors (.rf-single-form /
+     .clp-container / .ucat-form-shell / .pbp-form-shell) since it's
+     the one element common to all four pages' markup. */
+  .pl-body:has(> * .form-btn-row),
+  .pl-body:has(> .form-btn-row) {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
 }

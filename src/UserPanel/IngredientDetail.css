@@ -58,7 +58,7 @@
 
 .right {
   width: 50%;
-  padding: 36px;
+  padding: 0;
   background: var(--bg-primary);
   box-shadow: -4px 0 20px rgba(0, 0, 0, 0.08);
   overflow-y: auto;
@@ -70,6 +70,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ingredient-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .ingredient-detail-header {
@@ -170,7 +185,6 @@
   .left,
   .right {
     width: 100%;
-    padding: var(--medium-page-padding);
   }
 
   .ingredient-nutrition {
@@ -202,13 +216,15 @@
     position: absolute;
   }
 
-
   .right {
     width: 100%;
-    padding: 32px;
     overflow: visible;
     box-sizing: border-box;
     box-shadow: none;
+  }
+
+  .left {
+    padding: var(--medium-page-padding);
   }
 
   .ingredient-detail-image {
@@ -224,8 +240,7 @@
 
 @media screen and (max-width: 576px) {
 
-  .left,
-  .right {
+  .left {
     padding: var(--mobile-page-padding);
   }
 

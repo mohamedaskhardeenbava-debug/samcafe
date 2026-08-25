@@ -3,6 +3,7 @@ import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Button3D from "./shared/Button3D.js";
 import { buildDishBagItem } from "./shared/bagUtils.js";
+import { useScrollHeader } from "./shared/useScrollHeader.js";
 import closeIcon from "../assets/icons/close.png";
 import homeIcon from "../assets/icons/home.png";
 import cartIcon from "../assets/icons/cart.png";
@@ -526,6 +527,7 @@ const AddedConfirmation = ({ dishTitle, price, onDone }) => (
 
 /* ─── Main Component ──────────────────────────────────────── */
 const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
+  const { headerRef, scrolled } = useScrollHeader();
   const [selectedSauce, setSelectedSauce] = useState(null);
   const [selectedMain, setSelectedMain] = useState(null);
   const [qty, setQty] = useState(1);
@@ -607,7 +609,7 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
     <motion.div className="appetizer-page" variants={pageVariant} initial="hidden" animate="show">
 
       {/* ── Top bar (back chevron + phase label + home) ── */}
-      <div className="appetizer-topbar">
+      <div ref={headerRef} className={`appetizer-topbar${scrolled ? " header-scrolled" : ""}`}>
         <motion.button className="back-button" onClick={handleBack} aria-label="Back" whileTap={{ scale: 0.85, x: -2 }} />
 
         <div className="appetizer-phase-label">

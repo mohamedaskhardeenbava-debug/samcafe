@@ -2,6 +2,33 @@
   padding: 36px;
 }
 
+/* .food-header's real definition lives in FoodList.css, which several
+   pages that also use this className (MyOrders, MyOrderDetails,
+   OrderDetails, Profile, FavouriteDishList, FavouriteCategories) don't
+   import — this file (FoodCategory.css) is the one thing all of them
+   *do* import, so the sticky/transparent treatment is added here too
+   to actually reach them. Duplicated intentionally rather than
+   consolidated into one shared file, since untangling every page's
+   CSS imports into a single header stylesheet is a bigger refactor
+   than this fix calls for. */
+.food-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
 /* =============================================
    VIEW TOGGLE ROW
 ============================================= */
@@ -561,7 +588,6 @@
   }
 }
 
-
 .food-category-name {
   font-size: 16px;
   min-height: 40px;
@@ -774,4 +800,56 @@
   .pc-arrow-left {
     display: none;
   }
+}
+
+/* =============================================
+   FAV-EMPTY — shared "nothing here" state used by
+   FavouriteCategories, FavouriteDishList,
+   FavouriteDishDetail, and OffersGrid. Centered both
+   horizontally and vertically in whatever container
+   it sits in: spans the full width when it's a grid
+   item (food-category-container), and fills the
+   available height when it's a lone block child
+   (.fav-empty-page modifier).
+============================================= */
+.fav-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 70px 20px;
+  gap: 6px;
+  width: 100%;
+}
+
+.fav-empty-page {
+  min-height: 50vh;
+}
+
+.fav-empty-icon {
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-red) 14%, var(--bg-main)), color-mix(in srgb, var(--color-red-secondary) 8%, var(--bg-main)));
+}
+
+.fav-empty-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.fav-empty-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 320px;
 }

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import "./ComboPage.css";
 import Button3D from "./shared/Button3D";
+import { useScrollHeader } from "./shared/useScrollHeader";
 import api from "../api";
 import socket from "../socket";
 import { useToast } from "../components/Usetoast";
@@ -360,13 +361,33 @@ const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
       </div>
 
       <div className={`combo-reel-images combo-reel-images--slot-${slotIndex}`}>
-        {visible.map((item, slot) => {
+        {(() => {
+          // With few items (n < 5), the same dish id can land in more
+          // than one of the 5 slots at once (e.g. n=2 repeats each
+          // dish across 2-3 slots via modulo wrap). Since each element
+          // below is now keyed by dish id alone (so it can persist and
+          // animate smoothly across an advance instead of remounting —
+          // see the comment on the key prop), two slots sharing an id
+          // would collide as duplicate React keys. Keep only the
+          // occurrence closest to center (slot 2) per id; render the
+          // rest as null, same principle as FoodList's seenIds dedupe.
+          const centerSlotById = new Map();
+          visible.forEach((item, slot) => {
+            if (!item) return;
+            const prevSlot = centerSlotById.get(item.id);
+            if (prevSlot === undefined || Math.abs(slot - 2) < Math.abs(prevSlot - 2)) {
+              centerSlotById.set(item.id, slot);
+            }
+          });
+          return visible.map((item, slot) => (item && centerSlotById.get(item.id) === slot ? item : null));
+        })().map((item, slot) => {
           // slot maps 1:1 onto the 5 circle roles: 0=far-prev,
           // 1=prev, 2=active, 3=next, 4=far-next. The two edges stay
           // fully off-display (opacity 0, non-interactive) but sit
           // in their real circular position, so when an item's role
           // shifts into view it sweeps in along the arc instead of
           // just fading in from nowhere.
+          if (!item) return null;
           const isActive = slot === 2;
 
           // With only one item, every "role" resolves to that same
@@ -389,7 +410,14 @@ const ComboReel = ({ items, angle, type, slotIndex, onSelect }) => {
 
           return (
             <motion.div
-              key={`${item.id}-slot-${slot}`}
+              // Keyed by dish id ALONE (not the slot it currently
+              // occupies) so the same DOM/motion element persists as a
+              // dish's role shifts across an advance — Framer Motion
+              // then interpolates its x/y/rotate/scale continuously
+              // along the arc below instead of unmounting one slot's
+              // element and mounting a fresh one at the new slot,
+              // which is what caused the old snap/"clink".
+              key={item.id}
               className={`combo-reel-image-wrapper${isEdge ? " combo-reel-image-wrapper--hidden" : ""}`}
               aria-hidden={isEdge ? "true" : undefined}
               initial={{ x: t.x, y: t.y, rotate: t.rotate, scale: t.scale * 0.9, opacity: 0 }}
@@ -592,6 +620,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { headerRef, scrolled } = useScrollHeader();
   const isEditMode = location.state?.fromBag;
   const editQuantity = location.state?.quantity;
   const editIndex = location.state?.bagIndex;
@@ -1057,7 +1086,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
     <motion.div className="combo-page" variants={pageVariant} initial="hidden" animate="show">
 
       {/* ── Top bar (back chevron + bag) ── */}
-      <div className="combo-topbar">
+      <div ref={headerRef} className={`combo-topbar${scrolled ? " header-scrolled" : ""}`}>
         <motion.button className="back-button" onClick={handleBack} aria-label="Back" whileTap={{ scale: 0.85, x: -2 }} />
 
         <div className="combo-phase-label">
@@ -1291,7 +1320,7 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
                   onClick={handleConfirmAddFav}
                   whileTap={{ scale: 0.96 }}
                 >
-                  {isSavingFav ? "Saving…" : "Confirm"}
+                  {isSavingFav ? "Saving" : "Confirm"}
                 </Button3D>
               </div>
             </motion.div>

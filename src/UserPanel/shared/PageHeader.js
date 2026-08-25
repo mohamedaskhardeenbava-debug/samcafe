@@ -1,4 +1,6 @@
 import HomeButton from "./HomeButton";
+import './PageLayout.css';
+import { useScrollHeader } from "./useScrollHeader";
 
 /**
  * PageHeader
@@ -31,6 +33,12 @@ import HomeButton from "./HomeButton";
  *     onBack={handleBack}
  *     onHome={handleHome}
  *   />
+ *
+ * Starts fully transparent and picks up a solid, blurred background
+ * once the page is actually scrolled (see useScrollHeader) — so it
+ * never sits as an opaque bar over the title before there's anything
+ * behind it to hide, but also never lets scrolled content bleed
+ * through once it's pinned to the top.
  */
 const PageHeader = ({
   title,
@@ -42,9 +50,13 @@ const PageHeader = ({
   titleClassName = "food-grid-title"
 }) => {
   const TitleTag = titleTag;
+  const { headerRef, scrolled } = useScrollHeader();
 
   return (
-    <div className={wrapperClassName}>
+    <div
+      ref={headerRef}
+      className={`pl-header${scrolled ? " header-scrolled" : ""}`}
+    >
       <button className={backClassName} onClick={onBack} />
       <TitleTag className={titleClassName}>{title}</TitleTag>
       <HomeButton onClick={onHome} />

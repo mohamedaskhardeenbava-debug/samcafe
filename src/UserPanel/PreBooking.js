@@ -1,5 +1,5 @@
 // user panel
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import api from "../api";
 import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker, todayStr } from "../components/UserDatePicker";
@@ -7,10 +7,10 @@ import { UserTimePicker } from "../components/UserTimePicker";
 import "./PreBooking.css";
 import "./ReservationForm.css";
 import "./PreviewModal.css";
-import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import CloseButton from "./shared/CloseButton";
+import PageHeader from "./shared/PageHeader";
 import PageLoader from "../components/PageLoader";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -104,7 +104,7 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         <div className="pbp-dish-popup-search-wrap">
           <div className="field-group">
             <MatField
-              label="Search dishes…"
+              label="Search dishes"
               value={search}
               onChange={e => setSearch(e.target.value)}
               wrapperClassName=""
@@ -142,7 +142,7 @@ const AddDishPopup = ({ onClose, onAdd, existingIds, guests }) => {
         {/* Dish grid */}
         <div className="pbp-dish-popup-body">
           {loading ? (
-            <PageLoader inline label="Loading dishes…" />
+            <PageLoader inline label="Loading dishes" />
           ) : filteredDishes.length === 0 ? (
             <div className="pbp-dish-popup-empty">No dishes found.</div>
           ) : (
@@ -191,12 +191,26 @@ const PreBooking = ({ handleBack, handleHome }) => {
     date: tomorrowStr(), time: "", slotGroup: "", notes: ""
   });
   const [errors, setErrors] = useState({});
+  const [flashField, setFlashField] = useState(""); // briefly highlights the field scrolled to on validation failure
+  // Date defaults to tomorrow (never empty) so, unlike the other forms,
+  // "has a date" can't gate the slot reveal — track whether the person
+  // has actually interacted with the date picker instead.
+  const [dateConfirmed, setDateConfirmed] = useState(false);
+
+  /* One ref per field the submit validation can flag, in form order,
+     so a failed submit can scroll straight to the first invalid one. */
+  const fieldRefs = {
+    name: useRef(null), mobile: useRef(null), email: useRef(null), guests: useRef(null),
+    date: useRef(null), slotGroup: useRef(null), time: useRef(null), bag: useRef(null),
+  };
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [bookingId, setBookingId] = useState("");
   const [selectedDishes, setSelectedDishes] = useState([]);
   const [showDishPopup, setShowDishPopup] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [modalClosing, setModalClosing] = useState(false);
+  const modalCloseTimerRef = useRef(null);
 
   /* Pre-fill from logged-in user */
   useEffect(() => {
@@ -256,7 +270,22 @@ const PreBooking = ({ handleBack, handleHome }) => {
 
   const handleSubmit = async () => {
     const ve = validate();
-    if (Object.keys(ve).length > 0) { setErrors(ve); return; }
+    if (Object.keys(ve).length > 0) {
+      setErrors(ve);
+      // Scroll to and briefly flash the first invalid field, in form
+      // order, so the person lands right on what needs fixing.
+      const order = ["name", "mobile", "email", "guests", "date", "slotGroup", "time", "bag"];
+      const firstErrorKey = order.find(k => ve[k]);
+      if (firstErrorKey) {
+        const node = fieldRefs[firstErrorKey]?.current;
+        if (node) {
+          node.scrollIntoView({ behavior: "smooth", block: "center" });
+          setFlashField(firstErrorKey);
+          setTimeout(() => setFlashField(""), 1100);
+        }
+      }
+      return;
+    }
     try {
       setLoading(true);
       const saved = await bookingCrud.create("preBookings", {
@@ -284,7 +313,20 @@ const PreBooking = ({ handleBack, handleHome }) => {
     setShowPreview(true);
   };
 
-  /* ── Preview Modal ── */
+  /* ── Preview Modal — closes with a brief exit animation before
+     unmounting, matching rf-modal-fade-out/rf-modal-slide-down. ── */
+  const closePreview = () => {
+    if (modalClosing) return;
+    setModalClosing(true);
+    clearTimeout(modalCloseTimerRef.current);
+    modalCloseTimerRef.current = setTimeout(() => {
+      setShowPreview(false);
+      setModalClosing(false);
+    }, 220);
+  };
+
+  useEffect(() => () => clearTimeout(modalCloseTimerRef.current), []);
+
   const PreviewModal = () => {
     const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
     const rows = [
@@ -299,8 +341,8 @@ const PreBooking = ({ handleBack, handleHome }) => {
     ];
     if (isGroupDiscount) rows.push(["Group Discount", "10% off"]);
     return (
-      <div className="rf-modal-overlay" onClick={() => setShowPreview(false)}>
-        <div className="rf-modal" onClick={e => e.stopPropagation()}>
+      <div className={`rf-modal-overlay${modalClosing ? " rf-modal-closing" : ""}`} onClick={closePreview}>
+        <div className={`rf-modal${modalClosing ? " rf-modal-closing" : ""}`} onClick={e => e.stopPropagation()}>
           <div className="rf-modal-title">Confirm Pre-Booking</div>
           <div className="rf-modal-subtitle">Review your order before confirming.</div>
           <div className="rf-modal-grid">
@@ -324,10 +366,10 @@ const PreBooking = ({ handleBack, handleHome }) => {
             </div>
           )}
           <div className="rf-modal-actions">
-            <Button3D className="form-action-btn cancel" onClick={() => setShowPreview(false)}>
+            <Button3D className="btn-3d white" onClick={closePreview}>
               Edit
             </Button3D>
-            <Button3D className="form-action-btn submit" onClick={handleSubmit} disabled={loading}>
+            <Button3D className="btn-3d red" onClick={handleSubmit} disabled={loading}>
               {loading ? <span className="rf-spinner" /> : "Confirm"}
             </Button3D>
           </div>
@@ -340,12 +382,9 @@ const PreBooking = ({ handleBack, handleHome }) => {
   if (submitted) {
     const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
     return (
-      <div className="rf-page">
-        <div className="food-header">
-          <button className="back-button" onClick={handleBack} />
-          <div className="food-list-title">Pre Booking</div>
-          <HomeButton onClick={handleHome} />
-        </div>
+      <div className="no-padding">
+        <PageHeader title="Pre Booking" onBack={handleBack} onHome={handleHome} />
+        <div className="pl-body">
         <div className="rf-success-screen">
           <div className="rf-success-icon">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
@@ -376,7 +415,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
             ))}
           </div>
           <Button3D
-            className="form-action-btn submit"
+            className="btn-3d red"
             onClick={() => {
               setSubmitted(false);
               setShowPreview(false);
@@ -396,11 +435,12 @@ const PreBooking = ({ handleBack, handleHome }) => {
             Make Another Booking
           </Button3D>
           <Button3D
-            className="form-action-btn submit"
+            className="btn-3d red"
             onClick={handleHome}
           >
             Back to Home
           </Button3D>
+        </div>
         </div>
       </div>
     );
@@ -408,15 +448,12 @@ const PreBooking = ({ handleBack, handleHome }) => {
 
   /* ── Main Form ── */
   return (
-    <div className="rf-page">
+    <div className="no-padding">
       {showPreview && <PreviewModal />}
 
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-list-title">Pre Booking</div>
-        <HomeButton onClick={handleHome} />
-      </div>
+      <PageHeader title="Pre Booking" onBack={handleBack} onHome={handleHome} />
 
+      <div className="pl-body">
       <div className="pbp-form-shell">
         <div className="pbp-form-grid">
 
@@ -426,7 +463,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
             {/* GUEST DETAILS */}
             <div className="section-title">Guest Details</div>
             <div className="pbp-card">
-              <div className="field-group">
+              <div className={`field-group${flashField === "name" ? " rf-error-flash" : ""}`} ref={fieldRefs.name}>
                 <MatField
                   label={<>Name <span className="pbp-req">*</span></>}
                   value={form.name}
@@ -436,7 +473,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                 />
               </div>
               <div className="mat-row">
-                <div className="field-group" style={{ flex: 1.4 }}>
+                <div className={`field-group${flashField === "mobile" ? " rf-error-flash" : ""}`} style={{ flex: 1.4 }} ref={fieldRefs.mobile}>
                   <div className="mat-input-prefix-wrap">
                     <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
                     <MatField
@@ -450,7 +487,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                   </div>
 
                 </div>
-                <div className="field-group" style={{ flex: 1 }}>
+                <div className={`field-group${flashField === "email" ? " rf-error-flash" : ""}`} style={{ flex: 1 }} ref={fieldRefs.email}>
                   <MatField
                     label={<>Email <span className="pbp-opt">(optional)</span></>}
                     type="email"
@@ -462,7 +499,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                 </div>
               </div>
 
-              <div className="field-group">
+              <div className={`field-group${flashField === "guests" ? " rf-error-flash" : ""}`} ref={fieldRefs.guests}>
                 <label>Guests <span className="pbp-req">*</span></label>
                 <div className={`stepper-ctrl${errors.guests ? " error" : ""}`}>
                   <button className="stepper-btn" type="button" onClick={() => setF("guests", Math.max(1, form.guests - 1))}>−</button>
@@ -489,42 +526,43 @@ const PreBooking = ({ handleBack, handleHome }) => {
           {/* ════ RIGHT COLUMN ════ */}
           <div className="pbp-col">
 
-            {/* SCHEDULE — slot first, then date/time once a slot is picked */}
+            {/* SCHEDULE — Date first, then Dining Slot once the date
+                is confirmed, then Preferred Time once a slot is picked */}
             <div className="section-title">Date &amp; Dining Slot</div>
             <div className="pbp-card">
-              <div className="field-group pbp-schedule-slots">
-                <label>Dining Slot <span className="pbp-req">*</span></label>
-                <div className="slot-groups">
-                  {SLOT_GROUPS.map(sg => {
-                    const nowH = new Date().getHours();
-                    const slotEndH = parseInt(sg.end.split(":")[0]);
-                    const isPast = form.date === todayStr() && nowH >= slotEndH;
-                    return (
-                      <div key={sg.key}
-                        className={`slot-group${form.slotGroup === sg.key ? " active" : ""}${isPast ? " pbp-slot-disabled" : ""}`}
-                        onClick={() => { if (!isPast) { setF("slotGroup", sg.key); setF("time", ""); } }}>
-                        <span className="slot-group-label">{sg.label}</span>
-                        <span className="slot-group-time">{sg.start} – {sg.end}</span>
-                        {isPast && <span className="slot-group-passed-badge">Passed</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-                {errors.slotGroup && <span className="pbp-field-error">Pick a dining slot</span>}
+              <div className={`field-group pbp-schedule-date${flashField === "date" ? " rf-error-flash" : ""}`} ref={fieldRefs.date}>
+                <label>Date <span className="pbp-req">*</span></label>
+                <UserDatePicker
+                  value={form.date}
+                  min={tomorrowStr()}
+                  hasError={!!errors.date}
+                  onChange={v => { setF("date", v); setF("slotGroup", ""); setF("time", ""); setDateConfirmed(true); }}
+                />
               </div>
-              {form.slotGroup && (
-                <div className="field-group pbp-schedule-date">
-                  <label>Date <span className="pbp-req">*</span></label>
-                  <UserDatePicker
-                    value={form.date}
-                    min={tomorrowStr()}
-                    hasError={!!errors.date}
-                    onChange={v => { setF("date", v); setF("time", ""); }}
-                  />
+              {dateConfirmed && (
+                <div className={`field-group pbp-schedule-slots rf-field-reveal${flashField === "slotGroup" ? " rf-error-flash" : ""}`} ref={fieldRefs.slotGroup}>
+                  <label>Dining Slot <span className="pbp-req">*</span></label>
+                  <div className="slot-groups">
+                    {SLOT_GROUPS.map(sg => {
+                      const nowH = new Date().getHours();
+                      const slotEndH = parseInt(sg.end.split(":")[0]);
+                      const isPast = form.date === todayStr() && nowH >= slotEndH;
+                      return (
+                        <div key={sg.key}
+                          className={`slot-group${form.slotGroup === sg.key ? " active" : ""}${isPast ? " pbp-slot-disabled" : ""}`}
+                          onClick={() => { if (!isPast) { setF("slotGroup", sg.key); setF("time", ""); } }}>
+                          <span className="slot-group-label">{sg.label}</span>
+                          <span className="slot-group-time">{sg.start} – {sg.end}</span>
+                          {isPast && <span className="slot-group-passed-badge">Passed</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {errors.slotGroup && <span className="pbp-field-error">Pick a dining slot</span>}
                 </div>
               )}
               {form.slotGroup && (
-                <div className="field-group pbp-schedule-time">
+                <div className={`field-group pbp-schedule-time rf-field-reveal${flashField === "time" ? " rf-error-flash" : ""}`} ref={fieldRefs.time}>
                   <label>Preferred Time <span className="pbp-req">*</span></label>
                   <UserTimePicker
                     value={form.time}
@@ -547,7 +585,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
                 + Add Dish
               </Button3D>
             </div>
-            <div className={`pbp-card${errors.bag ? " pbp-card-error" : ""}`}>
+            <div className={`pbp-card${errors.bag ? " pbp-card-error" : ""}${flashField === "bag" ? " rf-error-flash" : ""}`} ref={fieldRefs.bag}>
               {selectedDishes.length === 0 ? (
                 <div className="pbp-empty">
                   <p>No dishes selected</p>
@@ -601,7 +639,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
 
             <div className="form-btn-row">
               <Button3D
-                className="form-action-btn cancel"
+                className="btn-3d white"
                 type="button"
                 disabled={loading}
                 onClick={() => {
@@ -615,7 +653,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
               </Button3D>
 
               <Button3D
-                className={`form-action-btn submit${loading ? " loading" : ""}`}
+                className={`btn-3d red${loading ? " loading" : ""}`}
                 type="button"
                 onClick={handleReview}
                 disabled={loading}
@@ -640,6 +678,7 @@ const PreBooking = ({ handleBack, handleHome }) => {
         />
       )}
 
+      </div>
     </div>
   );
 };

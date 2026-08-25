@@ -8,7 +8,7 @@
 
 .left-panel {
   width: 60%;
-  padding: 36px;
+  padding: 0;
   position: relative;
   background: var(--bg-primary);
 }
@@ -17,6 +17,21 @@
   display: flex;
   align-items: center;
   width: 100%;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fooditem-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .image-header {
@@ -284,6 +299,7 @@
 
 .ingredient-section {
   margin-top: 16px;
+  padding: 0 18px 0 36px;
 
 }
 
@@ -457,6 +473,8 @@
   width: 40%;
   z-index: 99;
   box-sizing: border-box;
+
+  padding: 0 !important;
 }
 
 .top {
@@ -1208,28 +1226,29 @@
     padding: 0;
   }
 
-  .left-panel,
   .right-panel,
   .bottom {
     padding: var(--mobile-page-padding);
   }
+
+  .top {
+    padding: 16px 16px 0 16px;
+  }
 }
 
 @media (max-width: 768px) {
-  .left-panel {
-    padding: 20px;
-  }
 
   .image-header {
     gap: 0;
+    flex-direction: column;
   }
 
   .ingredient-item {
     padding: 5px 10px;
   }
 
-  .top {
-    padding: 20px 10px 0 10px;
+  .ingredient-section {
+    padding: var(--medium-page-padding);
   }
 
   .bottom {
@@ -1241,11 +1260,14 @@
   .ingredient-modification {
     gap: 2px;
   }
+
+  .ingredient-list {
+    max-height: calc(100vh - 493px);
+  }
 }
 
 @media screen and (max-height: 500px) {
 
-  .left-panel,
   .right-panel {
     padding: var(--mobile-page-padding);
   }
@@ -1277,10 +1299,6 @@
     padding: 0;
   }
 
-  .top {
-    padding: 0;
-  }
-
   .ingredient-item-calculation {
     padding: 4px;
   }
@@ -1297,12 +1315,16 @@
 @media screen and (max-width: 576px) {
   .food-item {
     flex-direction: column;
+    height: stretch;
   }
 
   .left-panel {
-    padding: 10px;
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .ingredient-section {
+    padding: 0 var(--mobile-page-padding);
   }
 
   .image-header {
@@ -1324,8 +1346,17 @@
   }
 
   .top {
-    padding: 0;
+    padding: var(--mobile-page-padding);
     height: auto;
+    /* .bottom is position:fixed (pulled out of flow) once it becomes
+       the price/qty/add-to-bag bar at this width, so .top no longer
+       has a sibling pushing it up — without this it renders its last
+       ingredient rows straight through where .bottom now floats.
+       Sized for .bottom's worst case (notes textarea open, up to
+       200px via .notes-wrapper.open's max-height) plus the 64px
+       footer nav it sits above, so the reservation holds even when
+       .bottom is at its tallest. */
+    padding-bottom: calc(320px + env(safe-area-inset-bottom, 0px));
   }
 
   .ingredient-item-calculation {
@@ -1333,8 +1364,20 @@
   }
 
   .bottom {
-    padding: 8px 12px;
+    padding: 10px var(--mobile-page-padding);
     border-radius: 10px 10px 0 0;
+    border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    gap: 10px;
+    box-sizing: border-box;
+    background-color: var(--bg-main);
+    z-index: 60;
   }
 
   .ingredient-modification {

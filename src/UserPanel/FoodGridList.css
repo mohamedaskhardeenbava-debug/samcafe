@@ -26,6 +26,23 @@
   align-items: center;
   gap: 0 !important;
   margin-bottom: 6px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding-top: 8px;
+  padding-bottom: 8px;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-grid-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0,0,0,0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .food-grid-title {
@@ -103,8 +120,17 @@
 /* Sort pills */
 .food-grid-sort {
   display: flex;
+  align-items: center;
   gap: 6px;
   flex-wrap: wrap;
+}
+
+.food-grid-sort-divider {
+  width: 1px;
+  height: 18px;
+  background: color-mix(in srgb, var(--text-primary) 14%, transparent);
+  margin: 0 2px;
+  flex-shrink: 0;
 }
 
 /* Count */
@@ -374,8 +400,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 12px;
   padding: 60px 20px;
+  min-height: 40vh;
   color: var(--text-secondary);
   font-size: 15px;
   font-weight: 500;

@@ -771,7 +771,7 @@ function VegetableCutterScene() {
   );
 }
 
-export default function PageLoader({ label = "Loading…", inline = false, fill = false }) {
+export default function PageLoader({ label = "Loading", inline = false, fill = false }) {
   if (inline) {
     return (
       <div className="pl-inline" role="status" aria-label={label}>

@@ -34,11 +34,18 @@ const SORT_OPTIONS = [
   { val: "name", label: "A → Z" }
 ];
 
+const VEG_FILTER_OPTIONS = [
+  { val: "all", label: "All" },
+  { val: "veg", label: "🟢 Veg" },
+  { val: "nonveg", label: "🔴 Non-Veg" },
+];
+
 const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onToggleFavourite }) => {
   const { categoryId } = useParams();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState("default"); // default | price_asc | price_desc | name
+  const [vegFilter, setVegFilter] = useState("all"); // all | veg | nonveg
 
   const category = (() => {
     let cat = foodData.categories.find(c => c.id === categoryId);
@@ -68,12 +75,15 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
       list = list.filter(d => d.name.toLowerCase().includes(q));
     }
 
+    if (vegFilter === "veg") list = list.filter(d => d.isVeg !== false);
+    if (vegFilter === "nonveg") list = list.filter(d => d.isVeg === false);
+
     if (sortBy === "price_asc") list = [...list].sort((a, b) => a.basePrice - b.basePrice);
     if (sortBy === "price_desc") list = [...list].sort((a, b) => b.basePrice - a.basePrice);
     if (sortBy === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
 
     return list;
-  }, [category, dishes, search, sortBy]);
+  }, [category, dishes, search, sortBy, vegFilter]);
 
   // AFTER hooks
   if (!category) return null;
@@ -88,16 +98,17 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
   };
 
   return (
-    <div className="food-grid-page">
+    <div className="no-padding">
       {/* HEADER */}
       <PageHeader title={category.name} onBack={handleBack} onHome={handleHome} />
 
+      <div className="pl-body">
       {/* TOOLBAR: search + sort */}
       <div className="food-grid-toolbar">
         <div className="food-grid-search-wrap">
           <MatField
             wrapperClassName="field-group"
-            label="Search dishes…"
+            label="Search dishes"
             type="text"
             value={search}
             onChange={e => setSearch(e.target.value)}
@@ -113,6 +124,16 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
               key={opt.val}
               className={`sort-btn ${sortBy === opt.val ? "active" : ""}`}
               onClick={() => setSortBy(opt.val)}
+            >
+              {opt.label}
+            </Button3D>
+          ))}
+          <span className="food-grid-sort-divider" aria-hidden="true" />
+          {VEG_FILTER_OPTIONS.map(opt => (
+            <Button3D
+              key={opt.val}
+              className={`sort-btn ${vegFilter === opt.val ? "active" : ""}`}
+              onClick={() => setVegFilter(opt.val)}
             >
               {opt.label}
             </Button3D>
@@ -140,7 +161,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
           </motion.div>
         ) : (
           <motion.div
-            key={sortBy + "|" + search}
+            key={sortBy + "|" + search + "|" + vegFilter}
             className="food-grid"
             variants={gridVariants}
             initial="hidden"
@@ -163,6 +184,7 @@ const FoodGridList = ({ foodData, addToBag, handleBack, handleHome, currentUser,
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
     </div>
   );
 };

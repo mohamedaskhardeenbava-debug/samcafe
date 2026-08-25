@@ -106,7 +106,7 @@ const OrderDetails = ({ handleBack, handleHome }) => {
   const total = order?.totalAmount ?? subtotal - discountAmount;
 
   return (
-    <div className="food-list order-details-page">
+    <div className="no-padding">
       <PageHeader
         title="Order Details"
         wrapperClassName="food-header"
@@ -115,11 +115,12 @@ const OrderDetails = ({ handleBack, handleHome }) => {
         onHome={handleHome}
       />
 
+      <div className="pl-body food-list order-details-page">
       <div className="food-category" style={{ padding: "0px" }}>
         {loading && (
           <div className="my-orders-state">
             <div className="my-orders-state-icon my-orders-state-icon--loading">🧾</div>
-            <h3 className="my-orders-state-title">Loading order…</h3>
+            <h3 className="my-orders-state-title">Loading order</h3>
           </div>
         )}
 
@@ -223,6 +224,7 @@ const OrderDetails = ({ handleBack, handleHome }) => {
             </div>
           </motion.div>
         )}
+      </div>
       </div>
     </div>
   );

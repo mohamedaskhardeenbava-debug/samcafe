@@ -40,8 +40,24 @@ export const UserDatePicker = ({
   disabled = false,
 }) => {
   const [open, setOpen] = useState(false);
+  const [closing, setClosing] = useState(false);
   const [view, setView] = useState("day");
   const ref = useRef(null);
+  const closeTimerRef = useRef(null);
+
+  // Plays the exit animation before actually unmounting the popup —
+  // 170ms matches udpFadeOut/udpOverlayFadeOut below.
+  const requestClose = () => {
+    if (!open || closing) return;
+    setClosing(true);
+    clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => {
+      setOpen(false);
+      setClosing(false);
+    }, 170);
+  };
+
+  useEffect(() => () => clearTimeout(closeTimerRef.current), []);
 
   const seed = value ? new Date(value) : new Date();
   const [calYear, setCalYear] = useState(seed.getFullYear());
@@ -59,22 +75,22 @@ export const UserDatePicker = ({
   // Close on outside click
   useEffect(() => {
     const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target)) requestClose();
     };
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, []);
+  }, [open, closing]);
 
   // Escape closes the popup too, same as the close button / backdrop
   // click.
   useEffect(() => {
     if (!open) return undefined;
     const onKeyDown = (e) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") requestClose();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [open, closing]);
 
   const minD = min ? new Date(min + "T00:00:00") : null;
   const maxD = max ? new Date(max + "T00:00:00") : null;
@@ -95,7 +111,7 @@ export const UserDatePicker = ({
   const selectDay = (d) => {
     const s = `${calYear}-${pad(calMonth + 1)}-${pad(d)}`;
     onChange(s);
-    setOpen(false);
+    requestClose();
   };
 
   const prevNav = () => {
@@ -137,7 +153,10 @@ export const UserDatePicker = ({
         type="button"
         className={`udp-trigger${hasError ? " udp-error" : ""}${disabled ? " udp-disabled" : ""}`}
         disabled={disabled}
-        onClick={() => { setOpen(o => !o); setView("day"); }}
+        onClick={() => {
+          if (open) { requestClose(); }
+          else { setOpen(true); setView("day"); }
+        }}
       >
         <span className={`udp-val${!value ? " udp-ph" : ""}`}>{value ? displayVal : ""}</span>
         <span className="udp-arrow">▾</span>
@@ -147,13 +166,13 @@ export const UserDatePicker = ({
       <span className="udp-bar" />
 
       {open && !disabled && (
-        <div className="udp-overlay" onMouseDown={() => setOpen(false)}>
-          <div className="udp-popup" onMouseDown={(e) => e.stopPropagation()}>
+        <div className={`udp-overlay${closing ? " udp-closing" : ""}`} onMouseDown={requestClose}>
+          <div className={`udp-popup${closing ? " udp-closing" : ""}`} onMouseDown={(e) => e.stopPropagation()}>
             <button
               type="button"
               className="udp-close-btn"
               aria-label="Close"
-              onClick={() => setOpen(false)}
+              onClick={requestClose}
             >
               ×
             </button>

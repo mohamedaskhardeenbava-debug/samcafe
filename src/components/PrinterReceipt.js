@@ -130,10 +130,10 @@ const PrinterReceipt = ({ order, onDone }) => {
 
           {/* ── 3D Done button — fades in after animation ── */}
           <div className="pr-done-btn-wrap">
-            <button className="pr-done-btn" onClick={handleDone}>
-              <span className="pr-btn-shadow" />
-              <span className="pr-btn-edge" />
-              <span className="pr-btn-front">✓ Done</span>
+            <button className="btn-3d green" onClick={handleDone}>
+              <span className="shadow" />
+              <span className="edge" />
+              <span className="front">✓ Done</span>
             </button>
           </div>
 

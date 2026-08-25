@@ -20,8 +20,22 @@
 .food-header {
   display: flex;
   align-items: center;
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   gap: 0 !important;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .food-list-title {
@@ -351,9 +365,24 @@
 .food-header {
   display: flex;
   align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   gap: 12px;
   width: fit-content;
   width: 100%;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.food-header.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .food-list-title {
@@ -583,6 +612,36 @@
     top: 230px;
   }
 
+  /* Pinned above .mobile-footer-nav (64px tall) instead of the
+     viewport bottom, the same way FoodItem's .bottom bar is pinned —
+     otherwise this sits underneath/behind the footer nav instead of
+     clear of it. Also lifted onto its own themed strip (background +
+     top border/shadow, like .mobile-footer-nav) spanning the full
+     width so it reads as a separate fixed bar rather than floating
+     buttons that other content can drift behind. */
+  .food-details-container .btn-section {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    margin: 0;
+    gap: 10px;
+    box-sizing: border-box;
+    padding: 10px var(--mobile-page-padding);
+    background: var(--bg-main);
+    border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    z-index: 60;
+  }
+
+  /* Content no longer needs to reserve space above the old
+     bottom:10px floating buttons; instead pad the scroll area so the
+     dish info never sits underneath the now-fixed bar. */
+  .food-details-container {
+    padding-bottom: 76px;
+  }
+
   .food-list {
     padding: var(--mobile-page-padding);
   }
@@ -593,6 +652,7 @@
 
   .food-details {
     width: 100%;
+    padding: 0;
   }
 
   .food-images {
@@ -656,6 +716,7 @@
     box-sizing: border-box;
   }
 }
+
 /* Veg badge + Best Seller ribbon sizing — override the absolute
    positioning .veg-icon-badge/.best-seller-badge use elsewhere (grid
    card corners); here they're grid-placed inline with the dish name
@@ -676,4 +737,56 @@
 .food-list-wishlist {
   position: static;
   flex-shrink: 0;
+}
+
+/* =============================================
+   FAV-EMPTY — shared "nothing here" state used by
+   FavouriteCategories, FavouriteDishList,
+   FavouriteDishDetail, and OffersGrid. Centered both
+   horizontally and vertically in whatever container
+   it sits in: spans the full width when it's a grid
+   item (food-category-container), and fills the
+   available height when it's a lone block child
+   (.fav-empty-page modifier).
+============================================= */
+.fav-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 70px 20px;
+  gap: 6px;
+  width: 100%;
+}
+
+.fav-empty-page {
+  min-height: 50vh;
+}
+
+.fav-empty-icon {
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-red) 14%, var(--bg-main)), color-mix(in srgb, var(--color-red-secondary) 8%, var(--bg-main)));
+}
+
+.fav-empty-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.fav-empty-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin: 0;
+  max-width: 320px;
 }

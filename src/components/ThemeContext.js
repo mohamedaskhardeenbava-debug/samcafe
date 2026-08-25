@@ -39,10 +39,14 @@ const deriveEdgeColors = (accentHex = "") => {
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 export const ThemeProvider = ({ children }) => {
-  // "light" | "dark" — user's own toggle preference
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || "light"
-  );
+  // "light" | "dark" — derived from the browser/OS color-scheme
+  // preference (prefers-color-scheme), not a manual user toggle.
+  const getSystemTheme = () =>
+    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+
+  const [theme, setTheme] = useState(getSystemTheme());
 
   // Full token maps pushed from admin panel
   const [lightTokens, setLightTokens] = useState({});
@@ -83,23 +87,37 @@ export const ThemeProvider = ({ children }) => {
         if (saved.light) setLightTokens(saved.light);
         if (saved.dark) setDarkTokens(saved.dark);
 
-        // Apply immediately for the current theme mode
-        const currentMode = localStorage.getItem("theme") || "light";
-        applyTokens(currentMode === "dark" ? saved.dark : saved.light);
+        // Apply immediately for the current system-derived theme mode
+        applyTokens(theme === "dark" ? saved.dark : saved.light);
       } catch {
         // No theme saved yet — CSS defaults apply
       }
     };
 
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ── Re-apply tokens whenever theme mode switches ──────────────────────────
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
     applyTokens(theme === "dark" ? darkTokens : lightTokens);
   }, [theme, lightTokens, darkTokens]);
+
+  // ── Follow the browser/OS theme live — if the person switches their
+  // system between light and dark, the app follows without a reload. ──
+  useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const mql = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e) => setTheme(e.matches ? "dark" : "light");
+    // Safari <14 only supports addListener/removeListener
+    if (mql.addEventListener) mql.addEventListener("change", handleChange);
+    else mql.addListener(handleChange);
+    return () => {
+      if (mql.removeEventListener) mql.removeEventListener("change", handleChange);
+      else mql.removeListener(handleChange);
+    };
+  }, []);
 
   // ── Listen for admin panel theme broadcasts ───────────────────────────────
   useEffect(() => {
@@ -109,27 +127,17 @@ export const ThemeProvider = ({ children }) => {
       setLightTokens(payload.light || {});
       setDarkTokens(payload.dark || {});
 
-      const currentMode = localStorage.getItem("theme") || "light";
-
-      applyTokens(
-        currentMode === "dark"
-          ? payload.dark || {}
-          : payload.light || {}
-      );
+      applyTokens(theme === "dark" ? payload.dark || {} : payload.light || {});
     };
 
     socket.on("theme-update", handleThemeUpdate);
 
     return () => socket.off("theme-update", handleThemeUpdate);
-  }, []);
-
-  // ── Toggle light / dark ───────────────────────────────────────────────────
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"));
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );

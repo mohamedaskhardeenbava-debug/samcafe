@@ -66,7 +66,7 @@ const IngredientDetail = ({ handleBack, foodData }) => {
       </div>
 
       <div className="right">
-        <div className="ingredient-header">
+        <div className="pl-header">
           <h2 className="ingredient-name">
             {ingredient.name}
           </h2>
@@ -76,41 +76,43 @@ const IngredientDetail = ({ handleBack, foodData }) => {
           </div>
         </div>
 
-        <div className="description-section">
-          <p>{ingredient.description}</p>
-        </div>
-
-        <div className="benefits-section">
-          <h3>Health Benefits (per 100g)</h3>
-
-          <div className="ingredient-nutrition">
-            {NUTRITION_CONFIG.map(({ key, label, unit, icon }) => {
-              const value = ingredient.nutritionPer100g?.[key];
-
-              if (value == null) return null;
-
-              return (
-                <div className="ingredient-nutrition-item" key={key}>
-                  <div className="ingredient-nutrition-image">
-                    <img src={icon} alt={label} />
-                  </div>
-
-                  <div className="ingredient-nutrition-value">
-                    {value} {unit}
-                  </div>
-
-                  <div className="ingredient-nutrition-name">
-                    {label}
-                  </div>
-                </div>
-              );
-            })}
+        <div className='pl-body'>
+          <div className="description-section">
+            <p>{ingredient.description}</p>
           </div>
-        </div>
 
-        <div className="history-section">
-          <h3>History</h3>
-          <p>{ingredient.history}</p>
+          <div className="benefits-section">
+            <h3>Health Benefits (per 100g)</h3>
+
+            <div className="ingredient-nutrition">
+              {NUTRITION_CONFIG.map(({ key, label, unit, icon }) => {
+                const value = ingredient.nutritionPer100g?.[key];
+
+                if (value == null) return null;
+
+                return (
+                  <div className="ingredient-nutrition-item" key={key}>
+                    <div className="ingredient-nutrition-image">
+                      <img src={icon} alt={label} />
+                    </div>
+
+                    <div className="ingredient-nutrition-value">
+                      {value} {unit}
+                    </div>
+
+                    <div className="ingredient-nutrition-name">
+                      {label}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="history-section">
+            <h3>History</h3>
+            <p>{ingredient.history}</p>
+          </div>
         </div>
       </div>
     </div>

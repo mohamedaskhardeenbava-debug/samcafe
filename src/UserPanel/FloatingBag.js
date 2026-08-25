@@ -166,7 +166,7 @@ const FloatingBag = ({
               }
             }}
           >
-            {isPlacingOrder ? "Placing Order…" : "Place Order"}
+            {isPlacingOrder ? "Placing Order" : "Place Order"}
           </Button3D>
         </div>
       )}

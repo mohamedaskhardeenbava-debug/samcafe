@@ -29,6 +29,21 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: transparent;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.appetizer-topbar.header-scrolled {
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0,0,0,0.06));
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .appetizer-phase-label {
@@ -212,6 +227,10 @@
   text-align: center;
   color: var(--text-secondary);
   font-size: 14px;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .appetizer-reel-details {
@@ -700,11 +719,11 @@
      above the text), so the nav's old bottom:0 anchor would land
      it down by the text instead of the images — pin it to the
      top of the stack (where the image block now sits) instead. */
+  /* Prev/next nav buttons removed entirely on mobile widths — swipe
+     gesture is the primary interaction there and the buttons were
+     mostly redundant screen clutter at this size. */
   .appetizer-reel-nav {
-    top: 16px;
-    bottom: auto;
-    right: 16px;
-    transform: none;
+    display: none;
   }
 
   .appetizer-group-strip {

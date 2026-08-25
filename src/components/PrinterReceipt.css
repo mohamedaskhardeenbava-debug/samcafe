@@ -76,13 +76,13 @@
 
 .receipt-wrapper {
   position: absolute;
-  top: 250px;
+  top: 300px;
   left: 55px;
   filter: drop-shadow(0 0 12px #0001);
   transform: translateY(-100%);
   clip-path: inset(100% -100px -100px -100px);
   transition: clip-path 0.5s;
-  max-height: 400px;
+  max-height: 550px;
   overflow-y: auto;
   padding: 20px 0;
 }
@@ -373,7 +373,7 @@
 .pr-done-btn-wrap {
   /* The printer block is ~140px tall; receipt floats up ~40% scaled 1.2
        We reserve enough space so the button always renders below everything */
-  margin-top: 470px;
+  margin-top: 600px;
   opacity: 0;
   animation: pr-btn-appear 0.4s ease forwards;
   animation-delay: 2.0s;
@@ -494,8 +494,9 @@
   }
 
   .receipt-wrapper {
-    max-height: 340px;
+    max-height: 600px;
     left: 42px;
+    top: 300px;
   }
 
   .receipt {
@@ -503,7 +504,7 @@
   }
 
   .pr-done-btn-wrap {
-    margin-top: 450px;
+    margin-top: 652px;
   }
 
 }

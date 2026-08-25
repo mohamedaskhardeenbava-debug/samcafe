@@ -83,9 +83,10 @@ const BestSellers = ({ foodData, currentUser, onToggleFavourite, handleBack, han
   );
 
   return (
-    <div className="food-grid-page best-sellers-page">
+    <div className="no-padding">
       <PageHeader title="Best Sellers" onBack={handleBack} onHome={handleHome} />
 
+      <div className="pl-body food-grid-page best-sellers-page">
       <div className="best-sellers-subtitle">
         Last week&rsquo;s most-ordered dish from every category
       </div>
@@ -114,6 +115,7 @@ const BestSellers = ({ foodData, currentUser, onToggleFavourite, handleBack, han
           ))}
         </motion.div>
       )}
+      </div>
     </div>
   );
 };

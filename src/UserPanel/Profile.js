@@ -33,13 +33,17 @@ const Profile = ({
   }
 
   const handleLogout = async () => {
+    // Navigate away first — clearing currentUser flips isAuthenticatedUser
+    // to false, and /profile's route guard (<Navigate to="/categories" />)
+    // would otherwise race the intended navigate("/") and win, landing
+    // the user back on the category grid instead of the Welcome page.
+    navigate("/", { replace: true });
     await endCustomerSession();
     setCurrentUser(null);
-    navigate("/", { replace: true });
   };
 
   return (
-    <div className="food-list profile-page">
+    <div className="no-padding">
       <PageHeader
         title="Profile"
         wrapperClassName="food-header"
@@ -48,6 +52,7 @@ const Profile = ({
         onHome={handleHome}
       />
 
+      <div className="pl-body food-list profile-page">
       <div className="food-category profile-body" style={{ padding: "0px" }}>
         {/* Hero — avatar/name/mobile on a coloured banner, visually
             separated from the rest of the page as its own block rather
@@ -104,6 +109,7 @@ const Profile = ({
         <Button3D className="btn-3d red profile-logout-btn" onClick={handleLogout}>
           Log Out
         </Button3D>
+      </div>
       </div>
     </div>
   );

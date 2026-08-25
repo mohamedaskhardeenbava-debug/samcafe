@@ -126,7 +126,7 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
   // FoodList should only render REAL menu categories with at least one dish
   if (!category || slides.length === 0) {
     return (
-      <div className="food-list">
+      <div className="no-padding">
         <PageHeader
           title={category ? "No dishes available" : "Category not found"}
           wrapperClassName="food-header"
@@ -134,6 +134,17 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
           onBack={handleBack}
           onHome={handleHome}
         />
+        <div className="pl-body">
+          <div className="fav-empty fav-empty-page">
+            <div className="fav-empty-icon">🍽️</div>
+            <h3 className="fav-empty-title">{category ? "No dishes available" : "Category not found"}</h3>
+            <p className="fav-empty-sub">
+              {category
+                ? "There aren't any dishes in this category right now."
+                : "This category may have been removed or renamed."}
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
@@ -161,7 +172,7 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
   };
 
   return (
-    <div className="food-list">
+    <div className="no-padding">
       {/* HEADER */}
       <PageHeader
         title={category.name}
@@ -171,195 +182,197 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
         onHome={handleHome}
       />
 
-      {/* MAIN AREA */}
-      <div
-        className="food-reel"
-        onPointerDown={(e) => {
-          // ❗ ignore clicks on buttons
-          if (e.target.closest("button") || e.target.closest(".reel-cta")) {
-            return;
-          }
-
-          e.currentTarget.setPointerCapture(e.pointerId);
-          startX.current = e.clientX;
-          startY.current = e.clientY;
-          isPointerDown.current = true;
-        }}
-
-        onPointerUp={(e) => {
-          if (!isPointerDown.current || isGlidingOut) return;
-          const dx = startX.current - e.clientX;
-          const dy = Math.abs(startY.current - e.clientY);
-
-          if (dy > Math.abs(dx)) {
-            isPointerDown.current = false;
-            return;
-          }
-
-          if (dx > 40) goNext();
-          else if (dx < -40) goPrev();
-
-          isPointerDown.current = false;
-        }}
-      >
-        {/* LEFT — DETAILS */}
+      <div className="pl-body">
+        {/* MAIN AREA */}
         <div
-          className="food-details"
-          transition={SOFT_SPRING}
+          className="food-reel"
+          onPointerDown={(e) => {
+            // ❗ ignore clicks on buttons
+            if (e.target.closest("button") || e.target.closest(".reel-cta")) {
+              return;
+            }
+
+            e.currentTarget.setPointerCapture(e.pointerId);
+            startX.current = e.clientX;
+            startY.current = e.clientY;
+            isPointerDown.current = true;
+          }}
+
+          onPointerUp={(e) => {
+            if (!isPointerDown.current || isGlidingOut) return;
+            const dx = startX.current - e.clientX;
+            const dy = Math.abs(startY.current - e.clientY);
+
+            if (dy > Math.abs(dx)) {
+              isPointerDown.current = false;
+              return;
+            }
+
+            if (dx > 40) goNext();
+            else if (dx < -40) goPrev();
+
+            isPointerDown.current = false;
+          }}
         >
-          <motion.div
-            key={detailKey}
-            className="food-details-container"
-            initial="hidden"
-            animate={isGlidingOut ? DETAIL_EXIT_VARIANT : "show"}
-            variants={DETAIL_VARIANTS}
-            transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
+          {/* LEFT — DETAILS */}
+          <div
+            className="food-details"
+            transition={SOFT_SPRING}
           >
-            <div className="dish-name-div">
-              <VegBadge isVeg={visible[1].isVeg} className="food-list-veg-badge" />
-              <h2 className="dish-name">
-                {visible[1].name}
-              </h2>
-              {visible[1].id === bestSellerId && (
-                <BestSellerBadge variant="ribbon" className="food-list-best-seller-badge" />
-              )}
-              {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
-                <WishlistButton
-                  className="food-list-wishlist"
-                  size="md"
-                  dish={visible[1]}
-                  categoryId={category.id}
-                  currentUser={currentUser}
-                  onToggleFavourite={onToggleFavourite}
-                />
-              )}
-            </div>
+            <motion.div
+              key={detailKey}
+              className="food-details-container"
+              initial="hidden"
+              animate={isGlidingOut ? DETAIL_EXIT_VARIANT : "show"}
+              variants={DETAIL_VARIANTS}
+              transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
+            >
+              <div className="dish-name-div">
+                <VegBadge isVeg={visible[1].isVeg} className="food-list-veg-badge" />
+                <h2 className="dish-name">
+                  {visible[1].name}
+                </h2>
+                {visible[1].id === bestSellerId && (
+                  <BestSellerBadge variant="ribbon" className="food-list-best-seller-badge" />
+                )}
+                {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
+                  <WishlistButton
+                    className="food-list-wishlist"
+                    size="md"
+                    dish={visible[1]}
+                    categoryId={category.id}
+                    currentUser={currentUser}
+                    onToggleFavourite={onToggleFavourite}
+                  />
+                )}
+              </div>
 
-            <div className="dish-price">
-              {(() => {
-                const offer = getActiveOffer(visible[1].id, foodData.offers);
-                if (!offer) return <AnimatedPrice value={visible[1].basePrice} />;
-                return (
-                  <>
-                    <AnimatedPrice value={offer.offerPrice} />
-                    <span className="dish-price-original">₹{offer.originalPrice}</span>
-                    <span className="dish-price-offer-badge">{offer.percentage}% OFF</span>
-                  </>
-                );
-              })()}
-            </div>
+              <div className="dish-price">
+                {(() => {
+                  const offer = getActiveOffer(visible[1].id, foodData.offers);
+                  if (!offer) return <AnimatedPrice value={visible[1].basePrice} />;
+                  return (
+                    <>
+                      <AnimatedPrice value={offer.offerPrice} />
+                      <span className="dish-price-original">₹{offer.originalPrice}</span>
+                      <span className="dish-price-offer-badge">{offer.percentage}% OFF</span>
+                    </>
+                  );
+                })()}
+              </div>
 
-            <p className="dish-description">
-              {visible[1].description}
-            </p>
+              <p className="dish-description">
+                {visible[1].description}
+              </p>
 
-            <div className="btn-section">
-              <Button3D
-                className="btn-3d green"
-                onClick={() => {
-                  if (isNavigatingRef.current) return;
-                  isNavigatingRef.current = true;
-                  setIsGlidingOut(true);
+              <div className="btn-section">
+                <Button3D
+                  className="btn-3d green"
+                  onClick={() => {
+                    if (isNavigatingRef.current) return;
+                    isNavigatingRef.current = true;
+                    setIsGlidingOut(true);
 
-                  exitTimerRef.current = setTimeout(() => {
-                    navigate(`/foods/${category.id}/expanded`, {
-                      state: {
-                        categoryId: category.id,
-                        dishId: visible[1].id,
-                        disablePageAnimation: true
-                      }
-                    });
-                  }, FOODLIST_EXIT_DURATION);
-                }}
-              >
-                Show more
-              </Button3D>
-
-              <Button3D className="btn-3d red" onClick={handleAddToBag}>
-                Add to Bag
-              </Button3D>
-            </div>
-          </motion.div>
-
-        </div>
-
-        {/* RIGHT — IMAGE CONVEYOR */}
-        <div className="food-images">
-          {visible.map((item, slot) => {
-            if (!item) return null; // slot deduped — same dish already shown elsewhere
-
-            return (
-              <motion.div
-                key={item.id}
-                className="dish-image-wrapper"
-                initial={
-                  slot === 2 || slot === 3
-                    ? { x: SLOT_X[slot] + 500 }
-                    : false
-                }
-                animate={
-                  isGlidingOut
-                    ? slot === 1
-                      ? { x: SLOT_X[1], scale: 1, zIndex: 5 }
-                      : slot === 2
-                        ? { x: SLOT_X[2] + 800, scale: 0.7 }
-                        : slot === 3
-                          ? { x: SLOT_X[3] + 1600, scale: 0.4 }
-                          : { x: SLOT_X[slot], scale: 0.3 }
-                    : {
-                      x: SLOT_X[slot],
-                      scale:
-                        slot === 1 ? 1 :
-                          slot === 2 ? 0.7 :
-                            slot === 3 ? 0.4 : 0.3,
-                      zIndex:
-                        slot === 1 ? 3 :
-                          slot === 2 ? 2 :
-                            slot === 3 ? 1 : 0
-                    }
-                }
-                transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
-              >
-                <motion.img
-                  data-active-dish={slot === 1 ? item.id : undefined}
-                  ref={(el) => {
-                    if (slot === 1 && el) {
-                      imageRefs.current[visible[1].id] = el;
-                    }
+                    exitTimerRef.current = setTimeout(() => {
+                      navigate(`/foods/${category.id}/expanded`, {
+                        state: {
+                          categoryId: category.id,
+                          dishId: visible[1].id,
+                          disablePageAnimation: true
+                        }
+                      });
+                    }, FOODLIST_EXIT_DURATION);
                   }}
-                  layoutId={slot === 1 ? `dish-${item.id}` : undefined}
-                  src={item.image}
-                  className="dish-image"
-                  style={{ position: "relative", width: "100%", height: "100%" }}
-                  animate={{
-                    filter:
-                      slot === 1
-                        ? "blur(0px)"
+                >
+                  Show more
+                </Button3D>
+
+                <Button3D className="btn-3d red" onClick={handleAddToBag}>
+                  Add to Bag
+                </Button3D>
+              </div>
+            </motion.div>
+
+          </div>
+
+          {/* RIGHT — IMAGE CONVEYOR */}
+          <div className="food-images">
+            {visible.map((item, slot) => {
+              if (!item) return null; // slot deduped — same dish already shown elsewhere
+
+              return (
+                <motion.div
+                  key={item.id}
+                  className="dish-image-wrapper"
+                  initial={
+                    slot === 2 || slot === 3
+                      ? { x: SLOT_X[slot] + 500 }
+                      : false
+                  }
+                  animate={
+                    isGlidingOut
+                      ? slot === 1
+                        ? { x: SLOT_X[1], scale: 1, zIndex: 5 }
                         : slot === 2
-                          ? "blur(6px)"
+                          ? { x: SLOT_X[2] + 800, scale: 0.7 }
                           : slot === 3
-                            ? "blur(10px)"
-                            : "blur(14px)"
-                  }}
+                            ? { x: SLOT_X[3] + 1600, scale: 0.4 }
+                            : { x: SLOT_X[slot], scale: 0.3 }
+                      : {
+                        x: SLOT_X[slot],
+                        scale:
+                          slot === 1 ? 1 :
+                            slot === 2 ? 0.7 :
+                              slot === 3 ? 0.4 : 0.3,
+                        zIndex:
+                          slot === 1 ? 3 :
+                            slot === 2 ? 2 :
+                              slot === 3 ? 1 : 0
+                      }
+                  }
                   transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
-                />
-              </motion.div>
-            );
-          })}
+                >
+                  <motion.img
+                    data-active-dish={slot === 1 ? item.id : undefined}
+                    ref={(el) => {
+                      if (slot === 1 && el) {
+                        imageRefs.current[visible[1].id] = el;
+                      }
+                    }}
+                    layoutId={slot === 1 ? `dish-${item.id}` : undefined}
+                    src={item.image}
+                    className="dish-image"
+                    style={{ position: "relative", width: "100%", height: "100%" }}
+                    animate={{
+                      filter:
+                        slot === 1
+                          ? "blur(0px)"
+                          : slot === 2
+                            ? "blur(6px)"
+                            : slot === 3
+                              ? "blur(10px)"
+                              : "blur(14px)"
+                    }}
+                    transition={isGlidingOut ? SLOW_SPRING : SOFT_SPRING}
+                  />
+                </motion.div>
+              );
+            })}
+          </div>
         </div>
+
+        {slides.length > 1 && (
+          <div className="carousel-controls">
+            <button
+              className="image-nav-btn backward-btn"
+              onClick={goPrev}
+            />
+
+            <button className="image-nav-btn forward-btn" onClick={goNext}>
+            </button>
+          </div>
+        )}
       </div>
-
-      {slides.length > 1 && (
-        <div className="carousel-controls">
-          <button
-            className="image-nav-btn backward-btn"
-            onClick={goPrev}
-          />
-
-          <button className="image-nav-btn forward-btn" onClick={goNext}>
-          </button>
-        </div>
-      )}
     </div >
   );
 };

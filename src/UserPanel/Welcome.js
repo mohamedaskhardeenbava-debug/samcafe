@@ -2,7 +2,6 @@ import "./Welcome.css";
 import PageLoader from "../components/PageLoader";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import ThemeToggle from "../components/ThemeToggle";
 import { motion } from "framer-motion";
 import api from "../api";
 import loginImg from "../assets/welcome-images/login-image.jpeg";
@@ -252,14 +251,13 @@ const Welcome = ({ toCamelCase, setCurrentUser, fetchMenu }) => {
 
   return (
     <div className="welcome-page">
-      {loading && <PageLoader label="Please wait…" />}
+      {loading && <PageLoader label="Please wait" />}
       {/* Wave background */}
       <div className="welcome-waves" aria-hidden="true">
         <div className="welcome-wave" />
         <div className="welcome-wave" />
         <div className="welcome-wave" />
       </div>
-      <ThemeToggle />
 
       <div className="welcome-container">
         <div className="welcome-title">

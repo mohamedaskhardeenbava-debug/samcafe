@@ -138,6 +138,7 @@
 .profile-link-icon img {
   width: 24px;
   height: 24px;
+  filter: var(--img-theme-filter);
 }
 
 .profile-link-icon--favourites {
@@ -175,31 +176,11 @@
   margin-top: 4px;
 }
 
-/* ===== FLOATING PROFILE BUBBLE ===== */
-.floating-profile-btn {
-  position: fixed;
-  right: 16px;
-  bottom: 70px;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  border: none;
-  background: var(--color-red);
-  color: #fff;
-  font-weight: 700;
-  font-size: 17px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: var(--shadow-primary);
-  z-index: 119;
-  font-family: inherit;
-}
-
-.floating-profile-btn:active {
-  transform: scale(0.94);
-}
+/* Floating profile bubble positioning lives in ProfileButton.css
+   (next to the component that renders it) — this used to also be
+   defined here with different values, which fought with that file
+   for which bottom/z-index actually won depending on CSS import
+   order. Removed; see ProfileButton.css for the real definition. */
 
 .profile-nav-button {
   width: 36px;
@@ -232,14 +213,4 @@
   border-right: 3px solid var(--text-tertiary);
   border-top: 3px solid var(--text-tertiary);
   transform: translateY(-100%) rotate(45deg);
-}
-
-@media (max-width: 480px) {
-  .floating-profile-btn {
-    right: 14px;
-    bottom: 84px;
-    width: 42px;
-    height: 42px;
-    font-size: 15px;
-  }
 }

@@ -62,16 +62,49 @@
 .ep-hero-content {
   position: relative;
   z-index: 2;
-  padding: 36px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
 .ep-hero-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  /* .ep-hero has overflow:hidden, so this can only stick within the
+     hero's own bounds (not scroll past it), same as any sticky
+     header naturally would relative to its scrolling ancestor —
+     matches the effect elsewhere without needing to restructure the
+     hero. Starts transparent (blends with the hero gradient it's
+     already sitting on) and only picks up its own solid backdrop
+     once scrolled, same transparent-then-solid rule as every other
+     header — keeps it legible once it's pinned in front of the
+     hero's own gradient/content sliding underneath. */
+  background: transparent;
+  padding: 36px 36px 12px;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+.ep-hero-topbar .back-button::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: clamp(3px, 1vw, 4px);
+    width: clamp(9px, 2.6vw, 12px);
+    height: clamp(9px, 2.6vw, 12px);
+    border-left: 3px solid var(--bg-main);
+    border-bottom: 3px solid var(--bg-main);
+    transform: translateY(-50%) rotate(45deg);
+}
+
+.ep-hero-topbar.header-scrolled {
+  background: color-mix(in srgb, var(--text-primary) 40%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.15);
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .ep-hero-title {
@@ -736,8 +769,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 8px;
   padding: 60px 20px;
+  min-height: 40vh;
   color: var(--text-secondary);
 }
 
@@ -1199,6 +1235,28 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Briefly pulses a highlight around the field scrolled to on
+   validation failure, so the eye lands on it immediately rather
+   than having to re-scan the whole form for red error text. Same
+   pattern as ReservationForm.css's rf-error-flash. */
+@keyframes ep-error-flash {
+
+  0%,
+  100% {
+    box-shadow: none;
+  }
+
+  25%,
+  75% {
+    box-shadow: 0 0 0 3px var(--color-error-bg);
+  }
+}
+
+.ep-error-flash {
+  animation: ep-error-flash 1.1s ease;
+  border-radius: 10px;
 }
 
 .ep-price-preview {
@@ -2092,8 +2150,12 @@
   padding: 6px 14px;
 }
 
+.ep-hero-text {
+  padding: 10px 36px;
+}
+
 @media (max-width: 1024px) {
-  .ep-hero-content {
+  .ep-hero-text {
     padding: var(--medium-page-padding);
   }
 
@@ -2107,7 +2169,7 @@
 }
 
 @media (max-width: 578px) {
-  .ep-hero-content {
+  .ep-hero-text {
     padding: var(--mobile-page-padding);
   }
 
@@ -2323,4 +2385,16 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+@media screen and (max-width: 768px) {
+  .ep-hero-topbar {
+    padding: var(--medium-page-padding) var(--medium-page-padding) 12px;
+  }
+}
+
+@media screen and (max-width: 578px) {
+  .ep-hero-topbar {
+    padding: var(--mobile-page-padding) var(--mobile-page-padding) 10px;
+  }
 }

@@ -74,6 +74,10 @@
   z-index: 1;
 }
 
+.welcome-btn-container {
+  display: flex;
+}
+
 .welcome-container {
   position: relative;
   display: flex;
@@ -258,6 +262,10 @@
   height: 310px;
   max-width: 700px;
   border-radius: 20px;
+}
+
+.welcome-card-wrapper .mat-input {
+  color: #333 !important;
 }
 
 .welcome-btn {
@@ -596,5 +604,9 @@
   .card-overlay {
     height: 260px;
   }
+
+    .welcome-btn {
+      margin: 0 10px;
+    }
 
 }

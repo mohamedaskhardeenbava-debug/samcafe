@@ -1,0 +1,158 @@
+/* ===== QUICK LINKS FLOATING BUTTON (Food Category page) ===== */
+/* position: relative — .quick-links-menu below anchors itself to
+   this box's own corner (top: 0; right: 0) rather than the viewport,
+   so the arc always fans out from wherever the trigger itself is
+   placed (this wrap is what carries the fixed viewport position). */
+.quick-links-fab-wrap {
+  position: fixed;
+  right: 16px;
+  bottom: 128px;
+  z-index: 118;
+}
+
+.quick-links-fab-btn {
+  width: clamp(38px, 11vw, 46px);
+  height: clamp(38px, 11vw, 46px);
+  border-radius: 50%;
+  border: none;
+  background: var(--color-red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  font-family: inherit;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease;
+}
+
+.quick-links-fab-btn:active {
+  transform: scale(0.9);
+}
+
+.quick-links-fab-wrap.open .quick-links-fab-btn {
+  transform: rotate(90deg);
+}
+
+.quick-links-fab-icon {
+  display: inline-flex;
+  font-size: clamp(20px, 5vw, 26px);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  transform: translateY(-2px);
+}
+
+/* ===== RADIAL POP-OUT MENU (separate layer over the trigger) =====
+   A zero-size anchor pinned to the trigger button's own center —
+   NOT a flex stack — so every .quick-links-item can be absolutely
+   centered on that exact point and independently translated out
+   along its own arc position (--qli-tx/--qli-ty, set inline per item
+   in QuickLinksFab.js). This is what lets the items land evenly
+   spaced from straight up round to straight left of the button
+   instead of stacking in a straight line above it. */
+.quick-links-menu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.quick-links-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(34px, 9.5vw, 40px);
+  height: clamp(34px, 9.5vw, 40px);
+  margin: calc(clamp(34px, 9.5vw, 40px) / -2) 0 0 calc(clamp(34px, 9.5vw, 40px) / -2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg-main);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-primary);
+  font-family: inherit;
+  cursor: pointer;
+
+  /* Rests collapsed at the trigger's own center (scale(0), no
+     offset) and pops out to its resting arc position + full size on
+     open — same "grows out from the trigger" idea as the Uiverse
+     tooltip reference, just swept around an arc instead of appearing
+     at one fixed spot. */
+  opacity: 0;
+  transform: translate(0, 0) scale(0.4);
+  transition:
+    opacity 0.2s ease,
+    transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.quick-links-fab-wrap.open .quick-links-menu {
+  pointer-events: auto;
+}
+
+.quick-links-fab-wrap.open .quick-links-item {
+  opacity: 1;
+  transform: translate(var(--qli-tx, 0), var(--qli-ty, 0)) scale(1);
+}
+
+.quick-links-item-glyph {
+  font-size: clamp(15px, 4vw, 18px);
+  line-height: 1;
+}
+
+.quick-links-item:active {
+  transform: translate(var(--qli-tx, 0), var(--qli-ty, 0)) scale(0.9);
+}
+
+/* Small label bubble on hover/focus (desktop) — the item itself is
+   icon-only (a round glyph button, so items don't collide with each
+   other along a tight arc), matching the Uiverse reference's own
+   tooltip-on-hover pattern for its fanned-out icons. */
+.quick-links-item::after {
+  content: attr(aria-label);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-main);
+  color: var(--text-primary);
+  padding: 5px 10px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-primary);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+
+.quick-links-item:hover::after,
+.quick-links-item:focus-visible::after {
+  opacity: 1;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .quick-links-fab-wrap {
+    /* Mobile swaps the floating bag/profile buttons for the footer
+       tab bar (.mobile-footer-nav, 64px tall) instead of hiding it,
+       so the FAB needs to clear that bar specifically rather than
+       reuse the desktop offset that was tuned for the floating bag
+       pill. env(safe-area-inset-bottom) keeps it clear of the home
+       indicator on notched phones too. */
+    bottom: calc(64px + 16px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 480px) {
+  .quick-links-fab-wrap {
+    right: 14px;
+  }
+}

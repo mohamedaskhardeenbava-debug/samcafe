@@ -1,14 +1,14 @@
 //user panel
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { bookingCrud } from "./shared/eventBookingCrud";
 import { UserDatePicker, todayStr } from "../components/UserDatePicker";
 import { UserTimePicker } from "../components/UserTimePicker";
 import "./ReservationForm.css";
 import "./PreviewModal.css";
 import { useToast } from "../components/Usetoast";
-import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
+import PageHeader from "./shared/PageHeader";
 
 const pad = (n) => String(n).padStart(2, "0");
 
@@ -84,6 +84,21 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
   const [bookingId, setBookingId] = useState("");
   const [errors, setErrors] = useState({});
   const [showCrossCheck, setShowCrossCheck] = useState(false);
+  const [modalClosing, setModalClosing] = useState(false);
+  const modalCloseTimerRef = useRef(null);
+  const [flashField, setFlashField] = useState(""); // briefly highlights the field scrolled to on validation failure
+
+  /* One ref per field the submit validation can flag, so a failed
+     submit can scroll straight to the first invalid one instead of
+     leaving the person to hunt for the red error text themselves. */
+  const fieldRefs = {
+    name: useRef(null),
+    mobile: useRef(null),
+    email: useRef(null),
+    guests: useRef(null),
+    date: useRef(null),
+    slotGroup: useRef(null),
+  };
 
   /* ── Dynamic table preferences from /tablePreferences ── */
   const [tablePrefs, setTablePrefs] = useState(FALLBACK_TABLE_PREFS);
@@ -136,6 +151,14 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     setErrors(e => ({ ...e, [key]: "" }));
   };
 
+  // Cross-check modal's delayed-unmount cleanup — declared here (before
+  // any conditional return below) so this hook always runs on every
+  // render, success screen included. A hook that only fires on some
+  // renders (e.g. previously placed after the `submitted` early return)
+  // violates the Rules of Hooks and crashes with "Rendered fewer hooks
+  // than expected" the moment the form flips between the two screens.
+  useEffect(() => () => clearTimeout(modalCloseTimerRef.current), []);
+
   const fmtTime = (t) => {
     if (!t) return "";
     const [h, m] = t.split(":").map(Number);
@@ -146,7 +169,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
   const isToday = form.date === todayStr();
 
   const handleSlotChange = (key) => { set("slotGroup", key); set("time", ""); };
-  const handleDateChange = (d) => { set("date", d); set("time", ""); };
+  const handleDateChange = (d) => { set("date", d); set("slotGroup", ""); set("time", ""); };
 
   const validate = () => {
     const e = {};
@@ -159,6 +182,20 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
     else if (form.date < todayStr()) e.date = "Date cannot be in the past";
     if (!form.slotGroup) e.slotGroup = "Pick a dining slot";
     setErrors(e);
+
+    // Scroll to and briefly flash the first invalid field, in form
+    // order, so the person lands right on what needs fixing instead
+    // of having to scan the whole form for red text.
+    const firstErrorKey = ["name", "mobile", "email", "guests", "date", "slotGroup"].find(k => e[k]);
+    if (firstErrorKey) {
+      const node = fieldRefs[firstErrorKey]?.current;
+      if (node) {
+        node.scrollIntoView({ behavior: "smooth", block: "center" });
+        setFlashField(firstErrorKey);
+        setTimeout(() => setFlashField(""), 1100);
+      }
+    }
+
     return Object.keys(e).length === 0;
   };
 
@@ -180,15 +217,19 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
   if (submitted) {
     const slot = SLOT_GROUPS.find(s => s.key === form.slotGroup);
     return (
-      <div className="rf-page">
-        <div className="food-header">
-          <button className="back-button" onClick={handleBack} />
-          <div style={{ flex: "1 1" }}>
-            <div className="rf-page-title">Table Reservation</div>
-            <div className="rf-page-sub">Reserve your perfect dining experience</div>
-          </div>
-          <HomeButton onClick={handleHome} />
-        </div>
+      <div className="no-padding">
+        <PageHeader
+          title={
+            <span className="rf-header-title-block">
+              <span className="rf-page-title">Table Reservation</span>
+              <span className="rf-page-sub">Reserve your perfect dining experience</span>
+            </span>
+          }
+          titleTag="span"
+          onBack={handleBack}
+          onHome={handleHome}
+        />
+        <div className="pl-body">
         <div className="rf-success-screen">
           <div className="rf-success-icon">
             <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
@@ -212,25 +253,37 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
             {form.notes && <div className="rf-sc-row rf-sc-notes"><span className="rf-sc-label">Notes</span><span className="rf-sc-val">{form.notes}</span></div>}
           </div>
           <p className="rf-success-policy">Please arrive 10 min early. Reservation held for 15 min.</p>
-          <Button3D className="form-action-btn submit" onClick={() => {
+          <Button3D className="btn-3d red" onClick={() => {
             setSubmitted(false);
             setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" });
           }}>
             Make Another Reservation
           </Button3D>
 
-          <Button3D className="form-action-btn submit" onClick={handleHome}>
+          <Button3D className="btn-3d red" onClick={handleHome}>
             Back to Home
           </Button3D>
+        </div>
         </div>
       </div>
     );
   }
 
-  /* ── Cross-check Modal ── */
+  /* ── Cross-check Modal — closes with a brief exit animation before
+     unmounting, matching rf-modal-fade-out/rf-modal-slide-down. ── */
+  const closeCrossCheck = () => {
+    if (modalClosing) return;
+    setModalClosing(true);
+    clearTimeout(modalCloseTimerRef.current);
+    modalCloseTimerRef.current = setTimeout(() => {
+      setShowCrossCheck(false);
+      setModalClosing(false);
+    }, 220);
+  };
+
   const CrossCheckModal = () => (
-    <div className="rf-modal-overlay" onClick={() => setShowCrossCheck(false)}>
-      <div className="rf-modal" onClick={e => e.stopPropagation()}>
+    <div className={`rf-modal-overlay${modalClosing ? " rf-modal-closing" : ""}`} onClick={closeCrossCheck}>
+      <div className={`rf-modal${modalClosing ? " rf-modal-closing" : ""}`} onClick={e => e.stopPropagation()}>
         <div className="rf-modal-title">Confirm Your Booking</div>
         <div className="rf-modal-grid">
           {[
@@ -251,10 +304,10 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
         </div>
         {form.notes && <div className="rf-modal-notes"><span className="rf-modal-key">Notes</span><span>{form.notes}</span></div>}
         <div className="rf-modal-actions">
-          <Button3D className="form-action-btn cancel" onClick={() => setShowCrossCheck(false)}>
+          <Button3D className="btn-3d white" onClick={closeCrossCheck}>
             Edit
           </Button3D>
-          <Button3D className="form-action-btn submit" onClick={handleSubmit} disabled={submitting}>
+          <Button3D className="btn-3d red" onClick={handleSubmit} disabled={submitting}>
             {submitting ? <span className="rf-spinner" /> : "Confirm"}
           </Button3D>
         </div>
@@ -263,18 +316,22 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
   );
 
   return (
-    <div className="rf-page">
+    <div className="no-padding rf-fixed-page">
       {showCrossCheck && <CrossCheckModal />}
 
-      <div className="food-header">
-        <button className="back-button" onClick={handleBack} />
-        <div style={{ flex: "1 1" }}>
-          <div className="rf-page-title">Table Reservation</div>
-          <div className="rf-page-sub">Reserve your perfect dining experience</div>
-        </div>
-        <HomeButton onClick={handleHome} />
-      </div>
+      <PageHeader
+        title={
+          <span className="rf-header-title-block">
+            <span className="rf-page-title">Table Reservation</span>
+            <span className="rf-page-sub">Reserve your perfect dining experience</span>
+          </span>
+        }
+        titleTag="span"
+        onBack={handleBack}
+        onHome={handleHome}
+      />
 
+      <div className="pl-body">
       <div className="rf-single-form">
         <div className="rf-form-grid">
 
@@ -282,11 +339,11 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
           <div className="rf-col rf-col-left">
 
             {/* Guest Details */}
-            <div className="rf-section">
+            <div className="rf-section rf-section--guest">
               <div className="section-title">Guest Details</div>
 
               {/* Full Name */}
-              <div className="field-group">
+              <div className={`field-group${flashField === "name" ? " rf-error-flash" : ""}`} ref={fieldRefs.name}>
                 <MatField
                   label={<>Full Name <span className="rf-req">*</span></>}
                   value={form.name}
@@ -299,7 +356,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
 
               <div className="mat-row">
                 {/* Mobile */}
-                <div className="field-group" style={{ flex: 1.4 }}>
+                <div className={`field-group${flashField === "mobile" ? " rf-error-flash" : ""}`} style={{ flex: 1.4 }} ref={fieldRefs.mobile}>
 
                   <div className={"mat-input-prefix-wrap"}>
                     <MatField
@@ -316,7 +373,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                 </div>
 
                 {/* Email */}
-                <div className="field-group" style={{ flex: 1 }}>
+                <div className={`field-group${flashField === "email" ? " rf-error-flash" : ""}`} style={{ flex: 1 }} ref={fieldRefs.email}>
                   <MatField
                     label={<>Email <span className="rf-optional">(optional)</span></>}
                     type="email"
@@ -329,7 +386,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
                 </div>
               </div>
 
-              <div className="field-group" style={{ flex: "0 0 auto" }}>
+              <div className={`field-group${flashField === "guests" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.guests}>
                 <label>Guests <span className="rf-req">*</span></label>
                 <div className="stepper-ctrl">
                   <button type="button" className="stepper-btn" onClick={() => set("guests", Math.max(1, form.guests - 1))}>−</button>
@@ -341,10 +398,10 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
             </div>
 
             {/* Seating Preference */}
-            <div className="rf-section">
+            <div className="rf-section rf-section--seating">
               <div className="section-title">Seating Preference</div>
               {!prefsLoaded && (
-                <div style={{ padding: "12px 0", color: "#aaa", fontSize: 13 }}>Loading options…</div>
+                <div style={{ padding: "12px 0", color: "#aaa", fontSize: 13 }}>Loading options</div>
               )}
               <div className="rf-table-pref-grid">
                 {tablePrefs.map(p => (
@@ -362,48 +419,48 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
 
           {/* RIGHT COLUMN */}
           <div className="rf-col rf-col-right">
-            <div className="rf-section">
+            <div className="rf-section rf-section--datetime">
               <div className="section-title">Date &amp; Dining Slot</div>
 
-              {/* Dining Slot */}
-              <div className="field-group">
-                <label>Dining Slot <span className="rf-req">*</span></label>
-                <div className="rf-slot-groups">
-                  {SLOT_GROUPS.map(sg => {
-                    const nowH = new Date().getHours();
-                    const slotEndH = parseInt(sg.end.split(":")[0]);
-                    const isPastSlot = isToday && nowH >= slotEndH;
-                    return (
-                      <div key={sg.key}
-                        className={`rf-slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " rf-slot-disabled" : ""}`}
-                        onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
-                        <span className="rf-sg-label">{sg.label}</span>
-                        <span className="rf-sg-time">{sg.start} – {sg.end}</span>
-                        {isPastSlot && <span className="rf-slot-past-badge">Passed</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-                {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
+              {/* Date — first step of the cascade */}
+              <div className={`field-group${flashField === "date" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.date}>
+                <label>Date <span className="rf-req">*</span></label>
+                <UserDatePicker
+                  value={form.date}
+                  min={todayStr()}
+                  hasError={!!errors.date}
+                  onChange={handleDateChange}
+                />
+                {errors.date && <span className="rf-error">{errors.date}</span>}
               </div>
 
-              {/* Date — appears once a dining slot is picked */}
-              {form.slotGroup && (
-                <div className="field-group" style={{ flex: "0 0 auto" }}>
-                  <label>Date <span className="rf-req">*</span></label>
-                  <UserDatePicker
-                    value={form.date}
-                    min={todayStr()}
-                    hasError={!!errors.date}
-                    onChange={handleDateChange}
-                  />
-                  {errors.date && <span className="rf-error">{errors.date}</span>}
+              {/* Dining Slot — appears once a date is picked */}
+              {form.date && (
+                <div className={`field-group rf-field-reveal${flashField === "slotGroup" ? " rf-error-flash" : ""}`} ref={fieldRefs.slotGroup}>
+                  <label>Dining Slot <span className="rf-req">*</span></label>
+                  <div className="rf-slot-groups">
+                    {SLOT_GROUPS.map(sg => {
+                      const nowH = new Date().getHours();
+                      const slotEndH = parseInt(sg.end.split(":")[0]);
+                      const isPastSlot = isToday && nowH >= slotEndH;
+                      return (
+                        <div key={sg.key}
+                          className={`rf-slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " rf-slot-disabled" : ""}`}
+                          onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
+                          <span className="rf-sg-label">{sg.label}</span>
+                          <span className="rf-sg-time">{sg.start} – {sg.end}</span>
+                          {isPastSlot && <span className="rf-slot-past-badge">Passed</span>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
                 </div>
               )}
 
-              {/* Preferred Time (optional) */}
+              {/* Preferred Time (optional) — appears once a slot is picked */}
               {form.slotGroup && (
-                <div className="field-group" style={{ flex: "0 0 auto" }}>
+                <div className="field-group rf-field-reveal" style={{ flex: "0 0 auto" }}>
                   <label>Preferred Time <span className="rf-optional">(optional)</span></label>
                   <UserTimePicker
                     value={form.time}
@@ -420,7 +477,7 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
             </div>
 
             {/* Notes */}
-            <div className="rf-section">
+            <div className="rf-section rf-section--notes">
               <div className="section-title">Special Requests</div>
               <div className="field-group">
                 <textarea
@@ -435,20 +492,21 @@ const ReservationForm = ({ handleBack, handleHome, foodData }) => {
             </div>
 
             <div className="form-btn-row">
-              <Button3D type="button" className="form-action-btn cancel" onClick={() => {
+              <Button3D type="button" className="btn-3d white" onClick={() => {
                 setForm({ name: "", mobile: "", email: "", guests: 2, slotGroup: "", time: "", date: todayStr(), tablePref: "Any", notes: "", status: "pending" });
                 setErrors({});
                 handleBack();
               }}>
                 Cancel
               </Button3D>
-              <Button3D type="button" className="form-action-btn submit" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
+              <Button3D type="button" className="btn-3d red" onClick={() => { if (validate()) setShowCrossCheck(true); }}>
                 Review & Confirm
               </Button3D>
 
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

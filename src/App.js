@@ -51,9 +51,9 @@ import { getUnitPrice } from "./UserPanel/shared/bagUtils";
 
 // ─── Page transition config ──────────────────────────────────────────────────
 const pageVariants = {
-  initial: (direction) => ({ x: direction > 0 ? 100 : -100, opacity: 0 }),
-  animate: { opacity: 1, x: 0 },
-  exit: (direction) => ({ opacity: 0, x: direction > 0 ? -100 : 100 }),
+  initial: (direction) => ({ x: direction > 0 ? 100 : -100, opacity: 0 , height: "stretch" }),
+  animate: { opacity: 1, x: 0, height: "stretch" },
+  exit: (direction) => ({ opacity: 0, x: direction > 0 ? -100 : 100, height: "stretch" }),
 };
 
 const pageTransition = { duration: 0.3, ease: "linear" };
@@ -508,7 +508,7 @@ function App() {
     return (
       <div className="App">
         <PageLoader
-          label={connectionError ? "Reconnecting to the server…" : "Connecting to the server…"}
+          label={connectionError ? "Reconnecting to the server" : "Connecting to the server"}
         />
       </div>
     );
@@ -531,12 +531,17 @@ function App() {
 
         {/* Floating Profile bubble — logged-in users only, hidden on
             Welcome/Thank You (per request) and on the Profile page
-            itself (nothing to navigate to from there) */}
+            itself (nothing to navigate to from there). On the events/
+            booking pages the default bottom-right spot sits over
+            those forms' own sticky header, so it gets a dedicated
+            repositioning class there instead of sharing the default
+            spot used everywhere else. */}
         {isAuthenticatedUser &&
           !["/", "/thank-you", "/profile"].includes(location.pathname) && (
             <button
               type="button"
-              className="floating-profile-btn"
+              id="floating-profile-btn"
+              className={`floating-profile-btn${EVENT_PATHS.includes(location.pathname) ? " floating-profile-btn--event-page" : ""}`}
               onClick={() => handleNavigate("/profile")}
               aria-label="Profile"
             >

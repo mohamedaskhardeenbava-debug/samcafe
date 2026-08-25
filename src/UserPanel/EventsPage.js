@@ -8,6 +8,7 @@ import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import PageLoader from "../components/PageLoader";
 import { fmtDate as fmtDateNumeric } from "../utils/dateUtils";
+import { useScrollHeader } from "./shared/useScrollHeader";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 const formatDate = (iso) => {
@@ -409,7 +410,7 @@ const ScratchCard = ({ coupon, onDone }) => {
 
       {revealed && (
         <Button3D
-          className="form-action-btn submit"
+          className="btn-3d red"
           onClick={onDone}
         >
           Use This Coupon
@@ -460,6 +461,7 @@ const Carousel = ({ images, title }) => {
 // ─── Main ────────────────────────────────────────────────────────────────────
 const EventsPage = ({ handleBack, handleHome, currentUser }) => {
   const { toast } = useToast();
+  const { headerRef, scrolled } = useScrollHeader();
   const [events, setEvents] = useState([]);
   const [allBookings, setAllBookings] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
@@ -479,6 +481,14 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
     name: currentUser?.name || "", email: currentUser?.email || "",
     phone: currentUser?.mobile || "", guests: 1, specialRequests: "",
   });
+  // Briefly highlights the field scrolled to on validation failure —
+  // same pattern as Reservation/Catering/Celebration/PreBooking's forms.
+  const [flashField, setFlashField] = useState("");
+  const fieldRefs = {
+    name: useRef(null),
+    email: useRef(null),
+    phone: useRef(null),
+  };
 
   // FIX: Use stable currentUser ID instead of the object reference to avoid infinite loop
   const currentUserId = currentUser?.id || null;
@@ -540,7 +550,22 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
 
   const handleEnroll = async () => {
     const errs = validateEnrollForm();
-    if (Object.keys(errs).length) { setFormErrors(errs); return; }
+    if (Object.keys(errs).length) {
+      setFormErrors(errs);
+      // Scroll to and briefly flash the first invalid field, in form
+      // order, so the person lands right on what needs fixing instead
+      // of having to scan the whole form for red-outlined fields.
+      const firstErrorKey = ["name", "email", "phone"].find(k => errs[k]);
+      if (firstErrorKey) {
+        const node = fieldRefs[firstErrorKey]?.current;
+        if (node) {
+          node.scrollIntoView({ behavior: "smooth", block: "center" });
+          setFlashField(firstErrorKey);
+          setTimeout(() => setFlashField(""), 1100);
+        }
+      }
+      return;
+    }
     setFormErrors({}); setErrorMsg(""); setSubmitState("loading");
     try {
       const saved = await bookingCrud.create("eventBookings", {
@@ -568,9 +593,9 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
   const openEnroll = (evt) => {
     setSelectedEvent(evt);
     setForm({ name: currentUser?.name || "", email: currentUser?.email || "", phone: currentUser?.mobile || "", guests: 1, specialRequests: "" });
-    setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); setShowEnroll(true);
+    setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); setFlashField(""); setShowEnroll(true);
   };
-  const closeEnroll = () => { setShowEnroll(false); setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); };
+  const closeEnroll = () => { setShowEnroll(false); setSubmitState("idle"); setErrorMsg(""); setFormErrors({}); setCoupon(null); setFlashField(""); };
   const handleScratchDone = () => { closeEnroll(); setSelectedEvent(null); };
 
   const handleAddGuests = async () => {
@@ -613,8 +638,8 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
       <div className="ep-hero">
         <div className="ep-hero-bg" />
         <div className="ep-hero-content">
-          <div className="ep-hero-topbar">
-            <button className="events-back-button" onClick={handleBack} />
+          <div ref={headerRef} className={`ep-hero-topbar${scrolled ? " header-scrolled" : ""}`}>
+            <button className="back-button" onClick={handleBack} />
             <HomeButton onClick={handleHome} />
           </div>
           <div className="ep-hero-text">
@@ -640,7 +665,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
 
       {/* Events Grid */}
       {loading ? (
-        <PageLoader inline label="Loading events…" />
+        <PageLoader inline label="Loading events" />
       ) : filteredEvents.length === 0 ? (
         <div className="ep-empty">
           <p>No events right now.</p>
@@ -735,7 +760,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                       ) : closed ? (
                         <button className="ep-booked-btn ep-closed-btn" disabled onClick={e => e.stopPropagation()}>Closed</button>
                       ) : (
-                        <Button3D className="form-action-btn submit" onClick={e => { e.stopPropagation(); openEnroll(evt); }}>
+                        <Button3D className="btn-3d red" onClick={e => { e.stopPropagation(); openEnroll(evt); }}>
                           Book Ticket
                         </Button3D>
                       )
@@ -899,7 +924,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                     </span>
                   </div>
                   {!isBookingClosed(selectedEvent) && (
-                    <Button3D className="form-action-btn submit" onClick={() => openAddGuest(selectedEvent)}>
+                    <Button3D className="btn-3d red" onClick={() => openAddGuest(selectedEvent)}>
                       Add More Guests
 
                     </Button3D>
@@ -973,19 +998,19 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                       <span className="ep-price-total">= ₹{(Number(form.guests) * Number(selectedEvent.price)).toLocaleString("en-IN")}</span>
                     </div>
                   )}
-                  <div className={`ep-form-field${formErrors.name ? " error" : ""}`}>
+                  <div className={`ep-form-field${formErrors.name ? " error" : ""}${flashField === "name" ? " ep-error-flash" : ""}`} ref={fieldRefs.name}>
                     <input type="text" value={form.name} placeholder=" "
                       onChange={e => { setForm(p => ({ ...p, name: e.target.value })); setFormErrors(p => ({ ...p, name: undefined })); }} />
                     <label>Full Name *</label>
                     <span className="ep-mat-bar" />
                   </div>
-                  <div className={`ep-form-field${formErrors.email ? " error" : ""}`}>
+                  <div className={`ep-form-field${formErrors.email ? " error" : ""}${flashField === "email" ? " ep-error-flash" : ""}`} ref={fieldRefs.email}>
                     <input type="email" value={form.email} placeholder=" "
                       onChange={e => { setForm(p => ({ ...p, email: e.target.value })); setFormErrors(p => ({ ...p, email: undefined })); }} />
                     <label>Email *</label>
                     <span className="ep-mat-bar" />
                   </div>
-                  <div className={`ep-form-field${formErrors.phone ? " error" : ""}`}>
+                  <div className={`ep-form-field${formErrors.phone ? " error" : ""}${flashField === "phone" ? " ep-error-flash" : ""}`} ref={fieldRefs.phone}>
                     <input type="tel" value={form.phone} placeholder=" "
                       maxLength={10}
                       onChange={e => { setForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })); setFormErrors(p => ({ ...p, phone: undefined })); }} />
@@ -1017,7 +1042,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                   <button className="ep-action-btn submit" onClick={handleEnroll} disabled={submitState === "loading"}>
                     <span className="ep-btn-shadow"></span>
                     <span className="ep-btn-edge"></span>
-                    <span className="ep-btn-front">{submitState === "loading" ? "Submitting…" : "Confirm & Win Coupon"}</span>
+                    <span className="ep-btn-front">{submitState === "loading" ? "Submitting" : "Confirm & Win Coupon"}</span>
                   </button>
 
                 </div>
@@ -1104,7 +1129,7 @@ const EventsPage = ({ handleBack, handleHome, currentUser }) => {
                   <button className="ep-action-btn submit" disabled={addGuestState === "loading"} onClick={handleAddGuests}>
                     <span className="ep-btn-shadow"></span>
                     <span className="ep-btn-edge"></span>
-                    <span className="ep-btn-front">{addGuestState === "loading" ? "Updating…" : `Confirm Add ${addGuestForm.guests} Guest${addGuestForm.guests !== 1 ? "s" : ""}`}</span>
+                    <span className="ep-btn-front">{addGuestState === "loading" ? "Updating" : `Confirm Add ${addGuestForm.guests} Guest${addGuestForm.guests !== 1 ? "s" : ""}`}</span>
                   </button>
                   <button className="ep-action-btn cancel" onClick={closeAddGuest}>
                     <span className="ep-btn-shadow"></span>

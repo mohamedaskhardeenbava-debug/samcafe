@@ -419,13 +419,22 @@ textarea,
   display: none;
 }
 
-body {
+.App {
   background: var(--bg-theme);
   object-fit: fill;
   color: var(--text-primary);
   background-repeat: no-repeat;
   background-attachment: fixed;
   transition: background 0.3s ease, color 0.3s ease;
+}
+
+.no-padding {
+  padding: 0 !important;
+  margin: 0 !important;
+  height: stretch !important;
+
+  display: flex;
+  flex-direction: column;
 }
 
 .home-btn {
@@ -484,8 +493,8 @@ body {
 .home-btn .front {
   display: block;
   position: relative;
-  padding: 6px;
-  font-size: 12px;
+  padding: clamp(4px, 1.6vw, 6px);
+  font-size: clamp(10px, 2.6vw, 12px);
   font-family: inherit;
   font-weight: 600;
   color: var(--text-secondary);
@@ -535,8 +544,8 @@ button {
 
 /* AFTER */
 .home-btn .front img {
-  width: 24px;
-  height: 24px;
+  width: clamp(18px, 5.6vw, 24px);
+  height: clamp(18px, 5.6vw, 24px);
   object-fit: cover;
   z-index: 999;
   filter: var(--img-theme-filter);
@@ -544,6 +553,63 @@ button {
 
 .home-btn-icon {
   cursor: pointer;
+}
+
+/* FLOATING PROFILE BUBBLE — bottom-right, stacked just above the
+   floating bag pill (#floating-bag-btn sits at bottom:18px, ~54px
+   tall including its shadow layer) so the two never overlap.
+   This was previously unstyled entirely — the button rendered at
+   its default static in-flow position, landing on top of whatever
+   content happened to be there (visible as it overlapping page
+   headers). Positioned by id for the same reason #floating-bag-btn
+   is: an id selector's specificity can't be quietly out-specificity'd
+   by another same-named class defined elsewhere. */
+#floating-profile-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 78px;
+  z-index: 119;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  background: var(--color-red);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: var(--shadow-primary);
+  transition: transform 0.2s ease;
+}
+
+#floating-profile-btn:active {
+  transform: scale(0.94);
+}
+
+/* Events/Reservation/Catering/Celebration/Pre-Booking pages each have
+   their own sticky page header (.food-header) — the default
+   bottom-right spot would otherwise sit right over it on narrow
+   screens. Moved to the opposite (top-left) corner, below the sticky
+   header's height, on just these pages. */
+#floating-profile-btn.floating-profile-btn--event-page {
+  bottom: 36px;
+}
+
+@media (max-width: 576px) {
+  #floating-profile-btn {
+    right: 14px;
+    bottom: 74px;
+  }
+
+  #floating-profile-btn.floating-profile-btn--event-page {
+    bottom: 84px;
+    right: 14px;
+  }
 }
 
 /* FLOATING BELL – EXPANDING PILL */
@@ -572,7 +638,7 @@ button {
 }
 
 .close-padding {
-  padding: 8px 10px !important;
+  padding: clamp(5px, 1.8vw, 8px) clamp(6px, 2.4vw, 10px) !important;
 }
 
 .floating-bell-wrapper:hover {
@@ -905,9 +971,13 @@ image {
 .front {
   display: block;
   position: relative;
-  padding: 12px 27px;
+  /* Responsive to viewport width instead of a fixed 12px/27px — scales
+     down smoothly on narrow screens (phones) instead of every 3D
+     button staying desktop-sized and cramping small layouts, while
+     never shrinking past a usable tap-target floor. */
+  padding: clamp(8px, 2.6vw, 12px) clamp(14px, 6vw, 27px);
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 3vw, 1.1rem);
   color: white;
   background: var(--color-red);
   will-change: transform;
@@ -916,8 +986,8 @@ image {
 }
 
 .sm-padding {
-  padding: 6px 14px !important;
-  font-size: 16px !important;
+  padding: clamp(4px, 1.6vw, 6px) clamp(9px, 3.6vw, 14px) !important;
+  font-size: clamp(12px, 3.2vw, 16px) !important;
   font-weight: 500 !important;
 }
 
@@ -977,9 +1047,9 @@ image {
 .form-action-btn.submit .front {
   display: block;
   position: relative;
-  padding: 12px 27px;
+  padding: clamp(8px, 2.6vw, 12px) clamp(14px, 6vw, 27px);
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 3vw, 1.1rem);
   font-family: inherit;
   font-weight: 700;
   color: var(--bg-main);
@@ -1007,9 +1077,9 @@ image {
 .form-action-btn.done .front {
   display: block;
   position: relative;
-  padding: 12px 27px;
+  padding: clamp(8px, 2.6vw, 12px) clamp(14px, 6vw, 27px);
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 3vw, 1.1rem);
   font-family: inherit;
   font-weight: 700;
   color: var(--bg-main);
@@ -1037,9 +1107,9 @@ image {
 .form-action-btn.cancel .front {
   display: block;
   position: relative;
-  padding: 12px 27px;
+  padding: clamp(8px, 2.6vw, 12px) clamp(14px, 6vw, 27px);
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: clamp(0.85rem, 3vw, 1.1rem);
   font-family: inherit;
   font-weight: 700;
   color: var(--text-secondary);
@@ -1133,9 +1203,9 @@ image {
 .chip .front {
   display: block;
   position: relative;
-  padding: 7px 15px;
+  padding: clamp(5px, 1.8vw, 7px) clamp(10px, 4vw, 15px);
   border-radius: 999px;
-  font-size: 13px;
+  font-size: clamp(11px, 3vw, 13px);
   font-family: inherit;
   font-weight: 500;
   color: var(--text-secondary);
@@ -1235,11 +1305,10 @@ image {
 .action-btn .front {
   display: block;
   position: relative;
-  padding: 6px 16px;
+  padding: clamp(4px, 1.6vw, 6px) clamp(10px, 4vw, 16px);
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: clamp(12px, 3vw, 14px);
   font-family: inherit;
-  font-size: 14px;
   font-weight: 500;
   color: var(--bg-main);
   background: var(--color-red);
@@ -1304,8 +1373,8 @@ image {
 .floating-btn .front {
   display: block;
   position: relative;
-  padding: 10px 16px;
-  font-size: 12px;
+  padding: clamp(7px, 2.6vw, 10px) clamp(11px, 4.2vw, 16px);
+  font-size: clamp(10px, 2.8vw, 12px);
   font-family: inherit;
   border-radius: 999px;
   font-weight: 600;
@@ -1381,8 +1450,8 @@ image {
 .theme-toggle .front {
   display: block;
   position: relative;
-  padding: 10px 16px;
-  font-size: 12px;
+  padding: clamp(7px, 2.6vw, 10px) clamp(11px, 4.2vw, 16px);
+  font-size: clamp(10px, 2.8vw, 12px);
   font-family: inherit;
   border-radius: 999px;
   font-weight: 600;
@@ -1404,8 +1473,8 @@ image {
 
 /* ------------------------BACK BUTTON----------------------------- */
 .back-button {
-  width: 30px;
-  height: 50px;
+  width: clamp(24px, 6.4vw, 30px);
+  height: clamp(40px, 10.6vw, 50px);
   border-radius: 25px;
   background: transparent;
   border: none;
@@ -1418,9 +1487,9 @@ image {
   content: "";
   position: absolute;
   top: 50%;
-  left: 4px;
-  width: 12px;
-  height: 12px;
+  left: clamp(3px, 1vw, 4px);
+  width: clamp(9px, 2.6vw, 12px);
+  height: clamp(9px, 2.6vw, 12px);
   border-left: 3px solid var(--text-primary);
   border-bottom: 3px solid var(--text-primary);
   transform: translateY(-50%) rotate(45deg);
@@ -1478,9 +1547,8 @@ image {
   display: block;
   position: relative;
   border-radius: 12px;
-  font-size: 1.1rem;
+  font-size: clamp(12px, 3vw, 14px);
   font-family: inherit;
-  font-size: 14px;
   font-weight: 500;
   will-change: transform;
   transform: translateY(-4px);
@@ -1488,8 +1556,8 @@ image {
   padding: 0;
   align-content: center;
   height: 100%;
-  min-height: 36px;
-  padding: 0 16px;
+  min-height: clamp(32px, 9vw, 36px);
+  padding: 0 clamp(10px, 4vw, 16px);
 }
 
 .btn-3d:hover {
@@ -1552,8 +1620,9 @@ image {
 }
 
 .btn-3d img {
-  width: 20px;
+  width: clamp(15px, 4.6vw, 20px);
   aspect-ratio: 1/1;
+  filter: var(--img-theme-filter);
 }
 
 /* --------------------3D SORT BUTTON -------------------------- */
@@ -1615,9 +1684,9 @@ image {
 .sort-btn .front {
   display: block;
   position: relative;
-  padding: 7px 15px;
+  padding: clamp(5px, 1.8vw, 7px) clamp(10px, 4vw, 15px);
   border-radius: 999px;
-  font-size: 12px;
+  font-size: clamp(10px, 2.6vw, 12px);
   font-family: inherit;
   font-weight: 600;
   color: var(--text-secondary);
@@ -2069,8 +2138,8 @@ image {
 }
 
 .sq-padding .front {
-  height: 40px !important;
-  width: 40px !important;
+  height: clamp(32px, 9vw, 40px) !important;
+  width: clamp(32px, 9vw, 40px) !important;
   padding: 0 !important;
 }
 
@@ -2128,9 +2197,14 @@ image {
 
   /* Floating bag/profile buttons are replaced by the Bag/Profile tabs
      in the footer nav at this width, so they're hidden entirely here
-     rather than repositioned above the nav. */
+     rather than repositioned above the nav — EXCEPT the profile
+     button on the events/booking pages specifically, which is kept
+     visible there (repositioned top-left, see
+     .floating-profile-btn--event-page below) per an explicit request
+     to have it there even though the footer nav's own Profile tab
+     also reaches /profile from those pages. */
   #floating-bag-btn,
-  .floating-profile-btn {
+  .floating-profile-btn:not(.floating-profile-btn--event-page) {
     display: none !important;
   }
 
@@ -2225,6 +2299,7 @@ image {
     width: 24px;
     height: 24px;
     object-fit: contain;
+    filter: var(--img-theme-filter);
   }
 
   .mobile-footer-tab-badge {
@@ -2248,4 +2323,34 @@ image {
     font-size: 10px;
     font-weight: 600;
   }
+}
+
+/* =============================================
+   GLOBAL STICKY HEADER TRANSPARENCY — !important,
+   deliberately overriding everything else.
+   Applied per-page-CSS-file too (see FoodList.css,
+   FoodCategory.css, ReservationForm.css, etc.), but
+   scattering the same rule across a dozen files that
+   each only reach some pages has twice now left gaps
+   where a page's own CSS (loaded after App.css) could
+   silently win the cascade on a plain, non-!important
+   rule. This is the single source of truth that
+   cannot be quietly overridden by anything else that
+   doesn't also use !important — every sticky page
+   header in the app is covered by one of these two
+   class names.
+============================================= */
+.food-header,
+.food-grid-header,
+.offers-grid-header,
+.fav-combo-header,
+.ingredient-header,
+.ehome-topbar,
+.fooditem-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  background: color-mix(in srgb, var(--bg-main) 55%, transparent) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
 }

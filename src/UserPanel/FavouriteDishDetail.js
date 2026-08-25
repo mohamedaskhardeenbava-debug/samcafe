@@ -55,7 +55,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
 
   if (!dish) {
     return (
-      <div className="food-list">
+      <div className="no-padding">
         <PageHeader
           title="Dish not found"
           wrapperClassName="food-header"
@@ -63,10 +63,12 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           onBack={handleBack}
           onHome={handleHome}
         />
+        <div className="pl-body food-list">
         <div className="fav-empty fav-empty-page">
           <div className="fav-empty-icon">🍽️</div>
           <h3 className="fav-empty-title">Dish not found</h3>
           <p className="fav-empty-sub">This dish may have been removed from your favourites.</p>
+        </div>
         </div>
       </div>
     );
@@ -120,7 +122,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
   };
 
   return (
-    <div className="food-list">
+    <div className="no-padding">
       {/* HEADER – same as FoodList */}
       <PageHeader
         title={dish.name}
@@ -131,6 +133,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
         onHome={handleHome}
       />
 
+      <div className="pl-body food-list">
       <div className="fav-detail-container">
         {/* LEFT PANEL */}
         <div className="fav-left">
@@ -239,6 +242,7 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
             </Button3D>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

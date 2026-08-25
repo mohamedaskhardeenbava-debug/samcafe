@@ -1,6 +1,6 @@
 import "./SubCategoryPage.css";
 import { useParams, useNavigate } from "react-router-dom";
-import HomeButton from "./shared/HomeButton";
+import PageHeader from "./shared/PageHeader";
 
 const SubCategoryPage = ({ foodData, handleBack, handleHome }) => {
   const { categoryId } = useParams();
@@ -13,32 +13,28 @@ const SubCategoryPage = ({ foodData, handleBack, handleHome }) => {
   const subCategories = category?.subCategories || [];
 
   return (
-    <div className="food-category">
+    <div className="no-padding">
+      <PageHeader title={category?.name} onBack={handleBack} onHome={handleHome} />
 
-      <div className="food-grid-header">
-        <button className="back-button" onClick={handleBack} />
-        <div className="food-grid-title">{category?.name}</div>
-        <HomeButton onClick={handleHome} />
-      </div>
+      <div className="pl-body food-category">
+        <div className="food-category-container">
+          {subCategories.map(sub => (
+            <div
+              key={sub.id}
+              className="food-category-items"
+              onClick={() => navigate(`/foods/${sub.id}/grid`)}
+            >
+              <div className="food-category-image">
+                <img src={sub.image} alt={sub.name} />
+              </div>
 
-      <div className="food-category-container">
-        {subCategories.map(sub => (
-          <div
-            key={sub.id}
-            className="food-category-items"
-            onClick={() => navigate(`/foods/${sub.id}/grid`)}
-          >
-            <div className="food-category-image">
-              <img src={sub.image} alt={sub.name} />
+              <div className="food-category-name">
+                {sub.name}
+              </div>
             </div>
-
-            <div className="food-category-name">
-              {sub.name}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-
     </div>
   );
 };

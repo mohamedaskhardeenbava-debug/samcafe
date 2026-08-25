@@ -9,6 +9,7 @@ import extreme from "../assets/icons/extreme.png";
 import notesIcon from "../assets/icons/notes.png";
 import { AnimatePresence, motion } from "framer-motion";
 import { flyToBag } from "../components/flyToBag";
+import { useScrollHeader } from "./shared/useScrollHeader";
 import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import { RED_EDGE_GRADIENT, RED_FRONT_STYLE } from "./shared/styles";
@@ -52,6 +53,7 @@ const modalVariants = {
 const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addToBag, handleBack, toCamelCase, currentUser, isWishlistEnabled = true }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { headerRef, scrolled } = useScrollHeader();
   const { categoryId, dishId, fromBag, bagIndex, bagItem, fromFavouriteCustomize } = location.state || {};
   const { favouriteSnapshot } = location.state || {};
 
@@ -345,12 +347,16 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   if (!category) return <p>Category not found</p>;
 
+
   /* ── JSX ── */
   return (
     <div className="food-item">
       <div className="left-panel">
         {/* HEADER */}
-        <div className="fooditem-header">
+        <div
+          ref={headerRef}
+          className={`pl-header${scrolled ? " header-scrolled" : ""}`}
+        >
           <button className="back-button" onClick={handleBack} />
           <div className="food-item-name">
             {fromBag && bagItem?.name ? bagItem.name
