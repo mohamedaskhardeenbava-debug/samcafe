@@ -47,12 +47,12 @@
 
 /* ===== RADIAL POP-OUT MENU (separate layer over the trigger) =====
    A zero-size anchor pinned to the trigger button's own center —
-   NOT a flex stack — so every .quick-links-item can be absolutely
-   centered on that exact point and independently translated out
-   along its own arc position (--qli-tx/--qli-ty, set inline per item
-   in QuickLinksFab.js). This is what lets the items land evenly
-   spaced from straight up round to straight left of the button
-   instead of stacking in a straight line above it. */
+   NOT a flex stack — so every .quick-links-item-label can be
+   absolutely positioned and independently translated out along its
+   own arc position (--qli-tx/--qli-ty, set inline per item in
+   QuickLinksFab.js). This is what lets the items land evenly spaced
+   from straight up round to straight left of the button instead of
+   stacking in a straight line above it. */
 .quick-links-menu {
   position: absolute;
   top: 50%;
@@ -62,22 +62,38 @@
   pointer-events: none;
 }
 
-.quick-links-item {
+/* Positioned, right-anchored pill — carries the per-item translate
+   (--qli-tx/--qli-ty, set inline in QuickLinksFab.js) directly, with
+   no separate icon/wrapper element. Right-anchored (position: right:
+   0) so translating it by the arc point puts its own right edge —
+   the side facing the trigger — on the shared arc. A fixed height
+   (rather than one derived from padding + line-height, which is what
+   this had before) guarantees every pill is exactly the same height
+   even though their widths differ — height was previously only
+   "usually" equal by accident of every label fitting on one line;
+   this makes it exact. */
+.quick-links-item-label {
   position: absolute;
   top: 0;
-  left: 0;
-  width: clamp(34px, 9.5vw, 40px);
-  height: clamp(34px, 9.5vw, 40px);
-  margin: calc(clamp(34px, 9.5vw, 40px) / -2) 0 0 calc(clamp(34px, 9.5vw, 40px) / -2);
+  right: 0;
+  height: 32px;
+  max-width: 220px;
+  margin-top: -14px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
   border: none;
-  border-radius: 50%;
-  background: var(--bg-main);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
   color: var(--text-primary);
+  background: var(--bg-main);
+  padding: 0 8px;
+  border-radius: 999px;
   box-shadow: var(--shadow-primary);
   font-family: inherit;
+  white-space: nowrap;
   cursor: pointer;
 
   /* Rests collapsed at the trigger's own center (scale(0), no
@@ -87,6 +103,7 @@
      at one fixed spot. */
   opacity: 0;
   transform: translate(0, 0) scale(0.4);
+  transform-origin: right center;
   transition:
     opacity 0.2s ease,
     transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -96,46 +113,13 @@
   pointer-events: auto;
 }
 
-.quick-links-fab-wrap.open .quick-links-item {
+.quick-links-fab-wrap.open .quick-links-item-label {
   opacity: 1;
   transform: translate(var(--qli-tx, 0), var(--qli-ty, 0)) scale(1);
 }
 
-.quick-links-item-glyph {
-  font-size: clamp(15px, 4vw, 18px);
-  line-height: 1;
-}
-
-.quick-links-item:active {
+.quick-links-item-label:active {
   transform: translate(var(--qli-tx, 0), var(--qli-ty, 0)) scale(0.9);
-}
-
-/* Small label bubble on hover/focus (desktop) — the item itself is
-   icon-only (a round glyph button, so items don't collide with each
-   other along a tight arc), matching the Uiverse reference's own
-   tooltip-on-hover pattern for its fanned-out icons. */
-.quick-links-item::after {
-  content: attr(aria-label);
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--bg-main);
-  color: var(--text-primary);
-  padding: 5px 10px;
-  border-radius: 8px;
-  box-shadow: var(--shadow-primary);
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease;
-}
-
-.quick-links-item:hover::after,
-.quick-links-item:focus-visible::after {
-  opacity: 1;
 }
 
 /* ===== RESPONSIVE ===== */
@@ -154,5 +138,17 @@
 @media (max-width: 480px) {
   .quick-links-fab-wrap {
     right: 14px;
+  }
+
+  /* Matches ARC_RADIUS_MOBILE/GAP_PX_MOBILE in QuickLinksFab.js — a
+     smaller, tighter pill so the equal-gap arc layout (computed from
+     each pill's real measured width) still fits close to the trigger
+     on a narrow screen. */
+  .quick-links-item-label {
+    height: 24px;
+    max-width: 150px;
+    margin-top: -12px;
+    font-size: 8px;
+    padding: 0 5px;
   }
 }

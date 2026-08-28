@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import "./FavouriteDishDetail.css";
 import caloriesIcon from "../assets/icons/calorie.png";
@@ -9,6 +10,7 @@ import { flyToBag } from "../components/flyToBag";
 import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import { getActiveOffer, getDiscountedTotal } from "./shared/offerUtils";
+import { useIsBelowWidth } from "./shared/useIsBelowWidth";
 
 const NUTRITION_FIELDS = [
   [caloriesIcon, "Calories", "calories", "kcal"],
@@ -20,6 +22,7 @@ const NUTRITION_FIELDS = [
 const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, currentUser }) => {
   const { dishId, source } = useParams();
   const navigate = useNavigate();
+  const isFixedActionsBar = useIsBelowWidth(576);
 
   // 🔒 Only block "my" favourites for guests
   if (source === "my" && !currentUser) {
@@ -64,11 +67,11 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
           onHome={handleHome}
         />
         <div className="pl-body food-list">
-        <div className="fav-empty fav-empty-page">
-          <div className="fav-empty-icon">🍽️</div>
-          <h3 className="fav-empty-title">Dish not found</h3>
-          <p className="fav-empty-sub">This dish may have been removed from your favourites.</p>
-        </div>
+          <div className="fav-empty fav-empty-page">
+            <div className="fav-empty-icon">🍽️</div>
+            <h3 className="fav-empty-title">Dish not found</h3>
+            <p className="fav-empty-sub">This dish may have been removed from your favourites.</p>
+          </div>
         </div>
       </div>
     );
@@ -134,115 +137,136 @@ const FavouriteDishDetail = ({ foodData, addToBag, handleBack, handleHome, curre
       />
 
       <div className="pl-body food-list">
-      <div className="fav-detail-container">
-        {/* LEFT PANEL */}
-        <div className="fav-left">
-          <div className="fav-image-container">
-            <img
-              src={dish.image}
-              alt={dish.name}
-              className="fav-image"
-              data-fav-dish-id={dish.id}
-            />
-          </div>
-
-          <div className="fav-name-header">
-            <h2 className="fav-title">{dish.name}</h2>
-
-            <div className="fav-price">
-              {activeOffer ? (
-                <>
-                  ₹{discountedPrice}
-                  <span className="dish-price-original">₹{dishPrice}</span>
-                  <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
-                </>
-              ) : (
-                <>₹{dishPrice}</>
-              )}
+        <div className="fav-detail-container">
+          {/* LEFT PANEL */}
+          <div className="fav-left">
+            <div className="fav-image-container">
+              <img
+                src={dish.image}
+                alt={dish.name}
+                className="fav-image"
+                data-fav-dish-id={dish.id}
+              />
             </div>
-          </div>
 
-          {dish.customerName && (
-            <div className="fav-customer-name">
-              Saved by {dish.customerName}
-            </div>
-          )}
+            <div className="fav-name-header">
+              <h2 className="fav-title">{dish.name}</h2>
 
-          {dish.description && (
-            <p className="fav-description">
-              {dish.description}
-            </p>
-          )}
-        </div>
-
-        {/* RIGHT PANEL */}
-        <div className="fav-right">
-          <div className="fav-ingredient-container">
-            <h4>Add-ons</h4>
-            <ul className="fav-ingredients-grid">
-              {visibleIngredients.map((ing) => (
-                <li
-                  key={ing.name}
-                  className="fav-ingredient-item"
-                  onClick={() => navigate(`/ingredient/${ing.id}`)}
-                >
-                  <div className="fav-ingredient-img" />
-                  <div className="fav-ingredient-info">
-                    <div className="fav-ingredient-name">{ing.name}</div>
-                    <div className="fav-ingredient-qty">{ing.quantity} g</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {dish.benefits && visibleNutrition.length > 0 && (
-            <div className="fav-nutrition-container">
-              <h4>Nutritional Benefits</h4>
-              <div className="fav-nutrition">
-                {visibleNutrition.map(([icon, label, key, unit]) => (
-                  <div className="fav-nutrition-item" key={label}>
-                    <div className="fav-nutrition-image">
-                      <img src={icon} alt={label} />
-                    </div>
-
-                    <div className="fav-nutrition-value">
-                      {dish.benefits[key]} {unit}
-                    </div>
-
-                    <div className="fav-nutrition-name">
-                      {label}
-                    </div>
-                  </div>
-                ))}
+              <div className="fav-price">
+                {activeOffer ? (
+                  <>
+                    ₹{discountedPrice}
+                    <span className="dish-price-original">₹{dishPrice}</span>
+                    <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
+                  </>
+                ) : (
+                  <>₹{dishPrice}</>
+                )}
               </div>
             </div>
-          )}
 
-          {/* ACTIONS */}
-          <div className="fav-actions">
-            <Button3D
-              className="btn-3d green"
-              onClick={() =>
-                navigate(`/food/${dish.id}`, {
-                  state: {
-                    fromFavouriteCustomize: true,
-                    favouriteSnapshot: dish,
-                    categoryId: dish.categoryId,
-                    dishId: dish.id
-                  }
-                })
-              }
-            >
-              Customize
-            </Button3D>
+            {dish.customerName && (
+              <div className="fav-customer-name">
+                Saved by {dish.customerName}
+              </div>
+            )}
 
-            <Button3D className="btn-3d red" onClick={handleAddToBag}>
-              Add to Bag
-            </Button3D>
+            {dish.description && (
+              <p className="fav-description">
+                {dish.description}
+              </p>
+            )}
+          </div>
+
+          {/* RIGHT PANEL */}
+          <div className="fav-right">
+            <div className="fav-ingredient-container">
+              <h4>Add-ons</h4>
+              <ul className="fav-ingredients-grid">
+                {visibleIngredients.map((ing) => (
+                  <li
+                    key={ing.name}
+                    className="fav-ingredient-item"
+                    onClick={() => navigate(`/ingredient/${ing.id}`)}
+                  >
+                    <div className="fav-ingredient-img" />
+                    <div className="fav-ingredient-info">
+                      <div className="fav-ingredient-name">{ing.name}</div>
+                      <div className="fav-ingredient-qty">{ing.quantity} g</div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {dish.benefits && visibleNutrition.length > 0 && (
+              <div className="fav-nutrition-container">
+                <h4>Nutritional Benefits</h4>
+                <div className="fav-nutrition">
+                  {visibleNutrition.map(([icon, label, key, unit]) => (
+                    <div className="fav-nutrition-item" key={label}>
+                      <div className="fav-nutrition-image">
+                        <img src={icon} alt={label} />
+                      </div>
+
+                      <div className="fav-nutrition-value">
+                        {dish.benefits[key]} {unit}
+                      </div>
+
+                      <div className="fav-nutrition-name">
+                        {label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ACTIONS */}
+            {(() => {
+              const actionsBar = (
+                <div className="fav-actions">
+                  <Button3D
+                    className="btn-3d green"
+                    onClick={() =>
+                      navigate(`/food/${dish.id}`, {
+                        state: {
+                          fromFavouriteCustomize: true,
+                          favouriteSnapshot: dish,
+                          categoryId: dish.categoryId,
+                          dishId: dish.id
+                        }
+                      })
+                    }
+                  >
+                    Customize
+                  </Button3D>
+
+                  <Button3D className="btn-3d red" onClick={handleAddToBag}>
+                    Add to Bag
+                  </Button3D>
+                </div>
+              );
+
+              // Below 576px .fav-actions becomes position: fixed (see
+              // FavouriteDishDetail.css). At that width it must not live
+              // inside the route's animated .page-transition-wrapper:
+              // Framer Motion applies a CSS transform to that wrapper
+              // while a page transition plays, and a transformed
+              // ancestor becomes the containing block for any
+              // fixed-position descendant — so .fav-actions would
+              // suddenly be "fixed" relative to the sliding wrapper
+              // instead of the viewport, jumping/glitching on every page
+              // enter and exit. Portalling it straight to document.body
+              // keeps it anchored to the viewport regardless of what the
+              // route transition is doing. Above 576px it's a normal
+              // in-flow element, so it renders inline as before.
+              return isFixedActionsBar
+                ? createPortal(actionsBar, document.body)
+                : actionsBar;
+            })()}
           </div>
         </div>
-      </div>
       </div>
     </div>
   );

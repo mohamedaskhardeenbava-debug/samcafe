@@ -479,7 +479,20 @@
 
 .top {
   padding: 20px 20px 0 20px;
-  height: 100vh;
+  /* Was height: 100vh — .top is a flex child of .right-panel, which is
+     itself already constrained to .food-item's 100vh, so a *second*
+     100vh here made .top alone as tall as the full viewport regardless
+     of how much space .right-panel actually had left after .bottom.
+     That's what let .top run underneath/overlap .bottom instead of
+     stopping above it. flex: 1 1 auto lets .top take exactly the
+     space .right-panel has left once .bottom (a normal, non-flexed
+     child) is laid out, and min-height: 0 is required alongside it so
+     a flex item is actually allowed to shrink below its content size
+     instead of overflowing its container — without it, overflow-y:
+     scroll below would never kick in and .top would still push past
+     .bottom. */
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: scroll;
 }
 
@@ -1266,52 +1279,6 @@
   }
 }
 
-@media screen and (max-height: 500px) {
-
-  .right-panel {
-    padding: var(--mobile-page-padding);
-  }
-
-  .food-item-image {
-    height: 110px;
-
-  }
-
-  .image-header-right {
-    gap: 0;
-  }
-
-  .ingredient-list {
-    max-height: calc(100vh - 290px);
-    gap: 2px;
-  }
-
-  .ingredient-item {
-    padding: 4px;
-  }
-
-  .ingredient-item-image {
-    width: 30px;
-    height: 30px;
-  }
-
-  .ingredient-modification {
-    padding: 0;
-  }
-
-  .ingredient-item-calculation {
-    padding: 4px;
-  }
-
-  .bottom {
-    padding: 10px;
-  }
-
-  .quantity-section {
-    margin: 0;
-  }
-}
-
 @media screen and (max-width: 576px) {
   .food-item {
     flex-direction: column;
@@ -1377,7 +1344,7 @@
     gap: 10px;
     box-sizing: border-box;
     background-color: var(--bg-main);
-    z-index: 60;
+    z-index: 100;
   }
 
   .ingredient-modification {
@@ -1388,5 +1355,51 @@
   .ingredient-item {
     gap: 4px;
     padding: 8px;
+  }
+}
+
+@media screen and (max-height: 500px) {
+
+  .right-panel {
+    padding: var(--mobile-page-padding);
+  }
+
+  .food-item-image {
+    height: 110px;
+
+  }
+
+  .image-header-right {
+    gap: 0;
+  }
+
+  .ingredient-list {
+    max-height: calc(100vh - 290px);
+    gap: 2px;
+  }
+
+  .ingredient-item {
+    padding: 4px;
+  }
+
+  .ingredient-item-image {
+    width: 30px;
+    height: 30px;
+  }
+
+  .ingredient-modification {
+    padding: 0;
+  }
+
+  .ingredient-item-calculation {
+    padding: 4px;
+  }
+
+  .bottom {
+    padding: 10px;
+  }
+
+  .quantity-section {
+    margin: 0;
   }
 }

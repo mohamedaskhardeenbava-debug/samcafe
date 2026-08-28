@@ -121,18 +121,20 @@ const MobileFooterNav = ({
         </button>
       )}
 
-      <button
-        type="button"
-        className={`mobile-footer-tab ${activeKey === "profile" ? "active" : ""}`}
-        onClick={() => handleNavigate("/profile")}
-        aria-label="Profile"
-      >
-        <span className="mobile-footer-tab-icon"><img src={Profile} alt="Profile" />
-        </span>
-        <span className="mobile-footer-tab-label">
-          {isAuthenticatedUser ? currentUser?.name || "Profile" : "Profile"}
-        </span>
-      </button>
+      {isRealAccount && (
+        <button
+          type="button"
+          className={`mobile-footer-tab ${activeKey === "profile" ? "active" : ""}`}
+          onClick={() => handleNavigate("/profile")}
+          aria-label="Profile"
+        >
+          <span className="mobile-footer-tab-icon"><img src={Profile} alt="Profile" />
+          </span>
+          <span className="mobile-footer-tab-label">
+            {currentUser?.name || "Profile"}
+          </span>
+        </button>
+      )}
     </nav>
   );
 };

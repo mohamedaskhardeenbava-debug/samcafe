@@ -14,7 +14,7 @@
   background: color-mix(in srgb, var(--bg-main) 55%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0,0,0,0.06));
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
   transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -305,6 +305,32 @@
   }
 }
 
+@media screen and (max-width: 576px) {
+  .fav-actions {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    width: 100%;
+    margin: 0;
+    gap: 10px;
+    box-sizing: border-box;
+    padding: 10px var(--mobile-page-padding);
+    background: var(--bg-main);
+    z-index: 60;
+  }
+
+  /* .fav-actions is fixed (pulled out of flow) at this width, so
+     .fav-right no longer has it as a normal-flow sibling pushing
+     content up — without this, .fav-right's last content (nutrition
+     grid) renders straight through where .fav-actions now floats,
+     and ends up hidden underneath it. Reserve space for the fixed
+     bar plus the 64px footer nav it sits above, same pattern as
+     FoodItem's .top and FoodListExpanded's .food-details-expanded. */
+  .fav-right {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+  }
+}
 
 /* =====================================
    SMALL MOBILE (<576px)
@@ -348,9 +374,12 @@
   .fav-left,
   .fav-right {
     width: 100%;
-    padding: 0;
+    padding-top: 0;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
+
 /* =============================================
    FAV-EMPTY — shared "nothing here" state used by
    FavouriteCategories, FavouriteDishList,

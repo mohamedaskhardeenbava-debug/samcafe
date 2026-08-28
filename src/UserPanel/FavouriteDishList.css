@@ -86,6 +86,19 @@
   image-rendering: -webkit-optimize-contrast;
 }
 
+.fav-food-category-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-top: auto;
+}
+
+.fav-food-category-actions .btn-3d {
+  width: calc(100% - 44px);
+}
+
 .fav-food-category-name {
   font-size: 16px;
   min-height: 40px;

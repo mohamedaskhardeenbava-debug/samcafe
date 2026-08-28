@@ -56,6 +56,27 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  /* Above 1200px only .food-details-expanded-scroll (the header +
+     nutrition + description + ingredient carousel, grouped below)
+     scrolls on overflow — .food-details-expanded itself stays a
+     fixed-height frame so .btn-section stays pinned at the bottom
+     instead of scrolling away with the rest of the content. The
+     max-width: 1200px query further down resets this back to visible
+     so the page scrolls as a whole on tablet/mobile, same as before. */
+  overflow: hidden;
+}
+
+/* Groups food-details-expanded-header, dish-nutrition, dish-description
+   and the ingredient carousel into one scrollable region, separate from
+   btn-section (which stays outside this wrapper so it never scrolls
+   out of view). Only takes effect above 1200px — see the max-width:
+   1200px query below, which hands scrolling back to the page as a
+   whole at narrower widths. */
+.food-details-expanded-scroll {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .food-details-expanded-header {
@@ -321,6 +342,17 @@
 
   .food-details-expanded {
     width: 100%;
+    /* Below 1200px .food-details-expanded goes back to scrolling as a
+       whole (matches pre-existing behavior) instead of only its inner
+       -scroll wrapper. */
+    overflow: visible;
+  }
+
+  /* Hand scrolling back to .food-details-expanded itself below 1200px —
+     the wrapper becomes a plain block so it grows with its content
+     instead of capping/scrolling independently. */
+  .food-details-expanded-scroll {
+    overflow: visible;
   }
 
   .dish-nutrition {
@@ -391,8 +423,19 @@
   /* Solid full-width bar pinned above .mobile-footer-nav (64px), like
      the fixed bars on FoodList/FoodItem — not just floating buttons
      at a bare offset, so scrolled content passes underneath it
-     instead of appearing to sit behind/through it. */
-  .food-details-expanded .btn-section {
+     instead of appearing to sit behind/through it.
+     Uses .food-details-expanded-btn-section (an extra class added
+     alongside .btn-section specifically on this page) rather than
+     .btn-section alone, because at this width the button bar is
+     portalled straight to document.body — see FoodListExpanded.js —
+     so it isn't affected by the page-transition-wrapper's transform
+     during route enter/exit, which otherwise breaks its fixed
+     positioning and causes it to glitch/jump. A plain unscoped
+     .btn-section rule here would also leak onto FoodList's own
+     .food-details .btn-section (FoodList.css), since both pages share
+     FoodList.css and this file loads after it — the extra class keeps
+     the two pages' fixed-bar rules independent. */
+  .food-details-expanded-btn-section {
     position: fixed;
     left: 0;
     right: 0;
@@ -403,8 +446,6 @@
     box-sizing: border-box;
     padding: 10px var(--mobile-page-padding);
     background: var(--bg-main);
-    border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     z-index: 60;
   }
 

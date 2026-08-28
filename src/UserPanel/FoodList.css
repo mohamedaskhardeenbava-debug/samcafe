@@ -80,6 +80,12 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  /* Above 768px only .food-details-container (below) should scroll on
+     overflow — .food-details itself stays a fixed-height frame so its
+     header/footer chrome never scrolls along with the content. Mobile
+     (<=768px) overrides this back to visible/auto further down, where
+     .food-details is meant to grow and scroll as a whole instead. */
+  overflow: hidden;
 }
 
 .food-details-container {
@@ -87,6 +93,7 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
+  overflow-y: auto;
 }
 
 /* Dish name block — grid layout so the veg badge, name, best-seller
@@ -618,28 +625,40 @@
      clear of it. Also lifted onto its own themed strip (background +
      top border/shadow, like .mobile-footer-nav) spanning the full
      width so it reads as a separate fixed bar rather than floating
-     buttons that other content can drift behind. */
-  .food-details-container .btn-section {
+     buttons that other content can drift behind.
+     Targets .food-details (the scroll container) rather than
+     .food-details-container (the inner animated block) since
+     .btn-section now sits outside .food-details-container as a
+     static sibling — it no longer remounts/animates on dish change,
+     but still needs to be pulled out of the mobile scroll flow here. */
+  .food-details .btn-section {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(-10px + env(safe-area-inset-bottom, 0px));
     width: 100%;
     margin: 0;
     gap: 10px;
     box-sizing: border-box;
     padding: 10px var(--mobile-page-padding);
     background: var(--bg-main);
-    border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
-    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
     z-index: 60;
   }
 
   /* Content no longer needs to reserve space above the old
      bottom:10px floating buttons; instead pad the scroll area so the
-     dish info never sits underneath the now-fixed bar. */
-  .food-details-container {
+     dish info never sits underneath the now-fixed bar. Moved from
+     .food-details-container to .food-details itself, since
+     .btn-section (and therefore the space it needs reserved) is now
+     a sibling of .food-details-container, not a child of it.
+     Merged with the width/padding reset that used to be a separate
+     .food-details block further down — kept as one rule so the later
+     block can't zero out padding-bottom via the padding shorthand. */
+  .food-details {
+    width: 100%;
+    padding: 0;
     padding-bottom: 76px;
+    overflow-y: auto;
   }
 
   .food-list {
@@ -648,11 +667,7 @@
 
   .food-reel {
     flex-direction: column-reverse;
-  }
-
-  .food-details {
-    width: 100%;
-    padding: 0;
+    height: stretch;
   }
 
   .food-images {

@@ -606,10 +606,10 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
 
 
   return (
-    <motion.div className="appetizer-page" variants={pageVariant} initial="hidden" animate="show">
+    <motion.div className="no-padding" variants={pageVariant} initial="hidden" animate="show">
 
       {/* ── Top bar (back chevron + phase label + home) ── */}
-      <div ref={headerRef} className={`appetizer-topbar${scrolled ? " header-scrolled" : ""}`}>
+      <div ref={headerRef} className={`pl-header${scrolled ? " header-scrolled" : ""}`}>
         <motion.button className="back-button" onClick={handleBack} aria-label="Back" whileTap={{ scale: 0.85, x: -2 }} />
 
         <div className="appetizer-phase-label">
@@ -656,161 +656,163 @@ const AppetizerBuilder = ({ foodData, addToBag, handleBack, handleHome }) => {
         </div>
       </div>
 
-      {/* ── Swipeable reel — crossfades between phases, hidden once the
+      <div className="pl-body">
+        {/* ── Swipeable reel — crossfades between phases, hidden once the
            appetizer is complete since the sheet modal takes over from there ── */}
-      <AnimatePresence initial={false} mode="popLayout">
-        {phase !== "done" && (
-          <motion.div
-            key={phase}
-            variants={phaseTransition}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            style={{ position: "relative" }}
-          >
-            <AppetizerReel items={activeItems} type={phaseTypeKey} onSelect={(item) => handlePick(phaseTypeKey, item)} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence initial={false} mode="popLayout">
+          {phase !== "done" && (
+            <motion.div
+              key={phase}
+              variants={phaseTransition}
+              initial="hidden"
+              animate="show"
+              exit="exit"
+              style={{ position: "relative" }}
+            >
+              <AppetizerReel items={activeItems} type={phaseTypeKey} onSelect={(item) => handlePick(phaseTypeKey, item)} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* ── Grouping strip — lives at page level (not inside the reel)
+        {/* ── Grouping strip — lives at page level (not inside the reel)
            so it survives the reel unmounting once phase === 'done'.
            Left-aligned below the reel while picking; once both sauce
            and main are chosen it centers itself over the page via the
            --complete modifier, sliding back on undo thanks to `layout`.
            Mirrors ComboPage's combo-group-strip exactly. ── */}
-      {selectedCount > 0 && (
-        <motion.div
-          className={`appetizer-group-strip${selectedCount === 2 ? " appetizer-group-strip--complete" : ""}`}
-          layout
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 28 }}
-        >
-          <div className="appetizer-group-strip-pricing">
-            <div className="appetizer-group-strip-final">
-              <span className="appetizer-group-strip-final-label">
-                {finalDish ? "Total" : "Selecting…"}
-              </span>
-              <span className="appetizer-group-strip-final-price">
-                ₹{finalDish ? finalDish.basePrice : 0}
-              </span>
-            </div>
-          </div>
-
-          <div className="appetizer-group-strip-photos">
-            {selectedSauce && <GroupNode item={selectedSauce} type="sauce" onClick={() => handleUndo("sauce")} />}
-            {selectedMain && <GroupNode item={selectedMain} type="main" onClick={() => handleUndo("main")} />}
-          </div>
-        </motion.div>
-      )}
-      <AnimatePresence>
-        {showSheet && (
+        {selectedCount > 0 && (
           <motion.div
-            className="appetizer-sheet-overlay"
-            variants={overlayAnim}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            onClick={() => !justAdded && setShowSheet(false)}
+            className={`appetizer-group-strip${selectedCount === 2 ? " appetizer-group-strip--complete" : ""}`}
+            layout
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 28 }}
           >
+            <div className="appetizer-group-strip-pricing">
+              <div className="appetizer-group-strip-final">
+                <span className="appetizer-group-strip-final-label">
+                  {finalDish ? "Total" : "Selecting…"}
+                </span>
+                <span className="appetizer-group-strip-final-price">
+                  ₹{finalDish ? finalDish.basePrice : 0}
+                </span>
+              </div>
+            </div>
+
+            <div className="appetizer-group-strip-photos">
+              {selectedSauce && <GroupNode item={selectedSauce} type="sauce" onClick={() => handleUndo("sauce")} />}
+              {selectedMain && <GroupNode item={selectedMain} type="main" onClick={() => handleUndo("main")} />}
+            </div>
+          </motion.div>
+        )}
+        <AnimatePresence>
+          {showSheet && (
             <motion.div
-              className="appetizer-sheet-modal"
-              variants={sheetAnim}
+              className="appetizer-sheet-overlay"
+              variants={overlayAnim}
               initial="hidden"
               animate="show"
               exit="exit"
-              onClick={(e) => e.stopPropagation()}
-              drag={!justAdded ? "y" : false}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
-              onDragEnd={(e, info) => {
-                if (info.offset.y > 90) setShowSheet(false);
-              }}
+              onClick={() => !justAdded && setShowSheet(false)}
             >
-              <div className="appetizer-sheet-handle" />
+              <motion.div
+                className="appetizer-sheet-modal"
+                variants={sheetAnim}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                onClick={(e) => e.stopPropagation()}
+                drag={!justAdded ? "y" : false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.5 }}
+                onDragEnd={(e, info) => {
+                  if (info.offset.y > 90) setShowSheet(false);
+                }}
+              >
+                <div className="appetizer-sheet-handle" />
 
-              {justAdded ? (
-                <>
-                  <div className="appetizer-sheet-header">
-                    <h3>Receipt</h3>
-                    <Button3D as={motion.button} frontClassName="close-padding" className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close">
-                      <img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" />
-                    </Button3D>
-                  </div>
-                  <AddedConfirmation
-                    dishTitle={finalDish ? finalDish.name : `${SLOT_LABELS.sauce} + ${SLOT_LABELS.main}`}
-                    price={finalDish ? finalDish.basePrice * qty : 0}
-                    onDone={handleDoneReceipt}
-                  />
-                </>
-              ) : (
-                <>
-                  <div className="appetizer-sheet-header">
-                    <h3>My Appetizer</h3>
-                    <Button3D as={motion.button} className="btn-3d red" frontClassName="close-padding" onClick={() => setShowSheet(false)} whileTap={{ scale: 0.85 }} aria-label="Close">
-                      <img style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} src={closeIcon} alt="Close" />
-                    </Button3D>
-                  </div>
-
-                  <div className="appetizer-sheet-body">
-                    <AppetizerContent
-                      selectedSauce={selectedSauce}
-                      selectedMain={selectedMain}
-                      qty={qty}
-                      setQty={setQty}
-                      finalDish={finalDish}
-                      isComplete={phase === "done"}
-                      onDelete={handleUndo}
+                {justAdded ? (
+                  <>
+                    <div className="appetizer-sheet-header">
+                      <h3>Receipt</h3>
+                      <Button3D as={motion.button} frontClassName="close-padding" className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close">
+                        <img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" />
+                      </Button3D>
+                    </div>
+                    <AddedConfirmation
+                      dishTitle={finalDish ? finalDish.name : `${SLOT_LABELS.sauce} + ${SLOT_LABELS.main}`}
+                      price={finalDish ? finalDish.basePrice * qty : 0}
+                      onDone={handleDoneReceipt}
                     />
+                  </>
+                ) : (
+                  <>
+                    <div className="appetizer-sheet-header">
+                      <h3>My Appetizer</h3>
+                      <Button3D as={motion.button} className="btn-3d red" frontClassName="close-padding" onClick={() => setShowSheet(false)} whileTap={{ scale: 0.85 }} aria-label="Close">
+                        <img style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} src={closeIcon} alt="Close" />
+                      </Button3D>
+                    </div>
 
-                    {phase === "done" && !finalDish && (
-                      <div className="final-placeholder">
-                        <div className="placeholder-icon">🍽️</div>
-                        <div className="placeholder-text">
-                          This sauce and main ingredient combination isn't available yet.
+                    <div className="appetizer-sheet-body">
+                      <AppetizerContent
+                        selectedSauce={selectedSauce}
+                        selectedMain={selectedMain}
+                        qty={qty}
+                        setQty={setQty}
+                        finalDish={finalDish}
+                        isComplete={phase === "done"}
+                        onDelete={handleUndo}
+                      />
+
+                      {phase === "done" && !finalDish && (
+                        <div className="final-placeholder">
+                          <div className="placeholder-icon">🍽️</div>
+                          <div className="placeholder-text">
+                            This sauce and main ingredient combination isn't available yet.
+                          </div>
+                          <Button3D
+                            as={motion.button}
+                            className="btn-3d white"
+                            onClick={() => { resetSelection(); setShowSheet(false); }}
+                            whileTap={{ scale: 0.96 }}
+                          >
+                            Start Over
+                          </Button3D>
                         </div>
-                        <Button3D
-                          as={motion.button}
-                          className="btn-3d white"
-                          onClick={() => { resetSelection(); setShowSheet(false); }}
-                          whileTap={{ scale: 0.96 }}
-                        >
-                          Start Over
-                        </Button3D>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
 
-                  <Button3D
-                    as={motion.button}
-                    className="btn-3d red appetizer-checkout-bar"
-                    disabled={!finalDish}
-                    onClick={addDishToBag}
-                    whileTap={{ scale: 0.97 }}
-                    style={{ width: "170px", alignSelf: "end" }}
-                    frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
-                  >
-                    <span>Add to Bag</span>
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={finalDish ? finalDish.basePrice * qty : 0}
-                        className="appetizer-checkout-amount"
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.18 }}
-                      >
-                        ₹{finalDish ? finalDish.basePrice * qty : 0}
-                      </motion.span>
-                    </AnimatePresence>
-                  </Button3D>
-                </>
-              )}
+                    <Button3D
+                      as={motion.button}
+                      className="btn-3d red appetizer-checkout-bar"
+                      disabled={!finalDish}
+                      onClick={addDishToBag}
+                      whileTap={{ scale: 0.97 }}
+                      style={{ width: "170px", alignSelf: "end" }}
+                      frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
+                    >
+                      <span>Add to Bag</span>
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={finalDish ? finalDish.basePrice * qty : 0}
+                          className="appetizer-checkout-amount"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.18 }}
+                        >
+                          ₹{finalDish ? finalDish.basePrice * qty : 0}
+                        </motion.span>
+                      </AnimatePresence>
+                    </Button3D>
+                  </>
+                )}
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 };

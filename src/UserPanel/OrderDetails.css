@@ -101,7 +101,7 @@
 }
 
 /* Reuse the same status token map as the card/modal */
-.od-status--pending    { --status-a: #f5a623; --status-b: #f7931e; }
+.od-status--placed    { --status-a: #f5a623; --status-b: #f7931e; }
 .od-status--preparing  { --status-a: #b8860b; --status-b: #d4a017; }
 .od-status--ready      { --status-a: #7c3aed; --status-b: #a855f7; }
 .od-status--completed  { --status-a: #16a34a; --status-b: #22c55e; }

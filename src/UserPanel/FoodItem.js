@@ -14,6 +14,9 @@ import HomeButton from "./shared/HomeButton";
 import Button3D from "./shared/Button3D";
 import { RED_EDGE_GRADIENT, RED_FRONT_STYLE } from "./shared/styles";
 import { getActiveOffer, getEffectiveBasePrice } from "./shared/offerUtils";
+import { useToast } from "../components/Usetoast";
+import { useIsBelowWidth } from "./shared/useIsBelowWidth";
+import ConfirmDialog from "./shared/ConfirmDialog";
 
 /* ─── Constants ───────────────────────────────────────────── */
 const STEP = 10;
@@ -51,9 +54,11 @@ const modalVariants = {
 
 /* ─── Component ───────────────────────────────────────────── */
 const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addToBag, handleBack, toCamelCase, currentUser, isWishlistEnabled = true }) => {
+  const { toast } = useToast();
   const location = useLocation();
   const navigate = useNavigate();
   const { headerRef, scrolled } = useScrollHeader();
+  const isFixedBottomBar = useIsBelowWidth(576);
   const { categoryId, dishId, fromBag, bagIndex, bagItem, fromFavouriteCustomize } = location.state || {};
   const { favouriteSnapshot } = location.state || {};
 
@@ -119,6 +124,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
   const [selectedOrder, setSelectedOrder] = useState([]);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showFavouriteForm, setShowFavouriteForm] = useState(false);
+  const [showRemoveFavouriteConfirm, setShowRemoveFavouriteConfirm] = useState(false);
   const [favName, setFavName] = useState("");
   const [favDescription, setFavDescription] = useState("");
   const [showNotes, setShowNotes] = useState(false);
@@ -347,7 +353,6 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
 
   if (!category) return <p>Category not found</p>;
 
-
   /* ── JSX ── */
   return (
     <div className="food-item">
@@ -371,8 +376,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                 className={`wishlist-btn ${isWishlisted ? "active" : ""}`}
                 onClick={() => {
                   if (isWishlisted) {
-                    onToggleFavourite({ id: favouriteId, _remove: true });
-                    setIsWishlisted(false);
+                    setShowRemoveFavouriteConfirm(true);
                     return;
                   }
                   setFavName(wishlistDish.name);
@@ -389,6 +393,25 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
             )}
           </div>
         </div>
+
+        {/* Remove-favourite confirmation — portalled so .food-item's
+            overflow:hidden can't clip it, same reasoning as the
+            wishlist form portal just below. */}
+        {createPortal(
+          <ConfirmDialog
+            open={showRemoveFavouriteConfirm}
+            title="Remove Favourite"
+            message={<>Are you sure you want to remove <strong>{wishlistDish.name}</strong> from your favourites?</>}
+            onConfirm={() => {
+              onToggleFavourite({ id: favouriteId, _remove: true });
+              setIsWishlisted(false);
+              toast.info(`${wishlistDish.name} removed from favourites`);
+              setShowRemoveFavouriteConfirm(false);
+            }}
+            onCancel={() => setShowRemoveFavouriteConfirm(false)}
+          />,
+          document.body
+        )}
 
         {/* Wishlist form — portal so .food-item overflow:hidden can't clip it */}
         {createPortal(
@@ -431,6 +454,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                           onToggleFavourite({ id, originalDishId: wishlistDish.id, savedBy: currentUser?.name || currentUser?.id || "guest", name: favName.trim(), description: favDescription.trim(), image: wishlistDish.image, categoryId: category.id, selectedSize, basePrice: wishlistDish.basePrice, totalPrice: previewItem.totalPrice, ingredients, benefits });
                           setIsWishlisted(true);
                           setShowFavouriteForm(false);
+                          toast.success(`${favName.trim()} added to favourites`);
                         }
                       }}
                     />
@@ -459,6 +483,7 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                           onToggleFavourite({ id, originalDishId: wishlistDish.id, savedBy: currentUser?.name || currentUser?.id || "guest", name: favName.trim(), description: favDescription.trim(), image: wishlistDish.image, categoryId: category.id, selectedSize, basePrice: wishlistDish.basePrice, totalPrice: previewItem.totalPrice, ingredients, benefits });
                           setIsWishlisted(true);
                           setShowFavouriteForm(false);
+                          toast.success(`${favName.trim()} added to favourites`);
                         }}
                       >Save</Button3D>
                     </div>
@@ -617,74 +642,92 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
           })}
         </div>
 
-        <div className="bottom">
-          <div className={`notes-wrapper ${showNotes ? "open" : ""}`}>
-            <textarea
-              className="notes-box"
-              placeholder="Add preparation notes..."
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-            />
-          </div>
+        {(() => {
+          const bottomBar = (
+            <div className="bottom">
+              <div className={`notes-wrapper ${showNotes ? "open" : ""}`}>
+                <textarea
+                  className="notes-box"
+                  placeholder="Add preparation notes..."
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                />
+              </div>
 
-          <div className="price-section">
-            <div className="price-label">Total Price</div>
-            <div className={`food-item-total-amount ${pricePulse ? "price-pulse" : ""}`}>
-              ₹{totalPrice.toFixed(0)}
-              {activeOffer && (
-                <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
-              )}
+              <div className="price-section">
+                <div className="price-label">Total Price</div>
+                <div className={`food-item-total-amount ${pricePulse ? "price-pulse" : ""}`}>
+                  ₹{totalPrice.toFixed(0)}
+                  {activeOffer && (
+                    <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
+                  )}
+                </div>
+              </div>
+
+              <div className="quantity-section">
+                <div className="qty-label">Quantity</div>
+                <div className="stepper-ctrl">
+                  <button className="stepper-btn" onClick={decreaseQty} disabled={quantity === 1}>−</button>
+                  <div className="stepper-val">{quantity}x</div>
+                  <button className="stepper-btn" onClick={increaseQty}>+</button>
+                </div>
+              </div>
+
+              <div className="add-to-bag-row">
+                <Button3D
+                  className="btn-3d green"
+                  onClick={() => {
+                    if (showNotes) {
+                      // Currently open — "Save Notes" was clicked. Trim and
+                      // close; the button's own label switches to "Edit
+                      // Notes" once notes.trim() is non-empty (see label
+                      // logic below), or back to "Add Notes" if left blank.
+                      setNotes((n) => n.trim());
+                      setShowNotes(false);
+                    } else {
+                      // Currently closed — "Add Notes" or "Edit Notes" was
+                      // clicked. Either way, open the textarea for input.
+                      setShowNotes(true);
+                    }
+                  }}
+                >
+                  {showNotes ? "Save Notes" : notes.trim() ? "Edit Notes" : "Add Notes"}
+                </Button3D>
+
+                <Button3D
+                  className="btn-3d red"
+                  onClick={() => {
+                    const img = document.querySelector(".food-item-image img");
+                    const item = { ...previewItem, isCustomized: previewItem.isCustomized === true, isFromFavourite: fromFavouriteCustomize === true };
+                    if (isEditMode) updateBagItem(bagIndex, item);
+                    else addToBag(item);
+                    flyToBag({
+                      imgEl: img,
+                      dishId: previewItem.id,
+                      customizationKey: previewItem.customizationKey || ""
+                    });
+                  }}
+                >
+                  {isEditMode ? "Update Bag" : "Add to Bag"}
+                </Button3D>
+              </div>
             </div>
-          </div>
+          );
 
-          <div className="quantity-section">
-            <div className="qty-label">Quantity</div>
-            <div className="stepper-ctrl">
-              <button className="stepper-btn" onClick={decreaseQty} disabled={quantity === 1}>−</button>
-              <div className="stepper-val">{quantity}x</div>
-              <button className="stepper-btn" onClick={increaseQty}>+</button>
-            </div>
-          </div>
-
-          <div className="add-to-bag-row">
-            <Button3D
-              className="btn-3d green"
-              onClick={() => {
-                if (showNotes) {
-                  // Currently open — "Save Notes" was clicked. Trim and
-                  // close; the button's own label switches to "Edit
-                  // Notes" once notes.trim() is non-empty (see label
-                  // logic below), or back to "Add Notes" if left blank.
-                  setNotes((n) => n.trim());
-                  setShowNotes(false);
-                } else {
-                  // Currently closed — "Add Notes" or "Edit Notes" was
-                  // clicked. Either way, open the textarea for input.
-                  setShowNotes(true);
-                }
-              }}
-            >
-              {showNotes ? "Save Notes" : notes.trim() ? "Edit Notes" : "Add Notes"}
-            </Button3D>
-
-            <Button3D
-              className="btn-3d red"
-              onClick={() => {
-                const img = document.querySelector(".food-item-image img");
-                const item = { ...previewItem, isCustomized: previewItem.isCustomized === true, isFromFavourite: fromFavouriteCustomize === true };
-                if (isEditMode) updateBagItem(bagIndex, item);
-                else addToBag(item);
-                flyToBag({
-                  imgEl: img,
-                  dishId: previewItem.id,
-                  customizationKey: previewItem.customizationKey || ""
-                });
-              }}
-            >
-              {isEditMode ? "Update Bag" : "Add to Bag"}
-            </Button3D>
-          </div>
-        </div>
+          // Below 576px .bottom becomes position: fixed (see FoodItem.css).
+          // At that width it must not live inside the route's animated
+          // .page-transition-wrapper: Framer Motion applies a CSS transform
+          // to that wrapper while a page transition plays, and a
+          // transformed ancestor becomes the containing block for any
+          // fixed-position descendant — so .bottom would suddenly be
+          // "fixed" relative to the sliding wrapper instead of the
+          // viewport, jumping/glitching on every page enter and exit.
+          // Portalling it straight to document.body keeps it anchored to
+          // the viewport regardless of what the route transition is
+          // doing. Above 576px .bottom is a normal-flow flex child of
+          // .right-panel, so it renders inline as before.
+          return isFixedBottomBar ? createPortal(bottomBar, document.body) : bottomBar;
+        })()}
       </div>
     </div >
   );

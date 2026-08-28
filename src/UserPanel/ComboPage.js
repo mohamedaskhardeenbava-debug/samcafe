@@ -1083,10 +1083,10 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
   const phaseLabel = phaseTypeKey ? slotLabels[phaseTypeKey] : null;
 
   return (
-    <motion.div className="combo-page" variants={pageVariant} initial="hidden" animate="show">
+    <motion.div className="no-padding" variants={pageVariant} initial="hidden" animate="show">
 
       {/* ── Top bar (back chevron + bag) ── */}
-      <div ref={headerRef} className={`combo-topbar${scrolled ? " header-scrolled" : ""}`}>
+      <div ref={headerRef} style={{flexWrap:"wrap"}} className={`pl-header${scrolled ? " header-scrolled" : ""}`}>
         <motion.button className="back-button" onClick={handleBack} aria-label="Back" whileTap={{ scale: 0.85, x: -2 }} />
 
         <div className="combo-phase-label">
@@ -1160,291 +1160,292 @@ const ComboPage = ({ foodData, addToBag, updateBagItem, handleBack, handleHome, 
         </div>
       </div>
 
-      {/* ── Category pills for the active section (e.g. Dishes →
+      <div className="pl-body">
+        {/* ── Category pills for the active section (e.g. Dishes →
            Pizza / Burger / Sandwich) — freely clickable, only
            shown when the section maps to more than one category. ── */}
-      <AnimatePresence mode="popLayout" initial={false}>
-        {phaseCategories.length > 1 && (
-          <motion.div
-            key={`cat-${phase}`}
-            className="combo-size-row"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="combo-size-pills">
-              {phaseCategories.map(c => (
-                <Button3D
-                  key={c.id}
-                  as={motion.button}
-                  className={`chip ${phaseActiveCategoryId === c.id ? "active" : ""}`}
-                  onClick={() => setPhaseActiveCategory(c.id)}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ marginTop: "10px", marginBottom: "10px" }}
-                >
-                  {c.title}
-                </Button3D>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {phaseCategories.length > 1 && (
+            <motion.div
+              key={`cat-${phase}`}
+              className="combo-size-row"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="combo-size-pills">
+                {phaseCategories.map(c => (
+                  <Button3D
+                    key={c.id}
+                    as={motion.button}
+                    className={`chip ${phaseActiveCategoryId === c.id ? "active" : ""}`}
+                    onClick={() => setPhaseActiveCategory(c.id)}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ marginTop: "10px", marginBottom: "10px" }}
+                  >
+                    {c.title}
+                  </Button3D>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* ── Group pills for the active phase (subcategory, e.g.
+        {/* ── Group pills for the active phase (subcategory, e.g.
            Beverages → Cold Coffee / Iced Tea / Hot Coffee) ── */}
-      <AnimatePresence mode="popLayout" initial={false}>
-        {phaseGroups.length > 1 && (
-          <motion.div
-            key={`grp-${phase}-${phaseActiveCategoryId}`}
-            className="combo-size-row"
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="combo-size-pills">
-              {phaseGroups.map(g => (
-                <Button3D
-                  key={g.id}
-                  as={motion.button}
-                  className={`chip ${phaseActiveGroup === g.id ? "active" : ""}`}
-                  onClick={() => setPhaseActiveGroup(g.id)}
-                  whileTap={{ scale: 0.95 }}
-                  style={{ marginTop: "10px", marginBottom: "10px" }}
-                >
-                  {g.title}
-                </Button3D>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {phaseGroups.length > 1 && (
+            <motion.div
+              key={`grp-${phase}-${phaseActiveCategoryId}`}
+              className="combo-size-row"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className="combo-size-pills">
+                {phaseGroups.map(g => (
+                  <Button3D
+                    key={g.id}
+                    as={motion.button}
+                    className={`chip ${phaseActiveGroup === g.id ? "active" : ""}`}
+                    onClick={() => setPhaseActiveGroup(g.id)}
+                    whileTap={{ scale: 0.95 }}
+                    style={{ marginTop: "10px", marginBottom: "10px" }}
+                  >
+                    {g.title}
+                  </Button3D>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* ── Swipeable reel — crossfades between phases, hidden once the
+        {/* ── Swipeable reel — crossfades between phases, hidden once the
            combo is complete since the sheet modal takes over from there ── */}
-      <AnimatePresence mode="popLayout" initial={false}>
-        {phase !== "done" && (
-          <motion.div
-            key={phase}
-            initial={{ opacity: 0, y: 16, filter: "blur(5px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -16, filter: "blur(5px)" }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            style={{ width: "100%" }}
-          >
-            <ComboReel
-              items={activeItems}
-              angle={phaseTypeKey ? (slotAngles[phaseTypeKey] ?? 90) : 90}
-              type={phaseTypeKey}
-              slotIndex={phaseSlotIndex}
-              onSelect={(item) => handlePick(phaseTypeKey, item)}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {phase !== "done" && (
+            <motion.div
+              key={phase}
+              initial={{ opacity: 0, y: 16, filter: "blur(5px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -16, filter: "blur(5px)" }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              style={{ width: "100%" }}
+            >
+              <ComboReel
+                items={activeItems}
+                angle={phaseTypeKey ? (slotAngles[phaseTypeKey] ?? 90) : 90}
+                type={phaseTypeKey}
+                slotIndex={phaseSlotIndex}
+                onSelect={(item) => handlePick(phaseTypeKey, item)}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-      {/* ── Grouping strip — lives at page level (not inside the reel)
+        {/* ── Grouping strip — lives at page level (not inside the reel)
            so it survives the reel unmounting once phase === 'done'.
            Below the reel images while picking; once every configured
            section is filled it centers itself over the page via the
            --complete modifier, sliding back on undo thanks to `layout`. ── */}
-      {selectedCount > 0 && (
-        <motion.div
-          className={`combo-group-strip${isComboComplete ? " combo-group-strip--complete" : ""}`}
-          layout
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 260, damping: 28 }}
-        >
-          <div className="combo-group-strip-pricing">
-            {perComboFinalPrice < perComboBasePrice && (
-              <div className="combo-group-strip-regular">
-                <span className="combo-group-strip-regular-label">Regular Price</span>
-                <span className="combo-group-strip-regular-price">₹{Math.round(perComboBasePrice)}/-</span>
-              </div>
-            )}
-            <div className="combo-group-strip-final">
-              <span className="combo-group-strip-final-label">
-                {perComboFinalPrice < perComboBasePrice ? "Combo @ Just" : "Combo Total"}
-              </span>
-              <span className="combo-group-strip-final-price">₹{Math.round(perComboFinalPrice)}/-</span>
-            </div>
-          </div>
-
-          <div className="combo-group-strip-photos">
-            {sectionKeys.map((key, idx) => (
-              selectedItems[key] && (
-                <GroupNode
-                  key={key}
-                  item={selectedItems[key]}
-                  type={key}
-                  slotIndex={idx}
-                  onClick={() => handleUndo(key)}
-                />
-              )
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {/* ── Add to fav confirm ── */}
-      {/* ── Offer hint (suggestion) modal ── */}
-      <AnimatePresence mode="wait">
-        {offerHint && (
-          <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
-            <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
-              <h3 className="combo-modal-title">Unlock a Combo Offer</h3>
-              <p className="combo-modal-text">{offerHint.message}</p>
-              <div className="combo-modal-actions">
-                <Button3D as={motion.button} className="btn-3d white" onClick={() => setOfferHint(null)} whileTap={{ scale: 0.96 }}>Skip for now</Button3D>
-                <Button3D as={motion.button} className="btn-3d green" onClick={handleHintAdd} whileTap={{ scale: 0.96 }}>Add Item</Button3D>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence mode="wait">
-        {showAddFavConfirm && (
-          <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
-            <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
-              <h3 className="combo-modal-title">Save to Favourites?</h3>
-              <p className="combo-modal-text">{comboTitle}</p>
-              <div className="combo-modal-actions">
-                <Button3D as={motion.button} className="btn-3d white" onClick={() => setShowAddFavConfirm(false)} whileTap={{ scale: 0.96 }}>Cancel</Button3D>
-                <Button3D
-                  as={motion.button}
-                  className="btn-3d green"
-                  disabled={!isComboComplete || isSavingFav}
-                  onClick={handleConfirmAddFav}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  {isSavingFav ? "Saving" : "Confirm"}
-                </Button3D>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── Duplicate overlay ── */}
-      <AnimatePresence mode="wait">
-        {showDuplicateOverlay && (
-          <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
-            <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
-              <h3 className="combo-modal-title">Already Saved</h3>
-              <p className="combo-modal-text">This combo already exists in your favourites.</p>
-              <div className="combo-modal-actions">
-                <Button3D as={motion.button} className="btn-3d white" style={{ width: "100%" }} onClick={() => setShowDuplicateOverlay(false)} whileTap={{ scale: 0.96 }}>Okay</Button3D>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── "My Combo" sheet — clone of My Order / Receipt ── */}
-      <AnimatePresence>
-        {showCart && (
+        {selectedCount > 0 && (
           <motion.div
-            className="combo-sheet-overlay"
-            variants={overlayAnim}
-            initial="hidden"
-            animate="show"
-            exit="exit"
-            onClick={() => !justAdded && setShowCart(false)}
+            className={`combo-group-strip${isComboComplete ? " combo-group-strip--complete" : ""}`}
+            layout
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 28 }}
           >
+            <div className="combo-group-strip-pricing">
+              {perComboFinalPrice < perComboBasePrice && (
+                <div className="combo-group-strip-regular">
+                  <span className="combo-group-strip-regular-label">Regular Price</span>
+                  <span className="combo-group-strip-regular-price">₹{Math.round(perComboBasePrice)}/-</span>
+                </div>
+              )}
+              <div className="combo-group-strip-final">
+                <span className="combo-group-strip-final-label">
+                  {perComboFinalPrice < perComboBasePrice ? "Combo @ Just" : "Combo Total"}
+                </span>
+                <span className="combo-group-strip-final-price">₹{Math.round(perComboFinalPrice)}/-</span>
+              </div>
+            </div>
+
+            <div className="combo-group-strip-photos">
+              {sectionKeys.map((key, idx) => (
+                selectedItems[key] && (
+                  <GroupNode
+                    key={key}
+                    item={selectedItems[key]}
+                    type={key}
+                    slotIndex={idx}
+                    onClick={() => handleUndo(key)}
+                  />
+                )
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ── Add to fav confirm ── */}
+        {/* ── Offer hint (suggestion) modal ── */}
+        <AnimatePresence mode="wait">
+          {offerHint && (
+            <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
+              <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+                <h3 className="combo-modal-title">Unlock a Combo Offer</h3>
+                <p className="combo-modal-text">{offerHint.message}</p>
+                <div className="combo-modal-actions">
+                  <Button3D as={motion.button} className="btn-3d white" onClick={() => setOfferHint(null)} whileTap={{ scale: 0.96 }}>Skip for now</Button3D>
+                  <Button3D as={motion.button} className="btn-3d green" onClick={handleHintAdd} whileTap={{ scale: 0.96 }}>Add Item</Button3D>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          {showAddFavConfirm && (
+            <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
+              <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+                <h3 className="combo-modal-title">Save to Favourites?</h3>
+                <p className="combo-modal-text">{comboTitle}</p>
+                <div className="combo-modal-actions">
+                  <Button3D as={motion.button} className="btn-3d white" onClick={() => setShowAddFavConfirm(false)} whileTap={{ scale: 0.96 }}>Cancel</Button3D>
+                  <Button3D
+                    as={motion.button}
+                    className="btn-3d green"
+                    disabled={!isComboComplete || isSavingFav}
+                    onClick={handleConfirmAddFav}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {isSavingFav ? "Saving" : "Confirm"}
+                  </Button3D>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── Duplicate overlay ── */}
+        <AnimatePresence mode="wait">
+          {showDuplicateOverlay && (
+            <motion.div className="combo-overlay" variants={overlayAnim} initial="hidden" animate="show" exit="exit">
+              <motion.div className="combo-modal" variants={modalAnim} initial="hidden" animate="show" exit="exit">
+                <h3 className="combo-modal-title">Already Saved</h3>
+                <p className="combo-modal-text">This combo already exists in your favourites.</p>
+                <div className="combo-modal-actions">
+                  <Button3D as={motion.button} className="btn-3d white" style={{ width: "100%" }} onClick={() => setShowDuplicateOverlay(false)} whileTap={{ scale: 0.96 }}>Okay</Button3D>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── "My Combo" sheet — clone of My Order / Receipt ── */}
+        <AnimatePresence>
+          {showCart && (
             <motion.div
-              className="combo-sheet-modal"
-              variants={sheetAnim}
+              className="combo-sheet-overlay"
+              variants={overlayAnim}
               initial="hidden"
               animate="show"
               exit="exit"
-              onClick={(e) => e.stopPropagation()}
-              drag={!justAdded ? "y" : false}
-              dragConstraints={{ top: 0, bottom: 0 }}
-              dragElastic={{ top: 0, bottom: 0.5 }}
-              onDragEnd={(e, info) => {
-                if (info.offset.y > 90) setShowCart(false);
-              }}
+              onClick={() => !justAdded && setShowCart(false)}
             >
-              <div className="combo-sheet-handle" />
+              <motion.div
+                className="combo-sheet-modal"
+                variants={sheetAnim}
+                initial="hidden"
+                animate="show"
+                exit="exit"
+                onClick={(e) => e.stopPropagation()}
+                drag={!justAdded ? "y" : false}
+                dragConstraints={{ top: 0, bottom: 0 }}
+                dragElastic={{ top: 0, bottom: 0.5 }}
+                onDragEnd={(e, info) => {
+                  if (info.offset.y > 90) setShowCart(false);
+                }}
+              >
+                <div className="combo-sheet-handle" />
 
-              {justAdded ? (
-                <>
-                  <div className="combo-sheet-header">
-                    <h3>Receipt</h3>
-                    <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close" frontClassName="close-padding"><img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" /></Button3D>
-                  </div>
-                  <AddedConfirmation
-                    comboTitle={comboTitle}
-                    discountedPrice={discountedPrice}
-                    onDone={handleDoneReceipt}
-                  />
-                </>
-              ) : (
-                <>
-                  <div className="combo-sheet-header">
-                    <h3>My Combo</h3>
-                    <Button3D as={motion.button} className="btn-3d red" onClick={() => setShowCart(false)} whileTap={{ scale: 0.85 }} aria-label="Close" frontClassName="close-padding"><img style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} src={closeIcon} alt="Close" /></Button3D>
-                  </div>
-
-                  <div className="combo-sheet-body">
-                    <MyComboContent
-                      selectedItems={selectedItems}
-                      slotLabels={slotLabels}
-                      quantity={quantity}
-                      setQuantity={setQuantity}
-                      originalTotal={originalTotal}
+                {justAdded ? (
+                  <>
+                    <div className="combo-sheet-header">
+                      <h3>Receipt</h3>
+                      <Button3D as={motion.button} className="home-btn home-btn-icon" onClick={handleCloseConfirmation} whileTap={{ scale: 0.85 }} aria-label="Close" frontClassName="close-padding"><img src={closeIcon} style={{ width: "20px", height: "20px" }} alt="Close" /></Button3D>
+                    </div>
+                    <AddedConfirmation
+                      comboTitle={comboTitle}
                       discountedPrice={discountedPrice}
-                      savings={savings}
-                      matchedOffer={matchedOffer}
-                      isComboComplete={isComboComplete}
-                      onDelete={handleUndo}
+                      onDone={handleDoneReceipt}
                     />
+                  </>
+                ) : (
+                  <>
+                    <div className="combo-sheet-header">
+                      <h3>My Combo</h3>
+                      <Button3D as={motion.button} className="btn-3d red" onClick={() => setShowCart(false)} whileTap={{ scale: 0.85 }} aria-label="Close" frontClassName="close-padding"><img style={{ width: "20px", height: "20px", filter: "brightness(0) invert(1)" }} src={closeIcon} alt="Close" /></Button3D>
+                    </div>
 
-                    {isComboComplete && currentUser && currentUser.id !== "guest" && (
-                      <Button3D
-                        as={motion.button}
-                        className="btn-3d white combo-save-btn"
-                        onClick={() => setShowAddFavConfirm(true)}
-                        whileTap={{ scale: 0.96 }}
-                      >
-                        Save to Favourites
-                      </Button3D>
-                    )}
-                  </div>
+                    <div className="combo-sheet-body">
+                      <MyComboContent
+                        selectedItems={selectedItems}
+                        slotLabels={slotLabels}
+                        quantity={quantity}
+                        setQuantity={setQuantity}
+                        originalTotal={originalTotal}
+                        discountedPrice={discountedPrice}
+                        savings={savings}
+                        matchedOffer={matchedOffer}
+                        isComboComplete={isComboComplete}
+                        onDelete={handleUndo}
+                      />
 
-                  <Button3D
-                    as={motion.button}
-                    className="btn-3d red combo-checkout-bar"
-                    style={{ width: "170px", alignSelf: "end" }}
-                    disabled={!isComboComplete}
-                    onClick={handleAddToBag}
-                    whileTap={{ scale: 0.97 }}
-                    frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
-                  >
-                    <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
-                    <AnimatePresence mode="wait">
-                      <motion.span
-                        key={discountedPrice}
-                        className="combo-checkout-amount"
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.18 }}
-                      >
-                        ₹{discountedPrice}
-                      </motion.span>
-                    </AnimatePresence>
-                  </Button3D>
-                </>
-              )}
+                      {isComboComplete && currentUser && currentUser.id !== "guest" && (
+                        <Button3D
+                          as={motion.button}
+                          className="btn-3d white combo-save-btn"
+                          onClick={() => setShowAddFavConfirm(true)}
+                          whileTap={{ scale: 0.96 }}
+                        >
+                          Save to Favourites
+                        </Button3D>
+                      )}
+                    </div>
+
+                    <Button3D
+                      as={motion.button}
+                      className="btn-3d red combo-checkout-bar"
+                      style={{ width: "170px", alignSelf: "end" }}
+                      disabled={!isComboComplete}
+                      onClick={handleAddToBag}
+                      whileTap={{ scale: 0.97 }}
+                      frontStyle={{ display: "flex", alignItems: "center", gap: "10px" }}
+                    >
+                      <span>{isEditMode ? "Update Combo" : "Add to Bag"}</span>
+                      <AnimatePresence mode="wait">
+                        <motion.span
+                          key={discountedPrice}
+                          className="combo-checkout-amount"
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -6 }}
+                          transition={{ duration: 0.18 }}
+                        >
+                          ₹{discountedPrice}
+                        </motion.span>
+                      </AnimatePresence>
+                    </Button3D>
+                  </>
+                )}
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 };

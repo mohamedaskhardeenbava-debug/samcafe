@@ -32,14 +32,6 @@ const STATUS_LABELS = {
   cancelled: "Cancelled",
 };
 
-const STATUS_ICONS = {
-  pending: "⏳",
-  preparing: "👨‍🍳",
-  ready: "🔔",
-  completed: "✅",
-  cancelled: "✕",
-};
-
 // Order the timeline steps appear in, for the progress rail. "cancelled"
 // is handled separately since it isn't a step on the happy path.
 const TIMELINE_STEPS = ["pending", "preparing", "ready", "completed"];
@@ -145,7 +137,6 @@ const OrderDetails = ({ handleBack, handleHome }) => {
               <div className="od-hero-top">
                 <span className="od-hero-id">#{order.id}</span>
                 <span className={`od-status-pill od-status--${status}`}>
-                  <span className="od-status-icon">{STATUS_ICONS[status] || STATUS_ICONS.pending}</span>
                   {STATUS_LABELS[status] || status}
                 </span>
               </div>

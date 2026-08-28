@@ -15,7 +15,7 @@
 /* ── Page ─────────────────────────────────────────────────── */
 .combo-page {
   width: 100%;
-  min-height: 100vh;
+  height: stretch;
   padding: 36px;
   box-sizing: border-box;
   font-family: "Geom", system-ui, sans-serif;
@@ -25,26 +25,20 @@
 }
 
 /* ── Top bar ──────────────────────────────────────────────── */
-.combo-topbar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 18px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: transparent;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  transition: background 0.25s ease, box-shadow 0.25s ease;
-}
 
-.combo-topbar.header-scrolled {
-  background: color-mix(in srgb, var(--bg-main) 55%, transparent);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0,0,0,0.06));
-  transition: background 0.25s ease, box-shadow 0.25s ease;
+.pl-combo-header {
+  flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    box-sizing: border-box;
+    padding: 36px 36px 0 36px;
+    background: transparent;
+    transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
 .combo-phase-label {
@@ -101,7 +95,7 @@
   justify-content: center;
   padding: 16px 12px;
   border-radius: 20px;
-  background-color: var(--bg-main) !important;
+  background-color: var(--color-pale-red) !important;
 }
 
 /* All three dishes picked — lift the strip out of the details
@@ -112,7 +106,7 @@
 .combo-group-strip--complete {
   position: fixed;
   inset: 0;
-  margin: auto;
+  margin: 16px auto;
   width: fit-content;
   height: fit-content;
   z-index: 40;
@@ -894,7 +888,7 @@
 
   .combo-reel-images {
     width: 100%;
-    height: 300px;
+    height: 240px;
   }
 
   .combo-reel-images--slot-0,
@@ -925,7 +919,7 @@
   .combo-group-strip {
     max-width: 300px;
     align-items: center;
-    margin: auto;
+    margin: 16px auto;
   }
 
   .combo-group-strip-pricing {
@@ -962,8 +956,13 @@
     padding: 12px;
   }
 
+  .combo-reel-images {
+    width: 100%;
+    height: 180px;
+  }
+
   .combo-reel-image-wrapper {
-    max-width: 140px;
+    max-width: 210px;
   }
 
   .combo-group-strip {
@@ -1019,6 +1018,13 @@
 
   .combo-sheet-modal {
     max-width: 500px;
+  }
+}
+
+@media screen and (max-height: 670px) {
+  .combo-topbar {
+    gap: 6px;
+    margin: 0;
   }
 }
 

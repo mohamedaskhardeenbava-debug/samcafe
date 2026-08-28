@@ -1625,6 +1625,13 @@ image {
   filter: var(--img-theme-filter);
 }
 
+.icon-width {
+  width: 36px !important;
+}
+
+.icon-width .front {
+  padding: 0 !important;
+}
 /* --------------------3D SORT BUTTON -------------------------- */
 
 /* Sort pills — 3D push */

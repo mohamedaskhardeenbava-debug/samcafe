@@ -264,34 +264,34 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
               <p className="dish-description">
                 {visible[1].description}
               </p>
-
-              <div className="btn-section">
-                <Button3D
-                  className="btn-3d green"
-                  onClick={() => {
-                    if (isNavigatingRef.current) return;
-                    isNavigatingRef.current = true;
-                    setIsGlidingOut(true);
-
-                    exitTimerRef.current = setTimeout(() => {
-                      navigate(`/foods/${category.id}/expanded`, {
-                        state: {
-                          categoryId: category.id,
-                          dishId: visible[1].id,
-                          disablePageAnimation: true
-                        }
-                      });
-                    }, FOODLIST_EXIT_DURATION);
-                  }}
-                >
-                  Show more
-                </Button3D>
-
-                <Button3D className="btn-3d red" onClick={handleAddToBag}>
-                  Add to Bag
-                </Button3D>
-              </div>
             </motion.div>
+
+            <div className="btn-section">
+              <Button3D
+                className="btn-3d green"
+                onClick={() => {
+                  if (isNavigatingRef.current) return;
+                  isNavigatingRef.current = true;
+                  setIsGlidingOut(true);
+
+                  exitTimerRef.current = setTimeout(() => {
+                    navigate(`/foods/${category.id}/expanded`, {
+                      state: {
+                        categoryId: category.id,
+                        dishId: visible[1].id,
+                        disablePageAnimation: true
+                      }
+                    });
+                  }, FOODLIST_EXIT_DURATION);
+                }}
+              >
+                Show more
+              </Button3D>
+
+              <Button3D className="btn-3d red" onClick={handleAddToBag}>
+                Add to Bag
+              </Button3D>
+            </div>
 
           </div>
 

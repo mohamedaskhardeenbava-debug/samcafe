@@ -7,13 +7,18 @@ import PageHeader from "./shared/PageHeader";
 import Button3D from "./shared/Button3D";
 import ConfirmDialog from "./shared/ConfirmDialog";
 import { useToast } from "../components/Usetoast";
+import { getActiveOffer, getDiscountedTotal } from "./shared/offerUtils";
+import { flyToBag } from "../components/flyToBag";
+
+import trashIcon from "../assets/icons/trash1.png"
 
 const FavouriteDishList = ({
   foodData,
   currentUser,
   setCurrentUser,
   handleBack,
-  handleHome
+  handleHome,
+  addToBag
 }) => {
   const navigate = useNavigate();
   const { source, categoryId } = useParams();
@@ -49,30 +54,77 @@ const FavouriteDishList = ({
 
   const category = findCategoryOrSubCategory(categoryId);
 
+  /* ---------------- ADD TO BAG LOGIC ---------------- */
+
+  const handleAddToBag = (dish, e) => {
+    e.stopPropagation();
+
+    const activeOffer = getActiveOffer(dish.originalDishId || dish.id, foodData.offers);
+    const price = dish.totalPrice ?? dish.basePrice ?? 0;
+    const finalPrice = activeOffer ? getDiscountedTotal(price, activeOffer) : price;
+
+    addToBag({
+      ...dish,
+      quantity: 1,
+      unitPrice: finalPrice,
+      totalPrice: finalPrice,
+      isCustomized: false,
+      isFromFavourite: true,
+      ...(activeOffer ? { appliedOffer: { percentage: activeOffer.percentage, originalPrice: price } } : {})
+    });
+
+    const img = e.currentTarget
+      .closest(".fav-food-category-items")
+      ?.querySelector(".fav-food-category-image img");
+    flyToBag({ imgEl: img, dishId: dish.id });
+
+    toast.success(`${dish.name} added to bag`);
+  };
+
   /* ---------------- DELETE LOGIC ---------------- */
 
-  const confirmDeleteFavourite = async () => {
-    if (!dishToDelete) return;
+  const confirmDeleteFavourite = () => {
+    if (!dishToDelete || !currentUser) return;
 
-    try {
-      if (currentUser) {
-        // PATCH /users/me/favourites is customer-auth-gated and returns
-        // the updated user doc directly — no need for the separate
-        // PUT-then-GET round trip the admin-gated /users/:id route would
-        // have required (and which a customer session can't reach anyway).
-        const res = await api.patch("/users/me/favourites", { id: dishToDelete.id, _remove: true });
+    const removedDish = dishToDelete;
+    // Snapshot the pre-delete favourites list so we can roll back in
+    // place if the request fails below — currentUser will have already
+    // moved on by then, so we can't just recompute this from it.
+    const previousFavourites = currentUser.favourites || [];
+
+    // Close the dialog and update the UI immediately (optimistic
+    // update) instead of waiting on the PATCH request below — that
+    // request can take a while, and the person shouldn't be staring at
+    // an open "Remove Favourite" modal for it. The list re-filters off
+    // currentUser.favourites, so removing the dish here makes it
+    // disappear from the page right away.
+    setShowDeleteConfirm(false);
+    setDishToDelete(null);
+    setCurrentUser({
+      ...currentUser,
+      favourites: previousFavourites.filter((f) => f.id !== removedDish.id)
+    });
+
+    // PATCH /users/me/favourites is customer-auth-gated and returns the
+    // updated user doc directly — no need for the separate PUT-then-GET
+    // round trip the admin-gated /users/:id route would have required
+    // (and which a customer session can't reach anyway). Runs in the
+    // background now; on success we reconcile with the server's copy,
+    // and on failure we roll back to the pre-delete snapshot and let
+    // the person know so the favourite doesn't just silently reappear
+    // on next refresh with no explanation.
+    api.patch("/users/me/favourites", { id: removedDish.id, _remove: true })
+      .then((res) => {
         setCurrentUser(res.data);
-
-        // Clear dialog state only after state is committed
-        setShowDeleteConfirm(false);
-        setDishToDelete(null);
-      }
-    } catch (err) {
-      console.error("Failed to delete favourite", err);
-      toast.error("Failed to remove favourite dish.");
-      setShowDeleteConfirm(false);
-      setDishToDelete(null);
-    }
+      })
+      .catch((err) => {
+        console.error("Failed to delete favourite", err);
+        toast.error("Failed to remove favourite dish. Restoring it.");
+        setCurrentUser((current) => ({
+          ...current,
+          favourites: previousFavourites
+        }));
+      });
   };
 
   /* ---------------- RENDER ---------------- */
@@ -89,61 +141,72 @@ const FavouriteDishList = ({
       />
 
       <div className="pl-body food-list fav-dish-page">
-      {/* LIST */}
-      <div className="food-category" style={{ padding: "0px" }}>
-        <div className="food-category-container">
-          {dishes.length === 0 && (
-            <div className="fav-empty fav-empty-page">
-              <div className="fav-empty-icon">🍽️</div>
-              <h3 className="fav-empty-title">No favourite dishes yet</h3>
-              <p className="fav-empty-sub">Dishes you favourite in this category will show up here.</p>
-            </div>
-          )}
-
-          {dishes.map((dish) => (
-            <div
-              key={dish.id}
-              className="fav-food-category-items"
-              role="button"
-              onClick={() =>
-                navigate(`/favourites/${source}/dish/${dish.id}`, {
-                  state: {
-                    favouriteSnapshot: dish,
-                    categoryId: dish.categoryId
-                  }
-                })
-              }
-            >
-              <div className="fav-food-category-image">
-                <img src={dish.image} alt={dish.name} loading="lazy" decoding="async" />
+        {/* LIST */}
+        <div className="food-category" style={{ padding: "0px" }}>
+          <div className="food-category-container">
+            {dishes.length === 0 && (
+              <div className="fav-empty fav-empty-page">
+                <div className="fav-empty-icon">🍽️</div>
+                <h3 className="fav-empty-title">No favourite dishes yet</h3>
+                <p className="fav-empty-sub">Dishes you favourite in this category will show up here.</p>
               </div>
-              <div className="fav-food-category-name">
-                {dish.name}
-              </div>
+            )}
 
-              {dish.customerName && (
-                <div className="fav-customer-name">
-                  By {dish.customerName}
+            {dishes.map((dish) => (
+              <div
+                key={dish.id}
+                className="fav-food-category-items"
+                role="button"
+                onClick={() =>
+                  navigate(`/favourites/${source}/dish/${dish.id}`, {
+                    state: {
+                      favouriteSnapshot: dish,
+                      categoryId: dish.categoryId
+                    }
+                  })
+                }
+              >
+                <div className="fav-food-category-image">
+                  <img src={dish.image} alt={dish.name} loading="lazy" decoding="async" />
                 </div>
-              )}
+                <div className="fav-food-category-name">
+                  {dish.name}
+                </div>
 
-              {isMyFavourites && (
-                <Button3D
-                  className="btn-3d red"
-                  frontStyle={{ padding: "0 10px" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setDishToDelete(dish);
-                    setShowDeleteConfirm(true);
-                  }}
-                >
-                  Delete
-                </Button3D>
-              )}
-            </div>
-          ))}
+                {dish.customerName && (
+                  <div className="fav-customer-name">
+                    By {dish.customerName}
+                  </div>
+                )}
+
+                <div className="fav-food-category-actions">
+                  {isMyFavourites && (
+                    <Button3D
+                      className="btn-3d red icon-width"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDishToDelete(dish);
+                        setShowDeleteConfirm(true);
+                      }}
+                    >
+                      <img
+                        src={trashIcon}
+                      />
+                    </Button3D>
+                  )}
+
+                  <Button3D
+                    className="btn-3d green"
+                    onClick={(e) => handleAddToBag(dish, e)}
+                    frontStyle={{ padding: "0 5px" }}
+                  >
+                    Add to Cart
+                  </Button3D>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
       </div>
 
       {/* DELETE CONFIRM OVERLAY */}

@@ -581,29 +581,32 @@ function App() {
         )}
 
         {/* Routes */}
-        {isExpandedPage ? (
-          <AnimatePresence mode="wait" initial={false}>
-            <Routes location={location}>
-              <Route
-                path="/foods/:categoryId/expanded"
-                element={
-                  <div className="page-transition-wrapper">
-                    <FoodListExpanded
-                      foodData={foodData}
-                      addToBag={addToBag}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                      currentUser={currentUser}
-                      onToggleFavourite={onToggleFavourite}
-                    />
-                  </div>
-                }
-              />
-            </Routes>
-          </AnimatePresence>
-        ) : (
-          <AnimatePresence mode="wait" initial={false}>
-            <Routes location={location} key={location.pathname}>
+        {/*
+          Previously the expanded food-detail page was routed through a
+          second, separate <AnimatePresence>/<Routes> tree (branched on
+          isExpandedPage), swapped in via a plain ternary alongside this
+          one. That meant navigating FoodList -> FoodListExpanded
+          unmounted this entire tree and mounted the other one outright,
+          instead of React Router/Framer Motion tracking it as one route
+          change. That broke two things: FoodListExpanded's exit
+          animation never got to play (this tree just vanished), and the
+          layoutId-based shared image transition between the two pages'
+          <motion.img> elements lost continuity, since LayoutGroup could
+          no longer see both the outgoing and incoming element in the
+          same animation cycle. That's what caused the image to blink
+          during the transition instead of morphing smoothly.
+
+          Folding /foods/:categoryId/expanded into this single
+          <AnimatePresence>/<Routes> tree (and giving it the same
+          motionProps every other route uses) lets Framer Motion see the
+          FoodList <-> FoodListExpanded transition as a normal route
+          change within one AnimatePresence, so the shared layoutId image
+          can crossfade/morph correctly and the slide transition applies
+          consistently instead of the expanded page appearing with no
+          transition at all.
+        */}
+        <AnimatePresence mode="wait" initial={false}>
+          <Routes location={location} key={location.pathname}>
 
               <Route path="/" element={<motion.div {...motionProps}><Welcome handleNavigate={handleNavigate} toCamelCase={toCamelCase} setCurrentUser={setCurrentUser} fetchMenu={fetchMenu} /></motion.div>} />
 
@@ -612,6 +615,22 @@ function App() {
               <Route path="/appetizer-builder" element={<div className="page-transition-wrapper"><AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></div>} />
 
               <Route path="/foods/:categoryId" element={<motion.div {...motionProps}><FoodList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
+
+              <Route
+                path="/foods/:categoryId/expanded"
+                element={
+                  <motion.div {...motionProps}>
+                    <FoodListExpanded
+                      foodData={foodData}
+                      addToBag={addToBag}
+                      handleBack={handleBack}
+                      handleHome={handleHome}
+                      currentUser={currentUser}
+                      onToggleFavourite={onToggleFavourite}
+                    />
+                  </motion.div>
+                }
+              />
 
               <Route path="/subcategory/:categoryId" element={<motion.div {...motionProps}><SubCategoryPage foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
 
@@ -639,7 +658,7 @@ function App() {
 
               <Route path="/favourites/:source/category/:categoryId" element={
                 (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
-                  ? <motion.div {...motionProps}><FavouriteDishList foodData={foodData} currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>
+                  ? <motion.div {...motionProps}><FavouriteDishList foodData={foodData} currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} /></motion.div>
                   : <Navigate to="/categories" replace />
               } />
 
@@ -667,8 +686,7 @@ function App() {
               <Route path="/events/catering" element={isEventsEnabled ? <motion.div {...motionProps}><CateringForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
             </Routes>
-          </AnimatePresence>
-        )}
+        </AnimatePresence>
 
         {/* Mobile bottom nav — CSS-hidden above 600px width, hidden on
             Welcome per request (every other page shows it). */}
