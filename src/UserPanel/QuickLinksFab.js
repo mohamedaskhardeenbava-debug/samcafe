@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useLayoutEffect, useMemo } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./QuickLinksFab.css";
 import { useIsBelowWidth } from "./shared/useIsBelowWidth";
@@ -6,42 +6,44 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
 /**
  * QuickLinksFab — "…" floating trigger shown on the Food Category page
  * only. Popping open reveals 4 shortcut items (Crowd Picks, Combo,
- * Offers, Events & Bookings) fanned out along a quarter-circle arc
- * from straight up (12 o'clock) to straight left (9 o'clock) of the
- * trigger button, each item popping outward from the trigger's own
- * position — same pop-in-place idea as the Uiverse tooltip reference
- * (icon in the middle, related items blossoming out around it), just
- * swept across an arc instead of pinned to fixed compass points.
+ * Offers, Events & Bookings) along a CURVED quarter-circle arc to the
+ * upper-left of the trigger button — 90° (straight up) through 180°
+ * (straight left) — while still keeping each item's height a fixed,
+ * EQUAL step above the one before it (item 0 the lowest, item 3 the
+ * highest). Each item pops outward from the trigger's own position,
+ * same pop-in-place idea as the Uiverse tooltip reference (icon in
+ * the middle, related items blossoming out around it).
  *
  * Each item is its own name, rendered directly as the clickable pill
  * (.quick-links-item-label) — no separate icon/circle element. That
- * label's RIGHT edge is what sits on the common ARC_RADIUS arc: the
- * label itself is right-anchored (position: right: 0 in the CSS), so
- * translating it by the arc point directly places its inner edge —
- * the side facing the trigger — on that shared arc.
+ * label's RIGHT edge is what sits at its own (tx, ty) point on the
+ * arc: the label itself is right-anchored (position: right: 0 in the
+ * CSS), so translating it by (tx, ty) directly places its inner edge
+ * there.
  *
  * Every pill shares the same fixed height (see .quick-links-item-label
  * in the CSS — height + flex centering, not an intrinsic
- * content-driven height), so pills never differ in height even though
- * their widths do (each is just its own name, and names differ in
- * length).
+ * content-driven height), so pills are always identical in height
+ * regardless of how long each one's name is.
  *
- * Because pill widths DO differ, evenly spacing items by angle alone
- * (a constant angular step) does not give equal on-screen gaps
- * between them — a wider pill "eats into" the angular gap on either
- * side of it more than a narrow one does. To make the gap between
- * every pair of adjacent pills' facing edges equal, each item's
- * angular position is computed cumulatively in layoutAngles() below:
- * item 0 starts at ARC_START, and each subsequent item's angle adds
- * the PREVIOUS item's own angular width (pixel width / radius, i.e.
- * arc length s = rθ solved for θ) plus a fixed GAP_PX gap, also
- * converted to an angle the same way.
- *
- * The gap from the trigger's own edge to item 0 doesn't need this
- * treatment — every item sits on the same ARC_RADIUS circle, so the
- * radial distance from the trigger's center out to any point on that
- * circle is already identical for all of them by definition of a
- * circle, regardless of angle.
+ * HOW THE CURVE AND THE EQUAL Y-STEPS COEXIST: the vertical step is
+ * still the plain constant it was before (STEP_Y) — every item's ty
+ * is exactly `-STEP_Y * index`, so the height DIFFERENCE between any
+ * two consecutive items is exactly STEP_Y, unchanged from before.
+ * What's new is tx: instead of being placed by cumulative pill width
+ * (a straight staircase), tx is now DERIVED from that same fixed ty
+ * using the circle equation tx² + ty² = R², solved for tx:
+ *   tx = -sqrt(R² - ty²)
+ * with R set to exactly (STEP_Y * 3) — the topmost item's |ty| — so
+ * item 0 (ty: 0) lands precisely at 180° and item 3 (ty: -R) lands
+ * precisely at 90°, with items 1 and 2 landing wherever the circle
+ * naturally puts them at their own fixed ty in between. Because the y
+ * positions were fixed first and the x positions were solved to fit
+ * a circle through those exact points, this produces a true curved
+ * arc rather than the straight diagonal line a plain width-based
+ * offset would draw between the same four y-heights. Checked against
+ * the actual pill sizing in the CSS to confirm none of the 4 items
+ * overlap on this curve at this radius.
  *
  * .quick-links-menu is a sibling of the trigger button, absolutely
  * positioned over the trigger's own bottom-right corner rather than
@@ -49,7 +51,7 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
  * same way .mobile-footer-nav is its own element rather than living
  * inside whatever button opens/closes it.
  *
- * Each item's arc position is expressed as CSS custom properties
+ * Each item's position is expressed as CSS custom properties
  * (--qli-tx/--qli-ty, the resting offset from the trigger's corner)
  * computed once per render — so QuickLinksFab.css only needs to
  * animate a generic translate(var(--qli-tx), var(--qli-ty)) rather
@@ -66,63 +68,51 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
  * the instant the click-close ran.
  */
 
-// Radius the pills' right edges rest at once popped out, and the arc
-// they're spread across. Widened slightly past a plain quarter-circle
-// — 80° (just past straight up) through 185° (just past straight
-// left) — because that extra angular room is what let the radius
-// drop much further while still fitting the equal on-screen GAPS
-// between pills of different widths (see layoutAngles() below): a
-// wide pill like "Events & Bookings" needs real angular space
-// regardless of radius, so a tighter span alone would force the
-// radius — and therefore the distance from every pill to the trigger
-// button — right back up. 5° past each end of a plain 90° span is a
-// small enough tilt that the arc still reads as "up and to the left"
-// rather than pointing sideways or down.
-//
-// Uses the compact pill sizing in the CSS (11px/9px font, minimal
-// padding) — every extra pixel of pill width also pushes the whole
-// arc's radius up, so this is tuned to the smallest radius that still
-// fits both the widened span and that compact sizing. GAP_PX is the
-// target gap, in pixels, between consecutive pills (the
-// trigger-to-first-pill distance doesn't need a separate setting —
-// see layoutAngles()).
-const ARC_RADIUS = 154;
-const ARC_RADIUS_MOBILE = 130;
-const GAP_PX = 6;
-const GAP_PX_MOBILE = 4;
-const ARC_START_DEG = 80;
-const ARC_END_DEG = 185;
+// Fixed vertical step (in px) between each consecutive item — item i
+// sits at ty = -STEP_Y * i, so the height DIFFERENCE between any two
+// adjacent items is exactly STEP_Y for every pair, unchanged from the
+// plain-staircase version of this file. Mobile uses a smaller step to
+// match the smaller pill sizing used there (see the CSS).
+const STEP_Y = 50;
+const STEP_Y_MOBILE = 40;
+const ITEM_COUNT = 4; // Crowd Picks, Combo, Offers, Events & Bookings
+
+// Per-item stagger delay (ms) between each pill's pop-in / pop-out
+// animation, so they visibly appear and disappear one at a time
+// rather than all firing together with only a token offset. Chosen
+// to be a meaningful fraction of the pill's own transform transition
+// (0.38s, see the CSS) — big enough that item i is clearly still
+// mid-animation (or not yet started) when item i+1 begins, rather
+// than the two blurring into what reads as one simultaneous motion.
+const STAGGER_MS = 90;
+
+// How long the pill's own transform transition takes (matches the
+// 0.38s set in the CSS) — used to compute the total time the closing
+// sequence needs before the menu is safe to mark inert again (see
+// menuInert in the component below).
+const CLOSE_TRANSITION_MS = 380;
 
 /**
- * Cumulative angular position (in degrees) for the RIGHT (near) edge
- * of each item, given each item's own pixel width — so that the
- * arc-length gap between every pair of adjacent items' facing edges
- * comes out equal on screen, regardless of how wide each item's label
- * pill actually is.
+ * (tx, ty) for each of `count` items, ty fixed at -STEP_Y * index and
+ * tx solved from the circle equation tx² + ty² = R² so every point
+ * lands on a true quarter-circle arc (90°-180°) through those exact
+ * heights — see the file header comment for the full reasoning.
  *
- * The gap from the trigger's own edge out to item 0's near edge does
- * NOT need this treatment: every item sits on the same ARC_RADIUS
- * circle around the trigger, so that radial distance is already
- * identical for every item regardless of angle — rotating an item
- * along the arc changes its position, not its distance from the
- * trigger's center. Item 0 simply starts at ARC_START itself, with no
- * added gap.
- *
- * Returns an array of ABSOLUTE angles in degrees, one per item, ready
- * to feed straight into Math.cos/Math.sin — not offsets from
- * ARC_START that the caller would still need to add ARC_START to.
+ * Returns an array of { tx, ty } objects, one per item.
  */
-const layoutAngles = (widths, radius, gapPx) => {
-  const gapAngleDeg = (gapPx / radius) * (180 / Math.PI);
-  let cursorDeg = ARC_START_DEG;
-  const angles = [];
-  widths.forEach((w, i) => {
-    angles.push(cursorDeg);
-    const widthAngleDeg = (w / radius) * (180 / Math.PI);
-    cursorDeg += widthAngleDeg + gapAngleDeg;
-  });
-  return angles;
+const layoutCurvedPositions = (count, stepY) => {
+  const radius = stepY * (count - 1); // topmost item's |ty| — the
+  // radius that puts item 0 exactly at 180° and the last item exactly
+  // at 90°, per the circle equation.
+  const positions = [];
+  for (let i = 0; i < count; i++) {
+    const ty = -stepY * i;
+    const tx = -Math.sqrt(Math.max(radius * radius - ty * ty, 0));
+    positions.push({ tx, ty });
+  }
+  return positions;
 };
+
 const LINKS = [
   { key: "others", label: "Crowd Picks", route: "/favourites/others" },
   { key: "combo", label: "Combo", route: "/combo" },
@@ -139,12 +129,10 @@ const QuickLinksFab = ({
   const [clickOpen, setClickOpen] = useState(false);
   const [hoverOpen, setHoverOpen] = useState(false);
   const wrapRef = useRef(null);
-  const itemRefs = useRef({});
-  const [itemWidths, setItemWidths] = useState({});
   const navigate = useNavigate();
   const isMobile = useIsBelowWidth(480);
-  const arcRadius = isMobile ? ARC_RADIUS_MOBILE : ARC_RADIUS;
-  const gapPx = isMobile ? GAP_PX_MOBILE : GAP_PX;
+  const stepY = isMobile ? STEP_Y_MOBILE : STEP_Y;
+  const positions = layoutCurvedPositions(ITEM_COUNT, stepY);
 
   const open = clickOpen || hoverOpen;
 
@@ -157,40 +145,30 @@ const QuickLinksFab = ({
 
   const visibleLinks = LINKS.filter((l) => enabledFlags[l.key] !== false);
 
-  // Real measured pixel width of each pill — layoutAngles() needs
-  // this to solve for equal on-screen gaps (see the file header
-  // comment), and a character-count estimate would drift from
-  // whatever the browser's actual font metrics produce. Measured
-  // after every render that could change a pill's rendered width:
-  // the visible link set, and switching the mobile/desktop pill
-  // size (font-size/padding change on the 480px breakpoint).
-  useLayoutEffect(() => {
-    const next = {};
-    visibleLinks.forEach((link) => {
-      const el = itemRefs.current[link.key];
-      // offsetWidth (not getBoundingClientRect) — the pill is
-      // transform: scale()'d down while closed (see the CSS), and
-      // getBoundingClientRect reports the POST-transform size, which
-      // would measure it far too small. offsetWidth reflects the
-      // element's own layout box, unaffected by any transform applied
-      // to it.
-      if (el) next[link.key] = el.offsetWidth;
-    });
-    setItemWidths(next);
+  // `inert` is what it needs to be for accessibility once open is
+  // false, but it can't just track `open` directly: setting it inert
+  // in the exact same React commit that also removes the .open class
+  // — the class change that's supposed to kick off each pill's
+  // pop-out transition — has each pill go inert (excluded from
+  // accessibility/paint scheduling) at the very instant the CSS
+  // transition would otherwise begin, which is what was making the
+  // pop-out look instant/skipped rather than staggered. Instead,
+  // `menuInert` only flips true after a timeout matching how long the
+  // slowest pill's pop-out (transform + its stagger delay) actually
+  // takes, so the transition has already finished playing by the time
+  // the subtree goes inert. It flips back to non-inert immediately on
+  // open, since there's no transition to protect on the way in.
+  const [menuInert, setMenuInert] = useState(true);
+  useEffect(() => {
+    if (open) {
+      setMenuInert(false);
+      return;
+    }
+    const totalCloseMs = STAGGER_MS * Math.max(visibleLinks.length - 1, 0) + CLOSE_TRANSITION_MS;
+    const timer = setTimeout(() => setMenuInert(true), totalCloseMs);
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [visibleLinks.map((l) => l.key).join(","), isMobile]);
-
-  // Falls back to each pill's max-width (see the CSS) until the real
-  // measurement above lands on the first render, so items still get
-  // a reasonable — if not yet pixel-perfect — arc position instead of
-  // all collapsing to width 0.
-  const fallbackWidth = isMobile ? 65 : 80;
-  const widths = visibleLinks.map((l) => itemWidths[l.key] ?? fallbackWidth);
-  const angles = useMemo(
-    () => layoutAngles(widths, arcRadius, gapPx),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [widths.join(","), arcRadius, gapPx]
-  );
+  }, [open, visibleLinks.length]);
 
   useEffect(() => {
     if (!clickOpen) return;
@@ -256,40 +234,25 @@ const QuickLinksFab = ({
           page independently of the button's own hover/active
           transforms, the same way .mobile-footer-nav sits apart from
           whatever navigation triggered it. */}
-      <div className="quick-links-menu" inert={!open}>
+      <div className="quick-links-menu" inert={menuInert}>
         {visibleLinks.map((link, i) => {
-          const angleRad = (angles[i] * Math.PI) / 180;
-          // Standard unit-circle placement around the trigger's
-          // center: at 90° (straight up) this is (0, -R) and at 180°
-          // (straight left) it's (-R, 0) — i.e. tx swings from 0 to
-          // -x and ty swings from -y to 0 as the angle sweeps from
-          // 90° to 180°, landing every item strictly in the
-          // (-x, -y) quadrant relative to the trigger, as requested.
-          // Unlike a plain evenly-spaced angle, angles[i] here already
-          // accounts for every earlier item's own pixel width (see
-          // layoutAngles() above), so the gap between this item and
-          // the previous one comes out equal on screen despite the
-          // items being different widths. (The gap from the trigger to
-          // item 0 is already equal for every item by construction —
-          // see layoutAngles()'s own comment.)
-          //
-          // This (tx, ty) point is exactly where the label's RIGHT
-          // EDGE should land — the label itself is right-anchored
-          // within its own box (position: right: 0 in the CSS), so
-          // translating it by (tx, ty) directly puts its right edge
-          // there with no extra shift needed.
-          const tx = Math.cos(angleRad) * arcRadius;
-          const ty = -Math.sin(angleRad) * arcRadius;
+          const { tx, ty } = positions[i] ?? positions[positions.length - 1];
           return (
             <button
               type="button"
               key={link.key}
-              ref={(el) => { itemRefs.current[link.key] = el; }}
               className="quick-links-item-label"
               style={{
                 "--qli-tx": `${tx.toFixed(1)}px`,
-                "--qli-ty": `${ty.toFixed(1)}px`,
-                transitionDelay: open ? `${i * 45}ms` : `${(visibleLinks.length - 1 - i) * 30}ms`,
+                "--qli-ty": `${ty}px`,
+                // Staggers each pill's pop-in (opening, index order —
+                // item 0 first) and pop-out (closing, reverse order —
+                // the last item that popped in is the first to pop
+                // back out, so the sequence visually undoes itself
+                // rather than restarting from the top every time).
+                transitionDelay: open
+                  ? `${i * STAGGER_MS}ms`
+                  : `${(visibleLinks.length - 1 - i) * STAGGER_MS}ms`,
               }}
               onClick={() => goTo(link.route)}
               aria-label={link.label}

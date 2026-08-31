@@ -76,7 +76,6 @@
   position: absolute;
   top: 0;
   right: 0;
-  height: 32px;
   max-width: 220px;
   margin-top: -14px;
   display: flex;
@@ -84,12 +83,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   border: none;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1;
   color: var(--text-primary);
   background: var(--bg-main);
-  padding: 0 8px;
+  padding: 10px 16px;
   border-radius: 999px;
   box-shadow: var(--shadow-primary);
   font-family: inherit;
@@ -140,15 +139,14 @@
     right: 14px;
   }
 
-  /* Matches ARC_RADIUS_MOBILE/GAP_PX_MOBILE in QuickLinksFab.js — a
-     smaller, tighter pill so the equal-gap arc layout (computed from
-     each pill's real measured width) still fits close to the trigger
-     on a narrow screen. */
+  /* Matches ITEM_POSITIONS_MOBILE in QuickLinksFab.js — a smaller,
+     tighter pill so the fixed 90/120/150/180° positions there still
+     fit close to the trigger on a narrow screen without the pills
+     touching. */
   .quick-links-item-label {
-    height: 24px;
     max-width: 150px;
-    margin-top: -12px;
-    font-size: 8px;
-    padding: 0 5px;
+    margin-top: -11px;
+    font-size: 12px;
+    padding: 5px 8px;
   }
 }
