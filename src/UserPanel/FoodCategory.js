@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "./shared/buttons.css";
 import "./FoodCategory.css";
 import listIcon from "../assets/icons/list.png";
 import gridIcon from "../assets/icons/grid.png";
@@ -653,6 +654,28 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
 
       {/* ── Category grid / list ── */}
       <div className={`food-category-container ${viewMode}`}>
+        {/* Dedicated "actions" card — not a real food category, just a
+            home for the two quick-action buttons (Subscribe / Events &
+            Booking) so they don't clutter every single category tile. */}
+        <div className={`food-category-items ${viewMode} special food-category-actions-card`}>
+          <div className="food-category-actions">
+            <Button3D
+              type="button"
+              className="chip food-category-action-btn"
+              onClick={() => navigate("/subscribe")}
+            >
+              Subscribe
+            </Button3D>
+            <Button3D
+              type="button"
+              className="chip food-category-action-btn"
+              onClick={() => navigate("/events")}
+            >
+              Events &amp; Booking
+            </Button3D>
+          </div>
+        </div>
+
         {categoriesToRender.map((category) => (
           <Link
             key={category.id}
@@ -675,15 +698,15 @@ const FoodCategory = ({ foodData, currentUser, categoryCards }) => {
         ))}
       </div>
 
-      {/* Quick Links "…" FAB — Crowd Picks / Combo / Offers / Events &
-          Bookings shortcuts, this page only. Each link auto-hides if
-          its Super-Admin card toggle is off, and the whole button
-          hides if every link it would show is disabled. */}
+      {/* Quick Links "…" FAB — Crowd Picks / Combo / Offers shortcuts,
+          this page only. Each link auto-hides if its Super-Admin card
+          toggle is off, and the whole button hides if every link it
+          would show is disabled. Events & Bookings moved out of here
+          and onto each category card's own action buttons above. */}
       <QuickLinksFab
         isCrowdPicksEnabled={isCardEnabled("others")}
         isComboEnabled={isCardEnabled("combo")}
         isOffersEnabled={isCardEnabled("offers")}
-        isEventsEnabled={isCardEnabled("events")}
       />
     </div>
   );

@@ -579,11 +579,13 @@ const FoodItem = ({ handleHome, foodData, updateBagItem, onToggleFavourite, addT
                     <img src={ing.image} alt="" loading="lazy" decoding="async" />
                   </div>
                   <div className="ingredient-item-name">{ing.name}</div>
-                  <div className="ingredient-item-price">₹{ing.pricePer100g}/100g</div>
-                  <div className="stepper-ctrl">
-                    <button className="stepper-btn" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, -STEP); }}>−</button>
-                    <div className="stepper-val">{qty}g</div>
-                    <button className="stepper-btn" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, +STEP); }}>+</button>
+                  <div className="ingredient-item-price-container">
+                    <div className="ingredient-item-price">₹{ing.pricePer100g}/100g</div>
+                    <div className="stepper-ctrl">
+                      <button className="stepper-btn" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, -STEP); }}>−</button>
+                      <div className="stepper-val">{qty}g</div>
+                      <button className="stepper-btn" disabled={disabled} onClick={e => { e.stopPropagation(); !disabled && handleIngredientAdjust(ing.name, +STEP); }}>+</button>
+                    </div>
                   </div>
                 </div>
               );

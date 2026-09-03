@@ -1,5 +1,6 @@
 .food-category {
   padding: 36px;
+  height: stretch;
 }
 
 /* .food-header's real definition lives in FoodList.css, which several
@@ -542,7 +543,16 @@
 }
 
 .special {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.special:hover {
+  transform: translateY(0px) !important;
   background-color: var(--color-red);
+  color: var(--bg-main);
+  box-shadow: none !important;
 }
 
 .special .food-category-name {
@@ -598,6 +608,84 @@
   font-style: normal;
   color: var(--text-primary);
   align-content: center;
+}
+
+/* ── Dedicated "actions" card — a food-category-items tile that holds
+   no category, just the Subscribe / Events & Booking buttons, so a
+   customer can reach either without those buttons crowding every
+   single real category tile. Built on the shared .chip 3D-push style
+   (see shared/buttons.css) so they read as real buttons rather than
+   text links. ── */
+.food-category-actions-card {
+  justify-content: center;
+}
+
+.food-category-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  height: stretch;
+}
+
+.special .food-category-actions {
+  padding: 6px 0 !important;
+}
+
+.food-category-action-btn {
+  width: 100%;
+  flex: 1;
+  font-size: 13px;
+}
+
+.food-category-action-btn .front {
+  padding: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  height: 100%;
+  text-align: center;
+  align-content: center;
+
+  font-size: 16px;
+  min-height: 40px;
+  text-align: center;
+  font-family: "Geom", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  align-content: center;
+
+  background: var(--color-red) !important;
+}
+
+.food-category-action-btn .edge {
+  background: linear-gradient(to left, var(--edge-color-dark) 0%, var(--edge-color-light) 8%, var(--edge-color-light) 92%, var(--edge-color-dark) 100%) !important;
+}
+
+.food-category-action-btn .front,
+.food-category-action-btn .edge,
+.food-category-action-btn .shadow {
+  border-radius: 20px !important;
+}
+
+.special .food-category-action-btn .front {
+  background: var(--color-red);
+  color: var(--bg-main);
+}
+
+.food-category-items.list.food-category-actions-card {
+  align-items: stretch;
+}
+
+.food-category-items.list .food-category-actions {
+  flex-direction: row;
+  width: 100%;
+}
+
+.food-category-items.list .food-category-action-btn {
+  width: auto;
+  flex: 1;
 }
 
 .food-category-container.grid {

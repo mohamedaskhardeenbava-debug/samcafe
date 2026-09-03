@@ -558,7 +558,7 @@
   width: 64px;
   height: 64px;
   min-width: 64px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 10px;
   margin: 6px 0 6px 6px;
 }

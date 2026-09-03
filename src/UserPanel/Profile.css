@@ -145,6 +145,10 @@
   background: color-mix(in srgb, var(--color-red) 12%, transparent);
 }
 
+.profile-link-icon--subscriptions {
+  background: color-mix(in srgb, var(--color-red) 14%, transparent);
+}
+
 .profile-link-text {
   display: flex;
   flex-direction: column;

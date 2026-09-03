@@ -99,13 +99,38 @@
      offset) and pops out to its resting arc position + full size on
      open — same "grows out from the trigger" idea as the Uiverse
      tooltip reference, just swept around an arc instead of appearing
-     at one fixed spot. */
+     at one fixed spot.
+
+     !important on every transition-* property here, INCLUDING
+     transition-delay: App.css has a global `button {
+     transition: ease-in 0.15s !important; }` rule that — because
+     it's the shorthand, set with !important — silently overrides
+     transition-duration, transition-timing-function, AND
+     transition-delay on every <button> in the app, including these
+     pills. That's what was breaking the stagger: every pill's
+     transition-delay was being forced back to 0s regardless of the
+     per-item value, so all 4 animated in perfect lockstep instead of
+     one at a time.
+
+     !important always wins over a non-!important declaration
+     regardless of specificity or whether it came from a shorthand or
+     a longhand — so a plain (non-!important) transition-delay here,
+     even set inline via React with maximum specificity, still loses
+     to the global rule's implicit transition-delay: 0s. The only fix
+     is to make transition-delay !important too — but React's style
+     prop can't express !important on an inline style. So the actual
+     per-item delay is passed in as the --qli-delay CUSTOM PROPERTY
+     instead (set inline in QuickLinksFab.js, e.g.
+     style={{ "--qli-delay": "90ms" }}) — custom properties are just
+     variables, immune to this collision — and read here via var()
+     inside a normal CSS rule that CAN carry !important. */
   opacity: 0;
   transform: translate(0, 0) scale(0.4);
   transform-origin: right center;
-  transition:
-    opacity 0.2s ease,
-    transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition-property: opacity, transform !important;
+  transition-duration: 0.2s, 0.38s !important;
+  transition-timing-function: ease, cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  transition-delay: var(--qli-delay, 0ms) !important;
 }
 
 .quick-links-fab-wrap.open .quick-links-menu {
@@ -148,5 +173,6 @@
     margin-top: -11px;
     font-size: 12px;
     padding: 5px 8px;
+    border-radius: 10px;
   }
 }

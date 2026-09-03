@@ -2,7 +2,7 @@ import React from "react";
 import { getBagItemCount } from "./shared/bagUtils";
 import { useTabLiquid } from "../hooks/useTabLiquid";
 import Home from "../assets/icons/footer-home.png";
-import Bag from "../assets/icons/footer-bag.png";
+import Bag from "../assets/icons/footer-subscribe.png";
 import Profile from "../assets/icons/footer-profile.png";
 import Fav from "../assets/icons/footer-fav.png";
 import Orders from "../assets/icons/footer-orders.png";

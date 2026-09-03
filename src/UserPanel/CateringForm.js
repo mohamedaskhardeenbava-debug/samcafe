@@ -11,6 +11,8 @@ import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import CloseButton from "./shared/CloseButton";
 import PageHeader from "./shared/PageHeader";
+import { createPortal } from "react-dom";
+import { useIsBelowWidth } from "./shared/useIsBelowWidth";
 import PageLoader from "../components/PageLoader";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -231,6 +233,7 @@ const CheckCard = ({ label, price, checked, onChange }) => (
    Main Component — User Catering Form
 ══════════════════════════════════ */
 const CateringForm = ({ handleBack, handleHome }) => {
+  const isFixedBtnRow = useIsBelowWidth(600);
   const [form, setForm] = useState({
     name: "", mobile: "", email: "", guests: 20,
     eventDate: "", time: "", slotGroup: "",
@@ -855,40 +858,60 @@ const CateringForm = ({ handleBack, handleHome }) => {
 
               </div>
 
-              <div className="form-btn-row">
-                <Button3D
-                  className="btn-3d white"
-                  type="button"
-                  disabled={loading}
-                  onClick={() => {
-                    setForm({
-                      name: "", mobile: "", email: "", guests: 20,
-                      eventDate: "", time: "", slotGroup: "",
-                      addrDoorNo: "", addrStreet: "", addrArea: "",
-                      addrLandmark: "", addrCity: "", addrDistrict: "", addrState: "", addrPincode: "",
-                      notes: "",
-                      decoration: null,
-                      cake: false, specialMention: false, specialMentionText: "",
-                      mic: false, projector: false, music: false, speaker: false,
-                      liveMusic: false, surpriseGift: false, candleLight: false,
-                    });
-                    setSelectedDishes([]);
-                    setErrors({});
-                    handleBack();
-                  }}
-                >
-                  Cancel
-                </Button3D>
-                <Button3D
-                  className={`btn-3d red${loading ? " loading" : ""}`}
-                  type="button"
-                  onClick={handleReview}
-                  disabled={loading}
-                >
-                  Review &amp; Submit
-                </Button3D>
+              {(() => {
+                const btnRow = (
+                  <div className="form-btn-row">
+                    <Button3D
+                      className="btn-3d white"
+                      type="button"
+                      disabled={loading}
+                      onClick={() => {
+                        setForm({
+                          name: "", mobile: "", email: "", guests: 20,
+                          eventDate: "", time: "", slotGroup: "",
+                          addrDoorNo: "", addrStreet: "", addrArea: "",
+                          addrLandmark: "", addrCity: "", addrDistrict: "", addrState: "", addrPincode: "",
+                          notes: "",
+                          decoration: null,
+                          cake: false, specialMention: false, specialMentionText: "",
+                          mic: false, projector: false, music: false, speaker: false,
+                          liveMusic: false, surpriseGift: false, candleLight: false,
+                        });
+                        setSelectedDishes([]);
+                        setErrors({});
+                        handleBack();
+                      }}
+                    >
+                      Cancel
+                    </Button3D>
+                    <Button3D
+                      className={`btn-3d red${loading ? " loading" : ""}`}
+                      type="button"
+                      onClick={handleReview}
+                      disabled={loading}
+                    >
+                      Review &amp; Submit
+                    </Button3D>
 
-              </div>
+                  </div>
+                );
+
+                // Below 600px .form-btn-row becomes position: fixed (see
+                // ReservationForm.css, imported here). At that width it
+                // must not live inside the route's animated
+                // .page-transition-wrapper: Framer Motion applies a CSS
+                // transform to that wrapper while a page transition
+                // plays, and a transformed ancestor becomes the
+                // containing block for any fixed-position descendant —
+                // so .form-btn-row would suddenly be "fixed" relative
+                // to the sliding wrapper instead of the viewport,
+                // jumping/glitching on every page enter and exit.
+                // Portalling it straight to document.body keeps it
+                // anchored to the viewport regardless of what the route
+                // transition is doing. Above 600px it's a normal
+                // in-flow flex child, so it renders inline as before.
+                return isFixedBtnRow ? createPortal(btnRow, document.body) : btnRow;
+              })()}
 
             </div>{/* end right col */}
 

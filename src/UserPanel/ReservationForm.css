@@ -61,7 +61,7 @@
   background: color-mix(in srgb, var(--bg-main) 55%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0,0,0,0.06));
+  box-shadow: 0 1px 0 0 var(--border-lighter, rgba(0, 0, 0, 0.06));
   transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
@@ -1307,6 +1307,7 @@
     transform: translateY(-10px);
     max-height: 0;
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1328,8 +1329,16 @@
    to, so the eye lands on it immediately rather than having to
    re-scan the whole form for the red error text. */
 @keyframes rf-error-flash {
-  0%, 100% { box-shadow: none; }
-  25%, 75% { box-shadow: 0 0 0 3px var(--color-error-bg); }
+
+  0%,
+  100% {
+    box-shadow: none;
+  }
+
+  25%,
+  75% {
+    box-shadow: 0 0 0 3px var(--color-error-bg);
+  }
 }
 
 .rf-error-flash {
@@ -2036,6 +2045,22 @@
     background: var(--bg-main);
     border-top: 1px solid color-mix(in srgb, var(--text-primary) 10%, transparent);
     box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    flex-wrap: nowrap;
+  }
+
+  /* On narrow screens let the two buttons share the row equally
+     instead of relying on their natural content width — prevents
+     them from overflowing/wrapping past the fixed bar's bounds. */
+  .form-btn-row .btn-3d {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .form-btn-row .btn-3d .front {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* .form-btn-row is now fixed (out of flow), so whichever of the

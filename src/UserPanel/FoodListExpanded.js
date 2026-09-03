@@ -167,32 +167,32 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
       />
 
       <div className="pl-body food-list">
-      {/* MAIN */}
-      <div className="food-reel-expanded">
+        {/* MAIN */}
+        <div className="food-reel-expanded">
 
-        {/* LEFT — IMAGE */}
-        <div className="food-images-expanded">
-          <motion.img
-            src={dish.image}
-            className="dish-image image-main"
-            layoutId={`dish-${dish.id}`}
-            transition={SLOW_SPRING}
-          />
-          {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
-            <WishlistButton
-              className="food-list-expanded-wishlist"
-              size="md"
-              dish={dish}
-              categoryId={resolvedCategoryId}
-              currentUser={currentUser}
-              onToggleFavourite={onToggleFavourite}
+          {/* LEFT — IMAGE */}
+          <div className="food-images-expanded">
+            <motion.img
+              src={dish.image}
+              className="dish-image image-main"
+              layoutId={`dish-${dish.id}`}
+              transition={SLOW_SPRING}
             />
-          )}
-        </div>
+            {currentUser && currentUser.id !== "guest" && onToggleFavourite && (
+              <WishlistButton
+                className="food-list-expanded-wishlist"
+                size="md"
+                dish={dish}
+                categoryId={resolvedCategoryId}
+                currentUser={currentUser}
+                onToggleFavourite={onToggleFavourite}
+              />
+            )}
+          </div>
 
-        {/* RIGHT — DETAILS */}
-        <div className="food-details-expanded">
-          {/* Above 1200px, .food-details-expanded-scroll (below) is the
+          {/* RIGHT — DETAILS */}
+          <div className="food-details-expanded">
+            {/* Above 1200px, .food-details-expanded-scroll (below) is the
               only part that scrolls on overflow — .food-details-expanded
               itself stays a fixed-height frame so .btn-section (outside
               this wrapper) stays pinned in place instead of scrolling
@@ -200,136 +200,143 @@ const FoodListExpanded = ({ foodData, addToBag, handleHome, handleBack, currentU
               FoodListExpanded.css resets this wrapper back to a plain
               block so the page scrolls as a whole, matching the existing
               mobile/tablet behavior. */}
-          <div className="food-details-expanded-scroll">
-            <motion.div
-              className="food-details-expanded-header"
-              initial="hidden"
-              animate={steps[0]}
-              variants={DETAIL_VARIANTS}
-              transition={SOFT_SPRING}
-            >
-              <div className="food-list-veg-row">
-                <VegBadge isVeg={dish.isVeg} className="food-list-veg-badge" />
-                <h2 className="dish-name">
-                  {dish.name}
-                </h2>
-                {dish.id === bestSellerId && (
-                  <BestSellerBadge variant="ribbon" className="food-list-best-seller-badge" />
-                )}
-              </div>
-
-              <div className="dish-price">
-                {activeOffer ? (
-                  <>
-                    <AnimatedPrice value={activeOffer.offerPrice} />
-                    <span className="dish-price-original">₹{activeOffer.originalPrice}</span>
-                    <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
-                  </>
-                ) : (
-                  <AnimatedPrice value={dish.basePrice} />
-                )}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial="hidden"
-              className="dish-nutrition"
-              animate={steps[0]}
-              variants={DETAIL_VARIANTS}
-              transition={SOFT_SPRING}
-            >
-              {NUTRITION_FIELDS.map(([icon, label, key, unit], i) => (
-                <div className="dish-nutrition-item" key={i}>
-                  <div className="dish-nutrition-image">
-                    <img src={icon} alt="" />
-                  </div>
-                  <div className="dish-nutrition-name">{label}</div>
-                  <div className="dish-nutrition-value">{dish.benefits?.[key]}{unit}</div>
+            <div className="food-details-expanded-scroll">
+              <motion.div
+                className="food-details-expanded-header"
+                initial="hidden"
+                animate={steps[0]}
+                variants={DETAIL_VARIANTS}
+                transition={SOFT_SPRING}
+              >
+                <div className="food-list-veg-row">
+                  <VegBadge isVeg={dish.isVeg} className="food-list-veg-badge" />
+                  <h2 className="dish-name">
+                    {dish.name}
+                  </h2>
+                  {dish.id === bestSellerId && (
+                    <BestSellerBadge variant="ribbon" className="food-list-best-seller-badge" />
+                  )}
                 </div>
-              ))}
-            </motion.div>
+              </motion.div>
 
-            <motion.p
-              initial="hidden"
-              className="dish-description"
-              animate={steps[1]}
-              variants={DETAIL_VARIANTS}
-              transition={SOFT_SPRING}
-            >
-              {dish.description}
-            </motion.p>
-
-            {dish.ingredients &&
               <motion.div
                 initial="hidden"
-                animate={steps[2]}
+                animate={steps[0]}
                 variants={DETAIL_VARIANTS}
                 transition={SOFT_SPRING}
               >
-                <div className="ingredient-head">Add-ons</div>
-                {Array.isArray(dish.ingredients) && dish.ingredients.length > 0 && (
-                  <IngredientsCarousel
-                    ingredients={filteredIngredients}
-                    allIngredients={foodData.ingredients || []}
-                  />
-                )}
+                <div className="dish-price">
+                  {activeOffer ? (
+                    <>
+                      <AnimatedPrice value={activeOffer.offerPrice} />
+                      <span className="dish-price-original">₹{activeOffer.originalPrice}</span>
+                      <span className="dish-price-offer-badge">{activeOffer.percentage}% OFF</span>
+                    </>
+                  ) : (
+                    <AnimatedPrice value={dish.basePrice} />
+                  )}
+                </div>
               </motion.div>
-            }
+
+              <motion.div
+                initial="hidden"
+                className="dish-nutrition"
+                animate={steps[0]}
+                variants={DETAIL_VARIANTS}
+                transition={SOFT_SPRING}
+              >
+                {NUTRITION_FIELDS.map(([icon, label, key, unit], i) => (
+                  <div className="dish-nutrition-item" key={i}>
+                    <div className="dish-nutrition-image">
+                      <img src={icon} alt="" />
+                    </div>
+                    <div className="dish-nutrition-name">{label}</div>
+                    <div className="dish-nutrition-value">{dish.benefits?.[key]}{unit}</div>
+                  </div>
+                ))}
+              </motion.div>
+
+              <motion.p
+                initial="hidden"
+                className="dish-description"
+                animate={steps[1]}
+                variants={DETAIL_VARIANTS}
+                transition={SOFT_SPRING}
+              >
+                {dish.description}
+              </motion.p>
+
+              {dish.ingredients &&
+                <motion.div
+                  initial="hidden"
+                  animate={steps[2]}
+                  variants={DETAIL_VARIANTS}
+                  transition={SOFT_SPRING}
+                >
+                  <div className="ingredient-head">Add-ons</div>
+                  {Array.isArray(dish.ingredients) && dish.ingredients.length > 0 && (
+                    <IngredientsCarousel
+                      ingredients={filteredIngredients}
+                      allIngredients={foodData.ingredients || []}
+                    />
+                  )}
+                </motion.div>
+              }
+            </div>
+
+            {(() => {
+              const btnSection = (
+                <motion.div
+                  initial="hidden"
+                  className="btn-section food-details-expanded-btn-section"
+                  animate={steps[3]}
+                  variants={DETAIL_VARIANTS}
+                  transition={SOFT_SPRING}
+                >
+                  <Button3D
+                    className="btn-3d green"
+                    onClick={() => {
+                      navigate("/food/customize", {
+                        state: {
+                          categoryId: resolvedCategoryId,
+                          dishId: dish.id
+                        }
+                      });
+                    }}
+                  >
+                    Customize
+                  </Button3D>
+
+                  <Button3D
+                    type="button"
+                    className="btn-3d red"
+                    onClick={handleAddToBag}
+                  >
+                    Add to Bag
+                  </Button3D>
+                </motion.div>
+              );
+
+              // Below 576px .food-details-expanded .btn-section becomes
+              // position: fixed (see FoodListExpanded.css). At that width
+              // it must not live inside the route's animated
+              // .page-transition-wrapper: Framer Motion applies a CSS
+              // transform to that wrapper while a page transition plays,
+              // and a transformed ancestor becomes the containing block
+              // for any fixed-position descendant — so .btn-section would
+              // suddenly be "fixed" relative to the sliding wrapper
+              // instead of the viewport, jumping/glitching on exit (and
+              // entry) of this page. Portalling it straight to
+              // document.body keeps it anchored to the viewport
+              // regardless of what the route transition is doing. Above
+              // 576px it's a normal in-flow flex child of
+              // .food-details-expanded, so it renders inline as before.
+              return isFixedBtnSection
+                ? createPortal(btnSection, document.body)
+                : btnSection;
+            })()}
           </div>
-
-          {(() => {
-            const btnSection = (
-              <motion.div
-                initial="hidden"
-                className="btn-section food-details-expanded-btn-section"
-                animate={steps[3]}
-                variants={DETAIL_VARIANTS}
-                transition={SOFT_SPRING}
-              >
-                <Button3D
-                  className="btn-3d green"
-                  onClick={() => {
-                    navigate("/food/customize", {
-                      state: {
-                        categoryId: resolvedCategoryId,
-                        dishId: dish.id
-                      }
-                    });
-                  }}
-                >
-                  Customize
-                </Button3D>
-
-                <Button3D
-                  type="button"
-                  className="btn-3d red"
-                  onClick={handleAddToBag}
-                >
-                  Add to Bag
-                </Button3D>
-              </motion.div>
-            );
-
-            // Below 576px .food-details-expanded .btn-section becomes
-            // position: fixed (see FoodListExpanded.css). At that width
-            // it must not live inside the route's animated
-            // .page-transition-wrapper: Framer Motion applies a CSS
-            // transform to that wrapper while a page transition plays,
-            // and a transformed ancestor becomes the containing block
-            // for any fixed-position descendant — so .btn-section would
-            // suddenly be "fixed" relative to the sliding wrapper
-            // instead of the viewport, jumping/glitching on exit (and
-            // entry) of this page. Portalling it straight to
-            // document.body keeps it anchored to the viewport
-            // regardless of what the route transition is doing. Above
-            // 576px it's a normal in-flow flex child of
-            // .food-details-expanded, so it renders inline as before.
-            return isFixedBtnSection
-              ? createPortal(btnSection, document.body)
-              : btnSection;
-          })()}
         </div>
-      </div>
       </div>
     </div>
   );

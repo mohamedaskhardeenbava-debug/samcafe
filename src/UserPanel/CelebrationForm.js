@@ -9,6 +9,8 @@ import "./PreviewModal.css";
 import Button3D from "./shared/Button3D";
 import MatField from "./shared/MatField";
 import PageHeader from "./shared/PageHeader";
+import { createPortal } from "react-dom";
+import { useIsBelowWidth } from "./shared/useIsBelowWidth";
 import { useToast } from "../components/Usetoast";
 
 const pad = (n) => String(n).padStart(2, "0");
@@ -133,6 +135,7 @@ const calcTotal = (form) => {
 ═══════════════════════════════ */
 const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
   const { toast } = useToast();
+  const isFixedBtnRow = useIsBelowWidth(600);
   const [form, setForm] = useState({
     type: "birthday",
     name: "", mobile: "", email: "",
@@ -386,43 +389,43 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
       <div className="no-padding">
         <PageHeader title="Celebration" onBack={handleBack} onHome={handleHome} />
         <div className="pl-body">
-        <div className="rf-success-screen">
-          <div className="rf-success-icon">
-            <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
-              <circle cx="36" cy="36" r="36" fill="#d1fae5" />
-              <path d="M22 36 L32 46 L50 28" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <h2 className="rf-success-title">Celebration Booked!</h2>
-          <p className="rf-success-sub">We look forward to making it special for you.</p>
-          <div className="rf-booking-id">
-            <span className="rf-booking-label">Booking ID</span>
-            <span className="rf-booking-code">#{bookingId}</span>
-          </div>
-          <div className="rf-success-card">
-            {[
-              ["Guest", form.name],
-              ["Type", typeObj?.label],
-              ["Date", form.date],
-              ["Time", form.time ? (() => { const [h, m] = form.time.split(":").map(Number); return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; })() : ""],
-              ["Guests", form.guests],
-              ["Decoration", form.decoration ? DECORATION_TIERS.find(t => t.value === form.decoration)?.label : "None"],
-              ["Estimated Total", `₹${estimatedTotal.toLocaleString()}`],
-            ].map(([k, v]) => (
-              <div key={k} className="rf-sc-row">
-                <span className="rf-sc-label">{k}</span>
-                <span className="rf-sc-val">{v}</span>
-              </div>
-            ))}
-          </div>
-          <Button3D className="btn-3d red" onClick={resetForm}>
-            Book Another
-          </Button3D>
+          <div className="rf-success-screen">
+            <div className="rf-success-icon">
+              <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+                <circle cx="36" cy="36" r="36" fill="#d1fae5" />
+                <path d="M22 36 L32 46 L50 28" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <h2 className="rf-success-title">Celebration Booked!</h2>
+            <p className="rf-success-sub">We look forward to making it special for you.</p>
+            <div className="rf-booking-id">
+              <span className="rf-booking-label">Booking ID</span>
+              <span className="rf-booking-code">#{bookingId}</span>
+            </div>
+            <div className="rf-success-card">
+              {[
+                ["Guest", form.name],
+                ["Type", typeObj?.label],
+                ["Date", form.date],
+                ["Time", form.time ? (() => { const [h, m] = form.time.split(":").map(Number); return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; })() : ""],
+                ["Guests", form.guests],
+                ["Decoration", form.decoration ? DECORATION_TIERS.find(t => t.value === form.decoration)?.label : "None"],
+                ["Estimated Total", `₹${estimatedTotal.toLocaleString()}`],
+              ].map(([k, v]) => (
+                <div key={k} className="rf-sc-row">
+                  <span className="rf-sc-label">{k}</span>
+                  <span className="rf-sc-val">{v}</span>
+                </div>
+              ))}
+            </div>
+            <Button3D className="btn-3d red" onClick={resetForm}>
+              Book Another
+            </Button3D>
 
-          <Button3D className="btn-3d red" onClick={handleHome}>
-            Back to Home
-          </Button3D>
-        </div>
+            <Button3D className="btn-3d red" onClick={handleHome}>
+              Back to Home
+            </Button3D>
+          </div>
         </div>
       </div>
     );
@@ -434,326 +437,346 @@ const CelebrationForm = ({ handleBack, handleHome, navigateToCatering }) => {
       <PageHeader title="Celebration" onBack={handleBack} onHome={handleHome} />
 
       <div className="pl-body">
-      <div className="clp-container">
-        {/* ── LEFT COLUMN ── */}
-        <div className="clp-section">
+        <div className="clp-container">
+          {/* ── LEFT COLUMN ── */}
+          <div className="clp-section">
 
-          {/* Event Type — Get Together removed */}
-          <div className="clp-block">
-            <div className="section-title">Event Type</div>
-            <div className="clp-type-grid">
-              {CELEBRATION_TYPES.map(t => (
-                <button key={t.value} type="button"
-                  className={`clp-type-card${form.type === t.value ? " active" : ""}`}
-                  onClick={() => setType(t.value)}>
-                  <span className="clp-type-label">{t.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Guest Details */}
-          <div className="clp-block">
-            <div className="section-title">Your Details</div>
-            <div className="clp-card">
-              {/* Full Name */}
-              <div className={`field-group${flashField === "name" ? " rf-error-flash" : ""}`} ref={fieldRefs.name}>
-                <MatField
-                  label={<>Full Name <span className="rf-req">*</span></>}
-                  value={form.name}
-                  onChange={e => set("name", e.target.value)}
-                  autoComplete="name"
-                  error={errors.name}
-                  wrapperClassName=""
-                />
+            {/* Event Type — Get Together removed */}
+            <div className="clp-block">
+              <div className="section-title">Event Type</div>
+              <div className="clp-type-grid">
+                {CELEBRATION_TYPES.map(t => (
+                  <button key={t.value} type="button"
+                    className={`clp-type-card${form.type === t.value ? " active" : ""}`}
+                    onClick={() => setType(t.value)}>
+                    <span className="clp-type-label">{t.label}</span>
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="mat-row">
-                {/* Mobile */}
-                <div className={`field-group${flashField === "mobile" ? " rf-error-flash" : ""}`} style={{ flex: 1.4 }} ref={fieldRefs.mobile}>
-                  <div className="mat-input-prefix-wrap">
-                    <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
-                    <MatField
-                      label={<>Mobile <span className="rf-req">*</span></>}
-                      type="tel"
-                      value={form.mobile}
-                      onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      autoComplete="tel"
-                      error={errors.mobile}
-                      wrapperClassName=""
-                    />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="field-group" style={{ flex: 1 }}>
+            {/* Guest Details */}
+            <div className="clp-block">
+              <div className="section-title">Your Details</div>
+              <div className="clp-card">
+                {/* Full Name */}
+                <div className={`field-group${flashField === "name" ? " rf-error-flash" : ""}`} ref={fieldRefs.name}>
                   <MatField
-                    label={<>Email <span className="rf-optional">(optional)</span></>}
-                    type="email"
-                    value={form.email}
-                    onChange={e => set("email", e.target.value)}
-                    autoComplete="email"
-                    error={errors.email}
+                    label={<>Full Name <span className="rf-req">*</span></>}
+                    value={form.name}
+                    onChange={e => set("name", e.target.value)}
+                    autoComplete="name"
+                    error={errors.name}
                     wrapperClassName=""
                   />
                 </div>
-              </div>
 
-              {/* Date → Slot → Time (each field appears once the
-                  previous one is picked) */}
-              <div className={`field-group${flashField === "date" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.date}>
-                <label>Date <span className="rf-req">*</span></label>
-                <UserDatePicker
-                  value={form.date}
-                  min={tomorrowStr()}
-                  hasError={!!errors.date}
-                  onChange={handleDateChange}
-                />
-                {errors.date && <span className="rf-error">{errors.date}</span>}
-              </div>
-
-              {form.date && (
-                <div className={`field-group rf-field-reveal${flashField === "slotGroup" ? " rf-error-flash" : ""}`} ref={fieldRefs.slotGroup}>
-                  <label>Dining Slot <span className="rf-req">*</span></label>
-                  <div className="slot-groups">
-                    {SLOT_GROUPS.map(sg => {
-                      const nowH = new Date().getHours();
-                      const slotEndH = parseInt(sg.end.split(":")[0]);
-                      const isPastSlot = isToday && nowH >= slotEndH;
-                      return (
-                        <div key={sg.key}
-                          className={`slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " slot-group-disabled" : ""}`}
-                          onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
-                          <span className="slot-group-label">{sg.label}</span>
-                          <span className="slot-group-time">{sg.start} – {sg.end}</span>
-                          {isPastSlot && <span className="slot-group-passed-badge">Passed</span>}
-                        </div>
-                      );
-                    })}
-                  </div>
-                  {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
-                </div>
-              )}
-
-              {form.slotGroup && (
-                <div className={`field-group rf-field-reveal${flashField === "time" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.time}>
-                  <label>Preferred Time <span className="rf-req">*</span></label>
-                  <UserTimePicker
-                    value={form.time}
-                    hasError={!!errors.time}
-                    onChange={v => set("time", v)}
-                    slotStart={currentSlot?.start}
-                    slotEnd={currentSlot?.end}
-                    disabled={!form.slotGroup}
-                    isToday={isToday}
-                  />
-                  {currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
-                </div>
-              )}
-
-              {/* Guests — max 20 */}
-              <div className={`field-group${flashField === "guests" ? " rf-error-flash" : ""}`} ref={fieldRefs.guests}>
-                <label>Number of Guests <span className="rf-req">*</span></label>
-                <div className="stepper-ctrl">
-                  <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests - 1)}>−</button>
-                  <span className="stepper-val">{form.guests}</span>
-                  <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests + 1)}>+</button>
-                </div>
-                {form.guests >= 20 && (
-                  <div className="clp-guest-limit-msg">
-                    ⚠️ Maximum 20 guests for celebration.{" "}
-                    <span>For larger groups,{" "}
-                      <button type="button" className="clp-catering-link" onClick={navigateToCatering}>
-                        use our Catering service →
-                      </button>
-                    </span>
-                  </div>
-                )}
-                {errors.guests && <span className="rf-error">{errors.guests}</span>}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── RIGHT COLUMN ── */}
-        <div className="clp-section">
-
-          {/* Birthday Details */}
-          {form.type === "birthday" && (
-            <div className="clp-block">
-              <div className="section-title">Birthday Details</div>
-              <div className="clp-card">
                 <div className="mat-row">
-                  <div className={`field-group${flashField === "birthdayPersonName" ? " rf-error-flash" : ""}`} style={{ flex: 1.5 }} ref={fieldRefs.birthdayPersonName}>
-                    <MatField
-                      label={<>Birthday Person's Name <span className="rf-req">*</span></>}
-                      value={form.birthdayPersonName}
-                      onChange={e => set("birthdayPersonName", e.target.value)}
-                      error={errors.birthdayPersonName}
-                      wrapperClassName=""
-                    />
+                  {/* Mobile */}
+                  <div className={`field-group${flashField === "mobile" ? " rf-error-flash" : ""}`} style={{ flex: 1.4 }} ref={fieldRefs.mobile}>
+                    <div className="mat-input-prefix-wrap">
+                      <span className={`mat-prefix${errors.mobile ? " error" : ""}`}>+91</span>
+                      <MatField
+                        label={<>Mobile <span className="rf-req">*</span></>}
+                        type="tel"
+                        value={form.mobile}
+                        onChange={e => set("mobile", e.target.value.replace(/\D/g, "").slice(0, 10))}
+                        autoComplete="tel"
+                        error={errors.mobile}
+                        wrapperClassName=""
+                      />
+                    </div>
                   </div>
+
+                  {/* Email */}
                   <div className="field-group" style={{ flex: 1 }}>
                     <MatField
-                      label={<>Age <span className="rf-optional">(optional)</span></>}
-                      type="number"
-                      min="1"
-                      max="120"
-                      value={form.birthdayPersonAge}
-                      onChange={e => set("birthdayPersonAge", e.target.value)}
+                      label={<>Email <span className="rf-optional">(optional)</span></>}
+                      type="email"
+                      value={form.email}
+                      onChange={e => set("email", e.target.value)}
+                      autoComplete="email"
+                      error={errors.email}
                       wrapperClassName=""
                     />
                   </div>
                 </div>
-                <div className="section-title" style={{ marginBottom: 8 }}>Add-ons</div>
-                <div className="clp-check-grid">{renderExtrasWithMention(BIRTHDAY_EXTRAS)}</div>
-              </div>
-            </div>
-          )}
 
-          {/* Meeting Setup */}
-          {form.type === "meeting" && (
-            <div className="clp-block">
-              <div className="section-title">Meeting Setup</div>
-              <div className="clp-card">
-                <div className="clp-sub-title">Table Decoration</div>
-                <div className="clp-check-grid">
-                  {MEETING_SEATING.map(ex => <CheckCard key={ex.key} label={ex.label} price={ex.price} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
+                {/* Date → Slot → Time (each field appears once the
+                  previous one is picked) */}
+                <div className={`field-group${flashField === "date" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.date}>
+                  <label>Date <span className="rf-req">*</span></label>
+                  <UserDatePicker
+                    value={form.date}
+                    min={tomorrowStr()}
+                    hasError={!!errors.date}
+                    onChange={handleDateChange}
+                  />
+                  {errors.date && <span className="rf-error">{errors.date}</span>}
                 </div>
-                <div className="clp-sub-title" style={{ marginTop: 10 }}>Audio / Video</div>
-                <div className="clp-check-grid">
-                  {MEETING_AV.map(ex => <CheckCard key={ex.key} label={ex.label} price={ex.price} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Anniversary Extras */}
-          {form.type === "anniversary" && (
-            <div className="clp-block">
-              <div className="section-title ">Anniversary Extras</div>
-              <div className="clp-card">
-                <div className="clp-check-grid">{renderExtrasWithMention(ANNIVERSARY_EXTRAS)}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Candle Light Dinner Extras */}
-          {form.type === "candlelightdinner" && (
-            <div className="clp-block">
-              <div className="section-title ">Candle Light Dinner Add-ons</div>
-              <div className="clp-card">
-                <div className="clp-check-grid">{renderExtrasWithMention(CANDLELIGHT_EXTRAS)}</div>
-              </div>
-            </div>
-          )}
-
-          {/* Decoration — Luxury only for Candle Light Dinner */}
-          <div className="clp-block">
-            <div className="section-title">Decoration</div>
-            <DecorationPicker value={form.decoration} onChange={v => set("decoration", v)} allowLuxury={isCandleLight} />
-          </div>
-
-          {/* Audio & Video (skip if meeting — already there) */}
-          {form.type !== "meeting" && (
-            <div className="clp-block">
-              <div className="section-title ">Audio &amp; Video</div>
-              <div className="clp-card">
-                <div className="clp-check-grid">
-                  <CheckCard label="Microphone" price={500} checked={form.mic} onChange={v => set("mic", v)} />
-                  <CheckCard label="Projector" price={800} checked={form.projector} onChange={v => set("projector", v)} />
-                </div>
-                {(form.mic || form.projector) && (
-                  <div className="clp-av-price">Audio & Video Setup — ₹{AV_PRICE.toLocaleString()}</div>
+                {form.date && (
+                  <div className={`field-group rf-field-reveal${flashField === "slotGroup" ? " rf-error-flash" : ""}`} ref={fieldRefs.slotGroup}>
+                    <label>Dining Slot <span className="rf-req">*</span></label>
+                    <div className="slot-groups">
+                      {SLOT_GROUPS.map(sg => {
+                        const nowH = new Date().getHours();
+                        const slotEndH = parseInt(sg.end.split(":")[0]);
+                        const isPastSlot = isToday && nowH >= slotEndH;
+                        return (
+                          <div key={sg.key}
+                            className={`slot-group${form.slotGroup === sg.key ? " active" : ""}${isPastSlot ? " slot-group-disabled" : ""}`}
+                            onClick={() => !isPastSlot && handleSlotChange(sg.key)}>
+                            <span className="slot-group-label">{sg.label}</span>
+                            <span className="slot-group-time">{sg.start} – {sg.end}</span>
+                            {isPastSlot && <span className="slot-group-passed-badge">Passed</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {errors.slotGroup && <span className="rf-error">{errors.slotGroup}</span>}
+                  </div>
                 )}
-              </div>
-            </div>
-          )}
 
-          {/* Special Note */}
-          <div className="clp-block">
-            <div className="section-title ">Special Notes</div>
-            <div className="clp-card">
-              <div className="field-group">
-                <textarea
-                  id="clp-note"
-                  className="rf-textarea"
-                  placeholder=" "
-                  value={form.specialNote}
-                  onChange={e => set("specialNote", e.target.value)}
-                  rows={3}
-                />
+                {form.slotGroup && (
+                  <div className={`field-group rf-field-reveal${flashField === "time" ? " rf-error-flash" : ""}`} style={{ flex: "0 0 auto" }} ref={fieldRefs.time}>
+                    <label>Preferred Time <span className="rf-req">*</span></label>
+                    <UserTimePicker
+                      value={form.time}
+                      hasError={!!errors.time}
+                      onChange={v => set("time", v)}
+                      slotStart={currentSlot?.start}
+                      slotEnd={currentSlot?.end}
+                      disabled={!form.slotGroup}
+                      isToday={isToday}
+                    />
+                    {currentSlot && <span style={{ fontSize: 11, color: "#888", marginTop: 4, display: "block" }}>{currentSlot.start} – {currentSlot.end}</span>}
+                  </div>
+                )}
+
+                {/* Guests — max 20 */}
+                <div className={`field-group${flashField === "guests" ? " rf-error-flash" : ""}`} ref={fieldRefs.guests}>
+                  <label>Number of Guests <span className="rf-req">*</span></label>
+                  <div className="stepper-ctrl">
+                    <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests - 1)}>−</button>
+                    <span className="stepper-val">{form.guests}</span>
+                    <button type="button" className="stepper-btn" onClick={() => setGuests(form.guests + 1)}>+</button>
+                  </div>
+                  {form.guests >= 20 && (
+                    <div className="clp-guest-limit-msg">
+                      ⚠️ Maximum 20 guests for celebration.{" "}
+                      <span>For larger groups,{" "}
+                        <button type="button" className="clp-catering-link" onClick={navigateToCatering}>
+                          use our Catering service →
+                        </button>
+                      </span>
+                    </div>
+                  )}
+                  {errors.guests && <span className="rf-error">{errors.guests}</span>}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Price Summary */}
-          {estimatedTotal > 0 && (
-            <div className="clp-block clp-price-summary">
-              <div className="section-title ">Estimated Cost</div>
+          {/* ── RIGHT COLUMN ── */}
+          <div className="clp-section">
+
+            {/* Birthday Details */}
+            {form.type === "birthday" && (
+              <div className="clp-block">
+                <div className="section-title">Birthday Details</div>
+                <div className="clp-card">
+                  <div className="mat-row">
+                    <div className={`field-group${flashField === "birthdayPersonName" ? " rf-error-flash" : ""}`} style={{ flex: 1.5 }} ref={fieldRefs.birthdayPersonName}>
+                      <MatField
+                        label={<>Birthday Person's Name <span className="rf-req">*</span></>}
+                        value={form.birthdayPersonName}
+                        onChange={e => set("birthdayPersonName", e.target.value)}
+                        error={errors.birthdayPersonName}
+                        wrapperClassName=""
+                      />
+                    </div>
+                    <div className="field-group" style={{ flex: 1 }}>
+                      <MatField
+                        label={<>Age <span className="rf-optional">(optional)</span></>}
+                        type="number"
+                        min="1"
+                        max="120"
+                        value={form.birthdayPersonAge}
+                        onChange={e => set("birthdayPersonAge", e.target.value)}
+                        wrapperClassName=""
+                      />
+                    </div>
+                  </div>
+                  <div className="section-title" style={{ marginBottom: 8 }}>Add-ons</div>
+                  <div className="clp-check-grid">{renderExtrasWithMention(BIRTHDAY_EXTRAS)}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Meeting Setup */}
+            {form.type === "meeting" && (
+              <div className="clp-block">
+                <div className="section-title">Meeting Setup</div>
+                <div className="clp-card">
+                  <div className="clp-sub-title">Table Decoration</div>
+                  <div className="clp-check-grid">
+                    {MEETING_SEATING.map(ex => <CheckCard key={ex.key} label={ex.label} price={ex.price} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
+                  </div>
+                  <div className="clp-sub-title" style={{ marginTop: 10 }}>Audio / Video</div>
+                  <div className="clp-check-grid">
+                    {MEETING_AV.map(ex => <CheckCard key={ex.key} label={ex.label} price={ex.price} checked={form[ex.key]} onChange={v => set(ex.key, v)} />)}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Anniversary Extras */}
+            {form.type === "anniversary" && (
+              <div className="clp-block">
+                <div className="section-title ">Anniversary Extras</div>
+                <div className="clp-card">
+                  <div className="clp-check-grid">{renderExtrasWithMention(ANNIVERSARY_EXTRAS)}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Candle Light Dinner Extras */}
+            {form.type === "candlelightdinner" && (
+              <div className="clp-block">
+                <div className="section-title ">Candle Light Dinner Add-ons</div>
+                <div className="clp-card">
+                  <div className="clp-check-grid">{renderExtrasWithMention(CANDLELIGHT_EXTRAS)}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Decoration — Luxury only for Candle Light Dinner */}
+            <div className="clp-block">
+              <div className="section-title">Decoration</div>
+              <DecorationPicker value={form.decoration} onChange={v => set("decoration", v)} allowLuxury={isCandleLight} />
+            </div>
+
+            {/* Audio & Video (skip if meeting — already there) */}
+            {form.type !== "meeting" && (
+              <div className="clp-block">
+                <div className="section-title ">Audio &amp; Video</div>
+                <div className="clp-card">
+                  <div className="clp-check-grid">
+                    <CheckCard label="Microphone" price={500} checked={form.mic} onChange={v => set("mic", v)} />
+                    <CheckCard label="Projector" price={800} checked={form.projector} onChange={v => set("projector", v)} />
+                  </div>
+                  {(form.mic || form.projector) && (
+                    <div className="clp-av-price">Audio & Video Setup — ₹{AV_PRICE.toLocaleString()}</div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Special Note */}
+            <div className="clp-block">
+              <div className="section-title ">Special Notes</div>
               <div className="clp-card">
-                {form.decoration && (
-                  <div className="clp-price-row">
-                    <span>Decoration ({DECORATION_TIERS.find(t => t.value === form.decoration)?.label})</span>
-                    <span>₹{DECORATION_TIERS.find(t => t.value === form.decoration)?.price.toLocaleString()}</span>
-                  </div>
-                )}
-                {Object.keys(EXTRA_PRICES).filter(k => form[k] && EXTRA_PRICES[k] > 0).map(k => (
-                  <div key={k} className="clp-price-row">
-                    <span style={{ textTransform: "capitalize" }}>{k.replace(/([A-Z])/g, " $1")}</span>
-                    <span>₹{EXTRA_PRICES[k]}</span>
-                  </div>
-                ))}
-                {form.type !== "meeting" && (form.mic || form.projector) && (
-                  <div className="clp-price-row">
-                    <span>A/V Setup</span>
-                    <span>₹{AV_PRICE}</span>
-                  </div>
-                )}
-                <div className="clp-price-row clp-price-total">
-                  <span>Estimated Total</span>
-                  <strong>₹{estimatedTotal.toLocaleString()}</strong>
+                <div className="field-group">
+                  <textarea
+                    id="clp-note"
+                    className="rf-textarea"
+                    placeholder=" "
+                    value={form.specialNote}
+                    onChange={e => set("specialNote", e.target.value)}
+                    rows={3}
+                  />
                 </div>
               </div>
             </div>
-          )}
 
-          <div className="form-btn-row">
-            <Button3D
-              className="btn-3d white"
-              type="button"
-              disabled={loading}
-              onClick={() => {
-                setForm({
-                  type: "birthday",
-                  name: "", mobile: "", email: "",
-                  date: "", time: "", slotGroup: "",
-                  guests: 2,
-                  birthdayPersonName: "", birthdayPersonAge: "",
-                  cake: false,
-                  specialMention: false, specialMentionText: "",
-                  standingBrochures: false, placeHolders: false, pens: false,
-                  mic: false, projector: false,
-                  candleLight: false, liveMusic: false, surpriseGift: false,
-                  decoration: null,
-                  audioVideo: false,
-                  specialNote: "",
-                });
-                setErrors({});
-                handleBack();
-              }}
-            >
-              Cancel
-            </Button3D>
+            {/* Price Summary */}
+            {estimatedTotal > 0 && (
+              <div className="clp-block clp-price-summary">
+                <div className="section-title ">Estimated Cost</div>
+                <div className="clp-card">
+                  {form.decoration && (
+                    <div className="clp-price-row">
+                      <span>Decoration ({DECORATION_TIERS.find(t => t.value === form.decoration)?.label})</span>
+                      <span>₹{DECORATION_TIERS.find(t => t.value === form.decoration)?.price.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {Object.keys(EXTRA_PRICES).filter(k => form[k] && EXTRA_PRICES[k] > 0).map(k => (
+                    <div key={k} className="clp-price-row">
+                      <span style={{ textTransform: "capitalize" }}>{k.replace(/([A-Z])/g, " $1")}</span>
+                      <span>₹{EXTRA_PRICES[k]}</span>
+                    </div>
+                  ))}
+                  {form.type !== "meeting" && (form.mic || form.projector) && (
+                    <div className="clp-price-row">
+                      <span>A/V Setup</span>
+                      <span>₹{AV_PRICE}</span>
+                    </div>
+                  )}
+                  <div className="clp-price-row clp-price-total">
+                    <span>Estimated Total</span>
+                    <strong>₹{estimatedTotal.toLocaleString()}</strong>
+                  </div>
+                </div>
+              </div>
+            )}
 
-            <Button3D className={`btn-3d red${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
-              {loading ? "Processing..." : "Review & Confirm"}
-            </Button3D>
+            {(() => {
+              const btnRow = (
+                <div className="form-btn-row">
+                  <Button3D
+                    className="btn-3d white"
+                    type="button"
+                    disabled={loading}
+                    onClick={() => {
+                      setForm({
+                        type: "birthday",
+                        name: "", mobile: "", email: "",
+                        date: "", time: "", slotGroup: "",
+                        guests: 2,
+                        birthdayPersonName: "", birthdayPersonAge: "",
+                        cake: false,
+                        specialMention: false, specialMentionText: "",
+                        standingBrochures: false, placeHolders: false, pens: false,
+                        mic: false, projector: false,
+                        candleLight: false, liveMusic: false, surpriseGift: false,
+                        decoration: null,
+                        audioVideo: false,
+                        specialNote: "",
+                      });
+                      setErrors({});
+                      handleBack();
+                    }}
+                  >
+                    Cancel
+                  </Button3D>
+
+                  <Button3D className={`btn-3d red${loading ? " loading" : ""}`} onClick={handleReview} disabled={loading}>
+                    {loading ? "Processing..." : "Review & Confirm"}
+                  </Button3D>
+
+                </div>
+              );
+
+              // Below 600px .form-btn-row becomes position: fixed (see
+              // ReservationForm.css, imported here). At that width it
+              // must not live inside the route's animated
+              // .page-transition-wrapper: Framer Motion applies a CSS
+              // transform to that wrapper while a page transition
+              // plays, and a transformed ancestor becomes the
+              // containing block for any fixed-position descendant —
+              // so .form-btn-row would suddenly be "fixed" relative
+              // to the sliding wrapper instead of the viewport,
+              // jumping/glitching on every page enter and exit.
+              // Portalling it straight to document.body keeps it
+              // anchored to the viewport regardless of what the route
+              // transition is doing. Above 600px it's a normal
+              // in-flow flex child, so it renders inline as before.
+              return isFixedBtnRow ? createPortal(btnRow, document.body) : btnRow;
+            })()}
 
           </div>
-
         </div>
-      </div>
       </div>
     </div>
   );

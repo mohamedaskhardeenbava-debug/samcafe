@@ -21,6 +21,8 @@ import { useScrollHeader } from "./useScrollHeader";
  *  - titleTag:         tag used to render the title (default: "div")
  *  - titleClassName:   className for the title element
  *                       (default: "food-grid-title")
+ *  - rightExtra:       optional node rendered between the title and the
+ *                       home button (e.g. a compact "+ Add" action)
  *
  * Example:
  *   <PageHeader title="Catering" onBack={handleBack} onHome={handleHome} />
@@ -47,7 +49,8 @@ const PageHeader = ({
   wrapperClassName = "food-grid-header",
   backClassName = "back-button",
   titleTag = "div",
-  titleClassName = "food-grid-title"
+  titleClassName = "food-grid-title",
+  rightExtra
 }) => {
   const TitleTag = titleTag;
   const { headerRef, scrolled } = useScrollHeader();
@@ -59,6 +62,7 @@ const PageHeader = ({
     >
       <button className={backClassName} onClick={onBack} />
       <TitleTag className={titleClassName}>{title}</TitleTag>
+      {rightExtra && <div className="pl-header-extra">{rightExtra}</div>}
       <HomeButton onClick={onHome} />
     </div>
   );

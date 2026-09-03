@@ -30,6 +30,9 @@ import ComboPage from "./UserPanel/ComboPage";
 import FavouriteCombo from "./UserPanel/FavouriteCombo";
 import MyOrders from "./UserPanel/MyOrders";
 import OrderDetails from "./UserPanel/OrderDetails";
+import MySubscriptions from "./UserPanel/MySubscriptions";
+import SubscriptionForm from "./UserPanel/SubscriptionForm";
+import SubscriptionDetailsPage from "./UserPanel/SubscriptionDetailsPage";
 import OffersGrid from "./UserPanel/OffersGrid";
 
 // ─── Events ─────────────────────────────────────────────────────────────────
@@ -51,7 +54,7 @@ import { getUnitPrice } from "./UserPanel/shared/bagUtils";
 
 // ─── Page transition config ──────────────────────────────────────────────────
 const pageVariants = {
-  initial: (direction) => ({ x: direction > 0 ? 100 : -100, opacity: 0 , height: "stretch" }),
+  initial: (direction) => ({ x: direction > 0 ? 100 : -100, opacity: 0, height: "stretch" }),
   animate: { opacity: 1, x: 0, height: "stretch" },
   exit: (direction) => ({ opacity: 0, x: direction > 0 ? -100 : 100, height: "stretch" }),
 };
@@ -119,6 +122,7 @@ function App() {
   const isMyFavouritesEnabled = isCardEnabled("my");
   const isCrowdPicksEnabled = isCardEnabled("others");
   const isMyOrdersCardEnabled = isCardEnabled("my-orders");
+  const isSubscriptionsCardEnabled = isCardEnabled("subscriptions");
   const isComboEnabled = isCardEnabled("combo");
   const isOffersEnabled = isCardEnabled("offers");
   const isEventsEnabled = isCardEnabled("events");
@@ -608,84 +612,90 @@ function App() {
         <AnimatePresence mode="wait" initial={false}>
           <Routes location={location} key={location.pathname}>
 
-              <Route path="/" element={<motion.div {...motionProps}><Welcome handleNavigate={handleNavigate} toCamelCase={toCamelCase} setCurrentUser={setCurrentUser} fetchMenu={fetchMenu} /></motion.div>} />
+            <Route path="/" element={<motion.div {...motionProps}><Welcome handleNavigate={handleNavigate} toCamelCase={toCamelCase} setCurrentUser={setCurrentUser} fetchMenu={fetchMenu} /></motion.div>} />
 
-              <Route path="/categories" element={<motion.div {...motionProps}><FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} categoryCards={categoryCards} /></motion.div>} />
+            <Route path="/categories" element={<motion.div {...motionProps}><FoodCategory foodData={foodData} handleNavigate={handleNavigate} currentUser={currentUser} categoryCards={categoryCards} /></motion.div>} />
 
-              <Route path="/appetizer-builder" element={<div className="page-transition-wrapper"><AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></div>} />
+            <Route path="/appetizer-builder" element={<div className="page-transition-wrapper"><AppetizerBuilder foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></div>} />
 
-              <Route path="/foods/:categoryId" element={<motion.div {...motionProps}><FoodList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
+            <Route path="/foods/:categoryId" element={<motion.div {...motionProps}><FoodList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
 
-              <Route
-                path="/foods/:categoryId/expanded"
-                element={
-                  <motion.div {...motionProps}>
-                    <FoodListExpanded
-                      foodData={foodData}
-                      addToBag={addToBag}
-                      handleBack={handleBack}
-                      handleHome={handleHome}
-                      currentUser={currentUser}
-                      onToggleFavourite={onToggleFavourite}
-                    />
-                  </motion.div>
-                }
-              />
+            <Route
+              path="/foods/:categoryId/expanded"
+              element={
+                <motion.div {...motionProps}>
+                  <FoodListExpanded
+                    foodData={foodData}
+                    addToBag={addToBag}
+                    handleBack={handleBack}
+                    handleHome={handleHome}
+                    currentUser={currentUser}
+                    onToggleFavourite={onToggleFavourite}
+                  />
+                </motion.div>
+              }
+            />
 
-              <Route path="/subcategory/:categoryId" element={<motion.div {...motionProps}><SubCategoryPage foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
+            <Route path="/subcategory/:categoryId" element={<motion.div {...motionProps}><SubCategoryPage foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
 
-              <Route path="foods/:categoryId/grid" element={<motion.div {...motionProps}><FoodGridList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
+            <Route path="foods/:categoryId/grid" element={<motion.div {...motionProps}><FoodGridList foodData={foodData} handleNavigate={handleNavigate} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} currentUser={currentUser} setCurrentUser={setCurrentUser} onToggleFavourite={onToggleFavourite} /></motion.div>} />
 
-              <Route path="/best-sellers" element={<motion.div {...motionProps}><BestSellers foodData={foodData} currentUser={currentUser} onToggleFavourite={onToggleFavourite} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
+            <Route path="/best-sellers" element={<motion.div {...motionProps}><BestSellers foodData={foodData} currentUser={currentUser} onToggleFavourite={onToggleFavourite} handleBack={handleBack} handleHome={handleHome} /></motion.div>} />
 
-              <Route path="/food/:id" element={<motion.div {...motionProps}><FoodItem foodData={foodData} onToggleFavourite={onToggleFavourite} addToBag={addToBag} updateBagItem={updateBagItem} setDirection={setDirection} setLastAction={setLastAction} toCamelCase={toCamelCase} handleHome={handleHome} handleBack={handleBack} currentUser={currentUser} isWishlistEnabled={isMyFavouritesEnabled && isCrowdPicksEnabled} /></motion.div>} />
+            <Route path="/food/:id" element={<motion.div {...motionProps}><FoodItem foodData={foodData} onToggleFavourite={onToggleFavourite} addToBag={addToBag} updateBagItem={updateBagItem} setDirection={setDirection} setLastAction={setLastAction} toCamelCase={toCamelCase} handleHome={handleHome} handleBack={handleBack} currentUser={currentUser} isWishlistEnabled={isMyFavouritesEnabled && isCrowdPicksEnabled} /></motion.div>} />
 
-              <Route path="/ingredient/:id" element={<motion.div {...motionProps}><IngredientDetail handleBack={handleBack} foodData={foodData} handleNavigate={handleNavigate} /></motion.div>} />
+            <Route path="/ingredient/:id" element={<motion.div {...motionProps}><IngredientDetail handleBack={handleBack} foodData={foodData} handleNavigate={handleNavigate} /></motion.div>} />
 
-              <Route path="/thank-you" element={<motion.div {...motionProps}><ThankYou bag={bag} setBag={setBag} setIsBagOpen={setIsBagOpen} /></motion.div>} />
+            <Route path="/thank-you" element={<motion.div {...motionProps}><ThankYou bag={bag} setBag={setBag} setIsBagOpen={setIsBagOpen} /></motion.div>} />
 
-              <Route path="/profile" element={
-                isAuthenticatedUser
-                  ? <motion.div {...motionProps}><Profile currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} isMyFavouritesEnabled={isMyFavouritesEnabled} isMyOrdersCardEnabled={isMyOrdersCardEnabled} /></motion.div>
-                  : <Navigate to="/categories" replace />
-              } />
+            <Route path="/profile" element={
+              isAuthenticatedUser
+                ? <motion.div {...motionProps}><Profile currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} isMyFavouritesEnabled={isMyFavouritesEnabled} isMyOrdersCardEnabled={isMyOrdersCardEnabled} isSubscriptionsCardEnabled={isSubscriptionsCardEnabled} /></motion.div>
+                : <Navigate to="/categories" replace />
+            } />
 
-              <Route path="/favourites/:source" element={
-                (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
-                  ? <motion.div {...motionProps}><FavouriteCategories foodData={foodData} currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>
-                  : <Navigate to="/categories" replace />
-              } />
+            <Route path="/favourites/:source" element={
+              (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
+                ? <motion.div {...motionProps}><FavouriteCategories foodData={foodData} currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div>
+                : <Navigate to="/categories" replace />
+            } />
 
-              <Route path="/favourites/:source/category/:categoryId" element={
-                (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
-                  ? <motion.div {...motionProps}><FavouriteDishList foodData={foodData} currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} /></motion.div>
-                  : <Navigate to="/categories" replace />
-              } />
+            <Route path="/favourites/:source/category/:categoryId" element={
+              (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
+                ? <motion.div {...motionProps}><FavouriteDishList foodData={foodData} currentUser={currentUser} setCurrentUser={setCurrentUser} handleBack={handleBack} handleHome={handleHome} addToBag={addToBag} /></motion.div>
+                : <Navigate to="/categories" replace />
+            } />
 
-              <Route path="/favourites/:source/dish/:dishId" element={
-                (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
-                  ? <motion.div {...motionProps}><FavouriteDishDetail foodData={foodData} handleBack={handleBack} addToBag={addToBag} handleHome={handleHome} currentUser={currentUser} /></motion.div>
-                  : <Navigate to="/categories" replace />
-              } />
+            <Route path="/favourites/:source/dish/:dishId" element={
+              (location.pathname.includes("/my") ? isMyFavouritesEnabled : isCrowdPicksEnabled)
+                ? <motion.div {...motionProps}><FavouriteDishDetail foodData={foodData} handleBack={handleBack} addToBag={addToBag} handleHome={handleHome} currentUser={currentUser} /></motion.div>
+                : <Navigate to="/categories" replace />
+            } />
 
-              <Route path="/combo" element={isComboEnabled ? <motion.div {...motionProps}><ComboPage foodData={foodData} comboOfferRules={foodData.comboOffers || []} addToBag={addToBag} updateBagItem={updateBagItem} handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/combo" element={isComboEnabled ? <motion.div {...motionProps}><ComboPage foodData={foodData} comboOfferRules={foodData.comboOffers || []} addToBag={addToBag} updateBagItem={updateBagItem} handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} setCurrentUser={setCurrentUser} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/favourite-combos" element={isAuthenticatedUser && isComboEnabled ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/favourite-combos" element={isAuthenticatedUser && isComboEnabled ? <motion.div {...motionProps}><FavouriteCombo currentUser={currentUser} setCurrentUser={setCurrentUser} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} initialOrders={foodData.orders} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/my-orders" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><MyOrders currentUser={currentUser} initialOrders={foodData.orders} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/my-orders/:orderId" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><OrderDetails handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/my-orders/:orderId" element={isAuthenticatedUser && isMyOrdersCardEnabled ? <motion.div {...motionProps}><OrderDetails handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/offers" element={isOffersEnabled ? <motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/my-subscriptions" element={isAuthenticatedUser && isSubscriptionsCardEnabled ? <motion.div {...motionProps}><MySubscriptions currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-              <Route path="/events" element={isEventsEnabled ? <motion.div {...motionProps}><EventHome handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
-              <Route path="/events/hosted" element={isEventsEnabled ? <motion.div {...motionProps}><EventsPage handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} /></motion.div> : <Navigate to="/categories" replace />} />
-              <Route path="/events/reservation" element={isEventsEnabled ? <motion.div {...motionProps}><ReservationForm foodData={foodData} bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
-              <Route path="/events/celebration" element={isEventsEnabled ? <motion.div {...motionProps}><CelebrationForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} navigateToCatering={() => handleNavigate("/events/catering")} /></motion.div> : <Navigate to="/categories" replace />} />
-              <Route path="/events/prebooking" element={isEventsEnabled ? <motion.div {...motionProps}><PreBooking bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
-              <Route path="/events/catering" element={isEventsEnabled ? <motion.div {...motionProps}><CateringForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/my-subscriptions/:subscriptionId" element={isAuthenticatedUser && isSubscriptionsCardEnabled ? <motion.div {...motionProps}><SubscriptionDetailsPage currentUser={currentUser} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
 
-            </Routes>
+            <Route path="/subscribe" element={isAuthenticatedUser && isSubscriptionsCardEnabled ? <motion.div {...motionProps}><SubscriptionForm handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+
+            <Route path="/offers" element={isOffersEnabled ? <motion.div {...motionProps}><OffersGrid foodData={foodData} addToBag={addToBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+
+            <Route path="/events" element={isEventsEnabled ? <motion.div {...motionProps}><EventHome handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/events/hosted" element={isEventsEnabled ? <motion.div {...motionProps}><EventsPage handleBack={handleBack} handleHome={handleHome} currentUser={currentUser} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/events/reservation" element={isEventsEnabled ? <motion.div {...motionProps}><ReservationForm foodData={foodData} bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/events/celebration" element={isEventsEnabled ? <motion.div {...motionProps}><CelebrationForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} navigateToCatering={() => handleNavigate("/events/catering")} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/events/prebooking" element={isEventsEnabled ? <motion.div {...motionProps}><PreBooking bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+            <Route path="/events/catering" element={isEventsEnabled ? <motion.div {...motionProps}><CateringForm bag={bag} setBag={setBag} handleBack={handleBack} handleHome={handleHome} /></motion.div> : <Navigate to="/categories" replace />} />
+
+          </Routes>
         </AnimatePresence>
 
         {/* Mobile bottom nav — CSS-hidden above 600px width, hidden on

@@ -8,6 +8,7 @@ import { endCustomerSession } from "./customerSession";
 
 import Fav from "../assets/icons/footer-fav.png";
 import Orders from "../assets/icons/footer-orders.png";
+import Sub from "../assets/icons/footer-subscribe.png";
 
 /** First letter of the customer's name, for the avatar circle. */
 function initial(name) {
@@ -22,6 +23,7 @@ const Profile = ({
   handleHome,
   isMyFavouritesEnabled,
   isMyOrdersCardEnabled,
+  isSubscriptionsCardEnabled,
 }) => {
   const navigate = useNavigate();
 
@@ -53,63 +55,78 @@ const Profile = ({
       />
 
       <div className="pl-body food-list profile-page">
-      <div className="food-category profile-body" style={{ padding: "0px" }}>
-        {/* Hero — avatar/name/mobile on a coloured banner, visually
+        <div className="food-category profile-body" style={{ padding: "0px" }}>
+          {/* Hero — avatar/name/mobile on a coloured banner, visually
             separated from the rest of the page as its own block rather
             than sitting flush with everything else beneath it. */}
-        <div className="profile-hero">
-          <div className="profile-avatar">{initial(currentUser.name)}</div>
-          <div className="profile-name">{currentUser.name || "Guest"}</div>
-          {currentUser.mobile && (
-            <div className="profile-mobile">
-              +91 {currentUser.mobile}
-            </div>
-          )}
-        </div>
-
-        {/* Section label groups the links together as one unit, so the
-            list reads as "Your Account" rather than floating unlabeled
-            between the hero and the logout button. */}
-        <div className="profile-section">
-          <div className="profile-section-label">Your Account</div>
-
-          <div className="profile-links">
-            {isMyOrdersCardEnabled && (
-              <button
-                type="button"
-                className="profile-link-row"
-                onClick={() => navigate("/my-orders")}
-              >
-                <span className="profile-link-icon profile-link-icon--orders" aria-hidden="true"><img className="footer" src={Orders} alt="Orders" /></span>
-                <span className="profile-link-text">
-                  <span className="profile-link-title">My Orders</span>
-                  <span className="profile-link-sub">Track and review your past orders</span>
-                </span>
-                <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
-              </button>
-            )}
-
-            {isMyFavouritesEnabled && (
-              <button
-                type="button"
-                className="profile-link-row"
-                onClick={() => navigate("/favourites/my")}
-              >
-                <span className="profile-link-icon profile-link-icon--favourites" aria-hidden="true"><img src={Fav} alt="Favourites" /></span>
-                <span className="profile-link-text">
-                  <span className="profile-link-title">My Favourites</span>
-                  <span className="profile-link-sub">Dishes you've favourited</span>
-                </span>
-                <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
-              </button>
+          <div className="profile-hero">
+            <div className="profile-avatar">{initial(currentUser.name)}</div>
+            <div className="profile-name">{currentUser.name || "Guest"}</div>
+            {currentUser.mobile && (
+              <div className="profile-mobile">
+                +91 {currentUser.mobile}
+              </div>
             )}
           </div>
-        </div>
 
-        <Button3D className="btn-3d red profile-logout-btn" onClick={handleLogout}>
-          Log Out
-        </Button3D>
-      </div>
+          {/* Section label groups the links together as one unit, so the
+            list reads as "Your Account" rather than floating unlabeled
+            between the hero and the logout button. */}
+          <div className="profile-section">
+            <div className="profile-section-label">Your Account</div>
+
+            <div className="profile-links">
+              {isMyOrdersCardEnabled && (
+                <button
+                  type="button"
+                  className="profile-link-row"
+                  onClick={() => navigate("/my-orders")}
+                >
+                  <span className="profile-link-icon profile-link-icon--orders" aria-hidden="true"><img className="footer" src={Orders} alt="Orders" /></span>
+                  <span className="profile-link-text">
+                    <span className="profile-link-title">My Orders</span>
+                    <span className="profile-link-sub">Track and review your past orders</span>
+                  </span>
+                  <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
+                </button>
+              )}
+
+              {isSubscriptionsCardEnabled && (
+                <button
+                  type="button"
+                  className="profile-link-row"
+                  onClick={() => navigate("/my-subscriptions")}
+                >
+                  <span className="profile-link-icon profile-link-icon--subscriptions" aria-hidden="true"><img src={Sub} alt="Subscriptions" /></span>
+                  <span className="profile-link-text">
+                    <span className="profile-link-title">My Subscriptions</span>
+                    <span className="profile-link-sub">Manage your recurring meal plans</span>
+                  </span>
+                  <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
+                </button>
+              )}
+
+              {isMyFavouritesEnabled && (
+                <button
+                  type="button"
+                  className="profile-link-row"
+                  onClick={() => navigate("/favourites/my")}
+                >
+                  <span className="profile-link-icon profile-link-icon--favourites" aria-hidden="true"><img src={Fav} alt="Favourites" /></span>
+                  <span className="profile-link-text">
+                    <span className="profile-link-title">My Favourites</span>
+                    <span className="profile-link-sub">Dishes you've favourited</span>
+                  </span>
+                  <span className="profile-nav-button profile-forward-btn" aria-hidden="true"></span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <Button3D className="btn-3d red profile-logout-btn" onClick={handleLogout}>
+            Log Out
+          </Button3D>
+        </div>
       </div>
     </div>
   );

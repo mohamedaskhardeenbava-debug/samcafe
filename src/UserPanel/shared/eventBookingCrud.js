@@ -10,6 +10,7 @@
  *   /preBookings     pre_        PreBooking        "scheduled"
  *   /cateringOrders  cater_      CateringForm      "pending"
  *   /eventBookings   bk_         EventsPage        "pending"
+ *   /subscriptions   sub_        SubscriptionForm  "active"
  *
  * Usage
  * ─────
@@ -50,11 +51,12 @@ import api from "../../api";
  *  creating new records.  Keys are the `endpoint` strings passed to every
  *  bookingCrud function (no leading slash). */
 const BOOKING_CONFIG = {
-  reservations:     { idPrefix: "res_",   defaultStatus: "pending"   },
-  celebrations:     { idPrefix: "cele_",  defaultStatus: "pending"   },
-  preBookings:      { idPrefix: "pre_",   defaultStatus: "scheduled" },
-  cateringOrders:   { idPrefix: "cater_", defaultStatus: "pending"   },
-  eventBookings:    { idPrefix: "bk_",   defaultStatus: "pending"   },
+  reservations: { idPrefix: "res_", defaultStatus: "pending" },
+  celebrations: { idPrefix: "cele_", defaultStatus: "pending" },
+  preBookings: { idPrefix: "pre_", defaultStatus: "scheduled" },
+  cateringOrders: { idPrefix: "cater_", defaultStatus: "pending" },
+  eventBookings: { idPrefix: "bk_", defaultStatus: "pending" },
+  subscriptions: { idPrefix: "sub_", defaultStatus: "active" },
   // Read-only reference data used by booking forms
   tablePreferences: { idPrefix: null, defaultStatus: null },
 };
@@ -108,8 +110,8 @@ export const bookingCrud = {
 
     const body = {
       id,
-      status:    defaultStatus,
-      source:    "User App",
+      status: defaultStatus,
+      source: "User App",
       createdAt: now,
       ...payload,          // caller values override defaults (except id below)
       id,                  // always use the generated/passed-in id
@@ -229,9 +231,9 @@ export const bookingCrud = {
     try {
       const res = await api.get(`/users/me`);
       return {
-        name:   res.data?.name   ?? "",
+        name: res.data?.name ?? "",
         mobile: res.data?.mobile ?? "",
-        email:  res.data?.email  ?? "",
+        email: res.data?.email ?? "",
         userId,
       };
     } catch {

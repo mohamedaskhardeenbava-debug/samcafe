@@ -36,6 +36,12 @@
   transition: background 0.25s ease, box-shadow 0.25s ease;
 }
 
+.pl-header-extra {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
 .pl-header.header-scrolled {
   background: var(--bg-theme);
   background-attachment: fixed;

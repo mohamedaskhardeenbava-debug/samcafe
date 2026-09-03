@@ -5,11 +5,11 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
 
 /**
  * QuickLinksFab — "…" floating trigger shown on the Food Category page
- * only. Popping open reveals 4 shortcut items (Crowd Picks, Combo,
- * Offers, Events & Bookings) along a CURVED quarter-circle arc to the
+ * only. Popping open reveals 3 shortcut items (Crowd Picks, Combo,
+ * Offers) along a CURVED quarter-circle arc to the
  * upper-left of the trigger button — 90° (straight up) through 180°
  * (straight left) — while still keeping each item's height a fixed,
- * EQUAL step above the one before it (item 0 the lowest, item 3 the
+ * EQUAL step above the one before it (item 0 the lowest, item 2 the
  * highest). Each item pops outward from the trigger's own position,
  * same pop-in-place idea as the Uiverse tooltip reference (icon in
  * the middle, related items blossoming out around it).
@@ -34,15 +34,15 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
  * (a straight staircase), tx is now DERIVED from that same fixed ty
  * using the circle equation tx² + ty² = R², solved for tx:
  *   tx = -sqrt(R² - ty²)
- * with R set to exactly (STEP_Y * 3) — the topmost item's |ty| — so
- * item 0 (ty: 0) lands precisely at 180° and item 3 (ty: -R) lands
- * precisely at 90°, with items 1 and 2 landing wherever the circle
- * naturally puts them at their own fixed ty in between. Because the y
+ * with R set to exactly (STEP_Y * 2) — the topmost item's |ty| — so
+ * item 0 (ty: 0) lands precisely at 180° and item 2 (ty: -R) lands
+ * precisely at 90°, with item 1 landing wherever the circle
+ * naturally puts it at its own fixed ty in between. Because the y
  * positions were fixed first and the x positions were solved to fit
  * a circle through those exact points, this produces a true curved
  * arc rather than the straight diagonal line a plain width-based
- * offset would draw between the same four y-heights. Checked against
- * the actual pill sizing in the CSS to confirm none of the 4 items
+ * offset would draw between the same three y-heights. Checked against
+ * the actual pill sizing in the CSS to confirm none of the 3 items
  * overlap on this curve at this radius.
  *
  * .quick-links-menu is a sibling of the trigger button, absolutely
@@ -59,7 +59,7 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
  *
  * Open triggers: hover (desktop/mouse) OR a click/tap.
  * Close triggers: clicking the trigger again while open, picking one
- * of the 4 buttons, the mouse leaving the whole cluster (hover-only
+ * of the 3 buttons, the mouse leaving the whole cluster (hover-only
  * opens), or a tap outside it (click-opened, touch devices).
  *
  * A click and a hover are tracked separately (`clickOpen` / `hoverOpen`)
@@ -75,7 +75,7 @@ import { useIsBelowWidth } from "./shared/useIsBelowWidth";
 // match the smaller pill sizing used there (see the CSS).
 const STEP_Y = 50;
 const STEP_Y_MOBILE = 40;
-const ITEM_COUNT = 4; // Crowd Picks, Combo, Offers, Events & Bookings
+const ITEM_COUNT = 3; // Crowd Picks, Combo, Offers — Events & Bookings moved onto each food-category-items card as its own button (see FoodCategory.js)
 
 // Per-item stagger delay (ms) between each pill's pop-in / pop-out
 // animation, so they visibly appear and disappear one at a time
@@ -117,14 +117,12 @@ const LINKS = [
   { key: "others", label: "Crowd Picks", route: "/favourites/others" },
   { key: "combo", label: "Combo", route: "/combo" },
   { key: "offers", label: "Offers", route: "/offers" },
-  { key: "events", label: "Events & Bookings", route: "/events" },
 ];
 
 const QuickLinksFab = ({
   isCrowdPicksEnabled = true,
   isComboEnabled = true,
   isOffersEnabled = true,
-  isEventsEnabled = true,
 }) => {
   const [clickOpen, setClickOpen] = useState(false);
   const [hoverOpen, setHoverOpen] = useState(false);
@@ -140,7 +138,6 @@ const QuickLinksFab = ({
     others: isCrowdPicksEnabled,
     combo: isComboEnabled,
     offers: isOffersEnabled,
-    events: isEventsEnabled,
   };
 
   const visibleLinks = LINKS.filter((l) => enabledFlags[l.key] !== false);
@@ -250,7 +247,21 @@ const QuickLinksFab = ({
                 // the last item that popped in is the first to pop
                 // back out, so the sequence visually undoes itself
                 // rather than restarting from the top every time).
-                transitionDelay: open
+                //
+                // Passed as the --qli-delay CUSTOM PROPERTY, not the
+                // transitionDelay style property directly — App.css
+                // has a global `button { transition: ease-in 0.15s
+                // !important; }` rule whose implicit transition-delay:
+                // 0s otherwise always wins over a plain (non-
+                // !important) inline transitionDelay, no matter how
+                // specific the inline style is. Custom properties
+                // aren't subject to that collision (they're just
+                // variables), and QuickLinksFab.css reads this one
+                // back inside its own transition-delay declaration,
+                // which IS !important, so it can actually win. See
+                // .quick-links-item-label in the CSS for the other
+                // half of this.
+                "--qli-delay": open
                   ? `${i * STAGGER_MS}ms`
                   : `${(visibleLinks.length - 1 - i) * STAGGER_MS}ms`,
               }}

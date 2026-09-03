@@ -208,8 +208,8 @@ const FoodList = ({ foodData, addToBag, handleBack, handleHome, currentUser, onT
               return;
             }
 
-            if (dx > 40) goNext();
-            else if (dx < -40) goPrev();
+            if (dx > 25) goNext();
+            else if (dx < -25) goPrev();
 
             isPointerDown.current = false;
           }}
